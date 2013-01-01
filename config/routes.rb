@@ -1,4 +1,7 @@
 Abt::Application.routes.draw do
+  resources :customers
+
+
   get "home/index"
 
   # The priority is based upon order of creation:

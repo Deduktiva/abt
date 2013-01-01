@@ -1,0 +1,21 @@
+%p#notice= notice
+
+%p
+  %b Matchcode:
+  = @customer.matchcode
+%p
+  %b Name:
+  = @customer.name
+%p
+  %b Address:
+  = @customer.address
+%p
+  %b Time budget:
+  = @customer.time_budget
+%p
+  %b Notes:
+  = @customer.notes
+
+= link_to 'Edit', edit_customer_path(@customer)
+\|
+= link_to 'Back', customers_path

@@ -18,6 +18,7 @@
             .span12
               = render 'layouts/messages'
               = content_for?(:content) ? yield(:content) : yield
-          %footer
-            %small
-              a 2013 production
+      %footer.footer
+        .container
+          %p
+            a 2013 production

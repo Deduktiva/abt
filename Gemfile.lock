@@ -29,6 +29,8 @@ GEM
       i18n (~> 0.6)
       multi_json (~> 1.0)
     arel (3.0.2)
+    bootstrap-sass (2.2.2.0)
+      sass (~> 3.2)
     builder (3.0.4)
     coffee-rails (3.2.2)
       coffee-script (>= 2.2.0)
@@ -40,6 +42,12 @@ GEM
     erubis (2.7.0)
     execjs (1.4.0)
       multi_json (~> 1.0)
+    haml (3.1.7)
+    haml-rails (0.3.5)
+      actionpack (>= 3.1, < 4.1)
+      activesupport (>= 3.1, < 4.1)
+      haml (~> 3.1)
+      railties (>= 3.1, < 4.1)
     hike (1.2.1)
     i18n (0.6.1)
     journey (1.0.4)
@@ -104,7 +112,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  bootstrap-sass
   coffee-rails (~> 3.2.1)
+  haml-rails
   jquery-rails
   rails (= 3.2.9)
   sass-rails (~> 3.2.3)

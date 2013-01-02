@@ -1,0 +1,12 @@
+= simple_form_for(@project) do |f|
+  = f.error_notification
+
+  .form-inputs
+    = f.input :matchcode
+    = f.input :description
+    = f.input :time_budget
+    = f.association :bill_to_customer
+    -#, :collection => Customer.all
+
+  .form-actions
+    = f.button :submit

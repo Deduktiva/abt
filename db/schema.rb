@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130101224511) do
+ActiveRecord::Schema.define(:version => 20130102184217) do
 
   create_table "customers", :force => true do |t|
     t.string   "matchcode"
@@ -21,6 +21,15 @@ ActiveRecord::Schema.define(:version => 20130101224511) do
     t.text     "notes"
     t.datetime "created_at",  :null => false
     t.datetime "updated_at",  :null => false
+  end
+
+  create_table "projects", :force => true do |t|
+    t.string   "matchcode"
+    t.text     "description"
+    t.integer  "time_budget"
+    t.integer  "bill_to_customer_id"
+    t.datetime "created_at",          :null => false
+    t.datetime "updated_at",          :null => false
   end
 
 end

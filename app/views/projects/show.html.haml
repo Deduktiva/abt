@@ -1,0 +1,18 @@
+%p#notice= notice
+
+%p
+  %b Matchcode:
+  = @project.matchcode
+%p
+  %b Description:
+  = @project.description
+%p
+  %b Time budget:
+  = @project.time_budget
+%p
+  %b Bill to customer:
+  = @project.bill_to_customer_id
+
+= link_to 'Edit', edit_project_path(@project)
+\|
+= link_to 'Back', projects_path

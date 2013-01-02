@@ -1,0 +1,25 @@
+%h1 Listing projects
+
+%table
+  %tr
+    %th Matchcode
+    %th Description
+    %th Time budget
+    %th Bill to customer
+    %th
+    %th
+    %th
+
+  - @projects.each do |project|
+    %tr
+      %td= project.matchcode
+      %td= project.description
+      %td= project.time_budget
+      %td= project.bill_to_customer_id
+      %td= link_to 'Show', project
+      %td= link_to 'Edit', edit_project_path(project)
+      %td= link_to 'Destroy', project, method: :delete, data: { confirm: 'Are you sure?' }
+
+%br
+
+= link_to 'New Project', new_project_path

@@ -1,4 +1,7 @@
 Abt::Application.routes.draw do
+  resources :projects
+
+
   resources :customers
 
 

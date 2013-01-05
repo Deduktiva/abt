@@ -4,8 +4,8 @@
   %tr
     %th Name
     %th Indicator code
-    %th
-    %th
+    %th{:width => "3%"}
+    %th{:width => "3%"}
 
   - @sales_tax_product_classes.each do |sales_tax_product_class|
     %tr
@@ -16,4 +16,5 @@
 
 %br
 
+%i.icon-plus
 = link_to 'New Product Class', new_sales_tax_product_class_path

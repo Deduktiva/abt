@@ -1,13 +1,13 @@
 %h1 Listing customers
 
-%table
+%table.table.table-striped.table-condensed
   %tr
     %th Matchcode
     %th Name
     %th Time budget
-    %th
-    %th
-    %th
+    %th{:width => "3%"}
+    %th{:width => "3%"}
+    %th{:width => "3%"}
 
   - @customers.each do |customer|
     %tr
@@ -20,4 +20,5 @@
 
 %br
 
+%i.icon-plus
 = link_to 'New Customer', new_customer_path

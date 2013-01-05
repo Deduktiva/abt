@@ -1,25 +1,26 @@
 %h1 Listing projects
 
-%table
+%table.table.table-striped.table-condensed
   %tr
     %th Matchcode
     %th Description
     %th Time budget
     %th Bill to customer
-    %th
-    %th
-    %th
+    %th{:width => "3%"}
+    %th{:width => "3%"}
+    %th{:width => "3%"}
 
   - @projects.each do |project|
     %tr
       %td= project.matchcode
       %td= project.description
       %td= project.time_budget
-      %td= project.bill_to_customer_id
+      %td= project.bill_to_customer.try(:matchcode)
       %td= link_to 'Show', project
       %td= link_to 'Edit', edit_project_path(project)
       %td= link_to 'Destroy', project, method: :delete, data: { confirm: 'Are you sure?' }
 
 %br
 
+%i.icon-plus
 = link_to 'New Project', new_project_path

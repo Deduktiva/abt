@@ -1,11 +1,6 @@
 .fieldset
 = simple_form_for @customer, :validation => true, :html => {:class => 'form-horizontal' } do |f|
-  - if @customer.errors.any?
-    #error_explanation
-      %h2= "#{pluralize(@customer.errors.count, "error")} prohibited this customer from being saved:"
-      %ul
-        - @customer.errors.full_messages.each do |msg|
-          %li= msg
+  = f.error_notification
 
   .form-inputs
     = f.input :matchcode, :input_html => { :class => "span6" }

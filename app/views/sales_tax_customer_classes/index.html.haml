@@ -4,8 +4,8 @@
   %tr
     %th Name
     %th Invoice note
-    %th
-    %th
+    %th{:width => "3%"}
+    %th{:width => "3%"}
 
   - @sales_tax_customer_classes.each do |sales_tax_customer_class|
     %tr
@@ -16,4 +16,5 @@
 
 %br
 
+%i.icon-plus
 = link_to 'New Customer Class', new_sales_tax_customer_class_path

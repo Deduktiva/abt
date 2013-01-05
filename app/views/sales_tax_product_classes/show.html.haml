@@ -1,0 +1,12 @@
+%p#notice= notice
+
+%p
+  %b Name:
+  = @sales_tax_product_class.name
+%p
+  %b Indicator code:
+  = @sales_tax_product_class.indicator_code
+
+= link_to 'Edit', edit_sales_tax_product_class_path(@sales_tax_product_class)
+\|
+= link_to 'Back', sales_tax_product_classes_path

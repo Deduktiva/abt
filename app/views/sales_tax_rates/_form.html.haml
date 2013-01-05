@@ -1,0 +1,15 @@
+.fieldset
+= simple_form_for(@sales_tax_rate, :validation => true, :html => {:class => 'form-horizontal'}) do |f|
+  = f.error_notification
+
+  .form-inputs
+    = f.association :sales_tax_customer_class, :label => "Customer Class"
+    = f.association :sales_tax_product_class, :label => "Product Class"
+    = f.input :rate, :wrapper => :append do
+      = f.input_field :rate, :type => :number
+      %span.add-on>
+        \%
+
+  .form-actions
+    = f.button :submit, :class => 'btn-primary'
+    = link_to 'Cancel', sales_tax_rates_path, :class => "btn btn-danger"

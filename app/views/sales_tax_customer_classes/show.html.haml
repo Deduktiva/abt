@@ -1,0 +1,12 @@
+%p#notice= notice
+
+%p
+  %b Name:
+  = @sales_tax_customer_class.name
+%p
+  %b Invoice note:
+  = @sales_tax_customer_class.invoice_note
+
+= link_to 'Edit', edit_sales_tax_customer_class_path(@sales_tax_customer_class)
+\|
+= link_to 'Back', sales_tax_customer_classes_path

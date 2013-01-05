@@ -1,4 +1,13 @@
 Abt::Application.routes.draw do
+  resources :sales_tax_rates
+
+
+  resources :sales_tax_product_classes
+
+
+  resources :sales_tax_customer_classes
+
+
   resources :projects
 
 

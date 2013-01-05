@@ -1,0 +1,71 @@
+%h1 Listing Sales Tax Rates
+
+%table.table.table-striped.table-condensed
+  %tr
+    %th{:width=>"30%"} Customer class
+    %th{:width=>"30%"} Product class
+    %th{:width=>"30%"} Rate
+    %th
+    %th
+
+  - @sales_tax_rates.each do |sales_tax_rate|
+    %tr
+      %td= sales_tax_rate.sales_tax_customer_class.try(:name)
+      %td= sales_tax_rate.sales_tax_product_class.try(:name)
+      %td
+        = sales_tax_rate.rate
+        \%
+      %td= link_to 'Edit', edit_sales_tax_rate_path(sales_tax_rate)
+      %td= link_to 'Destroy', sales_tax_rate, method: :delete, data: { confirm: 'Are you sure?' }
+
+- if @sales_tax_rates.empty?
+  %p
+    You don't seem to have a sales tax setup right now.
+  %p
+    Start by creating  
+    %a{:href => new_sales_tax_product_class_path}< product classes
+    and then
+    %a{:href => new_sales_tax_customer_class_path}< customer classes.
+  %p
+    When you have both, create tax rates for them.
+
+- else
+  - if @missing_rates.empty?
+    %p.text-success
+      %i.icon-ok
+      Your sales tax setup looks good.
+    
+  - else
+    %h2 Missing tax rates
+    %p.text-error
+      You should create these tax rates:
+
+    %table.table.table-striped.table-condensed
+      %tr
+        %th{:width=>"30%"} Customer class
+        %th{:width=>"30%"} Product class
+        %th{:width=>"30%"} Rate
+        %th
+        %th
+      - @missing_rates.each do |missing_rate|
+        %tr
+          %td
+            = missing_rate[:customer].name
+          %td
+            = missing_rate[:product].name
+          %td{:colspan => 3}
+            %form{:method=>:post, :action=>url_for(:action=>"create", :controller => "sales_tax_rates"), :class=>"form-horizontal"}
+              %input{:type => :hidden, :name => "authencity_token", :value => form_authenticity_token}
+              %input{:type => :hidden, :name => "sales_tax_rate[sales_tax_customer_class_id]", :value => missing_rate[:customer].id}
+              %input{:type => :hidden, :name => "sales_tax_rate[sales_tax_product_class_id]", :value => missing_rate[:product].id}
+              %input{:type => :number, :name => "sales_tax_rate[rate]", :class => "numeric float"}              
+              \% &nbsp;              
+              %button{:type => :submit, :class => "btn"}
+                Create
+%br
+
+= link_to 'New Tax Rate', new_sales_tax_rate_path
+\|
+= link_to 'Edit Customer Classes', sales_tax_customer_classes_path
+\|
+= link_to 'Edit Product Classes', sales_tax_product_classes_path

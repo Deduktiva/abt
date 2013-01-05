@@ -1,0 +1,19 @@
+%h1 Listing Sales Tax Product Classes
+
+%table.table.table-striped.table-condensed
+  %tr
+    %th Name
+    %th Indicator code
+    %th
+    %th
+
+  - @sales_tax_product_classes.each do |sales_tax_product_class|
+    %tr
+      %td= sales_tax_product_class.name
+      %td= sales_tax_product_class.indicator_code
+      %td= link_to 'Edit', edit_sales_tax_product_class_path(sales_tax_product_class)
+      %td= link_to 'Destroy', sales_tax_product_class, method: :delete, data: { confirm: 'Are you sure?' }
+
+%br
+
+= link_to 'New Product Class', new_sales_tax_product_class_path

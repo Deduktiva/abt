@@ -1,0 +1,15 @@
+%p#notice= notice
+
+%p
+  %b Sales tax customer class:
+  = @sales_tax_rate.sales_tax_customer_class_id
+%p
+  %b Sales tax product class:
+  = @sales_tax_rate.sales_tax_product_class_id
+%p
+  %b Rate:
+  = @sales_tax_rate.rate
+
+= link_to 'Edit', edit_sales_tax_rate_path(@sales_tax_rate)
+\|
+= link_to 'Back', sales_tax_rates_path

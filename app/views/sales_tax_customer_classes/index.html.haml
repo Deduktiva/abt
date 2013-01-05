@@ -1,0 +1,19 @@
+%h1 Listing Sales Tax Customer Classes
+
+%table.table.table-striped.table-condensed
+  %tr
+    %th Name
+    %th Invoice note
+    %th
+    %th
+
+  - @sales_tax_customer_classes.each do |sales_tax_customer_class|
+    %tr
+      %td= sales_tax_customer_class.name
+      %td= sales_tax_customer_class.invoice_note
+      %td= link_to 'Edit', edit_sales_tax_customer_class_path(sales_tax_customer_class)
+      %td= link_to 'Destroy', sales_tax_customer_class, method: :delete, data: { confirm: 'Are you sure?' }
+
+%br
+
+= link_to 'New Customer Class', new_sales_tax_customer_class_path

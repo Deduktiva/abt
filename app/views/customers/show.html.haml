@@ -17,6 +17,9 @@
 %p
   %b Notes:
   = @customer.notes
+%p
+  %b Sales Tax Class:
+  = @customer.sales_tax_customer_class.try(:name)
 
 = link_to 'Edit', edit_customer_path(@customer)
 \|

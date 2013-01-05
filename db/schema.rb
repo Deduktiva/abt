@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130102184217) do
+ActiveRecord::Schema.define(:version => 20130105202103) do
 
   create_table "customers", :force => true do |t|
     t.string   "matchcode"
@@ -19,8 +19,9 @@ ActiveRecord::Schema.define(:version => 20130102184217) do
     t.text     "address"
     t.integer  "time_budget"
     t.text     "notes"
-    t.datetime "created_at",  :null => false
-    t.datetime "updated_at",  :null => false
+    t.datetime "created_at",                  :null => false
+    t.datetime "updated_at",                  :null => false
+    t.integer  "sales_tax_customer_class_id"
   end
 
   create_table "projects", :force => true do |t|
@@ -30,6 +31,28 @@ ActiveRecord::Schema.define(:version => 20130102184217) do
     t.integer  "bill_to_customer_id"
     t.datetime "created_at",          :null => false
     t.datetime "updated_at",          :null => false
+  end
+
+  create_table "sales_tax_customer_classes", :force => true do |t|
+    t.string   "name"
+    t.text     "invoice_note"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  create_table "sales_tax_product_classes", :force => true do |t|
+    t.string   "name"
+    t.string   "indicator_code"
+    t.datetime "created_at",     :null => false
+    t.datetime "updated_at",     :null => false
+  end
+
+  create_table "sales_tax_rates", :force => true do |t|
+    t.integer  "sales_tax_customer_class_id"
+    t.integer  "sales_tax_product_class_id"
+    t.float    "rate"
+    t.datetime "created_at",                  :null => false
+    t.datetime "updated_at",                  :null => false
   end
 
 end

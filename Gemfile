@@ -25,6 +25,7 @@ gem 'jquery-rails'
 gem 'bootstrap-sass'
 gem 'haml-rails'
 gem 'simple_form'
+gem 'prawn_rails', :git => 'http://github.com/pinglamb/prawn-rails.git'
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'

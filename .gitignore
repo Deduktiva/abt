@@ -16,3 +16,4 @@
 
 /config/initializers/secret_token.rb
 instance-data
+.ruby-version

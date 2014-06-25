@@ -6,3 +6,16 @@
       = name.capitalize
       %dd
         = value
+
+%div
+  - if not @is_setup_done
+    %p
+      Quick start: setup sales tax for your country:
+    %p
+      Start by creating
+      %a{:href => new_sales_tax_product_class_path}< product classes
+      and then
+      %a{:href => new_sales_tax_customer_class_path}< customer classes.
+    %p
+      When you have both,
+      %a{:href => new_sales_tax_rate_path}< create tax rates for them.

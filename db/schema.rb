@@ -11,7 +11,16 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130105202103) do
+ActiveRecord::Schema.define(:version => 20140625013236) do
+
+  create_table "attachments", :force => true do |t|
+    t.string   "title"
+    t.string   "filename"
+    t.string   "content_type"
+    t.binary   "data"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
 
   create_table "customers", :force => true do |t|
     t.string   "matchcode"

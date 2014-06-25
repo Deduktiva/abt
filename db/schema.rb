@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140625013236) do
+ActiveRecord::Schema.define(:version => 20140625015447) do
 
   create_table "attachments", :force => true do |t|
     t.string   "title"
@@ -32,6 +32,22 @@ ActiveRecord::Schema.define(:version => 20140625013236) do
     t.datetime "updated_at",                  :null => false
     t.integer  "sales_tax_customer_class_id"
   end
+
+  create_table "invoices", :force => true do |t|
+    t.string   "document_number"
+    t.boolean  "published"
+    t.integer  "customer_id"
+    t.integer  "attachment_id"
+    t.integer  "project_id"
+    t.date     "date"
+    t.string   "cust_reference"
+    t.string   "cust_order"
+    t.text     "prelude"
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+  end
+
+  add_index "invoices", ["document_number"], :name => "index_invoices_on_document_number", :unique => true
 
   create_table "projects", :force => true do |t|
     t.string   "matchcode"

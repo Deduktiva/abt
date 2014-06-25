@@ -1,0 +1,33 @@
+%p#notice= notice
+
+%p
+  %b Document number:
+  = @invoice.document_number
+%p
+  %b Published:
+  = @invoice.published
+%p
+  %b Customer:
+  = @invoice.customer_id
+%p
+  %b Attachment:
+  = @invoice.attachment_id
+%p
+  %b Project:
+  = @invoice.project_id
+%p
+  %b Date:
+  = @invoice.date
+%p
+  %b Cust reference:
+  = @invoice.cust_reference
+%p
+  %b Cust order no:
+  = @invoice.cust_order
+%p
+  %b Prelude:
+  = @invoice.prelude
+
+= link_to 'Edit', edit_invoice_path(@invoice)
+\|
+= link_to 'Back', invoices_path

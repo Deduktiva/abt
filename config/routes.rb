@@ -1,4 +1,7 @@
 Abt::Application.routes.draw do
+  resources :invoices
+
+
   resources :attachments
 
   resources :sales_tax_rates

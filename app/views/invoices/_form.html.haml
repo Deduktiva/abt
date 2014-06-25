@@ -1,0 +1,24 @@
+= simple_form_for(@invoice) do |f|
+  = f.error_notification
+
+  .form-inputs
+    - unless @invoice.id.nil?  # dont bother for new invoices
+      = f.input :document_number, :readonly => true
+      = f.input :attachment_id, :readonly => true
+
+    = f.association :customer, :label => "Customer"
+    = f.association :project, :label => "Project", label_method: :matchcode
+    = f.input :cust_reference, :label => "Customer reference"
+    = f.input :cust_order, :label => "Customer Order No"
+
+    - unless @invoice.id.nil?  # dont bother for new invoices
+      = f.input :date, :readonly => true
+      = f.input :published
+
+    = f.input :prelude, :input_html => { :class => "span6", :rows => 5 }
+
+  .form-actions
+    - unless @invoice.published?
+      = f.button :submit
+    - else
+      Cannot change published invoices.

@@ -1,0 +1,38 @@
+%h1 Listing invoices
+
+%table.table.table-striped.table-condensed
+  %tr
+    %th Document#
+    %th Customer
+    %th Project
+    %th Date
+    %th Cust reference
+    %th Cust order no
+    %th{:width => "3%"}
+    %th{:width => "3%"}
+    %th{:width => "3%"}
+    %th{:width => "3%"}
+
+  - @invoices.each do |invoice|
+    %tr
+      %td= invoice.document_number
+      %td= invoice.customer.name
+      %td= invoice.project && invoice.project.matchcode
+      %td= invoice.date
+      %td= invoice.cust_reference
+      %td= invoice.cust_order
+      %td
+        - if invoice.published? and not invoice.attachment.nil?
+          = link_to attachment_path(invoice.attachment)
+      %td= link_to 'Show', invoice
+      %td
+        - unless invoice.published?
+          = link_to 'Edit', edit_invoice_path(invoice)
+      %td
+        - unless invoice.published?
+          = link_to 'Destroy', invoice, method: :delete, data: { confirm: 'Are you sure?' }
+
+%br
+
+%i.icon-plus
+= link_to 'New Invoice', new_invoice_path

@@ -1,15 +1,6 @@
-GIT
-  remote: http://github.com/pinglamb/prawn-rails.git
-  revision: 09769829ccb3d0bbcc8f0ccebfc8f07d9d5a7e57
-  specs:
-    prawn_rails (0.0.11)
-      prawn (= 1.0.0.rc1)
-      railties (>= 3.0.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
-    Ascii85 (1.0.2)
     actionmailer (3.2.9)
       actionpack (= 3.2.9)
       mail (~> 2.4.4)
@@ -37,7 +28,6 @@ GEM
     activesupport (3.2.9)
       i18n (~> 0.6)
       multi_json (~> 1.0)
-    afm (0.2.0)
     arel (3.0.2)
     bootstrap-sass (2.2.2.0)
       sass (~> 3.2)
@@ -58,7 +48,6 @@ GEM
       activesupport (>= 3.1, < 4.1)
       haml (~> 3.1)
       railties (>= 3.1, < 4.1)
-    hashery (2.1.0)
     hike (1.2.1)
     i18n (0.6.1)
     journey (1.0.4)
@@ -72,16 +61,7 @@ GEM
       treetop (~> 1.4.8)
     mime-types (1.19)
     multi_json (1.5.0)
-    pdf-reader (1.3.0)
-      Ascii85 (~> 1.0.0)
-      afm (~> 0.2.0)
-      hashery (~> 2.0)
-      ruby-rc4
-      ttfunk
     polyglot (0.3.3)
-    prawn (1.0.0.rc1)
-      pdf-reader (>= 0.9.0)
-      ttfunk (~> 1.0.3)
     rack (1.4.1)
     rack-cache (1.2)
       rack (>= 0.4)
@@ -107,7 +87,6 @@ GEM
     rake (10.0.3)
     rdoc (3.12)
       json (~> 1.4)
-    ruby-rc4 (0.1.5)
     sass (3.2.4)
     sass-rails (3.2.5)
       railties (~> 3.2.0)
@@ -127,7 +106,6 @@ GEM
     treetop (1.4.12)
       polyglot
       polyglot (>= 0.3.1)
-    ttfunk (1.0.3)
     tzinfo (0.3.35)
     uglifier (1.3.0)
       execjs (>= 0.3.0)
@@ -141,7 +119,6 @@ DEPENDENCIES
   coffee-rails (~> 3.2.1)
   haml-rails
   jquery-rails
-  prawn_rails!
   rails (= 3.2.9)
   sass-rails (~> 3.2.3)
   simple_form

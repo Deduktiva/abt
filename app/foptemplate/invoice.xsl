@@ -177,8 +177,8 @@
 
             <fo:block-container height="0.5cm" width="12cm" top="3cm" left="0cm" position="absolute" font-size="6pt">
                 <!-- inline sender -->
-                <fo:block color="#0000ff">
-                    Returns to: <xsl:value-of select="replace(abt:strip-space(/document/issuer/address), '\s+', ', ')" />
+                <fo:block color="#0000ff" font-weight="normal" font-family="sans-serif">
+                    Returns to: <xsl:value-of select="replace(abt:strip-space(/document/issuer/address), '\n', ', ')" />
                 </fo:block>
             </fo:block-container>
 

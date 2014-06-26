@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<fop version="1.0">
+    <base>.</base>
+
+    <!-- Source resolution in dpi (dots/pixels per inch) for determining the size of pixels in SVG and bitmap images, default: 72dpi -->
+    <source-resolution>72</source-resolution>
+    <!-- Target resolution in dpi (dots/pixels per inch) for specifying the target resolution for generated bitmaps, default: 72dpi -->
+    <target-resolution>72</target-resolution>
+
+    <fonts>
+
+        <substitutions>
+            <substitution>
+                <from font-family="sans-serif"/>
+                <to font-family="UniN"/>
+            </substitution>
+            <substitution>
+                <from font-family="sans-serif" font-weight="bold"/>
+                <to font-family="UniN"/>
+            </substitution>
+            <substitution>
+                <from font-family="sans-serif" font-style="italic"/>
+                <to font-family="UniN"/>
+            </substitution>
+
+            <substitution>
+                <from font-family="monospace"/>
+                <to font-family="UniN"/>
+            </substitution>
+            <substitution>
+                <from font-family="FrutigerLight"/>
+                <to font-family="Times" font-weight="bold" font-style="italic"/>
+            </substitution>
+        </substitutions>
+    </fonts>
+
+    <!-- Information for specific renderers -->
+    <!-- Uses renderer mime type for renderers -->
+    <renderers>
+        <renderer mime="application/pdf">
+            <filterList>
+                <!-- provides compression using zlib flate (default is on) -->
+                <value>flate</value>
+            </filterList>
+
+            <fonts>
+                <!-- embedded fonts -->
+                <!--
+                This information must exactly match the font specified
+                in the fo file. Otherwise it will use a default font.
+
+                For example,
+                <fo:inline font-family="Arial" font-weight="bold" font-style="normal">
+                    Arial-normal-normal font
+                </fo:inline>
+                for the font triplet specified by:
+                <font-triplet name="Arial" style="normal" weight="bold"/>
+
+                If you do not want to embed the font in the pdf document
+                then do not include the "embed-url" attribute.
+                The font will be needed where the document is viewed
+                for it to be displayed properly.
+
+                possible styles: normal | italic | oblique | backslant
+                possible weights: normal | bold | 100 | 200 | 300 | 400
+                                  | 500 | 600 | 700 | 800 | 900
+                (normal = 400, bold = 700)
+                -->
+
+                <font kerning="yes" embed-url="UniversNextPro-Light.ttf">
+                    <font-triplet name="UniN" style="normal" weight="normal"/>
+                    <font-triplet name="UniB" style="normal" weight="bold"/>
+                </font>
+                <font kerning="yes" embed-url="FuturaTOT-Lig.otf">
+                    <font-triplet name="FuturaLight" style="normal" weight="normal"/>
+                </font>
+
+            </fonts>
+
+            <!-- This option lets you specify additional options on an XML handler -->
+            <!--xml-handler namespace="http://www.w3.org/2000/svg">
+              <stroke-text>false</stroke-text>
+            </xml-handler-->
+
+        </renderer>
+
+    </renderers>
+
+</fop>
+

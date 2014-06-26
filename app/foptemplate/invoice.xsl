@@ -67,7 +67,7 @@
         <fo:table-body keep-together.within-page="always">
         <fo:table-row>
             <fo:table-cell number-columns-spanned="5">
-                <fo:block padding-before="5mm" padding-after="5mm" text-align="start" font-weight="bold">
+                <fo:block padding-before="5mm" padding-after="5mm" text-align="start" font-weight="600">
                     <xsl:value-of select="abt:strip-space(title)" />
                 </fo:block>
             </fo:table-cell>
@@ -162,7 +162,7 @@
         </fo:page-sequence-master>
     </fo:layout-master-set>
 
-    <fo:page-sequence master-reference="psmA" id="document-sequence" font-family="sans-serif" font-size="11pt" line-height="12pt">
+    <fo:page-sequence master-reference="psmA" id="document-sequence" font-family="OpenSans" font-weight="200" font-size="11pt" line-height="12pt">
         <fo:static-content flow-name="first-page-header">
 
 
@@ -398,10 +398,10 @@
                     <fo:table-body>
                         <fo:table-row>
                             <fo:table-cell number-columns-spanned="3" padding-before="1mm" padding-after="1mm">
-                                <fo:block text-align="start" font-weight="bold">Total including tax</fo:block>
+                                <fo:block text-align="start" font-weight="600">Total including tax</fo:block>
                             </fo:table-cell>
                             <fo:table-cell number-columns-spanned="2" padding-before="1mm" padding-after="1mm">
-                                <fo:block text-align="end" font-weight="bold">
+                                <fo:block text-align="end" font-weight="600">
                                     <xsl:value-of select="/document/currency"/>
                                     <xsl:text> </xsl:text>
                                     <xsl:value-of select="abt:format-amount(/document/sums/total)"/>
@@ -419,13 +419,13 @@
                         height="2.1cm"
                         space-before="5mm" border-color="black" border-style="solid" border-width="0.13mm" padding="0.6mm">
                     <fo:block>Full amount due
-                        <fo:inline font-weight="bold">
+                        <fo:inline font-weight="600">
                             <xsl:value-of select="/document/currency"/>
                             <xsl:text> </xsl:text>
                             <xsl:value-of select="abt:format-amount(/document/sums/total)"/>
                         </fo:inline>
                         on
-                        <fo:inline font-weight="bold"><xsl:value-of select="/document/due-date" /></fo:inline>.
+                        <fo:inline font-weight="600"><xsl:value-of select="/document/due-date" /></fo:inline>.
                     </fo:block>
                     <fo:block>Remittance method:</fo:block>
                     <fo:block-container>

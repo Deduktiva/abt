@@ -11,25 +11,16 @@
 
         <substitutions>
             <substitution>
-                <from font-family="sans-serif"/>
-                <to font-family="UniN"/>
+                <from font-family="sans-serif" font-weight="200" />
+                <to font-family="OpenSans" font-weight="300" />
             </substitution>
             <substitution>
-                <from font-family="sans-serif" font-weight="bold"/>
-                <to font-family="UniN"/>
+                <from font-family="sans-serif" font-weight="200" font-style="italic" />
+                <to font-family="font" font-weight="300" font-style="italic"  />
             </substitution>
             <substitution>
-                <from font-family="sans-serif" font-style="italic"/>
-                <to font-family="UniN"/>
-            </substitution>
-
-            <substitution>
-                <from font-family="monospace"/>
-                <to font-family="UniN"/>
-            </substitution>
-            <substitution>
-                <from font-family="FrutigerLight"/>
-                <to font-family="Times" font-weight="bold" font-style="italic"/>
+                <from font-family="sans-serif" font-weight="bold" />
+                <to font-family="font" font-weight="bold" />
             </substitution>
         </substitutions>
     </fonts>
@@ -67,12 +58,26 @@
                 (normal = 400, bold = 700)
                 -->
 
-                <font kerning="yes" embed-url="UniversNextPro-Light.ttf">
-                    <font-triplet name="UniN" style="normal" weight="normal"/>
-                    <font-triplet name="UniB" style="normal" weight="bold"/>
+                <font kerning="yes" embed-url="open-sans/OpenSans-Regular.ttf">
+                    <font-triplet name="OpenSans" style="normal" weight="400"/>
                 </font>
-                <font kerning="yes" embed-url="FuturaTOT-Lig.otf">
-                    <font-triplet name="FuturaLight" style="normal" weight="normal"/>
+                <font kerning="yes" embed-url="open-sans/OpenSans-Light.ttf">
+                    <font-triplet name="OpenSans" style="normal" weight="300"/>
+                </font>
+                <font kerning="yes" embed-url="open-sans/OpenSans-LightItalic.ttf">
+                    <font-triplet name="OpenSans" style="italic" weight="300"/>
+                </font>
+                <font kerning="yes" embed-url="open-sans/OpenSans-Semibold.ttf">
+                    <font-triplet name="OpenSans" style="normal" weight="600"/>
+                </font>
+                <font kerning="yes" embed-url="open-sans/OpenSans-SemiboldItalic.ttf">
+                    <font-triplet name="OpenSans" style="italic" weight="600"/>
+                </font>
+                <font kerning="yes" embed-url="open-sans/OpenSans-Bold.ttf">
+                    <font-triplet name="OpenSans" style="normal" weight="bold"/>
+                </font>
+                <font kerning="yes" embed-url="open-sans/OpenSans-BoldItalic.ttf">
+                    <font-triplet name="OpenSans" style="italic" weight="bold"/>
                 </font>
 
             </fonts>

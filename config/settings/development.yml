@@ -1,0 +1,8 @@
+company:
+  name: TEST Company
+  address: |
+    Suedlandstrasse 33
+    1040 Wien
+    Austria
+  vat_id: ATUxxxxxxx
+

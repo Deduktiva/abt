@@ -78,6 +78,8 @@ GEM
       activesupport (= 3.2.9)
       bundler (~> 1.0)
       railties (= 3.2.9)
+    rails_config (0.4.2)
+      activesupport (>= 3.0)
     railties (3.2.9)
       actionpack (= 3.2.9)
       activesupport (= 3.2.9)
@@ -122,6 +124,7 @@ DEPENDENCIES
   jquery-rails
   pg
   rails (= 3.2.9)
+  rails_config
   sass-rails (~> 3.2.3)
   simple_form
   sqlite3

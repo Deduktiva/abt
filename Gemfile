@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '~> 3.2.9'
+gem 'rails', '~> 4.0.8'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -13,21 +13,13 @@ group :prod do
   gem 'pg'
 end
 
-# Gems used only for assets and not required
-# in production environments by default.
-group :assets do
-  gem 'sass-rails',   '~> 3.2.3'
-
-  # See https://github.com/sstephenson/execjs#readme for more supported runtimes
-  # gem 'therubyracer', :platforms => :ruby
-
-  gem 'uglifier', '>= 1.0.3'
-end
+gem 'sass-rails', '~> 4.0.0'
+gem 'uglifier', '>= 1.0.3'
 
 gem 'jquery-rails'
 
 gem 'sass'
-gem 'bootstrap-sass', '~> 3.1.1.1'  # keep older version because bootstrap-sass is fucked
+gem 'bootstrap-sass', '~> 3.1.1'
 gem 'haml-rails'
 gem 'simple_form'
 
@@ -53,3 +45,6 @@ gem 'json', '~> 2.1.0'  # force newer version compatible with ruby 2.2
 
 # To use debugger
 # gem 'debugger'
+
+# Rails 3.2 -> 4 migration help
+gem 'protected_attributes'

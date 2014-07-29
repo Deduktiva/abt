@@ -45,6 +45,10 @@ class InvoiceBookController
     @log << ''
 
     customer_sales_tax_rates = @invoice.customer.sales_tax_rates
+    if customer_sales_tax_rates.nil?
+      error 'no sales tax config for customer'
+      return !@failed
+    end
     @invoice.tax_classes = {}
 
     customer_sales_tax_rates.each do |cst|

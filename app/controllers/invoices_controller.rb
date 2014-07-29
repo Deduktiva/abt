@@ -106,12 +106,12 @@ class InvoicesController < ApplicationController
     return unless check_unpublished
 
     issuer = IssuerCompany.from_config
-    booker = InvoiceBookController.new @invoice, issuer
+    @booker = InvoiceBookController.new @invoice, issuer
 
     ActiveRecord::Base.transaction(requires_new: true) do
-      @booked = booker.book want_save
+      @booked = @booker.book want_save
     end
-    @booking_log = booker.log
+    @booking_log = @booker.log
 
     if @booked
       flash[:notice] = "#{action} succeeded."
@@ -129,13 +129,11 @@ class InvoicesController < ApplicationController
     return unless check_unpublished
 
     issuer = IssuerCompany.from_config
-    booker = InvoiceBookController.new @invoice, issuer
+    @booker = InvoiceBookController.new @invoice, issuer
 
     ActiveRecord::Base.transaction(requires_new: true) do
       begin
-        @booked = booker.book false
-        @booking_log = booker.log
-        puts @booking_log
+        @booked = @booker.book false
         @pdf = InvoiceRenderController.new(@invoice, issuer).render if @booked
       ensure
         raise ActiveRecord::Rollback, 'preview only'
@@ -145,7 +143,7 @@ class InvoicesController < ApplicationController
     if @booked and !@pdf.nil? and !@pdf.empty?
       send_data @pdf, type: 'application/pdf', disposition: 'inline'
     else
-      send_data @booking_log.join("\n"), type: 'text/plain', disposition: 'inline'
+      send_data @booker.log.join("\n"), type: 'text/plain', disposition: 'inline'
     end
   end
 

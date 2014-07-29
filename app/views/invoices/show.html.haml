@@ -1,20 +1,26 @@
 %p#notice= notice
 
+%h1.pagetitle
+  Invoice
+  = @invoice.document_number
+  - if not @invoice.published?
+    %small
+      Draft
+  - else
+    %small
+      Booked
+
 %p
   %b Document number:
   = @invoice.document_number
 %p
-  %b Published:
-  = @invoice.published
-%p
   %b Customer:
   = @invoice.customer_id
-%p
-  %b Attachment:
-  = @invoice.attachment_id
+  = @invoice.customer_name || @invoice.customer.name
 %p
   %b Project:
   = @invoice.project_id
+  = @invoice.project.description if @invoice.project
 %p
   %b Date:
   = @invoice.date
@@ -39,25 +45,44 @@
   .row
     .col-sm-12
       = line.description
-  .row
-    .col-sm-4.col-md-2
-      Rate:
-      = line.rate
-    .col-sm-4.col-md-2
-      Quantity:
-      = line.quantity
-    .col-sm-4.col-md-2
-      Product class:
-      = line.sales_tax_product_class.name if line.sales_tax_product_class
-    .col-sm-4.col-md-2.pull-right
-      Net:
-      = (line.quantity * line.rate) if line.quantity
+  - if line.type == 'item'
+    .row
+      .col-sm-4.col-md-2
+        Rate:
+        = line.rate
+      .col-sm-4.col-md-2
+        Quantity:
+        = line.quantity
+      .col-sm-4.col-md-2
+        Product class:
+        = line.sales_tax_product_class.name if line.sales_tax_product_class
+      .col-sm-4.col-md-2.pull-right
+        Net:
+        = (line.quantity * line.rate) if line.quantity
 
+%b
+  Sum Net:
+= @invoice.sum_net
+%br
+%b
+  Sum Total:
+= @invoice.sum_total
+%br
+%br
 
-= link_to 'Edit', edit_invoice_path(@invoice)
+- unless @invoice.published
+  = link_to 'Edit', edit_invoice_path(@invoice)
+  \|
+- if @invoice.attachment
+  = link_to 'PDF', @invoice.attachment
+- else
+  = link_to 'Preview', preview_invoice_path(@invoice)
+
 \|
 = link_to 'Back', invoices_path
-\|
-= link_to 'Preview', preview_invoice_path(@invoice)
-\|
-= link_to 'Test Booking', book_invoice_path(@invoice, :save => false)
+
+%br
+%br
+
+- unless @invoice.published
+  = button_to 'Test Booking', book_invoice_path(@invoice, :save => false)

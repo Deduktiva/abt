@@ -49,7 +49,11 @@ invoiceLinesApp.controller 'InvoiceLinesController', [
       , 0
 
     $scope.saveLines = ->
-      $('#invoice_lines').text JSON.stringify $scope.lines
+      $('#invoice_lines').val JSON.stringify $scope.lines
+      true
+
+    $scope.takeOverForm = ->
+      $('.form-actions').hide()
       false
 
     true

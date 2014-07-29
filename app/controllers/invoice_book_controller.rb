@@ -20,6 +20,11 @@ class InvoiceBookController
   end
 
   def book(save)
+    if @invoice.published?
+      error 'already published'
+      return !@failed
+    end
+
     @invoice.customer_name = @invoice.customer.name
     @invoice.customer_address = @invoice.customer.address
     @invoice.customer_account_number = @invoice.customer.id
@@ -45,11 +50,11 @@ class InvoiceBookController
     customer_sales_tax_rates.each do |cst|
       pc = cst.sales_tax_product_class
       @invoice.tax_classes[pc.id] = {
-          :name => pc.name,
-          :indicator_code => pc.indicator_code,
-          :rate => cst.rate,
-          :net => 0,
-          :total => 0
+        :name => pc.name,
+        :indicator_code => pc.indicator_code,
+        :rate => cst.rate,
+        :net => 0,
+        :total => 0
       }
     end
 
@@ -101,16 +106,19 @@ class InvoiceBookController
 
     if !@failed and save
       @invoice.invoice_lines.each do |line| line.save! end
+      @invoice.document_number = DocumentNumber.get_next_for 'invoice', @invoice.date
+      @log << "Assigned Document Number #{@invoice.document_number}"
+      @invoice.published = true
       @invoice.save!
 
       # render as well
       pdf = InvoiceRenderController.new(@invoice, @issuer).render
       @invoice.attachment = Attachment.new if @invoice.attachment.nil?
       @invoice.attachment.set_data pdf, 'application/pdf'
-      @invoice.attachment.filename = "Invoice-#{@invoice.id}.pdf"
-      @invoice.attachment.title = "Invoice #{@invoice.id}"
-      @invoice.attachment.save
-      @invoice.save
+      @invoice.attachment.filename = "Invoice-#{@invoice.document_number}.pdf"
+      @invoice.attachment.title = "Invoice #{@invoice.document_number}"
+      @invoice.attachment.save!
+      @invoice.save!
     end
 
     !@failed

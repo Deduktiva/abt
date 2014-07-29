@@ -2,8 +2,7 @@ Abt::Application.routes.draw do
   resources :invoices do
     member do
       get 'preview'
-      get 'book'
-      get 'publish'
+      post 'book'
     end
   end
 

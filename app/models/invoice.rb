@@ -4,7 +4,7 @@ class Invoice < ActiveRecord::Base
                   :date, :due_date, :document_number, :prelude, :project_id, :published,
                   :tax_classes, :sum_net, :sum_total
   validates :customer_id, :presence => true
-  serialize :tax_classes, JSON
+  serialize :tax_classes
 
   belongs_to :customer
   belongs_to :project

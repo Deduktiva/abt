@@ -37,6 +37,7 @@ class InvoicesController < ApplicationController
   # GET /invoices/1/edit
   def edit
     @invoice = Invoice.find(params[:id])
+    return unless check_unpublished
   end
 
   # POST /invoices
@@ -59,11 +60,7 @@ class InvoicesController < ApplicationController
   # PUT /invoices/1.json
   def update
     @invoice = Invoice.find(params[:id])
-    if @invoice.published?
-      format.json { render status: :forbidden }
-      format.html { render status: :forbidden }
-      return
-    end
+    return unless check_unpublished
 
     success = @invoice.update_attributes(params[:invoice])
     unless params[:invoice_lines].nil? or params[:invoice_lines].empty?
@@ -93,11 +90,7 @@ class InvoicesController < ApplicationController
   # DELETE /invoices/1.json
   def destroy
     @invoice = Invoice.find(params[:id])
-    if @invoice.published?
-      format.json { render status: :forbidden }
-      format.html { render status: :forbidden }
-      return
-    end
+    return unless check_unpublished
     @invoice.destroy
 
     respond_to do |format|
@@ -110,17 +103,17 @@ class InvoicesController < ApplicationController
     want_save = (params[:save] == 'true')
     action = want_save ? 'Booking' : 'TEST-Booking'
     @invoice = Invoice.find(params[:id])
-    if @invoice.published?
-      format.json { render status: :forbidden }
-      format.html { render status: :forbidden }
-      return
-    end
+    return unless check_unpublished
 
     issuer = IssuerCompany.from_config
     booker = InvoiceBookController.new @invoice, issuer
+
+    ActiveRecord::Base.transaction(requires_new: true) do
+      @booked = booker.book want_save
+    end
     @booking_log = booker.log
-    @booking_failed = booker.failed
-    if booker.book want_save
+
+    if @booked
       flash[:notice] = "#{action} succeeded."
     else
       flash[:error] = "#{action} failed."
@@ -131,37 +124,38 @@ class InvoicesController < ApplicationController
     end
   end
 
-  def publish
-
-
-    # @attachment = Attachment.new
-    # @attachment.uploaded_file = params[:attachment][:attachment]
-    # @attachment.title = params[:attachment][:title]
-    #
-    # if @attachment.save
-    #   flash[:notice] = "Attachment created."
-    #   redirect_to :action => "index"  # FIXME: do something useful
-    # else
-    #   flash[:error] = "Saving attachment failed."
-    #   render :action => "new"
-    # end
-
-  end
-
   def preview
-    invoice = Invoice.find(params[:id])
-    unless invoice.published?
-      invoice.customer_name = invoice.customer.name
-      invoice.customer_address = invoice.customer.address
-      invoice.customer_account_number = invoice.customer.id
-      invoice.customer_supplier_number = invoice.customer.supplier_number
-      invoice.customer_vat_id = invoice.customer.vat_id
-    end
+    @invoice = Invoice.find(params[:id])
+    return unless check_unpublished
 
     issuer = IssuerCompany.from_config
+    booker = InvoiceBookController.new @invoice, issuer
 
-    renderer = InvoiceRenderController.new invoice, issuer
-    pdf = renderer.render
-    send_data pdf, type: 'application/pdf', disposition: 'inline'
+    ActiveRecord::Base.transaction(requires_new: true) do
+      begin
+        @booked = booker.book false
+        @booking_log = booker.log
+        puts @booking_log
+        @pdf = InvoiceRenderController.new(@invoice, issuer).render if @booked
+      ensure
+        raise ActiveRecord::Rollback, 'preview only'
+      end
+    end
+
+    if @booked and !@pdf.nil? and !@pdf.empty?
+      send_data @pdf, type: 'application/pdf', disposition: 'inline'
+    else
+      send_data @booking_log.join("\n"), type: 'text/plain', disposition: 'inline'
+    end
+  end
+
+  protected
+  def check_unpublished
+    if @invoice.published?
+      flash[:error] = 'Published invoices can not be modified.'
+      redirect_to invoice_url(@invoice)
+      return false
+    end
+    true
   end
 end

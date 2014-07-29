@@ -23,7 +23,7 @@
       %td= invoice.cust_order
       %td
         - if invoice.published? and not invoice.attachment.nil?
-          = link_to attachment_path(invoice.attachment)
+          = link_to 'PDF', attachment_path(invoice.attachment)
       %td= link_to 'Show', invoice
       %td
         - unless invoice.published?

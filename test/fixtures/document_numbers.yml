@@ -1,0 +1,21 @@
+fresh:
+  code: fresh
+  format: '%{year}%<number>04d'
+  sequence: 0
+  last_number: nil
+  last_date: nil
+
+used1:
+  code: used1
+  format: '%{year}%<number>04d'
+  sequence: 1
+  last_number: 20140001
+  last_date: 2014-01-10
+
+one:
+  code: one
+  format: '%{year}%<number>04d'
+  sequence: 1
+  last_number: 20140010
+  last_date: 2014-01-10
+

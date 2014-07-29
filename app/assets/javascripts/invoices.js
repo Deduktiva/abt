@@ -1,9 +1,8 @@
 // Place all the behaviors and hooks related to the matching controller here.
 // All this logic will automatically be available in application.js.
 
-var invoiceLinesApp = angular.module('invoiceLinesApp', ['ngResource', 'ProductsServices']);
-
-invoiceLinesApp.factory('SalesTaxProductClasses', [
+angular.module('invoiceLinesApp', ['ngResource', 'ProductsServices']).
+factory('SalesTaxProductClasses', [
     '$resource',
     function($resource) {
         return $resource('/sales_tax_product_classes/:id', {}, {
@@ -15,26 +14,34 @@ invoiceLinesApp.factory('SalesTaxProductClasses', [
             }
         });
     }
-]);
-
-invoiceLinesApp.controller('InvoiceLinesController', [
+]).
+controller('InvoiceLinesController', [
     '$scope', '$log', 'SalesTaxProductClasses', 'Products',
     function($scope, $log, SalesTaxProductClasses, Products) {
         $scope.products = Products.query();
+        $scope.sales_tax_product_classes = SalesTaxProductClasses.query();
+
         $scope.setLines = function(lines) {
             return $scope.lines = lines;
         };
+        $scope.takeOverForm = function() {
+            $('.form-actions').hide();
+        };
+        $scope.saveLines = function() {
+            $('#invoice_lines').val(JSON.stringify($scope.lines));
+        };
+
         $scope.addLine = function() {
-            return $scope.lines.push({
+            $scope.lines.push({
                 title: "",
                 type: "text"
             });
         };
         $scope.removeLine = function(line) {
-            var idx;
-            idx = $scope.lines.indexOf(line);
-            return $scope.lines.splice(idx, 1);
+            var idx = $scope.lines.indexOf(line);
+            $scope.lines.splice(idx, 1);
         };
+
         $scope.moveLineUp = function(line) {
             var idx = $scope.lines.indexOf(line);
             if (idx == 0) {
@@ -51,7 +58,7 @@ invoiceLinesApp.controller('InvoiceLinesController', [
             $scope.lines.splice(idx, 1);
             $scope.lines.splice($scope.lines.length, 0, line);
         };
-        $scope.sales_tax_product_classes = SalesTaxProductClasses.query();
+
         $scope.invoice_total = function() {
             return _.reduce($scope.lines, function(memo, line) {
                 var line_sum;
@@ -62,23 +69,13 @@ invoiceLinesApp.controller('InvoiceLinesController', [
                 return memo + line_sum;
             }, 0);
         };
-        $scope.saveLines = function() {
-            $('#invoice_lines').val(JSON.stringify($scope.lines));
-            return true;
-        };
-        $scope.takeOverForm = function() {
-            $('.form-actions').hide();
-            return false;
-        };
-        return true;
     }
-]);
-
-
-invoiceLinesApp.controller('InvoiceLinesLineController', [
+]).
+controller('InvoiceLinesLineController', [
     '$scope', '$log',
     function($scope, $log) {
         $scope.isProductDropdownShown = false;
+
         $scope.showProductDropdown = function() {
             $scope.isProductDropdownShown = !$scope.isProductDropdownShown;
         };
@@ -91,6 +88,5 @@ invoiceLinesApp.controller('InvoiceLinesLineController', [
             }
             $scope.isProductDropdownShown = false;
         };
-        return true;
     }
 ]);

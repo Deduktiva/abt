@@ -1,0 +1,23 @@
+good_eu:
+  matchcode: GOOD
+  name: A Good Company, Inc.
+  address: |
+    Lulzstreet 3/2/1
+    LH234234 Heathrow
+    GREATER ENGLAND AND SCOTLAND
+  time_budget: 1200
+  vat_id: GB99999999
+  notes: MyText
+  sales_tax_customer_class: eu
+
+good_national:
+  matchcode: GOODNAT
+  name: A Local Company, Inc.
+  address: |
+    Lulzstreet 3/2/1
+    LH234234 Heathrow
+    NATIONAL COUNTRY
+  time_budget: 1200
+  vat_id: NAT9999999
+  notes:
+  sales_tax_customer_class: national

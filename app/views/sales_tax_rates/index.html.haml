@@ -32,7 +32,7 @@
 - else
   - if @missing_rates.empty?
     %p.text-success
-      %i.icon-ok
+      %span.glyphicon.glyphicon-ok
       Your sales tax setup looks good.
     
   - else
@@ -64,7 +64,7 @@
                 Create
 %br
 
-%i.icon-plus
+%span.glyphicon.glyphicon-plus
 = link_to 'New Tax Rate', new_sales_tax_rate_path
 \|
 = link_to 'Edit Customer Classes', sales_tax_customer_classes_path

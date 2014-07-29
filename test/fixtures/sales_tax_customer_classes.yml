@@ -1,0 +1,11 @@
+national:
+  name: National
+  invoice_note: ''
+
+eu:
+  name: EU
+  invoice_note: 'Reverse Charge yadda yadda'
+
+restoftheworld:
+  name: EXPORT
+  invoice_note: 'EXPORT TO NON-EU COUNTRY'

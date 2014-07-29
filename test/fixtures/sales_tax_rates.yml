@@ -1,0 +1,14 @@
+national_standard:
+  sales_tax_customer_class: national
+  sales_tax_product_class: standard
+  rate: 20
+
+eu_standard:
+  sales_tax_customer_class: eu
+  sales_tax_product_class: standard
+  rate: 0
+
+restoftheworld_standard:
+  sales_tax_customer_class: restoftheworld
+  sales_tax_product_class: standard
+  rate: 0

@@ -70,11 +70,13 @@
                             <option value="item">Item</option>
                         </select>
                         </div>
-                    <div class="col-sm-8">
+                    <div class="col-sm-7">
                         <input class="form-control" ng-model="line.title" required="required">
                     </div>
-                    <div class="col-sm-2 text-right">
+                    <div class="col-sm-3 text-right">
                         <button class="btn btn-info" type="button" ng-click="showProductDropdown()" ng-hide="line.type != 'item'">...</button>
+                        <button class="btn btn-default" type="button" ng-click="moveLineUp(line)"><span class="glyphicon glyphicon-chevron-up"></span></button>
+                        <button class="btn btn-default" type="button" ng-click="moveLineDown(line)"><span class="glyphicon glyphicon-chevron-down"></span></button>
                         <button class="btn btn-danger" type="button" ng-click="removeLine(line)"><span class="glyphicon glyphicon-trash"></span></button>
                     </div>
                 </div>

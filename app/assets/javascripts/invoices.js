@@ -35,6 +35,22 @@ invoiceLinesApp.controller('InvoiceLinesController', [
             idx = $scope.lines.indexOf(line);
             return $scope.lines.splice(idx, 1);
         };
+        $scope.moveLineUp = function(line) {
+            var idx = $scope.lines.indexOf(line);
+            if (idx == 0) {
+                return;
+            }
+            $scope.lines.splice(idx, 1);
+            $scope.lines.splice(idx-1, 0, line);
+        };
+        $scope.moveLineDown = function(line) {
+            var idx = $scope.lines.indexOf(line);
+            if (idx == $scope.lines.length) {
+                return;
+            }
+            $scope.lines.splice(idx, 1);
+            $scope.lines.splice($scope.lines.length, 0, line);
+        };
         $scope.sales_tax_product_classes = SalesTaxProductClasses.query();
         $scope.invoice_total = function() {
             return _.reduce($scope.lines, function(memo, line) {

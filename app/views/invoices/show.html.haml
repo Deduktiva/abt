@@ -28,6 +28,36 @@
   %b Prelude:
   = @invoice.prelude
 
+%h2
+  Lines
+
+- @invoice.invoice_lines.each do |line|
+  .row
+    .col-sm-12
+      %b
+        = line.title
+  .row
+    .col-sm-12
+      = line.description
+  .row
+    .col-sm-4.col-md-2
+      Rate:
+      = line.rate
+    .col-sm-4.col-md-2
+      Quantity:
+      = line.quantity
+    .col-sm-4.col-md-2
+      Product class:
+      = line.sales_tax_product_class.name if line.sales_tax_product_class
+    .col-sm-4.col-md-2.pull-right
+      Net:
+      = (line.quantity * line.rate) if line.quantity
+
+
 = link_to 'Edit', edit_invoice_path(@invoice)
 \|
 = link_to 'Back', invoices_path
+\|
+= link_to 'Preview', preview_invoice_path(@invoice)
+\|
+= link_to 'Test Booking', book_invoice_path(@invoice, :save => false)

@@ -7,17 +7,14 @@
     = csrf_meta_tags
     = yield :head
   %body
-    %header.navbar.navbar-fixed-top
-      %nav.navbar-inner
-        .container
-          = render 'layouts/navigation'
+    %nav.navbar.navbar-fixed-top{:role=>'navigation'}
+      .container-fluid
+        = render 'layouts/navigation'
     #main{:role => "main"}
       .container
         .content
-          .row
-            .span12
-              = render 'layouts/messages'
-              = content_for?(:content) ? yield(:content) : yield
+          = render 'layouts/messages'
+          = content_for?(:content) ? yield(:content) : yield
       %footer.footer
         .container
           %p

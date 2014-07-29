@@ -1,21 +1,37 @@
 = simple_form_for(@invoice) do |f|
   = f.error_notification
 
-  .form-inputs
-    - unless @invoice.id.nil?  # dont bother for new invoices
-      = f.input :document_number, :readonly => true
-      = f.input :attachment_id, :readonly => true
+  %br
+  - unless @invoice.id.nil?  # dont bother for new invoices
+    = @invoice.document_number or "(no number)"
+    = @invoice.attachment_id or "(no pdf)"
+    = "published" if @invoice.published
+    %br
+  %br
 
-    = f.association :customer, :label => "Customer"
+  .form-inputs
+
+    .row
+      .col-sm-4
+        = f.association :customer, :label => "Customer"
+      .col-sm-8
+        - unless @invoice.id.nil?  # dont bother for new invoices
+          = @invoice.customer_name
+          %br
+          = @invoice.customer_address
     = f.association :project, :label => "Project", label_method: :matchcode
-    = f.input :cust_reference, :label => "Customer reference"
-    = f.input :cust_order, :label => "Customer Order No"
+    .row
+      .col-sm-4
+        = f.input :cust_reference, :label => "Customer reference"
+      .col-sm-4
+        = f.input :cust_order, :label => "Customer Order No"
 
     - unless @invoice.id.nil?  # dont bother for new invoices
       = f.input :date, :readonly => true
-      = f.input :published
 
     = f.input :prelude, :input_html => { :class => "span6", :rows => 5 }
+
+    %textarea{:id => 'invoice_lines', :name => 'invoice_lines'}
 
   .form-actions
     - unless @invoice.published?

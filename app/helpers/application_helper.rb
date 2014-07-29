@@ -12,4 +12,13 @@ module ApplicationHelper
     html.html_safe
   end
 
+  def json_for(target, options = {})
+    options[:scope] ||= self
+    options[:url_options] ||= url_options
+    if target == []
+      return '[]'
+    end
+    target.active_model_serializer.new(target, options).to_json
+  end
+
 end

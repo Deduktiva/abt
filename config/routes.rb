@@ -1,5 +1,11 @@
 Abt::Application.routes.draw do
-  resources :invoices
+  resources :invoices do
+    member do
+      get 'preview'
+      get 'book'
+      get 'publish'
+    end
+  end
 
 
   resources :attachments

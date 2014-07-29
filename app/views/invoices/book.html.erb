@@ -1,0 +1,19 @@
+
+Document Number: <%= @invoice.document_number %><br>
+published: <%= @invoice.published %><br>
+
+<br>
+<b>Booking Log:</b>
+<pre>
+<%= @booking_log.join("\n") -%>
+</pre>
+
+<%= link_to 'Preview', preview_invoice_path(@invoice), :class => 'btn btn-default' %>
+<% unless @booking_failed %>
+<%= link_to 'Book!', book_invoice_path(@invoice, :save => true), :class => 'btn btn-warning' %>
+<% end %>
+
+<% if @invoice.attachment %>
+<%= link_to 'PDF', attachment_path(@invoice.attachment) %>
+<% end %>
+

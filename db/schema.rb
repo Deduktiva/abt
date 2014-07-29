@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140625015447) do
+ActiveRecord::Schema.define(:version => 20140729004940) do
 
   create_table "attachments", :force => true do |t|
     t.string   "title"
@@ -31,6 +31,24 @@ ActiveRecord::Schema.define(:version => 20140625015447) do
     t.datetime "created_at",                  :null => false
     t.datetime "updated_at",                  :null => false
     t.integer  "sales_tax_customer_class_id"
+    t.text     "vat_id"
+    t.text     "supplier_number"
+  end
+
+  create_table "invoice_lines", :force => true do |t|
+    t.integer  "invoice_id"
+    t.text     "type"
+    t.text     "title"
+    t.text     "description"
+    t.integer  "sales_tax_product_class_id"
+    t.text     "sales_tax_name"
+    t.text     "sales_tax_indicator_code"
+    t.integer  "sales_tax_rate"
+    t.float    "quantity"
+    t.float    "rate"
+    t.float    "amount"
+    t.datetime "created_at",                 :null => false
+    t.datetime "updated_at",                 :null => false
   end
 
   create_table "invoices", :force => true do |t|
@@ -43,8 +61,17 @@ ActiveRecord::Schema.define(:version => 20140625015447) do
     t.string   "cust_reference"
     t.string   "cust_order"
     t.text     "prelude"
-    t.datetime "created_at",      :null => false
-    t.datetime "updated_at",      :null => false
+    t.datetime "created_at",               :null => false
+    t.datetime "updated_at",               :null => false
+    t.text     "customer_name"
+    t.text     "customer_address"
+    t.text     "customer_account_number"
+    t.text     "customer_vat_id"
+    t.text     "customer_supplier_number"
+    t.date     "due_date"
+    t.text     "tax_classes"
+    t.decimal  "sum_net"
+    t.decimal  "sum_total"
   end
 
   add_index "invoices", ["document_number"], :name => "index_invoices_on_document_number", :unique => true

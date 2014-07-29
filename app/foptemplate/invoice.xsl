@@ -94,7 +94,7 @@
                 </fo:block>
             </fo:table-cell>
             <fo:table-cell padding-before="1mm" padding-after="1mm">
-                <fo:block text-align="end"><xsl:value-of select="@name" /></fo:block>
+                <fo:block text-align="end"><xsl:value-of select="@indicator-code" /></fo:block>
             </fo:table-cell>
             <fo:table-cell padding-before="1mm" padding-after="1mm">
                 <fo:block text-align="end"><xsl:value-of select="abt:format-amount(value)" /></fo:block>

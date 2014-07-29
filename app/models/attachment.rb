@@ -9,6 +9,11 @@ class Attachment < ActiveRecord::Base
     self.data = incoming_file.read
   end
 
+  def set_data(data, content_type)
+    self.data = data
+    self.content_type = content_type
+  end
+
   def filename=(new_filename)
     write_attribute("filename", sanitize_filename(new_filename))
   end

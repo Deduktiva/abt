@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.2.9'
+gem 'rails', '~> 3.2.9'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -27,11 +27,16 @@ end
 
 gem 'jquery-rails'
 
-gem 'bootstrap-sass'
+gem 'sass'
+gem 'bootstrap-sass', '~> 3.1.1.1'  # keep older version because bootstrap-sass is fucked
 gem 'haml-rails'
 gem 'simple_form'
 
 gem 'rails_config'
+
+gem 'lodash-rails'
+gem 'angularjs-rails'
+gem 'active_model_serializers'
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'

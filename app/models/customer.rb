@@ -1,5 +1,5 @@
 class Customer < ActiveRecord::Base
-  attr_accessible :address, :matchcode, :name, :notes, :time_budget, :sales_tax_customer_class_id
+  attr_accessible :address, :matchcode, :name, :notes, :time_budget, :sales_tax_customer_class_id, :vat_id
 
   validates :matchcode, :presence => true
   belongs_to :sales_tax_customer_class

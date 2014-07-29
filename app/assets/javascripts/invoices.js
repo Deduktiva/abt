@@ -83,7 +83,8 @@ controller('InvoiceLinesLineController', [
             $scope.line.title = $scope.product_dropdown_product.title;
             $scope.line.description = $scope.product_dropdown_product.description;
             $scope.line.rate = parseFloat($scope.product_dropdown_product.rate);
-            if (!!$scope.line.quantity) {
+            $scope.line.sales_tax_product_class_id = $scope.product_dropdown_product.sales_tax_product_class_id;
+            if (!$scope.line.quantity) {
                 $scope.line.quantity = 1;
             }
             $scope.isProductDropdownShown = false;

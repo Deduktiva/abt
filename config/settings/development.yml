@@ -1,0 +1,10 @@
+company:
+  name: TEST Company
+  address: |
+    Suedlandstrasse 33
+    1040 Wien
+    Austria
+  vat_id: ATUxxxxxxx
+
+fop:
+  binary_path: /Users/ch/Downloads/fop-1.1/fop

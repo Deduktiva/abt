@@ -13,4 +13,8 @@
 //= require jquery
 //= require jquery_ujs
 //= require bootstrap
+//= require angular
+//= require angular-animate
+//= require angular-resource
+//= require lodash
 //= require_tree .

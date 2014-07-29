@@ -1,0 +1,28 @@
+<h1 class="page-header">Listing products</h1>
+
+<table class="table table-striped table-condensed">
+  <tr>
+    <th>Title</th>
+    <th>Rate</th>
+    <th>Product Class</th>
+    <th width="3%"></th>
+    <th width="3%"></th>
+    <th width="3%"></th>
+  </tr>
+
+<% @products.each do |product| %>
+  <tr>
+    <td><%= product.title %></td>
+    <td><%= product.rate %></td>
+    <td><%= product.sales_tax_product_class && product.sales_tax_product_class.name %></td>
+    <td><%= link_to 'Show', product %></td>
+    <td><%= link_to 'Edit', edit_product_path(product) %></td>
+    <td><%= link_to 'Destroy', product, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<span class="glyphicon glyphicon-plus"></span>
+<%= link_to 'New Product', new_product_path %>

@@ -1,0 +1,19 @@
+<h1 class="page-header">Book invoice</h1>
+
+Document Number: <%= @invoice.document_number %><br>
+published: <%= @invoice.published %><br>
+
+<br>
+<b>Booking Log:</b>
+<pre>
+<%= @booking_log.join("\n") -%>
+</pre>
+
+<% if @booked and !@invoice.published? %>
+<%= link_to 'Preview', preview_invoice_path(@invoice), :class => 'btn btn-default' %> &nbsp;
+<%= button_to 'Book!', book_invoice_path(@invoice, :save => true), :class => 'btn btn-warning' %>
+<% end %>
+
+<% if @invoice.attachment %>
+<%= link_to 'PDF', attachment_path(@invoice.attachment) %>
+<% end %>

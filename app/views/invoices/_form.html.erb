@@ -1,0 +1,160 @@
+<%= form_for(@invoice) do |f| %>
+    <% if @invoice.errors.any? %>
+        <div id="error_explanation">
+            <h2><%= pluralize(@invoice.errors.count, 'error') %> prohibited this invoice from being saved:</h2>
+
+            <ul>
+                <% @invoice.errors.full_messages.each do |msg| %>
+                    <li><%= msg %></li>
+                <% end %>
+            </ul>
+        </div>
+    <% end %>
+
+<div class="form-inputs">
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label>Customer</label>
+                <%= f.collection_select :customer_id, Customer.all, :id, :name, {}, {:class => 'form-control'} %>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label>Project</label>
+                <%= f.collection_select :project_id, Project.all, :id, :matchcode, {}, {:class => 'form-control'} %>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label>Date</label>
+                (set at booking)
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label>Customer reference</label>
+                <%= f.text_field :cust_reference, {:class => 'form-control'} %>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label>Customer Order No</label>
+                <%= f.text_field :cust_order, {:class => 'form-control'} %>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <%= f.text_area :prelude, { :class => 'form-control', :rows => 2, :placeholder => 'Thank you for your business...' } %>
+        </div>
+    </div>
+
+    <% unless @invoice.id.nil? %>
+    <input type="text" id="invoice_lines" name="invoice_lines">
+    <hr>
+
+    <div ng-app="invoiceLinesApp">
+        <div ng-controller='InvoiceLinesController' ng-init="setLines(<%=json_for(@invoice.invoice_lines)%>); takeOverForm()">
+            <div ng-repeat="line in lines" ng-controller="InvoiceLinesLineController">
+                <!-- begin line -->
+                <div class="row">
+                    <div class="col-sm-2">
+                        <select class="form-control" ng-model="line.type" required="required">
+                            <option value="subheading">Subheading</option>
+                            <option value="text">Text</option>
+                            <option value="plain">Plaintext</option>
+                            <option value="item">Item</option>
+                        </select>
+                        </div>
+                    <div class="col-sm-7">
+                        <input class="form-control" ng-model="line.title" required="required">
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <button class="btn btn-info" type="button" ng-click="showProductDropdown()" ng-hide="line.type != 'item'">...</button>
+                        <button class="btn btn-default" type="button" ng-click="moveLineUp(line)"><span class="glyphicon glyphicon-chevron-up"></span></button>
+                        <button class="btn btn-default" type="button" ng-click="moveLineDown(line)"><span class="glyphicon glyphicon-chevron-down"></span></button>
+                        <button class="btn btn-danger" type="button" ng-click="removeLine(line)"><span class="glyphicon glyphicon-trash"></span></button>
+                    </div>
+                </div>
+                <div class="row" ng-hide="!isProductDropdownShown">
+                    <div class="col-sm-11">
+                        <div class="form-group">
+                            <select class="form-control" ng-model="product_dropdown_product"
+                                    ng-options="o as o.title for o in products"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-1">
+                        <div class="form-group">
+                            <button class="btn btn-success" type="button" ng-click="useSelectedProduct()"><span class="glyphicon glyphicon-ok"></span></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" ng-hide="line.type == 'subheading'">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea class="form-control" ng-model="line.description" ng-required="line.type != 'subheading'"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" ng-hide="line.type != 'item'">
+                    <div class="col-sm-4 col-md-2">
+                        <div class="form-group">
+                            <label>Rate</label>
+                            <input class="form-control" type="number" ng-model="line.rate" ng-required="line.type != 'item'">
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-md-2">
+                        <div class="form-group">
+                            <label>Quantity</label>
+                            <input class="form-control" type="number" ng-model="line.quantity" ng-required="line.type != 'item'">
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-md-2">
+                        <div class="form-group">
+                            <label>Product class</label>
+                            <select class="form-control" ng-model="line.sales_tax_product_class_id" ng-required="line.type != 'item'"
+                                    ng-options="o.id as o.name for o in sales_tax_product_classes"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-md-2 pull-right">
+                        <div class="form-group">
+                            <label>Net</label>
+                            {{ line.quantity * line.rate }}
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <!-- end line -->
+            </div>
+            <button class="btn btn-info pull-right" type="button" ng-click="addLine()">
+                + Add Line
+            </button>
+            <br clear="all">
+
+            <hr>
+            <div class="row">
+                <div class="col-sm-2">
+                    <b>Total:</b> {{invoice_total()}}
+                </div>
+            </div>
+
+            <hr>
+            <button class="btn btn-primary" type="submit" ng-click="saveLines()">
+                Save Invoice and Lines
+            </button>
+        </div>
+    <% end %>
+
+    </div>
+</div>
+<br>
+<div class="form-actions">
+    <hr>
+    <%= f.submit 'Save', { :class => 'btn btn-primary' } %>
+</div>
+<% end %>

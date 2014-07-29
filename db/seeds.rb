@@ -5,3 +5,5 @@
 #
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
+
+DocumentNumber.create(code: 'invoice', format: '%{year}%<number>04d', sequence: 0, last_number: nil, last_date: nil)

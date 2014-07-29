@@ -1,0 +1,27 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  invoice_id: 1
+  type: MyText
+  title: MyText
+  description: MyText
+  tax_class_id: 1
+  tax_class_name: MyText
+  tax_class_indicator_code: MyText
+  tax_class_rate: 1
+  quantity: 1.5
+  rate: 1.5
+  amount: 1.5
+
+two:
+  invoice_id: 1
+  type: MyText
+  title: MyText
+  description: MyText
+  tax_class_id: 1
+  tax_class_name: MyText
+  tax_class_indicator_code: MyText
+  tax_class_rate: 1
+  quantity: 1.5
+  rate: 1.5
+  amount: 1.5

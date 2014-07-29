@@ -1,18 +1,22 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.2.9'
+gem 'rails', '~> 3.2.9'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
-gem 'sqlite3'
+group :dev do
+  gem 'sqlite3'
+end
 
+group :prod do
+  gem 'pg'
+end
 
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do
   gem 'sass-rails',   '~> 3.2.3'
-  gem 'coffee-rails', '~> 3.2.1'
 
   # See https://github.com/sstephenson/execjs#readme for more supported runtimes
   # gem 'therubyracer', :platforms => :ruby
@@ -22,10 +26,16 @@ end
 
 gem 'jquery-rails'
 
-gem 'bootstrap-sass'
+gem 'sass'
+gem 'bootstrap-sass', '~> 3.1.1.1'  # keep older version because bootstrap-sass is fucked
 gem 'haml-rails'
 gem 'simple_form'
-gem 'prawn_rails', :git => 'http://github.com/pinglamb/prawn-rails.git'
+
+gem 'rails_config'
+
+gem 'lodash-rails'
+gem 'angularjs-rails'
+gem 'active_model_serializers'
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'

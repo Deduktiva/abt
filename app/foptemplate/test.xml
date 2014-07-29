@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<document class="invoice">
+
+    <issuer>
+        <address>
+            Test Company 1
+            A Street Somewhere 2/2/1
+            1010 Vienna
+            AUSTRIA
+        </address>
+        <vatid>ATUzzzzzz</vatid>
+    </issuer>
+
+    <recipient>
+        <address>
+        XXX
+        Zweite Anrede Dr. X
+        asdfstrasse 14/2/2/12/ Tuer 255
+        Gebaeude B
+        London AA 11111
+        GREAT BRITAIN
+        </address>
+
+        <reference>Mr. Some Guywithaname</reference>
+        <order-no>99999999999</order-no>
+        <account-no>0006</account-no>
+        <supplier-no>7777777</supplier-no>
+        <vatid>GB999999999</vatid>
+    </recipient>
+
+    <currency>EUR</currency>
+    <number>99990001</number>
+    <issue-date>2014-01-01</issue-date>
+    <due-date>2014-01-01</due-date>
+
+    <prelude>
+        Dear Steve, thank you for your business.
+
+        As you requested, we shipped all items to:
+
+        Shredder Services, Inc.
+        New Zealand
+    </prelude>
+
+    <items>
+        <item>
+            <title>
+                Services rendered
+            </title>
+            <description>
+                Wide Widget 1 2 3 4 5 6 7 aasdf asdfa sdfas fasdf asdf as dfa sddf asd f asdf asd f asdf a sf asddf
+                afdsfasf as f as fa
+            </description>
+            <quantity>1000</quantity>
+            <rate>3000</rate>
+            <tax-class>A</tax-class>
+            <amount>3000</amount>
+        </item>
+        <item>
+            <title>
+                half assed item
+            </title>
+            <quantity>0.75</quantity>
+            <rate>3000</rate>
+            <tax-class>A</tax-class>
+            <amount>3000</amount>
+        </item>
+
+        <subheading>
+            <title>Further stuff you didn't agree on but we billed anyway</title>
+        </subheading>
+        <text>
+            <description>
+            THIS IS MY TEXT 1
+            Wide Widget 1 2 3 4 5 6 7 aasdf asdfa sdfas fasdf asdf as dfa sddf asd f asdf asd f asdf a sf asddf afdsfasf
+            as f as fa
+            </description>
+        </text>
+
+        <text>
+            <title>                THIS IS MY TEXT 2</title>
+            <description>
+
+                Wide Widget 1 2 3 4 5 6 7 aasdf asdfa sdfas fasdf asdf as dfa sddf asd f asdf asd f asdf a sf asddf afdsfasf
+                as f as fa
+            </description>
+        </text>
+        <text>
+            <title>Some License Keys we shipped to you previously</title>
+            <plain>
+                <![CDATA[
+<xml>
+                </xml>
+                ]]>
+            </plain>
+        </text>
+
+        <text>
+            <description>
+                THIS IS MY TEXT 3
+                Wide Widget 1 2 3 4 5 6 7 aasdf asdfa sdfas fasdf asdf as dfa sddf asd f asdf asd f asdf a sf asddf afdsfasf
+                as f as fa
+            </description>
+        </text>
+        <text>
+            <description>
+                THIS IS MY TEXT 4
+                Wide Widget 1 2 3 4 5 6 7 aasdf asdfa sdfas fasdf asdf as dfa sddf asd f asdf asd f asdf a sf asddf afdsfasf
+                as f as fa
+            </description>
+        </text>
+        <text>
+            <description>
+                THIS IS MY TEXT 5
+                Wide Widget 1 2 3 4 5 6 7 aasdf asdfa sdfas fasdf asdf as dfa sddf asd f asdf asd f asdf a sf asddf afdsfasf
+                as f as fa
+            </description>
+        </text>
+        <text>
+            <description>
+                THIS IS MY TEXT 6
+                Wide Widget 1 2 3 4 5 6 7 aasdf asdfa sdfas fasdf asdf as dfa sddf asd f asdf asd f asdf a sf asddf afdsfasf
+                as f as fa
+            </description>
+        </text>
+        <text>
+            <description>
+                THIS IS MY TEXT
+                Wide Widget 1 2 3 4 5 6 7 aasdf asdfa sdfas fasdf asdf as dfa sddf asd f asdf asd f asdf a sf asddf afdsfasf
+                as f as fa
+            </description>
+        </text>
+        <text>
+            <description>
+                THIS IS MY TEXT
+                Wide Widget 1 2 3 4 5 6 7 aasdf asdfa sdfas fasdf asdf as dfa sddf asd f asdf asd f asdf a sf asddf afdsfasf
+                as f as fa
+            </description>
+        </text>
+        <text>
+            <description>
+                THIS IS MY TEXT
+                Wide Widget 1 2 3 4 5 6 7 aasdf asdfa sdfas fasdf asdf as dfa sddf asd f asdf asd f asdf a sf asddf afdsfasf
+                as f as fa
+            </description>
+        </text>
+
+    </items>
+    <sums>
+        <net>1486</net>
+        <tax-classes>
+            <tax-class name="Standard Goods" indicator-code="A">
+                <percentage>20</percentage>
+                <sum>1485</sum>
+                <value>297</value>
+            </tax-class>
+        </tax-classes>
+        <total>1782</total>
+    </sums>
+
+</document>

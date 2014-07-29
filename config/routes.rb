@@ -1,4 +1,17 @@
 Abt::Application.routes.draw do
+  resources :products
+
+
+  resources :invoices do
+    member do
+      get 'preview'
+      post 'book'
+    end
+  end
+
+
+  resources :attachments
+
   resources :sales_tax_rates
 
 

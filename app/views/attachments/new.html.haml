@@ -1,0 +1,11 @@
+%h1 Attachments#create
+%p Find me in app/views/attachments/create.html.haml
+
+= simple_form_for @attachment, :validation => true, :multipart => true, :html => {:class => 'form-horizontal' } do |f|
+
+  = f.file_field 'attachment'
+  = f.input :title, :input_html => { :class => "span6", :rows => 3 }
+
+  .form-actions
+    = f.button :submit, :class => 'btn-primary'
+    = link_to 'Cancel', @attachment, :class => "btn btn-danger"

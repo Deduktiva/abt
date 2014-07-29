@@ -1,4 +1,4 @@
-%h1 Welcome to ABT
+%h1.page-header Welcome to ABT
 
 %dl
   - @stats.each do |name, value|
@@ -6,3 +6,32 @@
       = name.capitalize
       %dd
         = value
+
+%div
+  %dl
+    %dt
+      Company Name:
+      %dd
+        = @data[:issuer_company].name
+    %dt
+      Address:
+      %dd
+        %address
+          = @data[:issuer_company].address.gsub("\n", ', ')
+    %dt
+      VAT ID:
+      %dd
+        = @data[:issuer_company].vat_id
+
+%div
+  - if not @data[:is_setup_done]
+    %p
+      Quick start: setup sales tax for your country:
+    %p
+      Start by creating
+      %a{:href => new_sales_tax_product_class_path}< product classes
+      and then
+      %a{:href => new_sales_tax_customer_class_path}< customer classes.
+    %p
+      When you have both,
+      %a{:href => new_sales_tax_rate_path}< create tax rates for them.

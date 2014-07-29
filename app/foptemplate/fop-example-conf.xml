@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<fop version="1.0">
+    <base>.</base>
+
+    <!-- Source resolution in dpi (dots/pixels per inch) for determining the size of pixels in SVG and bitmap images, default: 72dpi -->
+    <source-resolution>72</source-resolution>
+    <!-- Target resolution in dpi (dots/pixels per inch) for specifying the target resolution for generated bitmaps, default: 72dpi -->
+    <target-resolution>72</target-resolution>
+
+    <!-- Information for specific renderers -->
+    <!-- Uses renderer mime type for renderers -->
+    <renderers>
+        <renderer mime="application/pdf">
+            <filterList>
+                <!-- provides compression using zlib flate (default is on) -->
+                <value>flate</value>
+            </filterList>
+
+            <!-- This option lets you specify additional options on an XML handler -->
+            <!--xml-handler namespace="http://www.w3.org/2000/svg">
+              <stroke-text>false</stroke-text>
+            </xml-handler-->
+
+        </renderer>
+
+    </renderers>
+
+</fop>
+

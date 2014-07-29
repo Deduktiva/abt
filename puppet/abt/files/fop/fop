@@ -1,0 +1,5 @@
+#!/bin/bash
+# THIS FILE IS MANAGED BY PUPPET
+JARS=$(echo /usr/local/fop/*.jar | sed -e 's/ /:/g')
+exec java -Djava.awt.headless=true $JAVA_OPTS -cp $JARS org.apache.fop.cli.Main "$@"
+

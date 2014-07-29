@@ -47,15 +47,16 @@ class InvoiceRenderController
                 xml_item.title line.title
                 xml_item.description line.description if line.description
               end
-            end
-
-            if line.type == 'subheading'
+            elsif line.type == 'plain'
+               xml_items.text do |xml_item|
+                 xml_item.title line.title
+                 xml_item.plain line.description if line.description
+               end
+            elsif line.type == 'subheading'
               xml_items.subheading do |xml_item|
                 xml_item.title line.title
               end
-            end
-
-            if line.type == 'item'
+            elsif line.type == 'item'
               xml_items.item do |xml_item|
                 xml_item.title line.title
                 xml_item.description line.description if line.description

@@ -1,7 +1,7 @@
 // Place all the behaviors and hooks related to the matching controller here.
 // All this logic will automatically be available in application.js.
 
-var invoiceLinesApp = angular.module('invoiceLinesApp', ['ngResource']);
+var invoiceLinesApp = angular.module('invoiceLinesApp', ['ngResource', 'ProductsServices']);
 
 invoiceLinesApp.factory('SalesTaxProductClasses', [
     '$resource',
@@ -18,8 +18,9 @@ invoiceLinesApp.factory('SalesTaxProductClasses', [
 ]);
 
 invoiceLinesApp.controller('InvoiceLinesController', [
-    '$scope', '$log', 'SalesTaxProductClasses',
-    function($scope, $log, SalesTaxProductClasses) {
+    '$scope', '$log', 'SalesTaxProductClasses', 'Products',
+    function($scope, $log, SalesTaxProductClasses, Products) {
+        $scope.products = Products.query();
         $scope.setLines = function(lines) {
             return $scope.lines = lines;
         };
@@ -52,6 +53,27 @@ invoiceLinesApp.controller('InvoiceLinesController', [
         $scope.takeOverForm = function() {
             $('.form-actions').hide();
             return false;
+        };
+        return true;
+    }
+]);
+
+
+invoiceLinesApp.controller('InvoiceLinesLineController', [
+    '$scope', '$log',
+    function($scope, $log) {
+        $scope.isProductDropdownShown = false;
+        $scope.showProductDropdown = function() {
+            $scope.isProductDropdownShown = !$scope.isProductDropdownShown;
+        };
+        $scope.useSelectedProduct = function() {
+            $scope.line.title = $scope.product_dropdown_product.title;
+            $scope.line.description = $scope.product_dropdown_product.description;
+            $scope.line.rate = parseFloat($scope.product_dropdown_product.rate);
+            if (!!$scope.line.quantity) {
+                $scope.line.quantity = 1;
+            }
+            $scope.isProductDropdownShown = false;
         };
         return true;
     }

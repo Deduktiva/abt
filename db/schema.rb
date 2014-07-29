@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140729010841) do
+ActiveRecord::Schema.define(:version => 20140729161624) do
 
   create_table "attachments", :force => true do |t|
     t.string   "title"
@@ -86,6 +86,15 @@ ActiveRecord::Schema.define(:version => 20140729010841) do
 
   add_index "invoices", ["document_number"], :name => "index_invoices_on_document_number", :unique => true
 
+  create_table "products", :force => true do |t|
+    t.string   "title"
+    t.text     "description"
+    t.decimal  "rate"
+    t.integer  "sales_tax_product_class_id"
+    t.datetime "created_at",                 :null => false
+    t.datetime "updated_at",                 :null => false
+  end
+
   create_table "projects", :force => true do |t|
     t.string   "matchcode"
     t.text     "description"
@@ -112,7 +121,7 @@ ActiveRecord::Schema.define(:version => 20140729010841) do
   create_table "sales_tax_rates", :force => true do |t|
     t.integer  "sales_tax_customer_class_id"
     t.integer  "sales_tax_product_class_id"
-    t.decimal  "rate"
+    t.float    "rate"
     t.datetime "created_at",                  :null => false
     t.datetime "updated_at",                  :null => false
   end

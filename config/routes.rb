@@ -1,4 +1,7 @@
 Abt::Application.routes.draw do
+  resources :products
+
+
   resources :invoices do
     member do
       get 'preview'

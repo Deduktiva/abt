@@ -112,7 +112,7 @@ ActiveRecord::Schema.define(:version => 20140729010841) do
   create_table "sales_tax_rates", :force => true do |t|
     t.integer  "sales_tax_customer_class_id"
     t.integer  "sales_tax_product_class_id"
-    t.float    "rate"
+    t.decimal  "rate"
     t.datetime "created_at",                  :null => false
     t.datetime "updated_at",                  :null => false
   end

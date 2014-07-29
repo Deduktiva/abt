@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '~> 4.0.8'
+gem 'rails', '~> 4.1.4'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -23,13 +23,9 @@ gem 'bootstrap-sass', '~> 3.1.1'
 gem 'haml-rails'
 gem 'simple_form'
 
-gem 'rails_config', '~> 0.4.2'  # keep older version compatible with rails 3.x
-
 gem 'lodash-rails'
 gem 'angularjs-rails'
 gem 'active_model_serializers'
-
-gem 'json', '~> 2.1.0'  # force newer version compatible with ruby 2.2
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'

@@ -1,0 +1,9 @@
+# MANAGED BY PUPPET
+
+production:
+  adapter: postgresql
+  encoding: unicode
+  database: abt
+  pool: 5
+  timeout: 5000
+

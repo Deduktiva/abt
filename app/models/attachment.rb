@@ -2,7 +2,6 @@ class Attachment < ActiveRecord::Base
   validates :title, :presence => true
 
   def uploaded_file=(incoming_file)
-    puts incoming_file.inspect
     self.filename = incoming_file.original_filename
     self.content_type = incoming_file.content_type
     self.data = incoming_file.read

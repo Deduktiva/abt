@@ -53,8 +53,9 @@
         </div>
     </div>
 
-    <% unless @invoice.id.nil? %>
     <input type="text" id="invoice_lines" name="invoice_lines">
+
+    <% unless @invoice.id.nil? %>
     <hr>
 
     <div ng-app="invoiceLinesApp">

@@ -43,7 +43,7 @@ class InvoicesController < ApplicationController
   # POST /invoices
   # POST /invoices.json
   def create
-    @invoice = Invoice.new(params[:invoice])
+    @invoice = Invoice.new(invoice_params)
 
     respond_to do |format|
       if @invoice.save
@@ -62,7 +62,7 @@ class InvoicesController < ApplicationController
     @invoice = Invoice.find(params[:id])
     return unless check_unpublished
 
-    success = @invoice.update_attributes(params[:invoice])
+    state = {success: @invoice.update_attributes(invoice_params)}
     unless params[:invoice_lines].nil? or params[:invoice_lines].empty?
       new_lines = JSON.parse params[:invoice_lines]
       puts new_lines.inspect
@@ -155,5 +155,9 @@ class InvoicesController < ApplicationController
       return false
     end
     true
+  end
+
+  def invoice_params
+    params.require(:invoice).permit(:customer_id, :project_id, :cust_reference, :cust_order, :prelude)
   end
 end

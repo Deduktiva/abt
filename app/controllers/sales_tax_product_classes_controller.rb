@@ -40,7 +40,7 @@ class SalesTaxProductClassesController < ApplicationController
   # POST /sales_tax_product_classes
   # POST /sales_tax_product_classes.json
   def create
-    @sales_tax_product_class = SalesTaxProductClass.new(params[:sales_tax_product_class])
+    @sales_tax_product_class = SalesTaxProductClass.new(sales_tax_product_classes_params)
 
     respond_to do |format|
       if @sales_tax_product_class.save
@@ -59,7 +59,7 @@ class SalesTaxProductClassesController < ApplicationController
     @sales_tax_product_class = SalesTaxProductClass.find(params[:id])
 
     respond_to do |format|
-      if @sales_tax_product_class.update_attributes(params[:sales_tax_product_class])
+      if @sales_tax_product_class.update_attributes(sales_tax_product_classes_params)
         format.html { redirect_to @sales_tax_product_class, notice: 'Sales tax product class was successfully updated.' }
         format.json { head :no_content }
       else
@@ -79,5 +79,10 @@ class SalesTaxProductClassesController < ApplicationController
       format.html { redirect_to sales_tax_product_classes_url }
       format.json { head :no_content }
     end
+  end
+
+private
+  def sales_tax_product_classes_params
+    params.require(:sales_tax_product_class).permit(:name, :indicator_code)
   end
 end

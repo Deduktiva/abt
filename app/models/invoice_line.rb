@@ -1,6 +1,9 @@
 class InvoiceLine < ActiveRecord::Base
-  attr_accessible :amount, :description, :quantity, :rate, :title, :type,
-                  :sales_tax_product_class_id, :sales_tax_indicator_code, :sales_tax_name, :sales_tax_rate
+  validates :title, presence: true
+  validates :type, presence: true, inclusion: %w(item title plain text)
+  validates :rate, presence: true, if: :is_item
+  validates :quantity, presence: true, if: :is_item
+
   attr_readonly :invoice_id
   belongs_to :invoice
   belongs_to :sales_tax_product_class

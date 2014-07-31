@@ -40,7 +40,7 @@ class SalesTaxCustomerClassesController < ApplicationController
   # POST /sales_tax_customer_classes
   # POST /sales_tax_customer_classes.json
   def create
-    @sales_tax_customer_class = SalesTaxCustomerClass.new(params[:sales_tax_customer_class])
+    @sales_tax_customer_class = SalesTaxCustomerClass.new(sales_tax_customer_classes_params)
 
     respond_to do |format|
       if @sales_tax_customer_class.save
@@ -59,7 +59,7 @@ class SalesTaxCustomerClassesController < ApplicationController
     @sales_tax_customer_class = SalesTaxCustomerClass.find(params[:id])
 
     respond_to do |format|
-      if @sales_tax_customer_class.update_attributes(params[:sales_tax_customer_class])
+      if @sales_tax_customer_class.update_attributes(sales_tax_customer_classes_params)
         format.html { redirect_to @sales_tax_customer_class, notice: 'Sales tax customer class was successfully updated.' }
         format.json { head :no_content }
       else
@@ -79,5 +79,10 @@ class SalesTaxCustomerClassesController < ApplicationController
       format.html { redirect_to sales_tax_customer_classes_url }
       format.json { head :no_content }
     end
+  end
+
+private
+  def sales_tax_customer_classes_params
+    params.require(:sales_tax_customer_class).permit(:name, :invoice_note)
   end
 end

@@ -8,9 +8,8 @@ class InvoiceRenderController < ApplicationController
   end
 
   def render
-    logger.info "InvoiceRenderController#render"
+    Rails.logger.info "InvoiceRenderController#render"
     customer_sales_tax_rates = @invoice.customer.sales_tax_rates
-    puts customer_sales_tax_rates
 
     begin
       xml_file = Tempfile.new('abt')
@@ -82,18 +81,16 @@ class InvoiceRenderController < ApplicationController
           end
         end
 
-        puts @invoice.tax_classes.inspect
-        puts "len: #{@invoice.tax_classes.length}"
+        Rails.logger.debug @invoice.invoice_tax_classes.inspect
+        Rails.logger.debug "len: #{@invoice.invoice_tax_classes.length}"
 
         xml_invoice.sums do |xml_sums|
-          if !@invoice.tax_classes.nil? and @invoice.tax_classes.length > 0
-            xml_sums.tag! 'tax-classes' do |xml_tax_classes|
-              @invoice.tax_classes.values.each do |tax_class|
-                xml_tax_classes.tag! 'tax-class', {:name => tax_class[:name], 'indicator-code' => tax_class[:indicator_code]} do |xml_tax_class|
-                  xml_tax_class.percentage tax_class[:rate]
-                  xml_tax_class.sum tax_class[:net]
-                  xml_tax_class.value tax_class[:value]
-                end
+          xml_sums.tag! 'tax-classes' do |xml_tax_classes|
+            @invoice.invoice_tax_classes.all.each do |tax_class|
+              xml_tax_classes.tag! 'tax-class', {:name => tax_class.name, 'indicator-code' => tax_class.indicator_code} do |xml_tax_class|
+                xml_tax_class.percentage tax_class.rate
+                xml_tax_class.sum tax_class.net
+                xml_tax_class.value tax_class.value
               end
             end
           end
@@ -103,9 +100,9 @@ class InvoiceRenderController < ApplicationController
 
       end
       xml_file.close
-      logger.info "InvoiceRenderController wrote to: #{xml_file.path}"
+      Rails.logger.info "InvoiceRenderController wrote to: #{xml_file.path}"
 
-      puts File.read(xml_file.path)
+      Rails.logger.debug File.read(xml_file.path)
 
       template_path = Rails.root.join('app', 'foptemplate')
       tpl_xsl = template_path.join('invoice.xsl')
@@ -121,17 +118,17 @@ class InvoiceRenderController < ApplicationController
             "\"#{Settings.fop.binary_path}\" " +
             "-xml \"#{xml_file.path}\" -xsl \"#{tpl_xsl}\" -pdf \"#{pdffile.path}\" -c \"#{fop_conf}\""
 
-        logger.info "Calling fop: #{fop_command}"
+        Rails.logger.debug "Calling fop: #{fop_command}"
 
         fop_result = nil
         IO.popen(fop_command, mode="r", :err=>[:child, :out]) do |fop_io|
           fop_result = fop_io.read
         end
-        logger.info "fop result: #{fop_result}"
+        Rails.logger.debug "fop result: #{fop_result}"
 
         return File.read(pdffile.path)
       rescue
-        logger.error "fop failed: #{$!}"
+        Rails.logger.error "fop failed: #{$!}"
         raise
       ensure
         pdffile.close true

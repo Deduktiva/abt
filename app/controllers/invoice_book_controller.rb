@@ -52,17 +52,18 @@ class InvoiceBookController
       error 'no sales tax config for customer'
       return !@failed
     end
-    @invoice.tax_classes = {}
 
+    @invoice.invoice_tax_classes.all.each do |tax_class| tax_class.destroy! end
     customer_sales_tax_rates.each do |cst|
-      pc = cst.sales_tax_product_class
-      @invoice.tax_classes[pc.id] = {
-        :name => pc.name,
-        :indicator_code => pc.indicator_code,
-        :rate => cst.rate,
-        :net => 0,
-        :total => 0
-      }
+      data = ActionController::Parameters.new({
+        sales_tax_product_class: cst.sales_tax_product_class,
+        name: cst.sales_tax_product_class.name,
+        indicator_code: cst.sales_tax_product_class.indicator_code,
+        rate: cst.rate,
+        net: 0,
+        total: 0
+      }).permit!
+      @invoice.invoice_tax_classes.create! data
     end
 
     have_an_item = false
@@ -78,18 +79,22 @@ class InvoiceBookController
         line.amount = line.quantity * line.rate
         @log << "#{line.id}.     Qty #{line.quantity} * #{line.rate} = #{line.amount}"
 
-        error "no tax config for product class #{line.sales_tax_product_class_id}" if @invoice.tax_classes[line.sales_tax_product_class_id].nil?
+        itc = @invoice.invoice_tax_classes.find_by_sales_tax_product_class_id(line.sales_tax_product_class_id)
+        error "no tax config for product class #{line.sales_tax_product_class_id}" if itc.nil?
 
-        line.sales_tax_name = @invoice.tax_classes[line.sales_tax_product_class_id][:name]
-        line.sales_tax_rate = @invoice.tax_classes[line.sales_tax_product_class_id][:rate]
-        line.sales_tax_indicator_code = @invoice.tax_classes[line.sales_tax_product_class_id][:indicator_code]
+        line.sales_tax_name = itc.name
+        line.sales_tax_rate = itc.rate
+        line.sales_tax_indicator_code = itc.indicator_code
 
-        @invoice.tax_classes[line.sales_tax_product_class_id][:net] += line.amount
+        itc.net += line.amount
+        itc.save!
       else
         line.amount = nil
         line.rate = nil
         line.quantity = nil
       end
+      Rails.logger.debug "line: #{line.inspect}"
+      line.save!
     end
     @log << '--- END LINES ---'
     @log << ''
@@ -97,15 +102,12 @@ class InvoiceBookController
     @log << 'Sums:'
     @invoice.sum_net = 0
     @invoice.sum_total = 0
-    @invoice.tax_classes.each do |tc_id, tax_class|
-      tax_class[:value] = tax_class[:net] * (tax_class[:rate]/100.0)
-      tax_class[:total] = tax_class[:net] + tax_class[:value]
-      @invoice.sum_net += tax_class[:net]
-      @invoice.sum_total += tax_class[:total]
-      @log << "TAX #{tax_class[:name]}/#{tax_class[:indicator_code]}: #{tax_class[:rate]}% of #{tax_class[:net]} = #{tax_class[:value]}"
+    @invoice.invoice_tax_classes.all.each do |itc|
+      @invoice.sum_net += itc.net
+      @invoice.sum_total += itc.total
+      @log << "TAX #{itc.name}/#{itc.indicator_code}: #{itc.rate}% of #{itc.net} = #{itc.value}"
     end
     @log << "== SUM: Net: #{@invoice.sum_net}, Total: #{@invoice.sum_total}"
-
 
     unless have_an_item
       error 'not even one item line'

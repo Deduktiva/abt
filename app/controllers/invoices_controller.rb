@@ -62,21 +62,26 @@ class InvoicesController < ApplicationController
     @invoice = Invoice.find(params[:id])
     return unless check_unpublished
 
-    state = {success: @invoice.update_attributes(invoice_params)}
-    unless params[:invoice_lines].nil? or params[:invoice_lines].empty?
-      new_lines = JSON.parse params[:invoice_lines]
-      puts new_lines.inspect
-      @invoice.invoice_lines.delete_all
-      new_lines.each do |new_line|
-        line = @invoice.invoice_lines.new
-        new_line.delete '$$hashKey'
-        new_line.delete 'invoice_line_id'
-        line.update_attributes(new_line)
+    state = nil
+
+    ActiveRecord::Base.transaction(requires_new: true) do
+      state = {success: @invoice.update_attributes(invoice_params)}
+      unless params[:invoice_lines].nil? or params[:invoice_lines].empty?
+        @invoice.invoice_lines.delete_all(:delete_all)
+        new_lines = JSON.parse params[:invoice_lines]
+        new_lines.each do |new_line|
+          new_line = ActionController::Parameters.new(new_line).permit(
+              :type, :title, :description, :rate, :quantity, :sales_tax_product_class_id
+          )
+          unless @invoice.invoice_lines.create new_line
+            state[:success] = false
+          end
+        end
       end
     end
 
     respond_to do |format|
-      if success
+      if state[:success]
         format.html { redirect_to @invoice, notice: 'Invoice was successfully updated.' }
         format.json { head :no_content }
       else
@@ -110,6 +115,9 @@ class InvoicesController < ApplicationController
 
     ActiveRecord::Base.transaction(requires_new: true) do
       @booked = @booker.book want_save
+      unless want_save
+        raise ActiveRecord::Rollback, 'preview only'
+      end
     end
     @booking_log = @booker.log
 
@@ -125,32 +133,27 @@ class InvoicesController < ApplicationController
   end
 
   def preview
-    logger.info "InvoiceController#preview"
+    Rails.logger.debug "InvoiceController#preview"
     @invoice = Invoice.find(params[:id])
     return unless check_unpublished
 
     issuer = IssuerCompany.from_config
     @booker = InvoiceBookController.new @invoice, issuer
 
-    logger.info "InvoiceController#preview made BookController"
     ActiveRecord::Base.transaction(requires_new: true) do
-      begin
-        @invoice.document_number = 'DRAFT'
-        @booked = @booker.book false
-        logger.info "InvoiceBookController#book returned with #{@booked}"
-        @pdf = InvoiceRenderController.new(@invoice, issuer).render if @booked
-        logger.info "InvoiceRenderController#render returned"
-      ensure
-        raise ActiveRecord::Rollback, 'preview only'
-      end
+      @invoice.document_number = 'DRAFT'
+      @booked = @booker.book false
+      Rails.logger.debug "InvoiceBookController#book returned with #{@booked}"
+      @pdf = InvoiceRenderController.new(@invoice, issuer).render if @booked
+      Rails.logger.debug "InvoiceRenderController#render returned"
+      raise ActiveRecord::Rollback, 'preview only'
     end
 
     if @booked and !@pdf.nil? and !@pdf.empty?
       send_data @pdf, type: 'application/pdf', disposition: 'inline'
     else
-      text = @booker.log.join("\n")
-      text += "\n\nbooked: #{@booked}\nhave pdf: #{!@pdf.nil?}\n"
-      send_data text, type: 'text/plain', disposition: 'inline'
+      log = ["Test-Booking succeeded? #{@booked}", "PDF empty: #{@pdf.nil? or @pdf.empty?}", ''] + @booker.log
+      send_data log.join("\n"), type: 'text/plain', disposition: 'inline'
     end
   end
 

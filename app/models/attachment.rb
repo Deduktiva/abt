@@ -1,5 +1,4 @@
 class Attachment < ActiveRecord::Base
-  attr_accessible :title, :filename, :content_type, :data
   validates :title, :presence => true
 
   def uploaded_file=(incoming_file)

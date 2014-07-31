@@ -40,7 +40,7 @@ class CustomersController < ApplicationController
   # POST /customers
   # POST /customers.json
   def create
-    @customer = Customer.new(params[:customer])
+    @customer = Customer.new(customers_params)
 
     respond_to do |format|
       if @customer.save
@@ -59,7 +59,7 @@ class CustomersController < ApplicationController
     @customer = Customer.find(params[:id])
 
     respond_to do |format|
-      if @customer.update_attributes(params[:customer])
+      if @customer.update_attributes(customers_params)
         format.html { redirect_to @customer, notice: 'Customer was successfully updated.' }
         format.json { head :no_content }
       else
@@ -79,5 +79,12 @@ class CustomersController < ApplicationController
       format.html { redirect_to customers_url }
       format.json { head :no_content }
     end
+  end
+
+private
+  def customers_params
+    params.require(:customer).permit(
+        :matchcode, :name, :address, :email, :vat_id, :time_budget, :notes, :salex_tax_customer_class_id
+    )
   end
 end

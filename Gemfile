@@ -41,6 +41,3 @@ gem 'active_model_serializers'
 
 # To use debugger
 # gem 'debugger'
-
-# Rails 3.2 -> 4 migration help
-gem 'protected_attributes'

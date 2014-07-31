@@ -55,7 +55,7 @@ class SalesTaxRatesController < ApplicationController
   # POST /sales_tax_rates
   # POST /sales_tax_rates.json
   def create
-    @sales_tax_rate = SalesTaxRate.new(params[:sales_tax_rate])
+    @sales_tax_rate = SalesTaxRate.new(sales_tax_rates_params)
 
     respond_to do |format|
       if @sales_tax_rate.save
@@ -74,7 +74,7 @@ class SalesTaxRatesController < ApplicationController
     @sales_tax_rate = SalesTaxRate.find(params[:id])
 
     respond_to do |format|
-      if @sales_tax_rate.update_attributes(params[:sales_tax_rate])
+      if @sales_tax_rate.update_attributes(sales_tax_rates_params)
         format.html { redirect_to sales_tax_rates_url, notice: 'Sales tax rate was successfully updated.' }
         format.json { head :no_content }
       else
@@ -94,5 +94,10 @@ class SalesTaxRatesController < ApplicationController
       format.html { redirect_to sales_tax_rates_url }
       format.json { head :no_content }
     end
+  end
+
+private
+  def sales_tax_rates_params
+    params.require(:sales_tax_rate).permit(:sales_tax_customer_class_id, :sales_tax_product_class_id, :rate)
   end
 end

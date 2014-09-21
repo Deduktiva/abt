@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140729161624) do
+ActiveRecord::Schema.define(:version => 20140921215712) do
 
   create_table "attachments", :force => true do |t|
     t.string   "title"
@@ -33,6 +33,7 @@ ActiveRecord::Schema.define(:version => 20140729161624) do
     t.integer  "sales_tax_customer_class_id"
     t.text     "vat_id"
     t.text     "supplier_number"
+    t.string   "email"
   end
 
   create_table "document_numbers", :force => true do |t|

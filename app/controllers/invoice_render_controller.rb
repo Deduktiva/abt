@@ -39,6 +39,17 @@ class InvoiceRenderController
         xml_invoice.number @invoice.document_number
         xml_invoice.tag! 'issue-date', @invoice.date
         xml_invoice.tag! 'due-date', @invoice.due_date
+        if @invoice.published
+          if @invoice.token.nil?
+            payment_url = ''
+          else
+            payment_url = Settings.payments.public_url.gsub('%token%', @invoice.token)
+          end
+        else
+          payment_url = Settings.payments.public_url.gsub('%token%', 'NOT-YET-ASSIGNED')
+        end
+
+        xml_invoice.tag! 'payment-url', payment_url
 
         xml_invoice.items do |xml_items|
           @invoice.invoice_lines.each do |line|

@@ -112,6 +112,7 @@ class InvoiceBookController
       @invoice.invoice_lines.each do |line| line.save! end
       @invoice.document_number = DocumentNumber.get_next_for 'invoice', @invoice.date
       @log << "Assigned Document Number #{@invoice.document_number}"
+      @invoice.token = Rfc4648Base32.i_to_s((SecureRandom.random_number(100).to_s + (@invoice.customer.id + 100000).to_s + @invoice.document_number.to_s).to_i)
       @invoice.published = true
       @invoice.save!
 

@@ -416,7 +416,7 @@
             <fo:block-container space-before.optimum="1cm" space-before.minimum="0.5cm" space-before.maximum="1cm" line-height="15pt" page-break-inside="avoid">
                 <!-- note: can't have newline before first line -->
                 <fo:block-container
-                        height="2.1cm"
+                        height="2.5cm"
                         space-before="5mm" border-color="black" border-style="solid" border-width="0.13mm" padding="0.6mm">
                     <fo:block>Full amount due
                         <fo:inline font-weight="600">
@@ -427,7 +427,11 @@
                         on
                         <fo:inline font-weight="600"><xsl:value-of select="/document/due-date" /></fo:inline>.
                     </fo:block>
-                    <fo:block>Remittance method:</fo:block>
+                    <fo:block>
+                        <fo:inline font-weight="600">Online payment: </fo:inline>
+                        <fo:basic-link color="blue" external-destination="{/document/payment-url}"><xsl:value-of select="/document/payment-url" /></fo:basic-link>
+                    </fo:block>
+                    <fo:block><fo:inline font-weight="600">Wire transfer:</fo:inline></fo:block>
                     <fo:block-container>
                         <fo:block-container left="0cm" top="0mm" width="7cm" position="absolute">
                             <fo:block>Bank: A bank, A place, A country</fo:block>

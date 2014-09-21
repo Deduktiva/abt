@@ -1,0 +1,2 @@
+payments:
+  public_url: 'https://pay.deduktiva.com/p/%token%'

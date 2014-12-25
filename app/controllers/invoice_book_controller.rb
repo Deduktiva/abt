@@ -30,6 +30,7 @@ class InvoiceBookController
     @invoice.customer_account_number = @invoice.customer.id
     @invoice.customer_supplier_number = @invoice.customer.supplier_number
     @invoice.customer_vat_id = @invoice.customer.vat_id
+    @invoice.tax_note = @invoice.customer.sales_tax_customer_class.invoice_note
     @invoice.date = Date.today
     @invoice.due_date = @invoice.date + 30.days
 

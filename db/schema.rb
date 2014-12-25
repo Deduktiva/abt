@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140921220503) do
+ActiveRecord::Schema.define(:version => 20141225155554) do
 
   create_table "attachments", :force => true do |t|
     t.string   "title"
@@ -84,6 +84,7 @@ ActiveRecord::Schema.define(:version => 20140921220503) do
     t.decimal  "sum_net"
     t.decimal  "sum_total"
     t.string   "token"
+    t.text     "tax_note"
   end
 
   add_index "invoices", ["document_number"], :name => "index_invoices_on_document_number", :unique => true

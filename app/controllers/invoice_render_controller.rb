@@ -36,6 +36,7 @@ class InvoiceRenderController
 
         xml_invoice.currency 'EUR'
         xml_invoice.prelude @invoice.prelude
+        xml_invoice.tag! 'tax-note', @invoice.tax_note
         xml_invoice.number @invoice.document_number
         xml_invoice.tag! 'issue-date', @invoice.date
         xml_invoice.tag! 'due-date', @invoice.due_date

@@ -395,6 +395,15 @@
             <!-- tax data -->
             <xsl:apply-templates select="/document/sums/tax-classes" />
 
+            <xsl:if test="/document/tax-note != ''">
+                <fo:block-container space-before="2mm" space-after="2mm">
+                    <fo:block color="#0000ff">Tax Information</fo:block>
+                    <fo:block linefeed-treatment="preserve">
+                        <xsl:value-of select="abt:strip-space(/document/tax-note)" />
+                    </fo:block>
+                </fo:block-container>
+            </xsl:if>
+
             <!-- total -->
             <fo:block-container
                     border-before-style="solid" border-before-width="0.5mm" border-before-color="black"

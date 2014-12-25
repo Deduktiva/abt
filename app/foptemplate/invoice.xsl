@@ -15,6 +15,19 @@
         <xsl:param name="value" />
         <xsl:value-of select="format-number($value, '###.###,00', 'european')" />
     </xsl:function>
+    <xsl:function name="abt:ifempty">
+        <xsl:param name="string" />
+        <xsl:param name="empty" />
+        <xsl:param name="filled" />
+        <xsl:choose>
+            <xsl:when test="$string != ''">
+                <xsl:value-of select="$filled" />
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$empty" />
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:function>
 
     <xsl:template match="/document/items/item">
         <fo:table-body keep-together.within-page="always">
@@ -415,8 +428,9 @@
             <!-- end of document data -->
             <fo:block-container space-before.optimum="1cm" space-before.minimum="0.5cm" space-before.maximum="1cm" line-height="15pt" page-break-inside="avoid">
                 <!-- note: can't have newline before first line -->
+
                 <fo:block-container
-                        height="2.5cm"
+                        height="{abt:ifempty(/document/payment-url, '2.1cm', '2.5cm')}"
                         space-before="5mm" border-color="black" border-style="solid" border-width="0.13mm" padding="0.6mm">
                     <fo:block>Full amount due
                         <fo:inline font-weight="600">
@@ -428,8 +442,10 @@
                         <fo:inline font-weight="600"><xsl:value-of select="/document/due-date" /></fo:inline>.
                     </fo:block>
                     <fo:block>
-                        <fo:inline font-weight="600">Online payment: </fo:inline>
-                        <fo:basic-link color="blue" external-destination="{/document/payment-url}"><xsl:value-of select="/document/payment-url" /></fo:basic-link>
+                        <xsl:if test="/document/payment-url != ''">
+                            <fo:inline font-weight="600">Online payment: </fo:inline>
+                            <fo:basic-link color="blue" external-destination="{/document/payment-url}"><xsl:value-of select="/document/payment-url" /></fo:basic-link>
+                        </xsl:if>
                     </fo:block>
                     <fo:block><fo:inline font-weight="600">Wire transfer:</fo:inline></fo:block>
                     <fo:block-container>

@@ -13,7 +13,7 @@
     </xsl:function>
     <xsl:function name="abt:format-amount">
         <xsl:param name="value" />
-        <xsl:value-of select="format-number($value, '###.###,00', 'european')" />
+        <xsl:value-of select="format-number($value, '###.##0,00', 'european')" />
     </xsl:function>
     <xsl:function name="abt:ifempty">
         <xsl:param name="string" />

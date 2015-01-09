@@ -31,8 +31,10 @@ class InvoiceBookController
     @invoice.customer_supplier_number = @invoice.customer.supplier_number
     @invoice.customer_vat_id = @invoice.customer.vat_id
     @invoice.tax_note = @invoice.customer.sales_tax_customer_class.invoice_note
-    @invoice.date = Date.today
-    @invoice.due_date = @invoice.date + 30.days
+    if @invoice.date.nil?
+      @invoice.date = Date.today
+      @invoice.due_date = @invoice.date + 30.days
+    end
 
     error 'no customer name' if empty_or_nil @invoice.customer_name
     error 'no customer address' if empty_or_nil @invoice.customer_address
@@ -111,7 +113,9 @@ class InvoiceBookController
 
     if !@failed and save
       @invoice.invoice_lines.each do |line| line.save! end
-      @invoice.document_number = DocumentNumber.get_next_for 'invoice', @invoice.date
+      if @invoice.document_number.nil?
+        @invoice.document_number = DocumentNumber.get_next_for 'invoice', @invoice.date
+      end
       @log << "Assigned Document Number #{@invoice.document_number}"
       @invoice.token = Rfc4648Base32.i_to_s((SecureRandom.random_number(100).to_s + (@invoice.customer.id + 100000).to_s + @invoice.document_number.to_s).to_i)
       @invoice.published = true

@@ -125,16 +125,21 @@ class InvoicesController < ApplicationController
   end
 
   def preview
+    logger.info "InvoiceController#preview"
     @invoice = Invoice.find(params[:id])
     return unless check_unpublished
 
     issuer = IssuerCompany.from_config
     @booker = InvoiceBookController.new @invoice, issuer
 
+    logger.info "InvoiceController#preview made BookController"
     ActiveRecord::Base.transaction(requires_new: true) do
       begin
+        @invoice.document_number = 'DRAFT'
         @booked = @booker.book false
+        logger.info "InvoiceBookController#book returned with #{@booked}"
         @pdf = InvoiceRenderController.new(@invoice, issuer).render if @booked
+        logger.info "InvoiceRenderController#render returned"
       ensure
         raise ActiveRecord::Rollback, 'preview only'
       end
@@ -143,7 +148,9 @@ class InvoicesController < ApplicationController
     if @booked and !@pdf.nil? and !@pdf.empty?
       send_data @pdf, type: 'application/pdf', disposition: 'inline'
     else
-      send_data @booker.log.join("\n"), type: 'text/plain', disposition: 'inline'
+      text = @booker.log.join("\n")
+      text += "\n\nbooked: #{@booked}\nhave pdf: #{!@pdf.nil?}\n"
+      send_data text, type: 'text/plain', disposition: 'inline'
     end
   end
 

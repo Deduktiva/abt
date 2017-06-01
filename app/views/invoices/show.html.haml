@@ -47,7 +47,9 @@
         = line.title
   .row
     .col-sm-12
-      = line.description
+      - (line.description||"").split("\n").each do |desc|
+        = desc
+        %br
   - if line.type == 'item'
     .row
       .col-sm-4.col-md-2

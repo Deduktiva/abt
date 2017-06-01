@@ -97,7 +97,7 @@
                     <div class="col-sm-12">
                         <div class="form-group">
                             <label>Description</label>
-                            <textarea class="form-control" ng-model="line.description" ng-required="line.type != 'subheading'"></textarea>
+                            <textarea class="form-control" ng-model="line.description"></textarea>
                         </div>
                     </div>
                 </div>
@@ -105,19 +105,19 @@
                     <div class="col-sm-4 col-md-2">
                         <div class="form-group">
                             <label>Rate</label>
-                            <input class="form-control" type="number" step="any" ng-model="line.rate" ng-required="line.type != 'item'">
+                            <input class="form-control" type="number" step="any" ng-model="line.rate" ng-required="line.type == 'item'">
                         </div>
                     </div>
                     <div class="col-sm-4 col-md-2">
                         <div class="form-group">
                             <label>Quantity</label>
-                            <input class="form-control" type="number" step="any" ng-model="line.quantity" ng-required="line.type != 'item'">
+                            <input class="form-control" type="number" step="any" ng-model="line.quantity" ng-required="line.type == 'item'">
                         </div>
                     </div>
                     <div class="col-sm-4 col-md-2">
                         <div class="form-group">
                             <label>Product class</label>
-                            <select class="form-control" ng-model="line.sales_tax_product_class_id" ng-required="line.type != 'item'"
+                            <select class="form-control" ng-model="line.sales_tax_product_class_id" ng-required="line.type == 'item'"
                                     ng-options="o.id as o.name for o in sales_tax_product_classes"></select>
                         </div>
                     </div>

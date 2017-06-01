@@ -1,6 +1,6 @@
 require 'builder'
 
-class InvoiceRenderController
+class InvoiceRenderController < ApplicationController
 
   def initialize(invoice, issuer)
     @invoice = invoice
@@ -8,6 +8,7 @@ class InvoiceRenderController
   end
 
   def render
+    logger.info "InvoiceRenderController#render"
     customer_sales_tax_rates = @invoice.customer.sales_tax_rates
     puts customer_sales_tax_rates
 
@@ -102,6 +103,7 @@ class InvoiceRenderController
 
       end
       xml_file.close
+      logger.info "InvoiceRenderController wrote to: #{xml_file.path}"
 
       puts File.read(xml_file.path)
 
@@ -119,11 +121,18 @@ class InvoiceRenderController
             "\"#{Settings.fop.binary_path}\" " +
             "-xml \"#{xml_file.path}\" -xsl \"#{tpl_xsl}\" -pdf \"#{pdffile.path}\" -c \"#{fop_conf}\""
 
-        puts fop_command
+        logger.info "Calling fop: #{fop_command}"
 
-        `#{fop_command}`
+        fop_result = nil
+        IO.popen(fop_command, mode="r", :err=>[:child, :out]) do |fop_io|
+          fop_result = fop_io.read
+        end
+        logger.info "fop result: #{fop_result}"
 
         return File.read(pdffile.path)
+      rescue
+        logger.error "fop failed: #{$!}"
+        raise
       ensure
         pdffile.close true
       end

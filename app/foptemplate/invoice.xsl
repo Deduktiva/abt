@@ -265,6 +265,9 @@
                 <fo:block-container position="absolute" width="4.1cm" top="0cm" left="8.75cm">
                     <fo:block color="#0000ff">Supplier No</fo:block>
                     <fo:block><xsl:value-of select="/document/recipient/supplier-no" /></fo:block>
+
+                    <fo:block color="#0000ff">Our VAT ID</fo:block>
+                    <fo:block><xsl:value-of select="/document/issuer/vatid" /></fo:block>
                 </fo:block-container>
 
                 <fo:block-container position="absolute" width="4.1cm" top="0cm" left="13.125cm" text-align="start">

@@ -31,11 +31,13 @@ gem 'bootstrap-sass', '~> 3.1.1.1'  # keep older version because bootstrap-sass 
 gem 'haml-rails'
 gem 'simple_form'
 
-gem 'rails_config'
+gem 'rails_config', '~> 0.4.2'  # keep older version compatible with rails 3.x
 
 gem 'lodash-rails'
 gem 'angularjs-rails'
 gem 'active_model_serializers'
+
+gem 'json', '~> 2.1.0'  # force newer version compatible with ruby 2.2
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'

@@ -1,3 +1,6 @@
+require 'active_model_serializers'
+require 'active_model/serializer'
+
 module ApplicationHelper
 
   def display_base_errors resource
@@ -18,7 +21,7 @@ module ApplicationHelper
     if target == []
       return '[]'
     end
-    target.active_model_serializer.new(target, options).to_json
+    ActiveModel::ArraySerializer.new(target, options).to_json
   end
 
 end

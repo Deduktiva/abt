@@ -84,7 +84,7 @@ class CustomersController < ApplicationController
 private
   def customers_params
     params.require(:customer).permit(
-        :matchcode, :name, :address, :email, :vat_id, :time_budget, :notes, :salex_tax_customer_class_id
+        :matchcode, :name, :address, :email, :vat_id, :time_budget, :notes, :sales_tax_customer_class_id
     )
   end
 end

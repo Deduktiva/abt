@@ -1,16 +1,42 @@
 .fieldset
-= simple_form_for @customer, :validation => true, :html => {:class => 'form-horizontal' } do |f|
+= simple_form_for(@customer, :validation => true, :html => {:class => 'form-horizontal' }) do |f|
   = f.error_notification
 
   .form-inputs
-    = f.input :matchcode, :input_html => { :class => "span6" }
-    = f.input :name, :input_html => { :class => "span6", :rows => 2 }
-    = f.input :address, :input_html => { :class => "span6", :rows => 3 }
-    = f.input :vat_id, :input_html => { :rows => 1 }, :label => 'VATID'
-    = f.input :email, :input_html => { :rows => 1 }, :label => 'E-Mail'
-    = f.input :time_budget
-    = f.input :notes, :input_html => { :class => "span6", :rows => 5 }
-    = f.association :sales_tax_customer_class
+    .row
+      .col-sm-6
+        = f.label :matchcode
+        = f.text_field :matchcode, :class => 'form-control'  #, :required => true
+    .row
+      .col-sm-6
+        = f.label :name
+        = f.text_area :name, :class => 'form-control', :rows => 2
+    .row
+      .col-sm-6
+        = f.label :address
+        = f.text_area :address, :class => 'form-control', :rows => 3
+    .row
+      .col-sm-3
+        = f.label :vat_id, :label => 'VATID'
+        = f.text_field :vat_id, :class => 'form-control' 
+    .row
+      .col-sm-4
+        = f.label :email, :label => 'E-Mail'
+        = f.text_field :email, :class => 'form-control'
+    .row
+      .col-sm-2
+        = f.label :time_budget
+        = f.text_field :time_budget, :class => 'form-control'
+    .row
+      .col-sm-6
+        = f.label :notes
+        = f.text_area :notes, :class => 'form-control', :rows => 5
+    .row
+      .col-sm-6
+        = f.label :sales_tax_customer_class_id
+        = f.collection_select :sales_tax_customer_class_id, SalesTaxCustomerClass.all, :id, :name, {}, {:class => 'form-control', :required => true}
+
+  %br
 
   .form-actions
     = f.button :submit, :class => 'btn-primary'

@@ -1,15 +1,16 @@
-%p
-  %b Matchcode:
+%h1.page-header
+  Project
   = @project.matchcode
 %p
   %b Description:
-  = @project.description
+  %blockquote
+    = @project.description
 %p
   %b Time budget:
   = @project.time_budget
 %p
   %b Bill to customer:
-  = @project.bill_to_customer_id
+  = @project.bill_to_customer.matchcode
 
 = link_to 'Edit', edit_project_path(@project)
 \|

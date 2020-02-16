@@ -1,13 +1,10 @@
-<p id="notice"><%= notice %></p>
-
-<p>
-  <b>Title:</b>
-  <%= @product.title %>
-</p>
+<h1 class="page-header">Product "<%= @product.title %>"</h1>
 
 <p>
   <b>Description:</b>
-  <%= @product.description %>
+  <blockquote>
+    <%= @product.description %>
+  </blockquote>
 </p>
 
 <p>
@@ -17,7 +14,7 @@
 
 <p>
   <b>Sales tax product class:</b>
-  <%= @product.sales_tax_product_class_id %>
+  <%= @product.sales_tax_product_class.name %>
 </p>
 
 

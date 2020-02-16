@@ -22,6 +22,7 @@ class CreateInvoiceTaxClasses < ActiveRecord::Migration
     reversible do |dir|
       dir.up do
         Invoice.all.each do |invoice|
+          next if !invoice.published?
           old_tax_classes = invoice.tax_classes
           old_tax_classes.each do |sales_tax_product_class_id, old_tax_class|
             old_tax_class.symbolize_keys!
@@ -40,6 +41,7 @@ class CreateInvoiceTaxClasses < ActiveRecord::Migration
       end
       dir.down do
         Invoice.all.each do |invoice|
+          next if !invoice.published?
           old_tax_classes = invoice.invoice_tax_classes
           tax_classes = {}
           old_tax_classes.each do |old_tax_class|

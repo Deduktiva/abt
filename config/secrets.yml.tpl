@@ -5,18 +5,28 @@
 
 # Make sure the secret is at least 30 characters and all random,
 # no regular words or you'll be exposed to dictionary attacks.
-# You can use `rake secret` to generate a secure secret key.
+# You can use `rails secret` to generate a secure secret key.
 
 # Make sure the secrets in this file are kept private
 # if you're sharing your code publicly.
 
-#development:
-#  secret_key_base: XXX
+# Shared secrets are available across all environments.
 
-#test:
-#  secret_key_base: XXX
+# shared:
+#   api_key: a1B2c3D4e5F6
 
-# Do not keep production secrets in the repository,
-# instead read values from the environment.
+# Environmental secrets are only available for that specific environment.
+
+# development:
+#   secret_key_base: XXX
+
+# test:
+#   secret_key_base: XXX
+
+# Do not keep production secrets in the unencrypted secrets file.
+# Instead, either read values from the environment.
+# Or, use `bin/rails secrets:setup` to configure encrypted secrets
+# and move the `production:` environment over there.
+
 production:
   secret_key_base: <%= ENV["SECRET_KEY_BASE"] %>

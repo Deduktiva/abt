@@ -51,6 +51,7 @@
           %label.form-label Product class
           = f.collection_select :sales_tax_product_class_id, SalesTaxProductClass.all, :id, :name, { prompt: 'Select tax class...' }, { class: 'form-select', data: { action: 'change->document-lines#fieldChanged' } }
       .col-sm-3
+        %b Leistungszeitraum nicht vergessen!
       .col-sm-2.text-end
         .mb-3
           %label.form-label Net

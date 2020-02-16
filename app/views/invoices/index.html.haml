@@ -1,13 +1,16 @@
 %h1.page-header Listing invoices
 
+%span.glyphicon.glyphicon-plus
+= link_to 'New Invoice', new_invoice_path
+
 %table.table.table-striped.table-condensed
   %tr
     %th Document#
     %th Customer
     %th Project
     %th Date
-    %th Cust reference
-    %th Cust order no
+    %th Cust Reference
+    %th Cust Order No
     %th{:width => "3%"}
     %th{:width => "3%"}
     %th{:width => "3%"}

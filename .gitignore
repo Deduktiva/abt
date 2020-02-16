@@ -20,6 +20,8 @@
 /config/initializers/secret_token.rb
 instance-data
 .ruby-version
+/public/assets/
+/vendor
 
 config/settings.local.yml
 config/settings/*.local.yml

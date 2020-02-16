@@ -1,4 +1,4 @@
-class InvoiceLine < ActiveRecord::Base
+class InvoiceLine < ApplicationRecord
   validates :title, presence: true
   validates :type, presence: true, inclusion: %w(item subheading plain text)
   validates :rate, presence: true, if: :is_item

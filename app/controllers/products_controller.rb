@@ -83,6 +83,6 @@ class ProductsController < ApplicationController
 
 private
   def products_params
-    params.require(:product).permit(:bill_to_customer_id, :description, :matchcode, :time_budget)
+    params.require(:product).permit(:title, :description, :rate, :sales_tax_product_class_id)
   end
 end

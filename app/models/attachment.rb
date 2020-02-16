@@ -1,4 +1,4 @@
-class Attachment < ActiveRecord::Base
+class Attachment < ApplicationRecord
   validates :title, :presence => true
 
   def uploaded_file=(incoming_file)

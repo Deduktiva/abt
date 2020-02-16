@@ -1,4 +1,4 @@
-class InvoiceTaxClass < ActiveRecord::Base
+class InvoiceTaxClass < ApplicationRecord
   belongs_to :sales_tax_product_class
   belongs_to :invoice
 

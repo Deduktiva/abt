@@ -1,4 +1,4 @@
-class Invoice < ActiveRecord::Base
+class Invoice < ApplicationRecord
   validates :customer_id, :presence => true
   default_scope { order("id ASC") }
 

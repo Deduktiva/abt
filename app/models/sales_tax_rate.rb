@@ -1,4 +1,4 @@
-class SalesTaxRate < ActiveRecord::Base
+class SalesTaxRate < ApplicationRecord
   belongs_to :sales_tax_customer_class
   belongs_to :sales_tax_product_class
 

@@ -1,4 +1,4 @@
-class Customer < ActiveRecord::Base
+class Customer < ApplicationRecord
   validates :matchcode, :presence => true
   validates :name, :presence => true
 

@@ -1,12 +1,12 @@
 class Invoice < ActiveRecord::Base
   validates :customer_id, :presence => true
-  default_scope :order => "id ASC"
+  default_scope { order("id ASC") }
 
   belongs_to :customer
   belongs_to :project
   belongs_to :attachment
 
-  has_many :invoice_lines, :after_add => :update_sums, :after_remove => :update_sums, :order => "id ASC"
+  has_many :invoice_lines, -> { order("id ASC") }, :after_add => :update_sums, :after_remove => :update_sums
   accepts_nested_attributes_for :invoice_lines
 
   has_many :invoice_tax_classes

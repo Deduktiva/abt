@@ -20,9 +20,11 @@
 /config/initializers/secret_token.rb
 instance-data
 .ruby-version
+/bin
 /public/assets/
 /vendor
 
+config/secrets.yml
 config/settings.local.yml
 config/settings/*.local.yml
 config/environments/*.local.yml

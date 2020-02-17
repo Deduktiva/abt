@@ -1,6 +1,3 @@
-require 'active_model_serializers'
-require 'active_model/serializer'
-
 module ApplicationHelper
 
   def display_base_errors resource
@@ -13,15 +10,6 @@ module ApplicationHelper
     </div>
     HTML
     html.html_safe
-  end
-
-  def json_for(target, options = {})
-    options[:scope] ||= self
-    options[:url_options] ||= url_options
-    if target == []
-      return '[]'
-    end
-    ActiveModel::ArraySerializer.new(target, options).to_json
   end
 
 end

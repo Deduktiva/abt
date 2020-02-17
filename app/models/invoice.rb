@@ -4,7 +4,7 @@ class Invoice < ApplicationRecord
 
   belongs_to :customer
   belongs_to :project
-  belongs_to :attachment
+  belongs_to :attachment, :optional => true
 
   has_many :invoice_lines, -> { order("id ASC") }, :after_add => :update_sums, :after_remove => :update_sums
   accepts_nested_attributes_for :invoice_lines

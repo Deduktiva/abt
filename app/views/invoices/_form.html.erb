@@ -59,7 +59,7 @@
     <hr>
 
     <div ng-app="invoiceLinesApp">
-        <div ng-controller='InvoiceLinesController' ng-init="setLines(<%=json_for(@invoice.invoice_lines)%>); takeOverForm()">
+        <div ng-controller='InvoiceLinesController' ng-init="setLines(<%=json_lines(@invoice.invoice_lines)%>); takeOverForm()">
             <div ng-repeat="line in lines" ng-controller="InvoiceLinesLineController">
                 <!-- begin line -->
                 <div class="row">

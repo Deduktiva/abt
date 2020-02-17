@@ -77,10 +77,7 @@ class abt(
     source => 'puppet:///modules/abt/database.yml.prod',
   }
   file { "${config_path}/initializers/secret_token.rb":
-    owner => 'abt',
-    group => 'abt',
-    mode => '0640',
-    source => 'puppet:///modules/abt/secret_token.rb',
+    ensure => absent,
   }
   file { "${config_path}/settings/production.yml":
     owner => 'abt',

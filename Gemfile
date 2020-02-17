@@ -1,10 +1,10 @@
 source 'https://rubygems.org'
 
-gem 'rails', '~> 5.2.4', '>= 5.2.4.1'
-gem 'puma', '~> 3.11'
+gem 'rails', '~> 6.0.2', '>= 6.0.2.1'
+gem 'puma', '~> 4.1'
 
 group :dev do
-  gem 'sqlite3', '= 1.3.13'
+  gem 'sqlite3', '~> 1.4'
   # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
   gem 'web-console', '>= 3.3.0'
   gem 'listen', '>= 3.0.5', '< 3.2'
@@ -21,23 +21,22 @@ group :test do
   # Adds support for Capybara system testing and selenium driver
   gem 'capybara', '>= 2.15'
   gem 'selenium-webdriver'
-  # Easy installation and use of chromedriver to run system tests with Chrome
-  gem 'chromedriver-helper'
+  # Easy installation and use of web drivers to run system tests with browsers
+  gem 'webdrivers'
 end
 
 gem 'config'
 
 # Reduces boot times through caching; required in config/boot.rb
-gem 'bootsnap', '>= 1.1.0', require: false
+gem 'bootsnap', '>= 1.4.2', require: false
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-gem 'jbuilder', '~> 2.5'
+gem 'jbuilder', '~> 2.7'
 
-gem 'sass-rails', '~> 5.0'
+gem 'sass-rails', '>= 6'
 gem 'uglifier', '>= 1.3.0'
 
 gem 'jquery-rails'
-gem 'sass', '~> 3.2'
-gem 'bootstrap-sass', '~> 3.1.1'
+gem 'bootstrap-sass', '~> 3.3.1'
 gem 'haml-rails'
 gem 'simple_form'
 

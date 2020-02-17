@@ -15,5 +15,5 @@ Rails.application.routes.draw do
   resources :sales_tax_product_classes
   resources :sales_tax_rates
 
-  root "home#index"
+  root to: "home#index"
 end

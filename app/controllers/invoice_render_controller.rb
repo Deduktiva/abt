@@ -104,7 +104,7 @@ class InvoiceRenderController < ApplicationController
 
       Rails.logger.debug File.read(xml_file.path)
 
-      template_path = Rails.root.join('app', 'foptemplate')
+      template_path = Rails.root.join('lib', 'foptemplate')
       tpl_xsl = template_path.join('invoice.xsl')
       fop_conf = template_path.join('fop-example-conf.xml')
 

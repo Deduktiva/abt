@@ -5,7 +5,7 @@ class InvoiceLine < ApplicationRecord
   validates :quantity, presence: true, if: :is_item
 
   belongs_to :invoice
-  belongs_to :sales_tax_product_class
+  belongs_to :sales_tax_product_class, :optional => true
 
   def self.inheritance_column
     'type_'

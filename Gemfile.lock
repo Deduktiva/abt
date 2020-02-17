@@ -64,9 +64,9 @@ GEM
     bindex (0.8.1)
     bootsnap (1.4.5)
       msgpack (~> 1.0)
-    bootstrap-sass (3.3.7)
+    bootstrap-sass (3.4.1)
       autoprefixer-rails (>= 5.2.1)
-      sass (>= 3.3.4)
+      sassc (>= 2.0.0)
     builder (3.2.4)
     capybara (3.31.0)
       addressable
@@ -213,11 +213,6 @@ GEM
     ruby_parser (3.14.2)
       sexp_processor (~> 4.9)
     rubyzip (2.2.0)
-    sass (3.7.4)
-      sass-listen (~> 4.0.0)
-    sass-listen (4.0.0)
-      rb-fsevent (~> 0.9, >= 0.9.4)
-      rb-inotify (~> 0.9, >= 0.9.7)
     sass-rails (6.0.0)
       sassc-rails (~> 2.1, >= 2.1.1)
     sassc (2.2.1)
@@ -277,7 +272,7 @@ PLATFORMS
 DEPENDENCIES
   angularjs-rails
   bootsnap (>= 1.4.2)
-  bootstrap-sass (~> 3.3.1)
+  bootstrap-sass (~> 3.4.1)
   capybara (>= 2.15)
   config
   haml-rails

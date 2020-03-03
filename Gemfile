@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'rails', '~> 6.0.2', '>= 6.0.2.1'
-gem 'puma', '~> 4.1'
+gem 'puma', '~> 4.3'
 
 group :dev do
   gem 'sqlite3', '~> 1.4'

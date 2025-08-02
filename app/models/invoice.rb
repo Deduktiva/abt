@@ -1,12 +1,12 @@
 class Invoice < ApplicationRecord
   validates :customer_id, :presence => true
-  default_scope { order("id ASC") }
+  default_scope { order(Arel.sql("id ASC")) }
 
   belongs_to :customer
   belongs_to :project
   belongs_to :attachment, :optional => true
 
-  has_many :invoice_lines, -> { order("id ASC") }, :after_add => :update_sums, :after_remove => :update_sums
+  has_many :invoice_lines, -> { order(Arel.sql("id ASC")) }, :after_add => :update_sums, :after_remove => :update_sums
   accepts_nested_attributes_for :invoice_lines
 
   has_many :invoice_tax_classes

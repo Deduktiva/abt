@@ -8,7 +8,6 @@
     <target-resolution>72</target-resolution>
 
     <fonts>
-
         <substitutions>
             <substitution>
                 <from font-family="sans-serif" font-weight="200" />
@@ -33,6 +32,15 @@
             <substitution>
                 <from font-family="sans-serif" />
                 <to font-family="OpenSans" />
+            </substitution>
+
+            <substitution>
+                <from font-family="monospace" font-weight="200" />
+                <to font-family="Inconsolata" font-weight="300" />
+            </substitution>
+            <substitution>
+                <from font-family="monospace" />
+                <to font-family="Inconsolata" />
             </substitution>
         </substitutions>
     </fonts>
@@ -90,6 +98,19 @@
                 </font>
                 <font kerning="yes" embed-url="open-sans/OpenSans-BoldItalic.ttf">
                     <font-triplet name="OpenSans" style="italic" weight="bold"/>
+                </font>
+
+                <font kerning="yes" embed-url="inconsolata/Inconsolata-Regular.ttf">
+                    <font-triplet name="Inconsolata" style="normal" weight="400"/>
+                </font>
+                <font kerning="yes" embed-url="inconsolata/Inconsolata-Light.ttf">
+                    <font-triplet name="Inconsolata" style="normal" weight="300"/>
+                </font>
+                <font kerning="yes" embed-url="inconsolata/Inconsolata-SemiBold.ttf">
+                    <font-triplet name="Inconsolata" style="normal" weight="600"/>
+                </font>
+                <font kerning="yes" embed-url="inconsolata/Inconsolata-Bold.ttf">
+                    <font-triplet name="Inconsolata" style="normal" weight="bold"/>
                 </font>
 
             </fonts>

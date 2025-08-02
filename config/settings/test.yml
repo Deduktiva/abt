@@ -1,0 +1,14 @@
+company:
+  name: TEST Company
+  address: |
+    Suedlandstrasse 33
+    1040 Wien
+    Austria
+  vat_id: ATUxxxxxxx
+
+fop:
+  # Wrapper for macOS using Podman (run script/setup-fop.sh first)
+  binary_path: "./bin/fop"
+
+  # Debian trixie
+  # binary_path: "/usr/bin/fop"

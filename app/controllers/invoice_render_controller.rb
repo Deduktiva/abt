@@ -23,6 +23,7 @@ class InvoiceRenderController < ApplicationController
         xml_invoice.tag! 'footer', @issuer.invoice_footer
         xml_invoice.issuer do |xml_issuer|
           xml_issuer.address @issuer.legal_name + "\n" + @issuer.address
+          xml_issuer.tag! 'short-name', @issuer.short_name
           xml_issuer.tag! 'legal-name', @issuer.legal_name
           xml_issuer.tag! 'vat-id', @issuer.vat_id
           xml_issuer.tag! 'contact-line1', @issuer.document_contact_line1

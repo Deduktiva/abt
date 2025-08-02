@@ -179,6 +179,24 @@
         </fo:page-sequence-master>
     </fo:layout-master-set>
 
+    <fo:declarations>
+        <x:xmpmeta xmlns:x="adobe:ns:meta/">
+            <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/">
+                    <dc:title>
+                        <xsl:value-of select="/document/issuer/short-name"/> Invoice <xsl:value-of select="/document/number" />
+                    </dc:title>
+                    <dc:creator>
+                        <xsl:value-of select="/document/issuer/legal-name"/>
+                    </dc:creator>
+                    <dc:description>
+                        Invoice <xsl:value-of select="/document/number" />
+                    </dc:description>
+                </rdf:Description>
+            </rdf:RDF>
+        </x:xmpmeta>
+    </fo:declarations>
+
     <fo:page-sequence master-reference="psmA" id="document-sequence" font-family="OpenSans" font-weight="200" font-size="11pt" line-height="12pt">
         <fo:static-content flow-name="first-page-header">
 

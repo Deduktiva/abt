@@ -3,13 +3,17 @@ FROM debian:trixie-slim
 # Install FOP and Saxon in a single layer to minimize image size
 RUN apt-get update -qq && \
     apt-get install -y -qq \
+        curl \
         fop \
         libsaxonb-java \
         openjdk-21-jre-headless && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ENV FOP_HYPHENATION_PATH=""
+ENV FOP_EXTRA_JAR_PATH /usr/local/fop-extra-jars
+RUN wcurl -o pdfimages.tgz 'https://www.apache.org/dyn/closer.cgi?filename=/xmlgraphics/fop-pdf-images/binaries/fop-pdf-images-2.11-bin.tar.gz&action=download' && \
+    mkdir "$FOP_EXTRA_JAR_PATH" && \
+    tar --strip-components=1 -x -f pdfimages.tgz -C "$FOP_EXTRA_JAR_PATH"
 
 RUN useradd -m -u 1000 fopuser
 USER fopuser

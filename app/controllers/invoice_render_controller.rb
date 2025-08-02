@@ -121,7 +121,6 @@ class InvoiceRenderController < ApplicationController
 
         fop_command = '' +
             "cd \"#{template_path}\" && " +
-            'JAVA_OPTS=-Djavax.xml.transform.TransformerFactory=net.sf.saxon.TransformerFactoryImpl ' +
             "\"#{fop_binary}\" " +
             "-xml \"#{xml_file.path}\" -xsl \"#{tpl_xsl}\" -pdf \"#{pdffile.path}\" -c \"#{fop_conf}\""
 

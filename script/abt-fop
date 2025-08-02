@@ -6,4 +6,10 @@ HEADLESS=-Djava.awt.headless=true
 JAVA_ARGS="-Djava.awt.headless=true -Djavax.xml.transform.TransformerFactory=net.sf.saxon.TransformerFactoryImpl"
 find_java_runtime
 find_jars saxonb fop fop-core /usr/share/fop/fop-hyph.jar
+
+# Add fop plugins if they are available.
+if [ ! -z "$FOP_EXTRA_JAR_PATH" ]; then
+    find_jars "$FOP_EXTRA_JAR_PATH"/*jar
+fi
+
 run_java org.apache.fop.cli.Main "$@"

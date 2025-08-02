@@ -33,8 +33,8 @@ class InvoiceBookController
     @invoice.tax_note = @invoice.customer.sales_tax_customer_class.invoice_note
     if @invoice.date.nil?
       @invoice.date = Date.today
-      @invoice.due_date = @invoice.date + 30.days
     end
+    @invoice.due_date = @invoice.date + 30.days
 
     error 'no customer name' if empty_or_nil @invoice.customer_name
     error 'no customer address' if empty_or_nil @invoice.customer_address

@@ -50,7 +50,7 @@ class InvoicesController < ApplicationController
         format.html { redirect_to @invoice, notice: 'Invoice was successfully created.' }
         format.json { render json: @invoice, status: :created, location: @invoice }
       else
-        format.html { render action: 'new' }
+        format.html { render template: 'new' }
         format.json { render json: @invoice.errors, status: :unprocessable_entity }
       end
     end
@@ -85,7 +85,7 @@ class InvoicesController < ApplicationController
         format.html { redirect_to @invoice, notice: 'Invoice was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: 'edit' }
+        format.html { render template: 'edit' }
         format.json { render json: @invoice.errors, status: :unprocessable_entity }
       end
     end

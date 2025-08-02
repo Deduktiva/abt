@@ -1,34 +1,22 @@
-# FOP PDF Generation Container
-# Based on Debian Trixie for FOP 2.10+dfsg-2 with Saxon XSLT 2.0 support
-
 FROM debian:trixie-slim
 
 # Install FOP and Saxon in a single layer to minimize image size
 RUN apt-get update -qq && \
-    apt-get install -y -qq --no-install-recommends \
+    apt-get install -y -qq \
         fop \
-        libsaxon-java \
+        libsaxonb-java \
         openjdk-21-jre-headless && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Create working directory for FOP operations
-WORKDIR /workspace
-
-# Set environment variables for consistent FOP behavior
-ENV JAVA_OPTS="-Djavax.xml.transform.TransformerFactory=net.sf.saxon.TransformerFactoryImpl"
 ENV FOP_HYPHENATION_PATH=""
 
-# Create a non-root user for security
-RUN useradd -m -u 1000 fopuser && \
-    chown -R fopuser:fopuser /workspace
+RUN useradd -m -u 1000 fopuser
 USER fopuser
 
-# Default command runs FOP with Saxon support
-ENTRYPOINT ["fop"]
-CMD ["--help"]
+ENTRYPOINT ["/bin/bash"]
 
 # Metadata
 LABEL maintainer="ABT Invoice System"
-LABEL description="FOP PDF generation with Saxon XSLT 2.0 support"
-LABEL version="2.10+dfsg-2"
+LABEL description="Apache FOP"
+LABEL version="Debian/trixie"

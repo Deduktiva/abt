@@ -12,7 +12,7 @@ class InvoiceRenderController < ApplicationController
     customer_sales_tax_rates = @invoice.customer.sales_tax_rates
 
     begin
-      xml_file = Tempfile.new('abt')
+      xml_file = Tempfile.new('abt', Rails.root.join('tmp'))
 
       xml_file.path
       xml = Builder::XmlMarkup.new(:target=>xml_file, :indent => 2)
@@ -109,7 +109,7 @@ class InvoiceRenderController < ApplicationController
       fop_conf = template_path.join('fop-example-conf.xml')
 
       begin
-        pdffile = Tempfile.new('abt')
+        pdffile = Tempfile.new('abt', Rails.root.join('tmp'))
         pdffile.close
 
         # Resolve FOP binary path (handle both relative and absolute paths)

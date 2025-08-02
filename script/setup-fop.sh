@@ -18,31 +18,28 @@ elif command -v docker &> /dev/null; then
   CONTAINER_CMD="docker"
 fi
 
-# Check if running on macOS or want containerized solution
-if [[ "$OSTYPE" == "darwin"* ]] || [[ "${1:-}" == "--container" ]]; then
-  # Containerized FOP (macOS default, or explicit request)
-  echo "🐳 Setting up containerized FOP..."
-  
-  if [[ -z "$CONTAINER_CMD" ]]; then
-    echo "❌ Neither Podman nor Docker found. Installing Podman via Homebrew..."
-    if ! command -v brew &> /dev/null; then
-      echo "❌ Homebrew not found. Please install Homebrew first."
-      exit 1
-    fi
-    brew install podman
-    podman machine init
-    podman machine start
-    CONTAINER_CMD="podman"
+echo "🐳 Setting up containerized FOP..."
+
+if [[ -z "$CONTAINER_CMD" ]]; then
+  echo "❌ Neither Podman nor Docker found. Installing Podman via Homebrew..."
+  if ! command -v brew &> /dev/null; then
+    echo "❌ Homebrew not found. Please install Homebrew first."
+    exit 1
   fi
-  
-  echo "📦 Building FOP container image..."
-  $CONTAINER_CMD build -f "$PROJECT_ROOT/Dockerfile.fop" -t "$FOP_IMAGE_NAME" "$PROJECT_ROOT"
-  
-  # Create FOP wrapper script
-  FOP_WRAPPER="$PROJECT_ROOT/bin/fop"
-  mkdir -p "$PROJECT_ROOT/bin"
-  
-  cat > "$FOP_WRAPPER" << EOF
+  brew install podman
+  podman machine init
+  podman machine start
+  CONTAINER_CMD="podman"
+fi
+
+echo "📦 Building FOP container image..."
+$CONTAINER_CMD build -f "$PROJECT_ROOT/Dockerfile.fop" -t "$FOP_IMAGE_NAME" "$PROJECT_ROOT"
+
+# Create FOP wrapper script
+FOP_WRAPPER="$PROJECT_ROOT/bin/abt-fop-container"
+mkdir -p "$PROJECT_ROOT/bin"
+
+cat > "$FOP_WRAPPER" << EOF
 #!/bin/bash
 # FOP wrapper for containerized execution
 PROJECT_ROOT="\$(cd "\$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)"
@@ -52,82 +49,17 @@ CONTAINER_CMD="$CONTAINER_CMD"
 
 # Run FOP in container with project directory mounted
 \$CONTAINER_CMD run --rm \\
-  -v "\$PROJECT_ROOT:/workspace" \\
-  -w /workspace \\
+  -v "\$PROJECT_ROOT:\$PROJECT_ROOT" \\
+  -w "\$PWD" \\
   $FOP_IMAGE_NAME \\
-  "\$@"
+  "\$PROJECT_ROOT/script/abt-fop" "\$@"
 EOF
-  
-  chmod +x "$FOP_WRAPPER"
-  FOP_BINARY="$FOP_WRAPPER"
-  
-  echo "✅ FOP container image built: $FOP_IMAGE_NAME"
-  echo "✅ FOP wrapper created at: $FOP_BINARY"
-  
-  # Optional: Create a persistent service container for even faster execution
-  if [[ "${2:-}" == "--service" ]]; then
-    echo "🚀 Setting up persistent FOP service container..."
-    
-    # Stop existing service if running
-    $CONTAINER_CMD stop "$FOP_CONTAINER_NAME" 2>/dev/null || true
-    $CONTAINER_CMD rm "$FOP_CONTAINER_NAME" 2>/dev/null || true
-    
-    # Start persistent container in background
-    $CONTAINER_CMD run -d \\
-      --name "$FOP_CONTAINER_NAME" \\
-      -v "$PROJECT_ROOT:/workspace" \\
-      -w /workspace \\
-      "$FOP_IMAGE_NAME" \\
-      tail -f /dev/null
-    
-    # Create service wrapper
-    cat > "$FOP_WRAPPER" << EOF
-#!/bin/bash
-# FOP service wrapper for fastest execution
-PROJECT_ROOT="\$(cd "\$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)"
 
-# Execute FOP in persistent container
-$CONTAINER_CMD exec "$FOP_CONTAINER_NAME" fop "\$@"
-EOF
-    
-    echo "✅ FOP service container started: $FOP_CONTAINER_NAME"
-    echo "💡 Use '$CONTAINER_CMD stop $FOP_CONTAINER_NAME' to stop the service"
-  fi
-  
-else
-  # Production Linux (Debian Trixie/Ubuntu)
-  echo "📦 Installing FOP via apt (Debian Trixie/Ubuntu)..."
-  echo "ℹ️  Note: Requires Debian Trixie (13) or newer for FOP 2.10+dfsg-2"
-  
-  # Update package list
-  sudo apt-get update
-  
-  # Install FOP and Saxon
-  sudo apt-get install -y fop libsaxon-java
-  
-  FOP_BINARY="/usr/bin/fop"
-  echo "✅ FOP installed via apt at: $FOP_BINARY"
-fi
+chmod +x "$FOP_WRAPPER"
+FOP_BINARY="$FOP_WRAPPER"
 
-# Create settings configuration
-echo "⚙️  Configuring application settings..."
-SETTINGS_FILE="$PROJECT_ROOT/config/settings/development.yml"
-
-if [ ! -f "$SETTINGS_FILE" ]; then
-  mkdir -p "$(dirname "$SETTINGS_FILE")"
-  cat > "$SETTINGS_FILE" << EOF
-fop:
-  binary_path: "$FOP_BINARY"
-
-payments:
-  public_url: "http://localhost:3000/payments/%token%"
-EOF
-  echo "✅ Created development settings file"
-else
-  echo "⚠️  Settings file already exists. Please manually add:"
-  echo "fop:"
-  echo "  binary_path: \"$FOP_BINARY\""
-fi
+echo "✅ FOP container image built: $FOP_IMAGE_NAME"
+echo "✅ FOP wrapper created at: $FOP_BINARY"
 
 # Test installation
 echo "🧪 Testing FOP installation..."
@@ -141,8 +73,11 @@ fi
 echo ""
 echo "🎉 FOP setup complete!"
 echo ""
-echo "📝 Next steps:"
-echo "   1. Update your settings files with the FOP binary path: $FOP_BINARY"
-echo "   2. Run: rails test test/system/fop_installation_test.rb"
-echo "   3. Test PDF generation in your application"
-echo ""
+
+echo "🧪 Testing Rails<->FOP integration..."
+if bundle exec rails test test/system/fop_installation_test.rb; then
+  echo "✅ Rails<->FOP integration looks good."
+else
+  echo "❌ Rails<->FOP integration needs checking."
+  exit 1
+fi

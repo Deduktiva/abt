@@ -5,16 +5,26 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+FOP_IMAGE_NAME="abt-fop"
+FOP_CONTAINER_NAME="abt-fop-service"
 
 echo "🔧 Setting up Apache FOP for PDF generation..."
 
-# Check if running on macOS
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  # macOS with Podman
-  echo "🐳 Setting up FOP via Podman (macOS)..."
+# Detect container runtime
+CONTAINER_CMD=""
+if command -v podman &> /dev/null; then
+  CONTAINER_CMD="podman"
+elif command -v docker &> /dev/null; then
+  CONTAINER_CMD="docker"
+fi
+
+# Check if running on macOS or want containerized solution
+if [[ "$OSTYPE" == "darwin"* ]] || [[ "${1:-}" == "--container" ]]; then
+  # Containerized FOP (macOS default, or explicit request)
+  echo "🐳 Setting up containerized FOP..."
   
-  if ! command -v podman &> /dev/null; then
-    echo "❌ Podman not found. Installing via Homebrew..."
+  if [[ -z "$CONTAINER_CMD" ]]; then
+    echo "❌ Neither Podman nor Docker found. Installing Podman via Homebrew..."
     if ! command -v brew &> /dev/null; then
       echo "❌ Homebrew not found. Please install Homebrew first."
       exit 1
@@ -22,32 +32,67 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     brew install podman
     podman machine init
     podman machine start
+    CONTAINER_CMD="podman"
   fi
+  
+  echo "📦 Building FOP container image..."
+  $CONTAINER_CMD build -f "$PROJECT_ROOT/Dockerfile.fop" -t "$FOP_IMAGE_NAME" "$PROJECT_ROOT"
   
   # Create FOP wrapper script
   FOP_WRAPPER="$PROJECT_ROOT/bin/fop"
   mkdir -p "$PROJECT_ROOT/bin"
   
-  cat > "$FOP_WRAPPER" << 'EOF'
+  cat > "$FOP_WRAPPER" << EOF
 #!/bin/bash
-# FOP wrapper for Podman on macOS
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# FOP wrapper for containerized execution
+PROJECT_ROOT="\$(cd "\$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)"
 
-podman run --rm \
-  -v "$PROJECT_ROOT:/workspace" \
-  -w /workspace \
-  debian:trixie-slim \
-  bash -c "
-    apt-get update -qq && apt-get install -y -qq fop libsaxon-java && 
-    JAVA_OPTS='-Djavax.xml.transform.TransformerFactory=net.sf.saxon.TransformerFactoryImpl' \
-    fop \"\$@\"
-  " -- "$@"
+# Use either podman or docker
+CONTAINER_CMD="$CONTAINER_CMD"
+
+# Run FOP in container with project directory mounted
+\$CONTAINER_CMD run --rm \\
+  -v "\$PROJECT_ROOT:/workspace" \\
+  -w /workspace \\
+  $FOP_IMAGE_NAME \\
+  "\$@"
 EOF
   
   chmod +x "$FOP_WRAPPER"
   FOP_BINARY="$FOP_WRAPPER"
   
-  echo "✅ FOP Podman wrapper created at: $FOP_BINARY"
+  echo "✅ FOP container image built: $FOP_IMAGE_NAME"
+  echo "✅ FOP wrapper created at: $FOP_BINARY"
+  
+  # Optional: Create a persistent service container for even faster execution
+  if [[ "${2:-}" == "--service" ]]; then
+    echo "🚀 Setting up persistent FOP service container..."
+    
+    # Stop existing service if running
+    $CONTAINER_CMD stop "$FOP_CONTAINER_NAME" 2>/dev/null || true
+    $CONTAINER_CMD rm "$FOP_CONTAINER_NAME" 2>/dev/null || true
+    
+    # Start persistent container in background
+    $CONTAINER_CMD run -d \\
+      --name "$FOP_CONTAINER_NAME" \\
+      -v "$PROJECT_ROOT:/workspace" \\
+      -w /workspace \\
+      "$FOP_IMAGE_NAME" \\
+      tail -f /dev/null
+    
+    # Create service wrapper
+    cat > "$FOP_WRAPPER" << EOF
+#!/bin/bash
+# FOP service wrapper for fastest execution
+PROJECT_ROOT="\$(cd "\$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Execute FOP in persistent container
+$CONTAINER_CMD exec "$FOP_CONTAINER_NAME" fop "\$@"
+EOF
+    
+    echo "✅ FOP service container started: $FOP_CONTAINER_NAME"
+    echo "💡 Use '$CONTAINER_CMD stop $FOP_CONTAINER_NAME' to stop the service"
+  fi
   
 else
   # Production Linux (Debian Trixie/Ubuntu)

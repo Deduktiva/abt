@@ -7,4 +7,8 @@ company:
   vat_id: ATUxxxxxxx
 
 fop:
-  binary_path: /Users/ch/Downloads/fop-1.1/fop
+  # Wrapper for macOS using Podman (run script/setup-fop.sh first)
+  binary_path: "./bin/fop"
+
+  # Debian trixie
+  # binary_path: "/usr/bin/fop"

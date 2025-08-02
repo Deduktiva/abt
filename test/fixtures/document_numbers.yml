@@ -19,3 +19,10 @@ one:
   last_number: 20140010
   last_date: 2014-01-10
 
+invoice:
+  code: invoice
+  format: '%{year}%<number>04d'
+  sequence: 0
+  last_number: nil
+  last_date: nil
+

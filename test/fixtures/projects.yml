@@ -1,0 +1,4 @@
+test_project:
+  matchcode: TEST
+  description: Test project for PDF generation tests
+  time_budget: 100

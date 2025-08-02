@@ -1,0 +1,141 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  lint:
+    name: Lint and Security
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: true
+
+    - name: Run Bundler Audit
+      run: |
+        gem install bundler-audit
+        bundle audit --update
+
+    - name: Run Brakeman security scan
+      run: |
+        gem install brakeman
+        brakeman --format github
+
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        ruby-version: ['3.2', '3.3']
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: abt_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Ruby ${{ matrix.ruby-version }}
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby-version }}
+        bundler-cache: true
+
+    - name: Build FOP Docker container
+      run: |
+        docker build -f Dockerfile.fop -t abt-fop .
+
+    - name: Set up FOP wrapper script
+      run: |
+        mkdir -p bin
+        cat > bin/fop << 'EOF'
+        #!/bin/bash
+        # FOP wrapper script for CI
+
+        docker run --rm \
+          -v "$PWD:$PWD" \
+          -w "$PWD" \
+          abt-fop \
+          "$PWD/script/abt-fop" "\$@"
+        EOF
+        chmod +x bin/abt-fop
+        echo "$PWD/bin" >> $GITHUB_PATH
+
+    - name: Create test configuration
+      run: |
+        mkdir -p config/settings
+        cat > config/settings/test.yml << 'EOF'
+        fop:
+          binary_path: 'abt-fop'
+        payments:
+          public_url: 'https://example.com/pay/%token%'
+        EOF
+
+    - name: Set up database
+      env:
+        RAILS_ENV: test
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/abt_test
+      run: |
+        bundle exec rails db:create
+        bundle exec rails db:migrate
+
+    - name: Run unit tests
+      env:
+        RAILS_ENV: test
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/abt_test
+      run: |
+        bundle exec rails test
+
+    - name: Run integration tests
+      env:
+        RAILS_ENV: test
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/abt_test
+      run: |
+        bundle exec rails test:integration
+
+    - name: Run system tests
+      env:
+        RAILS_ENV: test
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/abt_test
+      run: |
+        bundle exec rails test:system
+
+  fop-container:
+    name: FOP Container Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build FOP Docker container
+      run: |
+        docker build -f Dockerfile.fop -t abt-fop .
+
+    - name: Test FOP container functionality
+      run: |
+        # Test that FOP is available and functional
+        docker run --rm abt-fop /bin/bash -c "fop -version"
+
+        # Test that Saxon is available for XSLT 2.0
+        docker run --rm abt-fop /bin/bash -c "java -cp /usr/share/java/saxonb.jar net.sf.saxon.Transform -?" || true

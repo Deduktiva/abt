@@ -182,16 +182,40 @@
     <fo:declarations>
         <x:xmpmeta xmlns:x="adobe:ns:meta/">
             <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-                <rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/">
+                <rdf:Description rdf:about=""
+                    xmlns:dc="http://purl.org/dc/elements/1.1/"
+                    xmlns:xmp="http://ns.adobe.com/xap/1.0/"
+                    xmlns:pdf="http://ns.adobe.com/pdf/1.3/"
+                    xmlns:pdfaid="http://www.aiim.org/pdfa/ns/id/">
                     <dc:title>
-                        <xsl:value-of select="/document/issuer/short-name"/> Invoice <xsl:value-of select="/document/number" />
+                        <rdf:Alt>
+                            <rdf:li xml:lang="x-default"><xsl:value-of select="/document/issuer/short-name"/> Invoice <xsl:value-of select="/document/number" /></rdf:li>
+                        </rdf:Alt>
                     </dc:title>
                     <dc:creator>
-                        <xsl:value-of select="/document/issuer/legal-name"/>
+                        <rdf:Seq>
+                            <rdf:li><xsl:value-of select="/document/issuer/legal-name"/></rdf:li>
+                        </rdf:Seq>
                     </dc:creator>
                     <dc:description>
-                        Invoice <xsl:value-of select="/document/number" />
+                        <rdf:Alt>
+                            <rdf:li xml:lang="x-default">Invoice <xsl:value-of select="/document/number" /></rdf:li>
+                        </rdf:Alt>
                     </dc:description>
+                    <dc:format>application/pdf</dc:format>
+                    <dc:subject>
+                        <rdf:Bag>
+                            <rdf:li>Invoice</rdf:li>
+                        </rdf:Bag>
+                    </dc:subject>
+                    <xmp:CreatorTool>Apache FOP</xmp:CreatorTool>
+                    <xmp:CreateDate><xsl:value-of select="/document/issue-date"/>T00:00:00Z</xmp:CreateDate>
+                    <xmp:ModifyDate><xsl:value-of select="/document/issue-date"/>T00:00:00Z</xmp:ModifyDate>
+                    <xmp:MetadataDate><xsl:value-of select="/document/issue-date"/>T00:00:00Z</xmp:MetadataDate>
+                    <pdf:Producer>Apache FOP</pdf:Producer>
+                    <pdf:Keywords>Invoice</pdf:Keywords>
+                    <pdfaid:part>1</pdfaid:part>
+                    <pdfaid:conformance>B</pdfaid:conformance>
                 </rdf:Description>
             </rdf:RDF>
         </x:xmpmeta>

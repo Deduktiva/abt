@@ -1,4 +1,4 @@
-class CreateSalesTaxCustomerClasses < ActiveRecord::Migration
+class CreateSalesTaxCustomerClasses < ActiveRecord::Migration[6.0]
   def change
     create_table :sales_tax_customer_classes do |t|
       t.string :name

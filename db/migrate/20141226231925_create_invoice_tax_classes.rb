@@ -1,4 +1,4 @@
-class CreateInvoiceTaxClasses < ActiveRecord::Migration
+class CreateInvoiceTaxClasses < ActiveRecord::Migration[6.0]
   class Invoice < ActiveRecord::Base
     serialize :tax_classes
     has_many :invoice_tax_classes

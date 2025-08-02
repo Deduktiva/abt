@@ -1,4 +1,4 @@
-class CreateDocumentNumbers < ActiveRecord::Migration
+class CreateDocumentNumbers < ActiveRecord::Migration[6.0]
   def change
     create_table :document_numbers do |t|
       t.string :code

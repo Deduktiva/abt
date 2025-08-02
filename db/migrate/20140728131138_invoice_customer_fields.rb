@@ -1,4 +1,4 @@
-class InvoiceCustomerFields < ActiveRecord::Migration
+class InvoiceCustomerFields < ActiveRecord::Migration[6.0]
   def change
     add_column :invoices, :customer_name, :text
     add_column :invoices, :customer_address, :text

@@ -1,4 +1,4 @@
-class InvoiceTaxAndDateFields < ActiveRecord::Migration
+class InvoiceTaxAndDateFields < ActiveRecord::Migration[6.0]
   def change
     add_column :invoices, :due_date, :date
     add_column :invoices, :tax_classes, :text

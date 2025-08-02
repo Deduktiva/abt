@@ -65,7 +65,7 @@ class InvoicesController < ApplicationController
     state = nil
 
     ActiveRecord::Base.transaction(requires_new: true) do
-      state = {success: @invoice.update_attributes(invoice_params)}
+      state = {success: @invoice.update(invoice_params)}
       unless params[:invoice_lines].nil? or params[:invoice_lines].empty?
         @invoice.invoice_lines.delete_all(:delete_all)
         new_lines = JSON.parse params[:invoice_lines]

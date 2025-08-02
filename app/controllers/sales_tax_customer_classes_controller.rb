@@ -59,7 +59,7 @@ class SalesTaxCustomerClassesController < ApplicationController
     @sales_tax_customer_class = SalesTaxCustomerClass.find(params[:id])
 
     respond_to do |format|
-      if @sales_tax_customer_class.update_attributes(sales_tax_customer_classes_params)
+      if @sales_tax_customer_class.update(sales_tax_customer_classes_params)
         format.html { redirect_to @sales_tax_customer_class, notice: 'Sales tax customer class was successfully updated.' }
         format.json { head :no_content }
       else

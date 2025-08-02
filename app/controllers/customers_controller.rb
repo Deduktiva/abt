@@ -59,7 +59,7 @@ class CustomersController < ApplicationController
     @customer = Customer.find(params[:id])
 
     respond_to do |format|
-      if @customer.update_attributes(customers_params)
+      if @customer.update(customers_params)
         format.html { redirect_to @customer, notice: 'Customer was successfully updated.' }
         format.json { head :no_content }
       else

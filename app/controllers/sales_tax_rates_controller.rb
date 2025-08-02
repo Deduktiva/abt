@@ -74,7 +74,7 @@ class SalesTaxRatesController < ApplicationController
     @sales_tax_rate = SalesTaxRate.find(params[:id])
 
     respond_to do |format|
-      if @sales_tax_rate.update_attributes(sales_tax_rates_params)
+      if @sales_tax_rate.update(sales_tax_rates_params)
         format.html { redirect_to sales_tax_rates_url, notice: 'Sales tax rate was successfully updated.' }
         format.json { head :no_content }
       else

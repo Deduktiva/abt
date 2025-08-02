@@ -15,12 +15,24 @@
                 <to font-family="OpenSans" font-weight="300" />
             </substitution>
             <substitution>
+                <from font-family="OpenSans" font-weight="200" />
+                <to font-family="OpenSans" font-weight="300" />
+            </substitution>
+            <substitution>
                 <from font-family="sans-serif" font-weight="200" font-style="italic" />
-                <to font-family="font" font-weight="300" font-style="italic"  />
+                <to font-family="OpenSans" font-weight="300" font-style="italic"  />
+            </substitution>
+            <substitution>
+                <from font-family="OpenSans" font-weight="200" font-style="italic" />
+                <to font-family="OpenSans" font-weight="300" font-style="italic"  />
             </substitution>
             <substitution>
                 <from font-family="sans-serif" font-weight="bold" />
-                <to font-family="font" font-weight="bold" />
+                <to font-family="OpenSans" font-weight="bold" />
+            </substitution>
+            <substitution>
+                <from font-family="sans-serif" />
+                <to font-family="OpenSans" />
             </substitution>
         </substitutions>
     </fonts>
@@ -92,4 +104,3 @@
     </renderers>
 
 </fop>
-

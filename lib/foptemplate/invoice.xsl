@@ -141,7 +141,7 @@
     </xsl:template>
 
     <xsl:template match="/">
-        <fo:root>
+        <fo:root font-family="sans-serif">
     <fo:layout-master-set>
         <fo:simple-page-master master-name="first"
                                margin-left="2.25cm"

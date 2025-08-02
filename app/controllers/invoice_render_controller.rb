@@ -19,9 +19,19 @@ class InvoiceRenderController < ApplicationController
       xml.instruct! :xml, :encoding => 'UTF-8', :version => '1.0'
 
       xml.document :class => 'invoice' do |xml_invoice|
+        xml_invoice.tag! 'accent-color', @issuer.document_accent_color
+        xml_invoice.tag! 'footer', @issuer.invoice_footer
         xml_invoice.issuer do |xml_issuer|
-          xml_issuer.address @issuer.name + "\n" + @issuer.address
-          xml_issuer.tag! 'vatid', @issuer.vat_id
+          xml_issuer.address @issuer.legal_name + "\n" + @issuer.address
+          xml_issuer.tag! 'legal-name', @issuer.legal_name
+          xml_issuer.tag! 'vat-id', @issuer.vat_id
+          xml_issuer.tag! 'contact-line1', @issuer.document_contact_line1
+          xml_issuer.tag! 'contact-line2', @issuer.document_contact_line2
+          xml_issuer.bankaccount do |tag|
+            tag.tag! 'bank', @issuer.bankaccount_bank
+            tag.tag! 'bic', @issuer.bankaccount_bic
+            tag.tag! 'number', @issuer.bankaccount_number
+          end
         end
 
         xml_invoice.recipient do |xml_recipient|
@@ -30,7 +40,7 @@ class InvoiceRenderController < ApplicationController
 
           xml_recipient.address @invoice.customer_name + "\n" + @invoice.customer_address
           xml_recipient.tag! 'account-no', @invoice.customer_account_number
-          xml_recipient.tag! 'vatid', @invoice.customer_vat_id
+          xml_recipient.tag! 'vat-id', @invoice.customer_vat_id
           xml_recipient.tag! 'supplier-no', @invoice.customer_supplier_number
         end
 

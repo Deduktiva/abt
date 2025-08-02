@@ -1,11 +1,3 @@
-company:
-  name: TEST Company
-  address: |
-    Suedlandstrasse 33
-    1040 Wien
-    Austria
-  vat_id: ATUxxxxxxx
-
 fop:
   # (run script/setup-fop.sh first)
   binary_path: "./bin/abt-fop-container"

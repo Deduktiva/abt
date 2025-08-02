@@ -110,7 +110,7 @@ class InvoicesController < ApplicationController
     @invoice = Invoice.find(params[:id])
     return unless check_unpublished
 
-    issuer = IssuerCompany.from_config
+    issuer = IssuerCompany.get_the_issuer!
     @booker = InvoiceBookController.new @invoice, issuer
 
     ActiveRecord::Base.transaction(requires_new: true) do
@@ -137,7 +137,7 @@ class InvoicesController < ApplicationController
     @invoice = Invoice.find(params[:id])
     return unless check_unpublished
 
-    issuer = IssuerCompany.from_config
+    issuer = IssuerCompany.get_the_issuer!
     @booker = InvoiceBookController.new @invoice, issuer
 
     ActiveRecord::Base.transaction(requires_new: true) do

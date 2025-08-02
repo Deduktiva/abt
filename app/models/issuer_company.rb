@@ -1,13 +1,7 @@
-class IssuerCompany
-  attr_reader :name, :address, :vat_id
+class IssuerCompany < ApplicationRecord
 
-  def initialize(name, address, vat_id)
-    @name = name
-    @address = address
-    @vat_id = vat_id
-  end
-
-  def self.from_config
-    IssuerCompany.new(Settings.company.name.strip, Settings.company.address.strip, Settings.company.vat_id.strip)
+  # This app requires that there is exactly *one* issuer_company in the database.
+  def self.get_the_issuer!
+    self.where(:active => true).first
   end
 end

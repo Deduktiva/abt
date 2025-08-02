@@ -11,8 +11,8 @@
   %dl
     %dt
       Company Name:
-      %dd
-        = @data[:issuer_company].name
+      %dd{:style => "color: #{@data[:issuer_company].document_accent_color}"}
+        = @data[:issuer_company].legal_name
     %dt
       Address:
       %dd
@@ -22,6 +22,14 @@
       VAT ID:
       %dd
         = @data[:issuer_company].vat_id
+    %dt
+      Bank Account:
+      %dd
+        = @data[:issuer_company].bankaccount_bank
+      %dd
+        = @data[:issuer_company].bankaccount_bic
+      %dd
+        = @data[:issuer_company].bankaccount_number
 
 %div
   - if not @data[:is_setup_done]

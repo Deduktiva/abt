@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2014_12_26_231925) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_02_211032) do
   create_table "attachments", force: :cascade do |t|
     t.string "title"
     t.string "filename"
@@ -96,6 +96,24 @@ ActiveRecord::Schema[7.1].define(version: 2014_12_26_231925) do
     t.string "token"
     t.text "tax_note"
     t.index ["document_number"], name: "index_invoices_on_document_number", unique: true
+  end
+
+  create_table "issuer_companies", force: :cascade do |t|
+    t.boolean "active"
+    t.string "short_name"
+    t.string "legal_name"
+    t.string "vat_id"
+    t.string "address"
+    t.string "bankaccount_bank"
+    t.string "bankaccount_bic"
+    t.string "bankaccount_number"
+    t.string "document_contact_line1"
+    t.string "document_contact_line2"
+    t.string "document_accent_color"
+    t.string "invoice_footer"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_issuer_companies_on_active", unique: true
   end
 
   create_table "products", force: :cascade do |t|

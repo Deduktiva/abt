@@ -29,6 +29,10 @@
         </xsl:choose>
     </xsl:function>
 
+    <xsl:attribute-set name="accent-color">
+        <xsl:attribute name="color"><xsl:value-of select="/document/accent-color" /></xsl:attribute>
+    </xsl:attribute-set>
+
     <xsl:template match="/document/items/item">
         <fo:table-body keep-together.within-page="always">
             <fo:table-row>
@@ -190,7 +194,7 @@
 
             <fo:block-container height="0.5cm" width="12cm" top="3cm" left="0cm" position="absolute" font-size="6pt">
                 <!-- inline sender -->
-                <fo:block color="#0000ff" font-weight="normal" font-family="sans-serif">
+                <fo:block xsl:use-attribute-sets="accent-color" font-weight="normal" font-family="sans-serif">
                     Returns to: <xsl:value-of select="replace(abt:strip-space(/document/issuer/address), '\n', ', ')" />
                 </fo:block>
             </fo:block-container>
@@ -206,14 +210,17 @@
 
             <!-- right column: logo, document type, date, stuff -->
             <fo:block-container top="0cm" left="8.75cm" position="absolute">
-
                 <fo:block-container height="1cm" width="6cm" top="0cm" left="0cm" position="absolute">
-                    <fo:block text-align="start" font-size="9pt" color="#0000ff">
+                    <fo:block text-align="start" font-size="12pt" xsl:use-attribute-sets="accent-color">
+                        <xsl:value-of select="/document/issuer/legal-name" />
+                    </fo:block>
+
+                    <fo:block text-align="start" font-size="9pt" xsl:use-attribute-sets="accent-color">
                         <fo:block white-space-collapse="false">
-                            www.example.com      hi@example.com
+                            <xsl:value-of select="abt:strip-space(/document/issuer/contact-line1)" />
                         </fo:block>
                         <fo:block>
-                            voice +43 xxx xxxxxx
+                            <xsl:value-of select="abt:strip-space(/document/issuer/contact-line2)" />
                         </fo:block>
                     </fo:block>
                 </fo:block-container>
@@ -227,23 +234,23 @@
                 <!-- first and second rows of info boxes -->
                 <fo:block-container top="4.25cm" position="absolute">
                     <fo:block-container position="absolute" width="4.1cm" top="0cm" left="0cm">
-                        <fo:block color="#0000ff">Invoice No</fo:block>
+                        <fo:block xsl:use-attribute-sets="accent-color">Invoice No</fo:block>
                         <fo:block><xsl:value-of select="/document/number" /></fo:block>
                     </fo:block-container>
 
                     <fo:block-container position="absolute" width="4.1cm" top="0cm" left="4.375cm">
-                        <fo:block color="#0000ff">Date</fo:block>
+                        <fo:block xsl:use-attribute-sets="accent-color">Date</fo:block>
                         <fo:block><xsl:value-of select="/document/issue-date" /></fo:block>
                     </fo:block-container>
 
                     <!-- 2nd row -->
                     <fo:block-container position="absolute" width="4.1cm" top="1.5cm" left="0cm">
-                        <fo:block color="#0000ff">Your Reference</fo:block>
+                        <fo:block xsl:use-attribute-sets="accent-color">Your Reference</fo:block>
                         <fo:block><xsl:value-of select="/document/recipient/reference" /></fo:block>
                     </fo:block-container>
 
                     <fo:block-container position="absolute" width="4.1cm" top="1.5cm" left="4.375cm">
-                        <fo:block color="#0000ff">Your Order No</fo:block>
+                        <fo:block xsl:use-attribute-sets="accent-color">Your Order No</fo:block>
                         <fo:block><xsl:value-of select="/document/recipient/order-no" /></fo:block>
                     </fo:block-container>
                 </fo:block-container>
@@ -252,27 +259,26 @@
             <!-- full width line -->
 
             <fo:block-container top="7.3cm" position="absolute">
+                <!--
                 <fo:block-container position="absolute" width="4.1cm" top="0cm" left="0cm">
-                    <fo:block color="#0000ff">Account No</fo:block>
+                    <fo:block xsl:use-attribute-sets="accent-color">Account No</fo:block>
                     <fo:block><xsl:value-of select="/document/recipient/account-no" /></fo:block>
                 </fo:block-container>
 
                 <fo:block-container position="absolute" width="4.1cm" top="0cm" left="4.375cm">
-                    <fo:block color="#0000ff">Our VAT ID</fo:block>
-                    <fo:block><xsl:value-of select="/document/issuer/vatid" /></fo:block>
+                    <fo:block xsl:use-attribute-sets="accent-color">Supplier No</fo:block>
+                    <fo:block><xsl:value-of select="/document/recipient/supplier-no" /></fo:block>
                 </fo:block-container>
+                -->
 
                 <fo:block-container position="absolute" width="4.1cm" top="0cm" left="8.75cm">
-                    <fo:block color="#0000ff">Supplier No</fo:block>
-                    <fo:block><xsl:value-of select="/document/recipient/supplier-no" /></fo:block>
-
-                    <fo:block color="#0000ff">Our VAT ID</fo:block>
-                    <fo:block><xsl:value-of select="/document/issuer/vatid" /></fo:block>
+                    <fo:block xsl:use-attribute-sets="accent-color">Our VAT ID</fo:block>
+                    <fo:block><xsl:value-of select="/document/issuer/vat-id" /></fo:block>
                 </fo:block-container>
 
                 <fo:block-container position="absolute" width="4.1cm" top="0cm" left="13.125cm" text-align="start">
-                    <fo:block color="#0000ff">Your VAT ID</fo:block>
-                    <fo:block><xsl:value-of select="/document/recipient/vatid" /></fo:block>
+                    <fo:block xsl:use-attribute-sets="accent-color">Your VAT ID</fo:block>
+                    <fo:block><xsl:value-of select="/document/recipient/vat-id" /></fo:block>
                 </fo:block-container>
 
             </fo:block-container>
@@ -282,8 +288,8 @@
         <fo:static-content flow-name="rest-page-header">
             <!-- logo -->
             <fo:block-container height="1cm" width="6cm" top="0cm" position="absolute">
-                <fo:block text-align="start" font-size="9pt" color="#0000ff">
-                    Example GmbH
+                <fo:block text-align="start" font-size="12pt" xsl:use-attribute-sets="accent-color">
+                    <xsl:value-of select="/document/issuer/legal-name" />
                 </fo:block>
             </fo:block-container>
 
@@ -347,7 +353,7 @@
                 <fo:table-column column-width="1cm"/>
                 <fo:table-column column-width="2.25cm"/>
                 <fo:table-header>
-                    <fo:table-row color="#0000ff">
+                    <fo:table-row xsl:use-attribute-sets="accent-color">
                         <fo:table-cell>
                             <fo:block text-align="start">Description</fo:block>
                         </fo:table-cell>
@@ -400,7 +406,7 @@
 
             <xsl:if test="/document/tax-note != ''">
                 <fo:block-container space-before="2mm" space-after="2mm">
-                    <fo:block color="#0000ff">Tax Information</fo:block>
+                    <fo:block xsl:use-attribute-sets="accent-color">Tax Information</fo:block>
                     <fo:block linefeed-treatment="preserve">
                         <xsl:value-of select="abt:strip-space(/document/tax-note)" />
                     </fo:block>
@@ -442,7 +448,6 @@
                 <!-- note: can't have newline before first line -->
 
                 <fo:block-container
-                        height="{abt:ifempty(/document/payment-url, '2.1cm', '2.5cm')}"
                         space-before="5mm" border-color="black" border-style="solid" border-width="0.13mm" padding="0.6mm">
                     <fo:block>Full amount due
                         <fo:inline font-weight="600">
@@ -460,20 +465,21 @@
                         </xsl:if>
                     </fo:block>
                     <fo:block><fo:inline font-weight="600">Wire transfer:</fo:inline></fo:block>
-                    <fo:block-container>
+                    <fo:block-container height="1.1cm">
                         <fo:block-container left="0cm" top="0mm" width="7cm" position="absolute">
-                            <fo:block>Bank: A bank, A place, A country</fo:block>
-                            <fo:block>BIC: SWIFTCODE</fo:block>
+                            <fo:block>Bank: <xsl:value-of select="/document/issuer/bankaccount/bank" /></fo:block>
+                            <fo:block>BIC: <xsl:value-of select="/document/issuer/bankaccount/bic" /></fo:block>
                         </fo:block-container>
                         <fo:block-container left="8.75cm" top="0mm" width="7cm" position="absolute">
-                            <fo:block>Account Name: Example GmbH</fo:block>
-                            <fo:block>Account No: ATNNNNNNNNNNNNNNNNNN</fo:block>
+                            <fo:block>Account Name: <xsl:value-of select="/document/issuer/legal-name" /></fo:block>
+                            <fo:block>Account No: <xsl:value-of select="/document/issuer/bankaccount/number" /></fo:block>
                         </fo:block-container>
                     </fo:block-container>
+                    <fo:block>For transfer from outside the SEPA region, please ensure the full amount reaches our account.</fo:block>
                 </fo:block-container>
 
                 <fo:block space-before="5mm" padding="0.6mm" text-align="justify" font-size="8pt" line-height="10pt">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                    <xsl:value-of select="/document/footer" />
                 </fo:block>
             </fo:block-container>
 

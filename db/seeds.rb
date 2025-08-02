@@ -57,7 +57,26 @@ puts "✅ Essential data created"
 # Development sample data (only in development environment)
 if Rails.env.development?
   puts "🧪 Creating development sample data..."
-  
+
+  IssuerCompany.find_or_create_by(active: true) do |issuer|
+    issuer.active = true
+    issuer.short_name = 'My Example'
+    issuer.legal_name = 'My Example B.V.'
+    issuer.address = <<~ADDRESS.strip
+      Businessstraat 123
+      1234 AB Amsterdam
+      Netherlands
+    ADDRESS
+    issuer.vat_id = 'NL123456789B01'
+    issuer.bankaccount_bank = "My Bank B.V."
+    issuer.bankaccount_bic = "BICBICBICBIC"
+    issuer.bankaccount_number = "NL91ABNA0417164300"
+    issuer.document_contact_line1 = "www.example.com      hi@example.com"
+    issuer.document_contact_line2 = "voice + xxx xxxxxx"
+    issuer.document_accent_color = "#0000ff"
+    issuer.invoice_footer = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+  end
+
   # Sample customers
   good_company = Customer.find_or_create_by(matchcode: 'GOODEU') do |customer|
     customer.name = 'Good Company Europe B.V.'
@@ -72,7 +91,7 @@ if Rails.env.development?
     customer.notes = 'Long-term client, monthly invoicing'
     customer.sales_tax_customer_class = eu_class
   end
-  
+
   local_company = Customer.find_or_create_by(matchcode: 'LOCALNAT') do |customer|
     customer.name = 'Local National Company Ltd.'
     customer.address = <<~ADDRESS.strip
@@ -86,7 +105,7 @@ if Rails.env.development?
     customer.notes = 'Project-based work'
     customer.sales_tax_customer_class = national_class
   end
-  
+
   export_company = Customer.find_or_create_by(matchcode: 'USACORP') do |customer|
     customer.name = 'USA Corporation Inc.'
     customer.address = <<~ADDRESS.strip
@@ -99,45 +118,45 @@ if Rails.env.development?
     customer.notes = 'US-based client, quarterly invoicing'
     customer.sales_tax_customer_class = export_class
   end
-  
+
   # Sample projects
   webapp_project = Project.find_or_create_by(matchcode: 'WEBAPP') do |project|
     project.description = 'Web Application Development'
     project.time_budget = 160
     project.bill_to_customer = good_company
   end
-  
+
   consulting_project = Project.find_or_create_by(matchcode: 'CONSULT') do |project|
     project.description = 'IT Consulting Services'
     project.time_budget = 80
     project.bill_to_customer = local_company
   end
-  
+
   api_project = Project.find_or_create_by(matchcode: 'APIDEV') do |project|
     project.description = 'API Development and Integration'
     project.time_budget = 120
     project.bill_to_customer = export_company
   end
-  
+
   # Sample products
   Product.find_or_create_by(title: 'Software Development') do |product|
     product.description = 'Custom software development services per hour'
     product.rate = 85.00
     product.sales_tax_product_class = standard_product
   end
-  
+
   Product.find_or_create_by(title: 'Technical Consulting') do |product|
     product.description = 'Technical consulting and architecture services per hour'
     product.rate = 95.00
     product.sales_tax_product_class = standard_product
   end
-  
+
   Product.find_or_create_by(title: 'Project Management') do |product|
     product.description = 'Project management and coordination services per hour'
     product.rate = 75.00
     product.sales_tax_product_class = standard_product
   end
-  
+
   # Sample invoices (unpublished for testing)
   unless Invoice.exists?(customer: good_company, project: webapp_project)
     invoice = Invoice.create!(
@@ -149,7 +168,7 @@ if Rails.env.development?
       date: 1.week.ago.to_date,
       published: false
     )
-    
+
     # Add invoice lines
     invoice.invoice_lines.create!(
       type: 'item',
@@ -159,7 +178,7 @@ if Rails.env.development?
       rate: 85.00,
       sales_tax_product_class: standard_product
     )
-    
+
     invoice.invoice_lines.create!(
       type: 'item',
       title: 'Backend API Development',
@@ -168,7 +187,7 @@ if Rails.env.development?
       rate: 85.00,
       sales_tax_product_class: standard_product
     )
-    
+
     invoice.invoice_lines.create!(
       type: 'item',
       title: 'Project Planning',
@@ -178,7 +197,7 @@ if Rails.env.development?
       sales_tax_product_class: standard_product
     )
   end
-  
+
   unless Invoice.exists?(customer: local_company, project: consulting_project)
     Invoice.create!(
       customer: local_company,
@@ -189,7 +208,7 @@ if Rails.env.development?
       published: false
     )
   end
-  
+
   puts "✅ Development sample data created"
   puts ""
   puts "📊 Sample Data Summary:"

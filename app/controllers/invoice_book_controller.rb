@@ -127,8 +127,8 @@ class InvoiceBookController
       pdf = InvoiceRenderController.new(@invoice, @issuer).render
       @invoice.attachment = Attachment.new if @invoice.attachment.nil?
       @invoice.attachment.set_data pdf, 'application/pdf'
-      @invoice.attachment.filename = "Invoice-#{@invoice.document_number}.pdf"
-      @invoice.attachment.title = "Invoice #{@invoice.document_number}"
+      @invoice.attachment.filename = "#{@issuer.short_name}-Invoice-#{@invoice.document_number}.pdf"
+      @invoice.attachment.title = "#{@issuer.short_name} Invoice #{@invoice.document_number}"
       @invoice.attachment.save!
       @invoice.save!
     end

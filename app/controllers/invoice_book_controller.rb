@@ -25,12 +25,6 @@ class InvoiceBookController
       return !@failed
     end
 
-    @invoice.customer_name = @invoice.customer.name
-    @invoice.customer_address = @invoice.customer.address
-    @invoice.customer_account_number = @invoice.customer.id
-    @invoice.customer_supplier_number = @invoice.customer.supplier_number
-    @invoice.customer_vat_id = @invoice.customer.vat_id
-    @invoice.tax_note = @invoice.customer.sales_tax_customer_class.invoice_note
     if @invoice.date.nil?
       @invoice.date = Date.today
     end

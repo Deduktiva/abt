@@ -14,7 +14,7 @@ class Invoice < ApplicationRecord
   has_many :invoice_tax_classes
 
   before_save :update_sums
-
+  before_save :update_customer
 
 private
   def update_sums
@@ -28,6 +28,18 @@ private
     self[:sum_total] = 0
     # Clear any existing tax classes from previous test bookings
     self.invoice_tax_classes.destroy_all
+  end
+
+  def update_customer
+    return if self.published?
+    self.customer.reload
+    self.customer_name = self.customer.name
+    self.customer_address = self.customer.address
+    self.customer_account_number = self.customer.id
+    self.customer_supplier_number = self.customer.supplier_number
+    self.customer_vat_id = self.customer.vat_id
+    self.customer.sales_tax_customer_class.reload
+    self.tax_note = self.customer.sales_tax_customer_class.invoice_note
   end
 
   def line_addedremoved(changed_item)

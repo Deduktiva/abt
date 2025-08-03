@@ -35,6 +35,38 @@ class InvoicesControllerTest < ActionController::TestCase
     assert_select 'td', text: '2024-TEST', count: 0
   end
 
+  test "should include draft invoices with nil date in current year" do
+    current_year = Date.current.year
+
+    # Create a draft invoice (no date)
+    draft_invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "DRAFT-NO-DATE"
+      # date is nil for draft invoices
+    )
+
+    # Create a booked invoice from previous year
+    old_invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "OLD-BOOKED",
+      date: Date.new(current_year - 1, 6, 15)
+    )
+
+    # Test current year (should include draft invoice)
+    get :index, params: { year: current_year }
+    assert_response :success
+    assert_select 'td', text: 'DRAFT-NO-DATE'  # Draft should appear
+    assert_select 'td', text: 'OLD-BOOKED', count: 0  # Old invoice should not appear
+
+    # Test previous year (should include old invoice, not draft)
+    get :index, params: { year: current_year - 1 }
+    assert_response :success
+    assert_select 'td', text: 'OLD-BOOKED'  # Old invoice should appear
+    assert_select 'td', text: 'DRAFT-NO-DATE', count: 0  # Draft should not appear in old year
+  end
+
   test "should get new" do
     get :new
     assert_response :success

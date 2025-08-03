@@ -1,0 +1,97 @@
+#!/bin/bash
+# PostgreSQL Development Environment Helper Script
+
+set -e
+
+COMPOSE_FILE="docker-compose.postgres.yml"
+RAILS_ENV="development_postgres"
+
+case "$1" in
+  start)
+    echo "Starting PostgreSQL container..."
+    if command -v podman-compose >/dev/null 2>&1; then
+      podman-compose -f $COMPOSE_FILE up -d
+    elif command -v docker-compose >/dev/null 2>&1; then
+      docker-compose -f $COMPOSE_FILE up -d
+    else
+      echo "Error: Neither podman-compose nor docker-compose found"
+      exit 1
+    fi
+    echo "PostgreSQL container started on port 5433"
+    ;;
+
+  stop)
+    echo "Stopping PostgreSQL container..."
+    if command -v podman-compose >/dev/null 2>&1; then
+      podman-compose -f $COMPOSE_FILE down
+    elif command -v docker-compose >/dev/null 2>&1; then
+      docker-compose -f $COMPOSE_FILE down
+    else
+      echo "Error: Neither podman-compose nor docker-compose found"
+      exit 1
+    fi
+    echo "PostgreSQL container stopped"
+    ;;
+
+  setup)
+    echo "Setting up PostgreSQL development database..."
+    RAILS_ENV=$RAILS_ENV bundle exec rake db:create
+    RAILS_ENV=$RAILS_ENV bundle exec rake db:migrate
+    RAILS_ENV=$RAILS_ENV bundle exec rake db:seed
+    echo "PostgreSQL development database setup complete"
+    ;;
+
+  console)
+    echo "Starting Rails console with PostgreSQL..."
+    RAILS_ENV=$RAILS_ENV bundle exec rails console
+    ;;
+
+  server)
+    echo "Starting Rails server with PostgreSQL..."
+    RAILS_ENV=$RAILS_ENV bundle exec rails server
+    ;;
+
+  test)
+    echo "Running tests with PostgreSQL..."
+    RAILS_ENV=$RAILS_ENV bundle exec rake test
+    ;;
+
+  migrate)
+    echo "Running migrations with PostgreSQL..."
+    RAILS_ENV=$RAILS_ENV bundle exec rake db:migrate
+    ;;
+
+  reset)
+    echo "Resetting PostgreSQL development database..."
+    RAILS_ENV=$RAILS_ENV bundle exec rake db:drop db:create db:migrate db:seed
+    echo "PostgreSQL development database reset complete"
+    ;;
+
+  status)
+    echo "Checking PostgreSQL container status..."
+    if command -v podman >/dev/null 2>&1; then
+      podman ps | grep abt_postgres_dev || echo "Container not running"
+    elif command -v docker >/dev/null 2>&1; then
+      docker ps | grep abt_postgres_dev || echo "Container not running"
+    else
+      echo "Error: Neither podman nor docker found"
+      exit 1
+    fi
+    ;;
+
+  *)
+    echo "Usage: $0 {start|stop|setup|console|server|test|migrate|reset|status}"
+    echo ""
+    echo "Commands:"
+    echo "  start   - Start PostgreSQL container"
+    echo "  stop    - Stop PostgreSQL container"
+    echo "  setup   - Create and setup database"
+    echo "  console - Start Rails console with PostgreSQL"
+    echo "  server  - Start Rails server with PostgreSQL"
+    echo "  test    - Run tests with PostgreSQL"
+    echo "  migrate - Run database migrations"
+    echo "  reset   - Drop, create, migrate and seed database"
+    echo "  status  - Check container status"
+    exit 1
+    ;;
+esac

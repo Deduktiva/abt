@@ -7,12 +7,19 @@ class InvoicesController < ApplicationController
     # Get the selected year from params, default to current year
     @selected_year = params[:year]&.to_i || Date.current.year
 
-    # Filter invoices by selected year
+    # Filter invoices by selected year, including draft invoices (date = nil) for current year
     year_start = Date.new(@selected_year, 1, 1)
     year_end = Date.new(@selected_year, 12, 31)
 
-    @invoices = Invoice.where(date: year_start..year_end)
-                      .reorder(Arel.sql('document_number DESC NULLS FIRST'))
+    if @selected_year == Date.current.year
+      # For current year, include both dated invoices and draft invoices (date = nil)
+      @invoices = Invoice.where("date BETWEEN ? AND ? OR date IS NULL", year_start, year_end)
+                        .reorder(Arel.sql('document_number DESC NULLS FIRST'))
+    else
+      # For other years, only show invoices with dates in that year
+      @invoices = Invoice.where(date: year_start..year_end)
+                        .reorder(Arel.sql('document_number DESC NULLS FIRST'))
+    end
 
     # Get available years for pagination (years that have invoices)
     # Use database-specific EXTRACT function (works in PostgreSQL, MySQL, and modern SQLite)

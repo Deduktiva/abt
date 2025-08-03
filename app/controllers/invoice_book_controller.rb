@@ -47,13 +47,7 @@ class InvoiceBookController
     @log << "Prelude: #{@invoice.prelude}"
     @log << ''
 
-    customer_sales_tax_rates = @invoice.customer.sales_tax_rates
-    if customer_sales_tax_rates.nil?
-      error 'no sales tax config for customer'
-      return !@failed
-    end
-
-    # Calculate taxes using the extracted service
+    # Calculate taxes
     tax_calculator = InvoiceTaxCalculator.new(@invoice)
     tax_calculation_successful = tax_calculator.calculate!
 

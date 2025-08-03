@@ -22,8 +22,7 @@ class IssuerCompaniesControllerTest < ActionDispatch::IntegrationTest
     patch issuer_company_url, params: {
       issuer_company: {
         short_name: 'Updated Name',
-        legal_name: 'Updated Legal Name',
-        active: true
+        legal_name: 'Updated Legal Name'
       }
     }
     assert_redirected_to issuer_company_url

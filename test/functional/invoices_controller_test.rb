@@ -6,6 +6,35 @@ class InvoicesControllerTest < ActionController::TestCase
     assert_response :success
   end
 
+  test "should get index with year filter" do
+    # Create invoices in different years
+    invoice_2023 = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "2023-TEST",
+      date: Date.new(2023, 6, 15)
+    )
+
+    invoice_2024 = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "2024-TEST",
+      date: Date.new(2024, 6, 15)
+    )
+
+    # Test current year (default)
+    get :index
+    assert_response :success
+    assert_select '.year-pagination'
+
+    # Test specific year filter
+    get :index, params: { year: 2023 }
+    assert_response :success
+    # Verify the page contains the 2023 invoice reference but not 2024
+    assert_select 'td', text: '2023-TEST'
+    assert_select 'td', text: '2024-TEST', count: 0
+  end
+
   test "should get new" do
     get :new
     assert_response :success

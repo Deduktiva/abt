@@ -4,7 +4,22 @@ class InvoicesController < ApplicationController
   # GET /invoices
   # GET /invoices.json
   def index
-    @invoices = Invoice.reorder(Arel.sql('document_number DESC NULLS FIRST')).all
+    # Get the selected year from params, default to current year
+    @selected_year = params[:year]&.to_i || Date.current.year
+
+    # Filter invoices by selected year
+    year_start = Date.new(@selected_year, 1, 1)
+    year_end = Date.new(@selected_year, 12, 31)
+
+    @invoices = Invoice.where(date: year_start..year_end)
+                      .reorder(Arel.sql('document_number DESC NULLS FIRST'))
+
+    # Get available years for pagination (years that have invoices)
+    @available_years = Invoice.where.not(date: nil)
+                             .group(Arel.sql("strftime('%Y', date)"))
+                             .order(Arel.sql("strftime('%Y', date) DESC"))
+                             .pluck(Arel.sql("strftime('%Y', date)"))
+                             .map(&:to_i)
 
     respond_to do |format|
       format.html # index.html.erb

@@ -1,5 +1,16 @@
 = page_header_with_new_button('Listing invoices', new_invoice_path)
 
+- if @available_years.any?
+  .year-pagination.mb-4
+    %nav{"aria-label" => "Year navigation"}
+      %ul.pagination.pagination-sm.justify-content-center
+        - @available_years.each do |year|
+          %li.page-item{class: (@selected_year == year ? 'active' : '')}
+            - if @selected_year == year
+              %span.page-link= year
+            - else
+              = link_to year, invoices_path(year: year), class: 'page-link'
+
 %table.table.table-striped.table-sm
   %tr
     %th Document#

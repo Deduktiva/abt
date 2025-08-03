@@ -7,16 +7,16 @@
     = stylesheet_link_tag    "application", :media => "all"
     = javascript_importmap_tags
     = yield :head
-  %body
+  %body.d-flex.flex-column.min-vh-100
     %nav.navbar.navbar-expand-lg.navbar-light.bg-light.fixed-top{"data-controller" => "navbar"}
       .container-fluid
         = render 'layouts/navigation'
-    #main{:role => "main"}
+    %main#main{:role => "main", :class => "flex-grow-1"}
       .container
         .content
           = render 'layouts/messages'
           = content_for?(:content) ? yield(:content) : yield
-      %footer.footer
-        .container
-          %p
-            &copy; 2014-2025 Deduktiva GmbH
+    %footer.footer.mt-auto
+      .container
+        %p.mb-0.text-center
+          &copy; 2014-2025 Deduktiva GmbH

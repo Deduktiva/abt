@@ -36,3 +36,4 @@ gem 'bootstrap', '~> 5.3'
 gem 'haml-rails'
 gem 'simple_form'
 
+gem "mailgun-ruby", "~> 1.3.9"

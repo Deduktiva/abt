@@ -11,6 +11,9 @@ module Abt
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.0
 
+    config.action_mailer.delivery_method = :mailgun
+    config.action_mailer.mailgun_settings = Rails.application.credentials.mailgun
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded after loading

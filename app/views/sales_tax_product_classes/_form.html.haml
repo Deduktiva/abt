@@ -2,13 +2,13 @@
   = f.error_notification
 
   .form-inputs
-    .row
-      .col-sm-6
-        = f.label :name
+    .row.mb-3
+      = f.label :name, class: 'col-sm-3 col-form-label'
+      .col-sm-9
         = f.text_field :name, :class => 'form-control', :placeholder => "Standard goods"
-    .row
-      .col-sm-3
-        = f.label :indicator_code
+    .row.mb-3
+      = f.label :indicator_code, class: 'col-sm-3 col-form-label'
+      .col-sm-9
         = f.text_field :indicator_code, :class => 'form-control', :placeholder => "A"
 
   %br

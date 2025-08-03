@@ -3,21 +3,21 @@
   = f.error_notification
 
   .form-inputs
-    .row
-      .col-sm-6
-        = f.label :matchcode
+    .row.mb-3
+      = f.label :matchcode, class: 'col-sm-3 col-form-label'
+      .col-sm-9
         = f.text_field :matchcode, :class => 'form-control'
-    .row
-      .col-sm-6
-        = f.label :description
+    .row.mb-3
+      = f.label :description, class: 'col-sm-3 col-form-label'
+      .col-sm-9
         = f.text_area :description, :class => 'form-control', :rows => 3
-    .row
-      .col-sm-3
-        = f.label :time_budget
+    .row.mb-3
+      = f.label :time_budget, class: 'col-sm-3 col-form-label'
+      .col-sm-9
         = f.text_field :time_budget, :class => 'form-control'
-    .row
-      .col-sm-6
-        = f.label :bill_to_customer_id
+    .row.mb-3
+      = f.label :bill_to_customer_id, class: 'col-sm-3 col-form-label'
+      .col-sm-9
         = f.collection_select :bill_to_customer_id, Customer.all, :id, :name, { prompt: 'Select customer...' }, {:class => 'form-select'}
 
   %br

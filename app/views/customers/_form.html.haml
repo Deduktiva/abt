@@ -3,41 +3,41 @@
   = f.error_notification
 
   .form-inputs
-    .row
-      .col-sm-6
-        = f.label :matchcode
-        = f.text_field :matchcode, :class => 'form-control'  #, :required => true
-    .row
-      .col-sm-6
-        = f.label :name
+    .row.mb-3
+      = f.label :matchcode, class: 'col-sm-3 col-form-label'
+      .col-sm-9
+        = f.text_field :matchcode, :class => 'form-control'
+    .row.mb-3
+      = f.label :name, class: 'col-sm-3 col-form-label'
+      .col-sm-9
         = f.text_area :name, :class => 'form-control', :rows => 2
-    .row
-      .col-sm-6
-        = f.label :address
+    .row.mb-3
+      = f.label :address, class: 'col-sm-3 col-form-label'
+      .col-sm-9
         = f.text_area :address, :class => 'form-control', :rows => 3
-    .row
-      .col-sm-3
-        = f.label :vat_id, :label => 'VATID'
+    .row.mb-3
+      = f.label :vat_id, 'VATID', class: 'col-sm-3 col-form-label'
+      .col-sm-9
         = f.text_field :vat_id, :class => 'form-control'
-    .row
-      .col-sm-4
-        = f.label :email, :label => 'E-Mail'
+    .row.mb-3
+      = f.label :email, 'E-Mail', class: 'col-sm-3 col-form-label'
+      .col-sm-9
         = f.text_field :email, :class => 'form-control'
-    .row
-      .col-sm-2
-        = f.label :time_budget
+    .row.mb-3
+      = f.label :time_budget, class: 'col-sm-3 col-form-label'
+      .col-sm-9
         = f.text_field :time_budget, :class => 'form-control'
-    .row
-      .col-sm-3
-        = f.label :payment_terms_days, 'Payment terms (days)'
+    .row.mb-3
+      = f.label :payment_terms_days, 'Payment terms (days)', class: 'col-sm-3 col-form-label'
+      .col-sm-9
         = f.number_field :payment_terms_days, :class => 'form-control', :min => 1, :max => 365, :value => (@customer.payment_terms_days || 30)
-    .row
-      .col-sm-6
-        = f.label :notes
+    .row.mb-3
+      = f.label :notes, class: 'col-sm-3 col-form-label'
+      .col-sm-9
         = f.text_area :notes, :class => 'form-control', :rows => 5
-    .row
-      .col-sm-6
-        = f.label :sales_tax_customer_class_id
+    .row.mb-3
+      = f.label :sales_tax_customer_class_id, class: 'col-sm-3 col-form-label'
+      .col-sm-9
         = f.collection_select :sales_tax_customer_class_id, SalesTaxCustomerClass.all, :id, :name, { prompt: 'Select tax class...' }, {:class => 'form-select', :required => true}
 
   %br

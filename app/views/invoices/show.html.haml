@@ -21,12 +21,15 @@
             %strong Customer:
           .col-sm-8
             = @invoice.customer_name || @invoice.customer.name
-        - if @invoice.project
+        - if @invoice.project_id.present?
           .row.mb-2
             .col-sm-4
               %strong Project:
             .col-sm-8
-              = @invoice.project.description
+              - if @invoice.project
+                = @invoice.project.description
+              - else
+                %em (Project ##{@invoice.project_id} - not found)
         - if @invoice.cust_reference.present?
           .row.mb-2
             .col-sm-4

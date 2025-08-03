@@ -66,6 +66,8 @@
   %br
   = action_buttons_wrapper do
     = f.submit 'Save', class: 'btn btn-primary'
+    - unless @invoice.id.nil?
+      = button_to 'Test Booking', test_booking_invoice_path(@invoice), method: :post, class: 'btn btn-warning', data: { 'turbo-confirm': 'This will save your changes and run a test booking calculation. Continue?' }
     = cancel_button(@invoice)
     - unless @invoice.id.nil?
       %button.btn.btn-info{type: 'button', data: {action: 'click->invoice-lines#addLine'}}

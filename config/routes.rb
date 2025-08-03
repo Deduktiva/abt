@@ -8,6 +8,7 @@ Rails.application.routes.draw do
       get 'preview'
       get 'book'
       post 'book'
+      post 'test_booking'
     end
   end
   resources :products

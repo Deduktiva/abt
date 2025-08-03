@@ -143,6 +143,44 @@ class InvoicesController < ApplicationController
     end
   end
 
+  def test_booking
+    @invoice = Invoice.find(params[:id])
+    return unless check_unpublished
+
+    # First save any changes to the invoice
+    if @invoice.update(invoice_params)
+      # Then run the test booking with save=false
+      issuer = IssuerCompany.get_the_issuer!
+      @booker = InvoiceBookController.new @invoice, issuer
+
+      ActiveRecord::Base.transaction(requires_new: true) do
+        @booked = @booker.book false
+        raise ActiveRecord::Rollback, 'test booking only'
+      end
+      @booking_log = @booker.log
+
+      # Store booking data in session for the redirected page
+      session[:booking_log] = @booking_log
+      session[:booked] = @booked
+
+      if @booked
+        flash[:notice] = "Test booking succeeded."
+      else
+        flash[:error] = "Test booking failed."
+      end
+
+      respond_to do |format|
+        format.html { redirect_to book_invoice_path(@invoice) }
+      end
+    else
+      # If saving failed, redirect back to edit with errors
+      set_form_options
+      respond_to do |format|
+        format.html { render :edit }
+      end
+    end
+  end
+
   def preview
     Rails.logger.debug "InvoiceController#preview"
     @invoice = Invoice.find(params[:id])

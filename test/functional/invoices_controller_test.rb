@@ -113,4 +113,81 @@ class InvoicesControllerTest < ActionController::TestCase
     assert_equal "Test Product", invoice.invoice_lines.first.title
   end
 
+  test "should handle test booking with saving changes" do
+    invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "TEST"
+    )
+
+    # Add an invoice line to test booking
+    invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Test Product',
+      description: 'A test product',
+      rate: 100.0,
+      quantity: 2.0,
+      sales_tax_product_class: sales_tax_product_classes(:standard),
+      position: 1
+    )
+
+    post :test_booking, params: {
+      id: invoice.id,
+      invoice: {
+        cust_reference: "UPDATED_FOR_TEST_BOOKING",
+        invoice_lines_attributes: {
+          "0" => {
+            id: invoice.invoice_lines.first.id,
+            type: "item",
+            title: "Updated Test Product",
+            description: "Updated description",
+            rate: "150.00",
+            quantity: "3",
+            position: "1",
+            sales_tax_product_class_id: sales_tax_product_classes(:standard).id
+          }
+        }
+      }
+    }
+
+    assert_redirected_to book_invoice_path(invoice)
+    invoice.reload
+    assert_equal "UPDATED_FOR_TEST_BOOKING", invoice.cust_reference
+    assert_equal "Updated Test Product", invoice.invoice_lines.first.title
+    assert_equal 150.0, invoice.invoice_lines.first.rate
+    assert_equal 3.0, invoice.invoice_lines.first.quantity
+  end
+
+  test "should handle test booking with validation errors" do
+    invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "TEST"
+    )
+
+    post :test_booking, params: {
+      id: invoice.id,
+      invoice: {
+        customer_id: nil, # This should cause validation error
+        cust_reference: "INVALID"
+      }
+    }
+
+    assert_response :success
+  end
+
+  test "should reject test booking for published invoices" do
+    invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "TEST",
+      published: true
+    )
+
+    post :test_booking, params: { id: invoice.id }
+
+    assert_redirected_to invoice_path(invoice)
+    assert_match /Published invoices can not be modified/, flash[:error]
+  end
+
 end

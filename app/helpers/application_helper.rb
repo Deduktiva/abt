@@ -37,6 +37,17 @@ module ApplicationHelper
     end
   end
 
+  def page_header_with_edit_button(title, edit_path)
+    content_tag :div, class: 'd-flex justify-content-between align-items-center mb-3' do
+      content_tag(:h1, title, class: 'page-header mb-0') +
+      link_to('Edit', edit_path, class: 'btn btn-primary')
+    end
+  end
+
+  def page_header(title)
+    content_tag(:h1, title, class: 'page-header mb-3')
+  end
+
   def list_action_link(text, path, type = :default, options = {})
     css_classes = case type
     when :show

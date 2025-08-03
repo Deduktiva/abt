@@ -36,6 +36,45 @@ class InvoicesControllerTest < ActionController::TestCase
     assert_response :success
   end
 
+  test "should get edit" do
+    invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "TEST"
+    )
+    get :edit, params: { id: invoice.id }
+    assert_response :success
+  end
+
+  test "should get edit with existing lines" do
+    invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "TEST"
+    )
+
+    # Add some invoice lines to test the HAML template rendering
+    invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Test Product',
+      description: 'A test product',
+      rate: 100.0,
+      quantity: 2.0,
+      sales_tax_product_class: sales_tax_product_classes(:standard),
+      position: 1
+    )
+
+    invoice.invoice_lines.create!(
+      type: 'text',
+      title: 'Note',
+      description: 'Additional information',
+      position: 2
+    )
+
+    get :edit, params: { id: invoice.id }
+    assert_response :success
+  end
+
   test "should update invoice with nested attributes" do
     invoice = Invoice.create!(
       customer: customers(:good_eu),
@@ -73,4 +112,5 @@ class InvoicesControllerTest < ActionController::TestCase
     assert_equal 2, invoice.invoice_lines.count
     assert_equal "Test Product", invoice.invoice_lines.first.title
   end
+
 end

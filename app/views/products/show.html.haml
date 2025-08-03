@@ -1,0 +1,19 @@
+%h1.page-header
+  Product "#{@product.title}"
+
+%p
+  %b Description:
+  %blockquote
+    = @product.description
+
+%p
+  %b Rate:
+  = format_currency(@product.rate)
+
+%p
+  %b Sales tax product class:
+  = @product.sales_tax_product_class.name
+
+= link_to 'Edit', edit_product_path(@product)
+|
+= link_to 'Back', products_path

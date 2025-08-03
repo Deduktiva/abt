@@ -1,0 +1,24 @@
+%h1.page-header Listing products
+
+%table.table.table-striped.table-sm
+  %tr
+    %th Title
+    %th Rate
+    %th Product Class
+    %th{width: "3%"}
+    %th{width: "3%"}
+    %th{width: "3%"}
+
+  - @products.each do |product|
+    %tr
+      %td= product.title
+      %td= format_currency(product.rate)
+      %td= product.sales_tax_product_class && product.sales_tax_product_class.name
+      %td= link_to 'Show', product
+      %td= link_to 'Edit', edit_product_path(product)
+      %td= link_to 'Destroy', product, method: :delete, data: { confirm: 'Are you sure?' }
+
+%br
+
+%span.glyphicon.glyphicon-plus
+= link_to 'New Product', new_product_path

@@ -40,7 +40,7 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
     # Book the invoice (this should create PDF attachment)
     post book_invoice_path(@invoice), params: { save: 'true' }
 
-    assert_response :success
+    assert_redirected_to book_invoice_path(@invoice)
 
     @invoice.reload
     assert @invoice.published?, "Invoice should be published after booking"

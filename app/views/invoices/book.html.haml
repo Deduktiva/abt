@@ -1,0 +1,22 @@
+%h1.page-header Book invoice
+
+Document Number:
+= @invoice.document_number
+%br
+published:
+= @invoice.published
+%br
+
+%br
+%b Booking Log:
+%pre
+  = @booking_log.join("\n")
+
+- if @booked and !@invoice.published?
+  = link_to 'Preview', preview_invoice_path(@invoice), class: 'btn btn-info me-2'
+  = button_to 'Book!', book_invoice_path(@invoice, :save => true), class: 'btn btn-warning me-2'
+
+- if @invoice.attachment
+  = link_to 'PDF', attachment_path(@invoice.attachment), target: '_blank', data: { turbo: false }, class: 'btn btn-success me-2'
+
+= link_to 'Back to Invoice', @invoice, class: 'btn btn-secondary'

@@ -1,6 +1,13 @@
 class InvoiceLine < ApplicationRecord
+  TYPE_OPTIONS = {
+    'Text' => 'text',
+    'Item' => 'item',
+    'Subheading' => 'subheading',
+    'Plaintext' => 'plain'
+  }.freeze
+
   validates :title, presence: true
-  validates :type, presence: true, inclusion: %w(item subheading plain text)
+  validates :type, presence: true, inclusion: TYPE_OPTIONS.values
   validates :rate, presence: true, if: :is_item
   validates :quantity, presence: true, if: :is_item
 

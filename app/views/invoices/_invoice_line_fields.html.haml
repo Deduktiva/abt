@@ -1,0 +1,57 @@
+.card.mb-3{data: {line_index: f.index}}
+  .card-body
+    = f.hidden_field :id
+    = f.hidden_field :position
+
+    .row
+      .col-sm-2
+        .mb-3
+          %label.form-label Type
+          = f.select :type, options_for_select(@line_type_options, f.object.type), {}, { class: 'form-select', data: { action: 'change->invoice-lines#typeChanged' } }
+      .col-sm-6.col-md-8
+        .mb-3
+          %label.form-label Title
+          = f.text_field :title, class: 'form-control', data: { action: 'input->invoice-lines#fieldChanged' }, required: true
+      .col-sm-4.col-md-2.text-end
+        %label.form-label &nbsp;
+        %div
+          %button.btn.btn-sm.btn-info{type: 'button', data: {action: 'click->invoice-lines#toggleProductDropdown', line_type_target: 'itemOnly'}} ...
+          %button.btn.btn-sm.btn-secondary{type: 'button', data: {action: 'click->invoice-lines#moveLineUp'}} ▲
+          %button.btn.btn-sm.btn-secondary{type: 'button', data: {action: 'click->invoice-lines#moveLineDown'}} ▼
+          %button.btn.btn-sm.btn-danger{type: 'button', data: {action: 'click->invoice-lines#removeLine'}} 🗑
+
+    .row.mt-2{data: {product_dropdown: true}, style: 'display: none;'}
+      .col-sm-11
+        .input-group.mb-3
+          %select.form-select{data: {product_select: true}}
+            %option{value: ''} Select a product...
+            - Product.all.each do |product|
+              %option{value: product.id, data: {title: product.title, description: product.description, rate: product.rate, tax_class: product.sales_tax_product_class_id}}
+                = "#{product.title} - €#{product.rate}"
+
+          %button.btn.btn-success{type: 'button', data: {action: 'click->invoice-lines#useSelectedProduct'}} ✓
+
+    .row.mt-2{data: {line_type_target: 'notSubheading'}}
+      .col-sm-12
+        .mb-3
+          %label.form-label Description
+          = f.text_area :description, class: 'form-control', data: { action: 'input->invoice-lines#fieldChanged' }
+
+    .row.mt-2{data: {line_type_target: 'itemOnly'}}
+      .col-sm-3.col-md-2
+        .mb-3
+          %label.form-label Rate
+          = f.number_field :rate, step: 0.01, class: 'form-control', data: { action: 'input->invoice-lines#fieldChanged' }, placeholder: '0.00'
+      .col-sm-3.col-md-2
+        .mb-3
+          %label.form-label Quantity
+          = f.number_field :quantity, step: 0.01, class: 'form-control', data: { action: 'input->invoice-lines#fieldChanged' }, placeholder: '0'
+      .col-sm-4.col-md-3
+        .mb-3
+          %label.form-label Product class
+          = f.collection_select :sales_tax_product_class_id, SalesTaxProductClass.all, :id, :name, { prompt: 'Select tax class...' }, { class: 'form-select', data: { action: 'change->invoice-lines#fieldChanged' } }
+      .col-sm-3
+      .col-sm-2.text-end
+        .mb-3
+          %label.form-label Total
+          .form-control-plaintext{data: {line_total: true}} ...

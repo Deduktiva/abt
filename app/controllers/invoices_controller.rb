@@ -27,6 +27,7 @@ class InvoicesController < ApplicationController
   # GET /invoices/new.json
   def new
     @invoice = Invoice.new
+    set_form_options
 
     respond_to do |format|
       format.html # new.html.erb
@@ -38,6 +39,8 @@ class InvoicesController < ApplicationController
   def edit
     @invoice = Invoice.find(params[:id])
     return unless check_unpublished
+
+    set_form_options
   end
 
   # POST /invoices
@@ -178,5 +181,9 @@ class InvoicesController < ApplicationController
   def invoice_params
     params.require(:invoice).permit(:customer_id, :project_id, :cust_reference, :cust_order, :prelude,
       invoice_lines_attributes: [:id, :type, :title, :description, :rate, :quantity, :sales_tax_product_class_id, :position, :_destroy])
+  end
+
+  def set_form_options
+    @line_type_options = InvoiceLine::TYPE_OPTIONS.to_a
   end
 end

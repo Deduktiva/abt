@@ -23,7 +23,8 @@ class InvoicesController < ApplicationController
                  "EXTRACT(YEAR FROM date)"
                end
 
-    @available_years = Invoice.where.not(date: nil)
+    @available_years = Invoice.unscoped
+                             .where.not(date: nil)
                              .group(Arel.sql(year_sql))
                              .order(Arel.sql("#{year_sql} DESC"))
                              .pluck(Arel.sql(year_sql))

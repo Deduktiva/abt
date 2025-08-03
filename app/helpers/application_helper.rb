@@ -37,4 +37,29 @@ module ApplicationHelper
     end
   end
 
+  def list_action_link(text, path, type = :default, options = {})
+    css_classes = case type
+    when :show
+      'btn btn-sm btn-outline-primary py-0'
+    when :edit
+      'btn btn-sm btn-outline-secondary py-0'
+    when :destroy
+      'btn btn-sm btn-outline-danger py-0'
+    else
+      'btn btn-sm btn-outline-primary py-0'
+    end
+
+    link_to(text, path, options.merge(class: css_classes))
+  end
+
+  def destroy_link(resource, confirm_text = nil)
+    confirm_text ||= "Are you sure you want to delete this #{resource.class.name.downcase}?"
+    list_action_link('🗑', resource, :destroy, {
+      data: {
+        'turbo-method': 'delete',
+        'turbo-confirm': confirm_text
+      }
+    })
+  end
+
 end

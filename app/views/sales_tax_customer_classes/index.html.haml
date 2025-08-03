@@ -11,6 +11,6 @@
     %tr
       %td= sales_tax_customer_class.name
       %td= sales_tax_customer_class.invoice_note
-      %td= link_to 'Edit', edit_sales_tax_customer_class_path(sales_tax_customer_class)
-      %td= link_to 'Destroy', sales_tax_customer_class, data: { 'turbo-method': 'delete', 'turbo-confirm': "Are you sure you want to delete customer class \"#{sales_tax_customer_class.name}\"?" }
+      %td= list_action_link('Edit', edit_sales_tax_customer_class_path(sales_tax_customer_class), :edit)
+      %td= destroy_link(sales_tax_customer_class, "Are you sure you want to delete customer class \"#{sales_tax_customer_class.name}\"?")
 

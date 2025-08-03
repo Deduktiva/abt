@@ -23,12 +23,12 @@
       %td= invoice.cust_order
       %td
         - if invoice.published? and not invoice.attachment.nil?
-          = link_to 'PDF', attachment_path(invoice.attachment), target: '_blank', data: { turbo: false }
-      %td= link_to 'Show', invoice
+          = link_to 'PDF', attachment_path(invoice.attachment), target: '_blank', data: { turbo: false }, class: 'btn btn-sm btn-outline-success py-0'
+      %td= list_action_link('Show', invoice, :show)
       %td
         - unless invoice.published?
-          = link_to 'Edit', edit_invoice_path(invoice)
+          = list_action_link('Edit', edit_invoice_path(invoice), :edit)
       %td
         - unless invoice.published?
-          = link_to 'Destroy', invoice, data: { 'turbo-method': 'delete', 'turbo-confirm': "Are you sure you want to delete invoice \"#{invoice.document_number || "##{invoice.id}"}\"?" }
+          = destroy_link(invoice, "Are you sure you want to delete invoice \"#{invoice.document_number || "##{invoice.id}"}\"?")
 

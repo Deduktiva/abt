@@ -14,7 +14,7 @@
       %td= customer.matchcode
       %td= customer.name
       %td= customer.time_budget
-      %td= link_to 'Show', customer
-      %td= link_to 'Edit', edit_customer_path(customer)
-      %td= link_to 'Destroy', customer, data: { 'turbo-method': 'delete', 'turbo-confirm': "Are you sure you want to delete customer \"#{customer.matchcode}\" (#{customer.name})?" }
+      %td= list_action_link('Show', customer, :show)
+      %td= list_action_link('Edit', edit_customer_path(customer), :edit)
+      %td= destroy_link(customer, "Are you sure you want to delete customer \"#{customer.matchcode}\" (#{customer.name})?")
 

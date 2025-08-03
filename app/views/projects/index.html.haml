@@ -16,7 +16,7 @@
       %td= project.description
       %td= project.time_budget
       %td= project.bill_to_customer.try(:matchcode)
-      %td= link_to 'Show', project
-      %td= link_to 'Edit', edit_project_path(project)
-      %td= link_to 'Destroy', project, data: { 'turbo-method': 'delete', 'turbo-confirm': "Are you sure you want to delete project \"#{project.matchcode}\"?" }
+      %td= list_action_link('Show', project, :show)
+      %td= list_action_link('Edit', edit_project_path(project), :edit)
+      %td= destroy_link(project, "Are you sure you want to delete project \"#{project.matchcode}\"?")
 

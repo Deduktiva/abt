@@ -110,7 +110,7 @@
               - @invoice.invoice_tax_classes.each do |tax_class|
                 %tr
                   %td.text-end
-                    Tax (#{tax_class.percentage}%):
+                    Tax (#{tax_class.rate}%):
                   %td.text-end
                     = format_currency(tax_class.value)
             %tr.table-dark

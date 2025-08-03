@@ -36,6 +36,46 @@ class InvoicesControllerTest < ActionController::TestCase
     assert_response :success
   end
 
+  test "should show booked invoice with tax classes" do
+    invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "TEST",
+      published: true,
+      document_number: "INV-2024-001",
+      date: Date.current,
+      sum_net: 200.0,
+      sum_total: 238.0
+    )
+
+    # Add invoice lines
+    invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Test Product',
+      description: 'A test product',
+      rate: 100.0,
+      quantity: 2.0,
+      sales_tax_product_class: sales_tax_product_classes(:standard),
+      position: 1
+    )
+
+    # Add tax classes
+    tax_class = invoice.invoice_tax_classes.build(
+      sales_tax_product_class: sales_tax_product_classes(:standard),
+      rate: 19.0,
+      value: 38.0,
+      total: 238.0
+    )
+    tax_class.net = 200.0
+    tax_class.save!
+
+    get :show, params: { id: invoice.id }
+    assert_response :success
+    assert_select '.invoice-document'
+    assert_select 'table.table-bordered'
+    assert_select '.badge.bg-success', text: 'Booked'
+  end
+
   test "should get edit" do
     invoice = Invoice.create!(
       customer: customers(:good_eu),

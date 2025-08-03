@@ -64,11 +64,9 @@
         %br{clear: 'all'}
 
   %br
-  .form-actions.d-flex.justify-content-between
-    .left-buttons
-      = f.submit 'Save', class: 'btn btn-primary'
-      = link_to 'Cancel', invoices_path, class: 'btn btn-secondary ms-2'
-    .right-buttons
-      - unless @invoice.id.nil?
-        %button.btn.btn-info{type: 'button', data: {action: 'click->invoice-lines#addLine'}}
-          + Add Line
+  = action_buttons_wrapper do
+    = f.submit 'Save', class: 'btn btn-primary'
+    = cancel_button(@invoice)
+    - unless @invoice.id.nil?
+      %button.btn.btn-info{type: 'button', data: {action: 'click->invoice-lines#addLine'}}
+        + Add Line

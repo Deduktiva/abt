@@ -73,13 +73,13 @@
 %br
 %br
 
-.d-flex.gap-2.mb-3
+= action_buttons_wrapper do
   - unless @invoice.published
-    = link_to 'Edit', edit_invoice_path(@invoice), class: 'btn btn-primary'
+    = action_button 'Edit', edit_invoice_path(@invoice), :primary
   - if @invoice.attachment
-    = link_to 'PDF', @invoice.attachment, class: 'btn btn-success', target: '_blank', data: { turbo: false }
+    = action_button 'PDF', @invoice.attachment, :success, { target: '_blank', data: { turbo: false } }
   - else
-    = link_to 'Preview', preview_invoice_path(@invoice), class: 'btn btn-info'
-  = link_to 'Back', invoices_path, class: 'btn btn-secondary'
+    = action_button 'Preview', preview_invoice_path(@invoice), :info
+  = action_button 'Back', invoices_path, :secondary
   - unless @invoice.published
     = button_to 'Test Booking', book_invoice_path(@invoice, :save => false), class: 'btn btn-warning'

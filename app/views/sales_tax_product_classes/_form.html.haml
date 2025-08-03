@@ -13,6 +13,6 @@
 
   %br
 
-  .form-actions
+  = action_buttons_wrapper do
     = f.button :submit, :class => 'btn btn-primary'
-    = link_to 'Cancel', sales_tax_product_classes_path, :class => "btn btn-secondary"
+    = cancel_button(@sales_tax_product_class)

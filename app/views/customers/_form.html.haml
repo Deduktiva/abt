@@ -42,6 +42,6 @@
 
   %br
 
-  .form-actions
-    = f.button :submit, :class => 'btn-primary'
-    = link_to 'Cancel', @customer, :class => "btn btn-secondary"
+  = action_buttons_wrapper do
+    = f.button :submit, :class => 'btn btn-primary'
+    = cancel_button(@customer)

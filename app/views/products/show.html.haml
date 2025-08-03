@@ -14,6 +14,6 @@
   %b Sales tax product class:
   = @product.sales_tax_product_class.name
 
-= link_to 'Edit', edit_product_path(@product)
-|
-= link_to 'Back', products_path
+= action_buttons_wrapper do
+  = action_button 'Edit', edit_product_path(@product), :primary
+  = action_button 'Back', products_path, :secondary

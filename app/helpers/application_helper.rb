@@ -62,4 +62,46 @@ module ApplicationHelper
     })
   end
 
+  def action_buttons_wrapper(&block)
+    content_tag :div, class: 'd-flex gap-2 mb-3', &block
+  end
+
+  def action_button(text, path, type = :primary, options = {})
+    css_class = case type
+    when :primary
+      'btn btn-primary'
+    when :secondary
+      'btn btn-secondary'
+    when :success
+      'btn btn-success'
+    when :info
+      'btn btn-info'
+    when :warning
+      'btn btn-warning'
+    when :danger
+      'btn btn-danger'
+    else
+      'btn btn-primary'
+    end
+
+    link_to(text, path, options.merge(class: css_class))
+  end
+
+  def cancel_button(resource)
+    # Determine the appropriate cancel destination based on action
+    cancel_path = case action_name
+    when 'edit', 'update'
+      # When editing, go back to list page
+      polymorphic_path(resource.class)
+    when 'new', 'create'
+      # When creating new, go back to list page
+      polymorphic_path(resource.class)
+    else
+      # Default to show page
+      resource
+    end
+
+    action_button('Cancel', cancel_path, :secondary)
+  end
+
 end

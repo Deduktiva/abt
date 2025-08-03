@@ -12,6 +12,6 @@
   %b Bill to customer:
   = @project.bill_to_customer.matchcode
 
-= link_to 'Edit', edit_project_path(@project)
-\|
-= link_to 'Back', projects_path
+= action_buttons_wrapper do
+  = action_button 'Edit', edit_project_path(@project), :primary
+  = action_button 'Back', projects_path, :secondary

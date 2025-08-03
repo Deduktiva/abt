@@ -5,6 +5,6 @@
   %b Invoice note:
   = @sales_tax_customer_class.invoice_note
 
-= link_to 'Edit', edit_sales_tax_customer_class_path(@sales_tax_customer_class)
-\|
-= link_to 'Back', sales_tax_customer_classes_path
+= action_buttons_wrapper do
+  = action_button 'Edit', edit_sales_tax_customer_class_path(@sales_tax_customer_class), :primary
+  = action_button 'Back', sales_tax_customer_classes_path, :secondary

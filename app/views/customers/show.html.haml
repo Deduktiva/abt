@@ -31,6 +31,6 @@
   %b Sales Tax Class:
   = @customer.sales_tax_customer_class.try(:name)
 
-= link_to 'Edit', edit_customer_path(@customer)
-\|
-= link_to 'Back', customers_path
+= action_buttons_wrapper do
+  = action_button 'Edit', edit_customer_path(@customer), :primary
+  = action_button 'Back', customers_path, :secondary

@@ -89,30 +89,54 @@ class InvoicesController < ApplicationController
   end
 
   def book
-    want_save = (params[:save] == 'true')
-    action = want_save ? 'Booking' : 'TEST-Booking'
     @invoice = Invoice.find(params[:id])
-    return unless check_unpublished
 
-    issuer = IssuerCompany.get_the_issuer!
-    @booker = InvoiceBookController.new @invoice, issuer
+    if request.post?
+      return unless check_unpublished
+      # Process the booking
+      want_save = (params[:save] == 'true')
+      action = want_save ? 'Booking' : 'TEST-Booking'
 
-    ActiveRecord::Base.transaction(requires_new: true) do
-      @booked = @booker.book want_save
-      unless want_save
-        raise ActiveRecord::Rollback, 'preview only'
+      issuer = IssuerCompany.get_the_issuer!
+      @booker = InvoiceBookController.new @invoice, issuer
+
+      ActiveRecord::Base.transaction(requires_new: true) do
+        @booked = @booker.book want_save
+        unless want_save
+          raise ActiveRecord::Rollback, 'preview only'
+        end
       end
-    end
-    @booking_log = @booker.log
+      @booking_log = @booker.log
 
-    if @booked
-      flash[:notice] = "#{action} succeeded."
+      if @booked
+        flash[:notice] = "#{action} succeeded."
+      else
+        flash[:error] = "#{action} failed."
+      end
+
+      # Store booking data in session for the redirected page
+      session[:booking_log] = @booking_log
+      session[:booked] = @booked
+
+      respond_to do |format|
+        format.html { redirect_to book_invoice_path(@invoice) }
+      end
     else
-      flash[:error] = "#{action} failed."
-    end
+      # Show the booking results from session data
+      @booking_log = session.delete(:booking_log)
+      @booked = session.delete(:booked)
 
-    respond_to do |format|
-      format.html
+      # If no session data (e.g., browser back button), redirect to invoice
+      if @booking_log.nil? && @booked.nil?
+        redirect_to @invoice and return
+      end
+
+      @booking_log ||= []
+      @booked ||= false
+
+      respond_to do |format|
+        format.html
+      end
     end
   end
 

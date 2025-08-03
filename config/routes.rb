@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   resources :invoices do
     member do
       get 'preview'
+      get 'book'
       post 'book'
     end
   end

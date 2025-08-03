@@ -18,7 +18,7 @@
     .row
       .col-sm-6
         = f.label :bill_to_customer_id
-        = f.collection_select :bill_to_customer_id, Customer.all, :id, :name, {}, {:class => 'form-control'}
+        = f.collection_select :bill_to_customer_id, Customer.all, :id, :name, { prompt: 'Select customer...' }, {:class => 'form-select'}
 
   %br
 

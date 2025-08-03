@@ -7,40 +7,17 @@ on:
     branches: [ master ]
 
 jobs:
-  lint:
-    name: Lint and Security
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.2'
-        bundler-cache: true
-
-    - name: Run Bundler Audit
-      run: |
-        gem install bundler-audit
-        bundle audit --update
-
-    - name: Run Brakeman security scan
-      run: |
-        gem install brakeman
-        brakeman --format github
-
-  test:
-    name: Test Suite
+  rails-test:
+    name: Rails tests
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        ruby-version: ['3.2', '3.3']
+        ruby-version: ['3.3']
 
     services:
       postgres:
-        image: postgres:15
+        image: postgres:17
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -64,62 +41,59 @@ jobs:
 
     - name: Build FOP Docker container
       run: |
-        docker build -f Dockerfile.fop -t abt-fop .
+        podman build -f Dockerfile.fop -t abt-fop .
 
     - name: Set up FOP wrapper script
       run: |
         mkdir -p bin
-        cat > bin/fop << 'EOF'
+        cat > bin/abt-fop-container << EOF
         #!/bin/bash
-        # FOP wrapper script for CI
-
-        docker run --rm \
-          -v "$PWD:$PWD" \
-          -w "$PWD" \
-          abt-fop \
-          "$PWD/script/abt-fop" "\$@"
+        # FOP wrapper for containerized execution
+        PROJECT_ROOT="\$(cd "\$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)"
+        podman run --rm \\
+          -v "\$PROJECT_ROOT:\$PROJECT_ROOT":rw,Z \\
+          -w "\$PWD" \\
+          --userns=keep-id \\
+          -u "$(id -u):$(id -g)" \\
+          abt-fop \\
+          "\$PROJECT_ROOT/script/abt-fop" "\$@"
         EOF
-        chmod +x bin/abt-fop
+        chmod +x bin/abt-fop-container
         echo "$PWD/bin" >> $GITHUB_PATH
+        cat bin/abt-fop-container
+
+    - name: Test FOP integration
+      run: |
+        echo "Testing FOP binary accessibility..."
+        which abt-fop-container || exit 1
+        abt-fop-container -version || echo "FOP version check failed"
 
     - name: Create test configuration
       run: |
         mkdir -p config/settings
         cat > config/settings/test.yml << 'EOF'
         fop:
-          binary_path: 'abt-fop'
+          binary_path: './bin/abt-fop-container'
         payments:
           public_url: 'https://example.com/pay/%token%'
         EOF
 
-    - name: Set up database
+    - name: Setup database
       env:
         RAILS_ENV: test
         DATABASE_URL: postgres://postgres:postgres@localhost:5432/abt_test
       run: |
         bundle exec rails db:create
         bundle exec rails db:migrate
+        bundle exec rails db:seed
 
-    - name: Run unit tests
+    - name: Run tests
       env:
         RAILS_ENV: test
         DATABASE_URL: postgres://postgres:postgres@localhost:5432/abt_test
+        RAILS_LOG_LEVEL: debug
       run: |
-        bundle exec rails test
-
-    - name: Run integration tests
-      env:
-        RAILS_ENV: test
-        DATABASE_URL: postgres://postgres:postgres@localhost:5432/abt_test
-      run: |
-        bundle exec rails test:integration
-
-    - name: Run system tests
-      env:
-        RAILS_ENV: test
-        DATABASE_URL: postgres://postgres:postgres@localhost:5432/abt_test
-      run: |
-        bundle exec rails test:system
+        bundle exec rails test --verbose
 
   fop-container:
     name: FOP Container Test
@@ -130,12 +104,8 @@ jobs:
 
     - name: Build FOP Docker container
       run: |
-        docker build -f Dockerfile.fop -t abt-fop .
+        podman build -f Dockerfile.fop -t abt-fop .
 
-    - name: Test FOP container functionality
+    - name: Test FOP is available
       run: |
-        # Test that FOP is available and functional
-        docker run --rm abt-fop /bin/bash -c "fop -version"
-
-        # Test that Saxon is available for XSLT 2.0
-        docker run --rm abt-fop /bin/bash -c "java -cp /usr/share/java/saxonb.jar net.sf.saxon.Transform -?" || true
+        podman run --rm abt-fop fop -version

@@ -11,6 +11,7 @@ Rails.application.routes.draw do
       get 'preview'
       get 'book'
       post 'book'
+      post 'send_email'
     end
   end
   resources :products

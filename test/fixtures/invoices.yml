@@ -1,0 +1,51 @@
+published_invoice:
+  customer: good_eu
+  project: one
+  attachment: invoice_pdf
+  document_number: "INV-2024-001"
+  published: true
+  date: <%= Date.current %>
+  due_date: <%= 30.days.from_now.to_date %>
+  cust_reference: "REF-12345"
+  cust_order: "ORDER-67890"
+  prelude: "Thank you for your business."
+  sum_net: 100.00
+  sum_total: 121.00
+
+auto_email_invoice:
+  customer: auto_email_customer
+  project: two
+  attachment: auto_email_pdf
+  document_number: "INV-2024-002"
+  published: true
+  date: <%= Date.current %>
+  due_date: <%= 45.days.from_now.to_date %>
+  cust_reference: "AUTO-REF-999"
+  cust_order: "AUTO-ORDER-111"
+  prelude: "Automated invoice processing."
+  sum_net: 250.00
+  sum_total: 297.50
+
+no_email_invoice:
+  customer: no_email_customer
+  project: one
+  attachment: invoice_pdf
+  document_number: "INV-2024-003"
+  published: true
+  date: <%= Date.current %>
+  due_date: <%= 14.days.from_now.to_date %>
+  cust_reference: "NOEMAIL-REF"
+  cust_order: "NOEMAIL-ORDER"
+  sum_net: 75.00
+  sum_total: 90.75
+
+draft_invoice:
+  customer: good_national
+  project: one
+  document_number: null
+  published: false
+  date: <%= Date.current %>
+  cust_reference: "DRAFT-REF"
+  cust_order: "DRAFT-ORDER"
+  sum_net: 50.00
+  sum_total: 60.50

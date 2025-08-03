@@ -17,28 +17,40 @@
         = f.text_area :address, :class => 'form-control', :rows => 3
     .row.mb-3
       = f.label :vat_id, 'VATID', class: 'col-sm-3 col-form-label'
-      .col-sm-9
+      .col-sm-5
         = f.text_field :vat_id, :class => 'form-control'
+    .row.mb-3
+      = f.label :sales_tax_customer_class_id, class: 'col-sm-3 col-form-label'
+      .col-sm-5
+        = f.collection_select :sales_tax_customer_class_id, SalesTaxCustomerClass.all, :id, :name, { prompt: 'Select tax class...' }, {:class => 'form-select', :required => true}
+    %hr
     .row.mb-3
       = f.label :email, 'E-Mail', class: 'col-sm-3 col-form-label'
       .col-sm-9
         = f.text_field :email, :class => 'form-control'
     .row.mb-3
+      = f.label :invoice_email_auto_enabled, 'Automated Invoice E-Mail', class: 'col-sm-3 col-form-label'
+      .col-sm-1
+        = f.input :invoice_email_auto_enabled, as: :boolean, label: false
+      .col-sm-4
+        = f.text_field :invoice_email_auto_to, {:class => 'form-control', :placeholder => 'To:'}
+      .col-sm-4
+        = f.text_field :invoice_email_auto_subject_template, {:class => 'form-control', :placeholder => 'Subject: XXXX $CUST_REF$ $CUST_ORDER$'}
+    %hr
+    .row.mb-3
       = f.label :time_budget, class: 'col-sm-3 col-form-label'
-      .col-sm-9
+      .col-sm-5
         = f.text_field :time_budget, :class => 'form-control'
     .row.mb-3
       = f.label :payment_terms_days, 'Payment terms (days)', class: 'col-sm-3 col-form-label'
-      .col-sm-9
+      .col-sm-5
         = f.number_field :payment_terms_days, :class => 'form-control', :min => 1, :max => 365, :value => (@customer.payment_terms_days || 30)
+    %hr
     .row.mb-3
       = f.label :notes, class: 'col-sm-3 col-form-label'
       .col-sm-9
         = f.text_area :notes, :class => 'form-control', :rows => 5
-    .row.mb-3
-      = f.label :sales_tax_customer_class_id, class: 'col-sm-3 col-form-label'
-      .col-sm-9
-        = f.collection_select :sales_tax_customer_class_id, SalesTaxCustomerClass.all, :id, :name, { prompt: 'Select tax class...' }, {:class => 'form-select', :required => true}
+    %hr
 
   %br
 

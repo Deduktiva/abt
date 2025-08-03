@@ -1,0 +1,19 @@
+%p
+  Dear #{@invoice.customer.name},
+
+%p
+  please find our invoice
+  = @invoice.document_number
+  attached.
+
+  %span
+    It will be due on #{@invoice.due_date}.
+
+%p
+  Thank you for your business.
+
+%p.footer
+  .accent= @issuer.legal_name
+  - @issuer.address.split("\n").each do |line|
+    %br
+    = line

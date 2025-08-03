@@ -1,0 +1,11 @@
+invoice_pdf:
+  title: "Test Invoice PDF"
+  filename: "test_invoice.pdf"
+  content_type: "application/pdf"
+  data: "fake pdf binary content for testing"
+
+auto_email_pdf:
+  title: "Auto Email Invoice PDF"
+  filename: "auto_invoice.pdf"
+  content_type: "application/pdf"
+  data: "another fake pdf for auto email testing"

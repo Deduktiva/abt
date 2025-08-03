@@ -8,6 +8,7 @@ good_eu:
   time_budget: 1200
   vat_id: EU99999999
   notes: MyText
+  email: customer@good-company.co.uk
   sales_tax_customer_class: eu
 
 good_national:
@@ -20,4 +21,31 @@ good_national:
   time_budget: 1200
   vat_id: NAT9999999
   notes:
+  email: billing@local-company.com
   sales_tax_customer_class: national
+
+auto_email_customer:
+  matchcode: AUTOEMAIL
+  name: Auto Email Corp
+  address: |
+    456 Auto Street
+    12345 Email City
+    EMAIL COUNTRY
+  time_budget: 800
+  vat_id: AUTO123456
+  email: customer@autoemail.com
+  invoice_email_auto_enabled: true
+  invoice_email_auto_to: billing@autoemail.com
+  invoice_email_auto_subject_template: "Invoice $CUST_ORDER$ - Ref: $CUST_REF$"
+  sales_tax_customer_class: national
+
+no_email_customer:
+  matchcode: NOEMAIL
+  name: No Email Customer Ltd
+  address: |
+    789 Silent Street
+    99999 Quiet Town
+    NO EMAIL COUNTRY
+  time_budget: 500
+  vat_id: NOEMAIL789
+  sales_tax_customer_class: eu

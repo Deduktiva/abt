@@ -103,7 +103,7 @@ class InvoicesControllerTest < ActionController::TestCase
       project: projects(:test_project),
       cust_reference: "TEST",
       published: true,
-      document_number: "INV-2024-001",
+      document_number: "INV-TEST-UNIQUE",
       date: Date.current,
       sum_net: 200.0,
       sum_total: 238.0

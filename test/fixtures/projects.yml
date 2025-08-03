@@ -1,3 +1,13 @@
+one:
+  matchcode: PROJ001
+  description: Main test project
+  time_budget: 100
+
+two:
+  matchcode: PROJ002
+  description: Secondary test project
+  time_budget: 200
+
 test_project:
   matchcode: TEST
   description: Test project for PDF generation tests

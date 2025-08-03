@@ -53,15 +53,15 @@
           = f.fields_for :invoice_lines, new_line, child_index: 'NEW_RECORD' do |line_form|
             = render 'invoice_line_fields', f: line_form, line: new_line
 
-        .row
-          .col-sm-10
-          .col-sm-2.text-end
-            .mb-3
-              %label.form-label Total
-              .form-control-plaintext{data: {invoice_lines_target: 'total'}}
-                = format_currency(0)
+        .card.mb-3
+          .card-body
+            .row
+              .col-sm-10.text-end
+                Total Net
+              .col-sm-2.text-end
+                %span{data: {invoice_lines_target: 'total'}}
+                  = format_currency(0)
 
-        %br{clear: 'all'}
         - unless @invoice.id.nil?
           %button.btn.btn-info.float-end{type: 'button', data: {action: 'click->invoice-lines#addLine'}}
             + Add Line

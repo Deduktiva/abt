@@ -18,6 +18,7 @@
 /*.iml
 
 /config/initializers/secret_token.rb
+/config/master.key
 instance-data
 .ruby-version
 /bin
@@ -37,4 +38,3 @@ config/database.yml
 /.idea
 /.rakeTasks
 /.generators
-

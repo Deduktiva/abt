@@ -76,7 +76,7 @@ class InvoicesControllerTest < ActionController::TestCase
     assert_select '.badge.bg-success', text: 'Booked'
   end
 
-  test "should show draft invoice with estimated taxes" do
+  test "should show draft invoice prompting for test booking" do
     invoice = Invoice.create!(
       customer: customers(:good_eu),
       project: projects(:test_project),
@@ -99,9 +99,8 @@ class InvoicesControllerTest < ActionController::TestCase
     get :show, params: { id: invoice.id }
     assert_response :success
     assert_select '.badge.bg-warning', text: 'Draft'
-    # Should show estimated tax calculations for draft
-    assert_select 'td', text: /est\./
-    assert_select 'small.text-muted', text: '(estimated)'
+    # Should show prompt to use test booking for total calculation
+    assert_select 'em', text: 'Use "Test Booking" to calculate'
   end
 
   test "should get edit" do
@@ -229,6 +228,11 @@ class InvoicesControllerTest < ActionController::TestCase
     assert_equal "Updated Test Product", invoice.invoice_lines.first.title
     assert_equal 150.0, invoice.invoice_lines.first.rate
     assert_equal 3.0, invoice.invoice_lines.first.quantity
+
+    # Verify that test booking calculated and persisted totals
+    assert invoice.sum_net > 0, "sum_net should be calculated"
+    assert invoice.sum_total > 0, "sum_total should be calculated and persisted"
+    assert invoice.invoice_tax_classes.any?, "tax classes should be created"
   end
 
   test "should handle test booking with validation errors" do
@@ -261,6 +265,50 @@ class InvoicesControllerTest < ActionController::TestCase
 
     assert_redirected_to invoice_path(invoice)
     assert_match /Published invoices can not be modified/, flash[:error]
+  end
+
+  test "should reset totals when draft invoice is modified after test booking" do
+    invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "TEST",
+      sum_net: 200.0,
+      sum_total: 238.0  # Simulate after test booking
+    )
+
+    # Add tax classes to simulate test booking results
+    invoice.invoice_tax_classes.create!(
+      sales_tax_product_class: sales_tax_product_classes(:standard),
+      rate: 19.0,
+      net: 200.0,
+      value: 38.0,
+      total: 238.0
+    )
+
+    # Modify the invoice
+    put :update, params: {
+      id: invoice.id,
+      invoice: {
+        cust_reference: "MODIFIED_REF",
+        invoice_lines_attributes: {
+          "0" => {
+            type: "item",
+            title: "New Product",
+            rate: "50.00",
+            quantity: "1",
+            position: "1"
+          }
+        }
+      }
+    }
+
+    assert_redirected_to invoice_path(invoice)
+    invoice.reload
+
+    # Verify totals are reset
+    assert_equal 50.0, invoice.sum_net  # New calculation
+    assert_equal 0.0, invoice.sum_total  # Reset to 0
+    assert_equal 0, invoice.invoice_tax_classes.count  # Tax classes cleared
   end
 
 end

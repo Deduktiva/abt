@@ -149,15 +149,14 @@ class InvoicesController < ApplicationController
 
     # First save any changes to the invoice
     if @invoice.update(invoice_params)
-      # Then run the test booking with save=false
+      # Run the test booking calculation and persist the totals
       issuer = IssuerCompany.get_the_issuer!
       @booker = InvoiceBookController.new @invoice, issuer
 
-      ActiveRecord::Base.transaction(requires_new: true) do
-        @booked = @booker.book false
-        raise ActiveRecord::Rollback, 'test booking only'
-      end
-      @booking_log = @booker.log
+      # Use the tax calculator to compute and persist totals without publishing
+      calculator = InvoiceTaxCalculator.new(@invoice)
+      @booked = calculator.calculate!
+      @booking_log = calculator.log
 
       # Store booking data in session for the redirected page
       session[:booking_log] = @booking_log

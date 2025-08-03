@@ -106,31 +106,22 @@
                 %strong Sum Net:
               %td.text-end
                 %strong= format_currency(@invoice.sum_net)
-            - if @invoice.published? && @invoice.invoice_tax_classes.any?
+            - if @invoice.invoice_tax_classes.any?
               - @invoice.invoice_tax_classes.each do |tax_class|
                 %tr
                   %td.text-end
                     Tax (#{tax_class.rate}%):
                   %td.text-end
                     = format_currency(tax_class.value)
-            - elsif !@invoice.published?
-              - @invoice.calculate_estimated_taxes.each do |tax|
-                %tr
-                  %td.text-end
-                    Tax (#{tax[:rate]}%) est.:
-                  %td.text-end
-                    %em= format_currency(tax[:value])
             %tr.table-dark
               %td.text-end
                 %strong Sum Total:
               %td.text-end
-                - if @invoice.published?
+                - if @invoice.sum_total > 0
                   %strong= format_currency(@invoice.sum_total)
                 - else
                   %strong
-                    = format_currency(@invoice.estimated_sum_total)
-                    - if @invoice.calculate_estimated_taxes.any?
-                      %small.text-muted (estimated)
+                    %em Use "Test Booking" to calculate
 
 = action_buttons_wrapper do
   - unless @invoice.published

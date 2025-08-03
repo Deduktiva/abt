@@ -15,55 +15,6 @@ class Invoice < ApplicationRecord
 
   before_save :update_sums
 
-  def calculate_estimated_taxes
-    return [] if published? || sum_net == 0
-
-    estimated_taxes = []
-
-    # Get customer tax rates
-    customer_sales_tax_rates = customer.sales_tax_rates
-    return estimated_taxes if customer_sales_tax_rates.nil?
-
-    # Group lines by tax class and calculate estimated taxes
-    tax_totals = {}
-
-    invoice_lines.select { |line| line.type == 'item' && line.sales_tax_product_class_id }.each do |line|
-      tax_class_id = line.sales_tax_product_class_id
-      line_amount = line.amount || (line.quantity * line.rate rescue 0)
-
-      if tax_totals[tax_class_id]
-        tax_totals[tax_class_id][:net] += line_amount
-      else
-        # Find the tax rate for this product class
-        tax_rate = customer_sales_tax_rates.find { |rate| rate.sales_tax_product_class_id == tax_class_id }
-        if tax_rate
-          tax_totals[tax_class_id] = {
-            name: tax_rate.sales_tax_product_class.name,
-            rate: tax_rate.rate,
-            net: line_amount
-          }
-        end
-      end
-    end
-
-    # Calculate tax values
-    tax_totals.each do |tax_class_id, data|
-      tax_value = data[:net] * (data[:rate] / 100.0)
-      estimated_taxes << {
-        name: data[:name],
-        rate: data[:rate],
-        net: data[:net],
-        value: tax_value
-      }
-    end
-
-    estimated_taxes
-  end
-
-  def estimated_sum_total
-    return sum_total if published?
-    sum_net + calculate_estimated_taxes.sum { |tax| tax[:value] }
-  end
 
 private
   def update_sums
@@ -73,8 +24,10 @@ private
       line.calculate_amount
       self[:sum_net] += line.amount
     end
-    # For draft invoices, keep sum_total as 0 - only test booking sets it
-    # self[:sum_total] remains unchanged
+    # Reset sum_total to 0 when draft is modified - requires new test booking
+    self[:sum_total] = 0
+    # Clear any existing tax classes from previous test bookings
+    self.invoice_tax_classes.destroy_all
   end
 
   def line_addedremoved(changed_item)

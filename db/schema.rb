@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_02_211032) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_03_065004) do
   create_table "attachments", force: :cascade do |t|
     t.string "title"
     t.string "filename"
@@ -32,6 +32,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_02_211032) do
     t.text "vat_id"
     t.text "supplier_number"
     t.string "email"
+    t.integer "payment_terms_days", default: 30, null: false
   end
 
   create_table "document_numbers", force: :cascade do |t|

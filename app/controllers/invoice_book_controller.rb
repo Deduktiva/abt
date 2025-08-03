@@ -34,7 +34,7 @@ class InvoiceBookController
     if @invoice.date.nil?
       @invoice.date = Date.today
     end
-    @invoice.due_date = @invoice.date + 30.days
+    @invoice.due_date = @invoice.date + @invoice.customer.payment_terms_days.days
 
     error 'no customer name' if empty_or_nil @invoice.customer_name
     error 'no customer address' if empty_or_nil @invoice.customer_address

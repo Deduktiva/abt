@@ -28,6 +28,10 @@
         = f.label :time_budget
         = f.text_field :time_budget, :class => 'form-control'
     .row
+      .col-sm-3
+        = f.label :payment_terms_days, 'Payment terms (days)'
+        = f.number_field :payment_terms_days, :class => 'form-control', :min => 1, :max => 365, :value => (@customer.payment_terms_days || 30)
+    .row
       .col-sm-6
         = f.label :notes
         = f.text_area :notes, :class => 'form-control', :rows => 5

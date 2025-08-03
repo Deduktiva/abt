@@ -13,7 +13,7 @@ group :dev do
   gem 'spring-watcher-listen', '~> 2.1.0'
 end
 
-group :prod do
+group :test, :prod do
   gem 'pg', '~> 1.1'
 end
 

@@ -10,4 +10,70 @@ class InvoicesControllerTest < ActionController::TestCase
     get :new
     assert_response :success
   end
+
+  test "should create invoice" do
+    assert_difference('Invoice.count') do
+      post :create, params: {
+        invoice: {
+          customer_id: customers(:good_eu).id,
+          project_id: projects(:test_project).id,
+          cust_reference: "REF123",
+          cust_order: "ORDER456",
+          prelude: "Test invoice"
+        }
+      }
+    end
+    assert_response :redirect
+  end
+
+  test "should show invoice" do
+    invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "TEST"
+    )
+    get :show, params: { id: invoice.id }
+    assert_response :success
+  end
+
+  test "should update invoice with angular-style JSON lines" do
+    invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "TEST"
+    )
+
+    invoice_lines_json = [
+      {
+        type: "item",
+        title: "Test Product",
+        description: "A test product",
+        rate: "100.00",
+        quantity: "2",
+        sales_tax_product_class_id: nil
+      },
+      {
+        type: "text",
+        title: "Note",
+        description: "Additional information",
+        rate: "0",
+        quantity: "0",
+        sales_tax_product_class_id: nil
+      }
+    ].to_json
+
+    put :update, params: {
+      id: invoice.id,
+      invoice: {
+        cust_reference: "UPDATED_REF"
+      },
+      invoice_lines: invoice_lines_json
+    }
+
+    assert_redirected_to invoice_path(invoice)
+    invoice.reload
+    assert_equal "UPDATED_REF", invoice.cust_reference
+    assert_equal 2, invoice.invoice_lines.count
+    assert_equal "Test Product", invoice.invoice_lines.first.title
+  end
 end

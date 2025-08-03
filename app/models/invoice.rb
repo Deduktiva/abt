@@ -5,7 +5,7 @@ class Invoice < ApplicationRecord
   after_initialize :set_defaults
 
   belongs_to :customer
-  belongs_to :project, :optional => true
+  belongs_to :project
   belongs_to :attachment, :optional => true
 
   has_many :invoice_lines, -> { order(:position, :id) }, :after_add => :line_addedremoved, :after_remove => :line_addedremoved

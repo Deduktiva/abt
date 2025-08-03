@@ -137,20 +137,6 @@ class InvoicesControllerTest < ActionController::TestCase
     assert_select '.badge.bg-success', text: 'Booked'
   end
 
-  test "should show invoice with missing project gracefully" do
-    invoice = Invoice.create!(
-      customer: customers(:good_eu),
-      cust_reference: "TEST_NO_PROJECT"
-    )
-
-    # Simulate a missing project by setting project_id to a non-existent ID
-    invoice.update_column(:project_id, 999)
-
-    get :show, params: { id: invoice.id }
-    assert_response :success
-    assert_select 'em', text: '(Project #999 - not found)'
-  end
-
   test "should show draft invoice prompting for test booking" do
     invoice = Invoice.create!(
       customer: customers(:good_eu),

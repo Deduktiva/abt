@@ -27,7 +27,7 @@
               %strong Project:
             .col-sm-8
               - if @invoice.project
-                = @invoice.project.description
+                = @invoice.project.display_name
               - else
                 %em (Project ##{@invoice.project_id} - not found)
         - if @invoice.cust_reference.present?

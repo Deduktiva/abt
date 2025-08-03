@@ -1,7 +1,7 @@
 require "test_helper"
 
 class PdfGenerationTest < ActionDispatch::IntegrationTest
-  fixtures :customers, :projects, :sales_tax_customer_classes, :sales_tax_product_classes, :sales_tax_rates
+  fixtures :customers, :projects, :sales_tax_customer_classes, :sales_tax_product_classes, :sales_tax_rates, :issuer_companies, :document_numbers
 
   def setup
     @customer = customers(:good_eu)

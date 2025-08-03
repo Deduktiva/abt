@@ -117,7 +117,7 @@ class InvoiceRenderController < ApplicationController
 
       template_path = Rails.root.join('lib', 'foptemplate')
       tpl_xsl = template_path.join('invoice.xsl')
-      fop_conf = template_path.join('fop-example-conf.xml')
+      fop_conf = template_path.join('fop-conf.xml')
 
       begin
         pdffile = Tempfile.new('abt', Rails.root.join('tmp'))

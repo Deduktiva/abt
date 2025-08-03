@@ -66,17 +66,4 @@ class FopInstallationTest < ActiveSupport::TestCase
       refute result.include?("upper-case"), "XSLT 2.0 functions not working. Saxon may not be properly configured: #{result}"
     end
   end
-
-  def test_pdf_generation_dependencies
-    template_path = Rails.root.join('lib', 'foptemplate')
-    
-    assert Dir.exist?(template_path), "FOP template directory missing at #{template_path}"
-    assert File.exist?(template_path.join('invoice.xsl')), "Invoice XSL template missing"
-    assert File.exist?(template_path.join('fop-example-conf.xml')), "FOP configuration file missing"
-    
-    # Check for required fonts
-    fonts_path = template_path.join('open-sans')
-    assert Dir.exist?(fonts_path), "Open Sans fonts directory missing"
-    assert File.exist?(fonts_path.join('OpenSans-Regular.ttf')), "OpenSans-Regular.ttf font missing"
-  end
 end

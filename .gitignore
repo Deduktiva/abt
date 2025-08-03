@@ -18,6 +18,7 @@
 /*.iml
 
 /config/initializers/secret_token.rb
+/config/credentials.yml.enc
 /config/master.key
 instance-data
 .ruby-version

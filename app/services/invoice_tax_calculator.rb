@@ -8,7 +8,6 @@ class InvoiceTaxCalculator
   end
 
   def calculate!
-    reset_tax_classes
     setup_tax_classes
     calculate_line_taxes
     calculate_totals
@@ -22,10 +21,6 @@ class InvoiceTaxCalculator
 
 private
 
-  def reset_tax_classes
-    @invoice.invoice_tax_classes.destroy_all
-  end
-
   def setup_tax_classes
     customer_sales_tax_rates = @invoice.customer.sales_tax_rates
     if customer_sales_tax_rates.nil?
@@ -33,16 +28,41 @@ private
       return
     end
 
+    # Get required product class IDs from customer tax rates
+    required_product_class_ids = customer_sales_tax_rates.map(&:sales_tax_product_class_id).to_set
+
+    # Get existing tax classes
+    existing_tax_classes = @invoice.invoice_tax_classes.includes(:sales_tax_product_class).index_by(&:sales_tax_product_class_id)
+
+    # Update/create required tax classes
     customer_sales_tax_rates.each do |cst|
-      @invoice.invoice_tax_classes.create!({
-        sales_tax_product_class: cst.sales_tax_product_class,
-        name: cst.sales_tax_product_class.name,
-        indicator_code: cst.sales_tax_product_class.indicator_code,
-        rate: cst.rate,
-        net: 0,
-        total: 0
-      })
+      product_class_id = cst.sales_tax_product_class_id
+
+      if existing_tax_classes[product_class_id]
+        # Update existing tax class
+        itc = existing_tax_classes[product_class_id]
+        itc.update!({
+          name: cst.sales_tax_product_class.name,
+          indicator_code: cst.sales_tax_product_class.indicator_code,
+          rate: cst.rate,
+          net: 0,
+          total: 0
+        })
+      else
+        # Create new tax class
+        @invoice.invoice_tax_classes.create!({
+          sales_tax_product_class: cst.sales_tax_product_class,
+          name: cst.sales_tax_product_class.name,
+          indicator_code: cst.sales_tax_product_class.indicator_code,
+          rate: cst.rate,
+          net: 0,
+          total: 0
+        })
+      end
     end
+
+    # Delete tax classes that are no longer needed
+    @invoice.invoice_tax_classes.where.not(sales_tax_product_class_id: required_product_class_ids).destroy_all
   end
 
   def calculate_line_taxes

@@ -340,4 +340,43 @@ class InvoicesControllerTest < ActionController::TestCase
     assert invoice.invoice_tax_classes.any?, "tax classes should be created"
   end
 
+  test "should reuse existing tax classes during test booking optimization" do
+    invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "TEST"
+    )
+
+    # Add an invoice line
+    invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Test Product',
+      description: 'A test product',
+      rate: 100.0,
+      quantity: 2.0,
+      sales_tax_product_class: sales_tax_product_classes(:standard),
+      position: 1
+    )
+
+    # Run test booking first time to create tax classes
+    post :test_booking, params: { id: invoice.id }
+    invoice.reload
+
+    # Remember the tax class ID
+    original_tax_class = invoice.invoice_tax_classes.first
+    original_id = original_tax_class.id
+
+    # Modify the invoice to trigger recalculation
+    invoice.invoice_lines.first.update!(quantity: 3.0)
+
+    # Run test booking again - should reuse existing tax class
+    post :test_booking, params: { id: invoice.id }
+    invoice.reload
+
+    # Verify the tax class was updated, not recreated
+    updated_tax_class = invoice.invoice_tax_classes.first
+    assert_equal original_id, updated_tax_class.id, "Tax class should be reused, not recreated"
+    assert updated_tax_class.net > 0, "Tax class should have updated net amount"
+  end
+
 end

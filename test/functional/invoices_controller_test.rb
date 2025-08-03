@@ -76,6 +76,34 @@ class InvoicesControllerTest < ActionController::TestCase
     assert_select '.badge.bg-success', text: 'Booked'
   end
 
+  test "should show draft invoice with estimated taxes" do
+    invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "TEST_DRAFT",
+      sum_net: 100.0,
+      sum_total: 0.0  # Draft invoices have sum_total = 0
+    )
+
+    # Add invoice line with tax class
+    invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Test Product',
+      description: 'A test product',
+      rate: 100.0,
+      quantity: 1.0,
+      sales_tax_product_class: sales_tax_product_classes(:standard),
+      position: 1
+    )
+
+    get :show, params: { id: invoice.id }
+    assert_response :success
+    assert_select '.badge.bg-warning', text: 'Draft'
+    # Should show estimated tax calculations for draft
+    assert_select 'td', text: /est\./
+    assert_select 'small.text-muted', text: '(estimated)'
+  end
+
   test "should get edit" do
     invoice = Invoice.create!(
       customer: customers(:good_eu),
@@ -151,6 +179,11 @@ class InvoicesControllerTest < ActionController::TestCase
     assert_equal "UPDATED_REF", invoice.cust_reference
     assert_equal 2, invoice.invoice_lines.count
     assert_equal "Test Product", invoice.invoice_lines.first.title
+
+    # Verify totals are calculated correctly
+    invoice.reload
+    assert_in_delta 200.0, invoice.sum_net, 0.01  # 100.00 * 2
+    assert_in_delta 0.0, invoice.sum_total, 0.01  # For draft invoices, total stays 0
   end
 
   test "should handle test booking with saving changes" do

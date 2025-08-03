@@ -30,4 +30,11 @@ module ApplicationHelper
     end
   end
 
+  def page_header_with_new_button(title, new_path)
+    content_tag :div, class: 'd-flex justify-content-between align-items-center mb-3' do
+      content_tag(:h1, title, class: 'page-header mb-0') +
+      link_to('+ New', new_path, class: 'btn btn-info')
+    end
+  end
+
 end

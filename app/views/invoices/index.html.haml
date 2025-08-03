@@ -1,7 +1,4 @@
-%h1.page-header Listing invoices
-
-%span.glyphicon.glyphicon-plus
-= link_to 'New Invoice', new_invoice_path
+= page_header_with_new_button('Listing invoices', new_invoice_path)
 
 %table.table.table-striped.table-sm
   %tr
@@ -26,16 +23,12 @@
       %td= invoice.cust_order
       %td
         - if invoice.published? and not invoice.attachment.nil?
-          = link_to 'PDF', attachment_path(invoice.attachment)
+          = link_to 'PDF', attachment_path(invoice.attachment), target: '_blank', data: { turbo: false }
       %td= link_to 'Show', invoice
       %td
         - unless invoice.published?
           = link_to 'Edit', edit_invoice_path(invoice)
       %td
         - unless invoice.published?
-          = link_to 'Destroy', invoice, method: :delete, data: { confirm: 'Are you sure?' }
+          = link_to 'Destroy', invoice, data: { 'turbo-method': 'delete', 'turbo-confirm': "Are you sure you want to delete invoice \"#{invoice.document_number || "##{invoice.id}"}\"?" }
 
-%br
-
-%span.glyphicon.glyphicon-plus
-= link_to 'New Invoice', new_invoice_path

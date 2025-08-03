@@ -1,4 +1,4 @@
-%h1.page-header Listing projects
+= page_header_with_new_button('Listing projects', new_project_path)
 
 %table.table.table-striped.table-sm
   %tr
@@ -18,9 +18,5 @@
       %td= project.bill_to_customer.try(:matchcode)
       %td= link_to 'Show', project
       %td= link_to 'Edit', edit_project_path(project)
-      %td= link_to 'Destroy', project, method: :delete, data: { confirm: 'Are you sure?' }
+      %td= link_to 'Destroy', project, data: { 'turbo-method': 'delete', 'turbo-confirm': "Are you sure you want to delete project \"#{project.matchcode}\"?" }
 
-%br
-
-%span.glyphicon.glyphicon-plus
-= link_to 'New Project', new_project_path

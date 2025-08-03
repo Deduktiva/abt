@@ -1,4 +1,4 @@
-%h1.page-header Listing Sales Tax Rates
+= page_header_with_new_button('Listing Sales Tax Rates', new_sales_tax_rate_path)
 
 %table.table.table-striped.table-sm
   %tr
@@ -16,7 +16,7 @@
         = sales_tax_rate.rate
         \%
       %td= link_to 'Edit', edit_sales_tax_rate_path(sales_tax_rate)
-      %td= link_to 'Destroy', sales_tax_rate, method: :delete, data: { confirm: 'Are you sure?' }
+      %td= link_to 'Destroy', sales_tax_rate, data: { 'turbo-method': 'delete', 'turbo-confirm': "Are you sure you want to delete tax rate for \"#{sales_tax_rate.sales_tax_customer_class&.name}\" / \"#{sales_tax_rate.sales_tax_product_class&.name}\"?" }
 
 - if @sales_tax_rates.empty?
   %p
@@ -64,9 +64,6 @@
                 Create
 %br
 
-%span.glyphicon.glyphicon-plus
-= link_to 'New Tax Rate', new_sales_tax_rate_path
-\|
-= link_to 'Edit Customer Classes', sales_tax_customer_classes_path
-\|
-= link_to 'Edit Product Classes', sales_tax_product_classes_path
+%div
+  = link_to 'Edit Customer Classes', sales_tax_customer_classes_path, class: 'btn btn-outline-secondary me-2'
+  = link_to 'Edit Product Classes', sales_tax_product_classes_path, class: 'btn btn-outline-secondary'

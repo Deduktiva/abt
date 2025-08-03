@@ -1,4 +1,4 @@
-%h1.page-header Listing Sales Tax Customer Classes
+= page_header_with_new_button('Listing Sales Tax Customer Classes', new_sales_tax_customer_class_path)
 
 %table.table.table-striped.table-sm
   %tr
@@ -12,9 +12,5 @@
       %td= sales_tax_customer_class.name
       %td= sales_tax_customer_class.invoice_note
       %td= link_to 'Edit', edit_sales_tax_customer_class_path(sales_tax_customer_class)
-      %td= link_to 'Destroy', sales_tax_customer_class, method: :delete, data: { confirm: 'Are you sure?' }
+      %td= link_to 'Destroy', sales_tax_customer_class, data: { 'turbo-method': 'delete', 'turbo-confirm': "Are you sure you want to delete customer class \"#{sales_tax_customer_class.name}\"?" }
 
-%br
-
-%span.glyphicon.glyphicon-plus
-= link_to 'New Customer Class', new_sales_tax_customer_class_path

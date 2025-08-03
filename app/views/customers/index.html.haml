@@ -1,4 +1,4 @@
-%h1.page-header Listing customers
+= page_header_with_new_button('Listing customers', new_customer_path)
 
 %table.table.table-striped.table-sm
   %tr
@@ -16,9 +16,5 @@
       %td= customer.time_budget
       %td= link_to 'Show', customer
       %td= link_to 'Edit', edit_customer_path(customer)
-      %td= link_to 'Destroy', customer, method: :delete, data: { confirm: 'Are you sure?' }
+      %td= link_to 'Destroy', customer, data: { 'turbo-method': 'delete', 'turbo-confirm': "Are you sure you want to delete customer \"#{customer.matchcode}\" (#{customer.name})?" }
 
-%br
-
-%span.glyphicon.glyphicon-plus
-= link_to 'New Customer', new_customer_path

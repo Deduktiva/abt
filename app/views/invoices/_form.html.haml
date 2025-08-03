@@ -62,10 +62,13 @@
                 = format_currency(0)
 
         %br{clear: 'all'}
-        %button.btn.btn-info.float-end{type: 'button', data: {action: 'click->invoice-lines#addLine'}}
-          + Add Line
 
   %br
-  .form-actions
-    = f.submit 'Save', class: 'btn btn-primary'
-    = link_to 'Cancel', invoices_path, class: 'btn btn-secondary ms-2'
+  .form-actions.d-flex.justify-content-between
+    .left-buttons
+      = f.submit 'Save', class: 'btn btn-primary'
+      = link_to 'Cancel', invoices_path, class: 'btn btn-secondary ms-2'
+    .right-buttons
+      - unless @invoice.id.nil?
+        %button.btn.btn-info{type: 'button', data: {action: 'click->invoice-lines#addLine'}}
+          + Add Line

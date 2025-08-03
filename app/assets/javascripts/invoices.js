@@ -90,4 +90,25 @@ controller('InvoiceLinesLineController', [
             $scope.isProductDropdownShown = false;
         };
     }
-]);
+]).
+filter('abtCurrency', function() {
+  return function(amount) {
+    if (amount === null || amount === undefined || amount === '') {
+      return '';
+    }
+
+    var currency = window.abtCurrency || 'EUR';
+    var formattedAmount = parseFloat(amount).toFixed(2);
+
+    switch(currency) {
+      case 'EUR':
+        return '€' + formattedAmount;
+      case 'USD':
+        return '$' + formattedAmount;
+      case 'GBP':
+        return '£' + formattedAmount;
+      default:
+        return currency + ' ' + formattedAmount;
+    }
+  };
+});

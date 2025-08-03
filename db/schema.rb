@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_03_065004) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_03_065830) do
   create_table "attachments", force: :cascade do |t|
     t.string "title"
     t.string "filename"
@@ -114,6 +114,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_03_065004) do
     t.string "invoice_footer"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "currency", default: "EUR", null: false
     t.index ["active"], name: "index_issuer_companies_on_active", unique: true
   end
 

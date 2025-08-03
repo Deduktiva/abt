@@ -62,6 +62,7 @@
     <hr>
 
     <div ng-app="invoiceLinesApp">
+        <script>window.abtCurrency = '<%= current_currency %>';</script>
         <div ng-controller="InvoiceLinesController" ng-init="setLines(<%=json_lines(@invoice.invoice_lines)%>); takeOverForm()">
             <div ng-repeat="line in lines" ng-controller="InvoiceLinesLineController">
                 <!-- begin line -->
@@ -135,7 +136,7 @@
                             <div class="col-sm-2 text-end">
                                 <div class="mb-3">
                                     <label class="form-label">Net</label>
-                                    <div class="fw-bold">{{ line.quantity * line.rate }}</div>
+                                    <div class="fw-bold">{{ line.quantity * line.rate | abtCurrency }}</div>
                                 </div>
                             </div>
                         </div>
@@ -151,7 +152,7 @@
             <hr>
             <div class="row">
                 <div class="col-sm-2">
-                    <b>Total:</b> {{invoice_total()}}
+                    <b>Total:</b> {{invoice_total() | abtCurrency}}
                 </div>
             </div>
 

@@ -52,7 +52,7 @@
     .row
       .col-sm-4.col-md-2
         Rate:
-        = line.rate
+        = format_currency(line.rate)
       .col-sm-4.col-md-2
         Quantity:
         = line.quantity
@@ -61,15 +61,15 @@
         = line.sales_tax_product_class.name if line.sales_tax_product_class
       .col-sm-4.col-md-2.pull-right
         Net:
-        = (line.quantity * line.rate) if line.quantity
+        = format_currency(line.quantity * line.rate) if line.quantity
 
 %b
   Sum Net:
-= @invoice.sum_net
+= format_currency(@invoice.sum_net)
 %br
 %b
   Sum Total:
-= @invoice.sum_total
+= format_currency(@invoice.sum_total)
 %br
 %br
 

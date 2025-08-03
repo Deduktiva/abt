@@ -13,7 +13,7 @@
 <% @products.each do |product| %>
   <tr>
     <td><%= product.title %></td>
-    <td><%= product.rate %></td>
+    <td><%= format_currency(product.rate) %></td>
     <td><%= product.sales_tax_product_class && product.sales_tax_product_class.name %></td>
     <td><%= link_to 'Show', product %></td>
     <td><%= link_to 'Edit', edit_product_path(product) %></td>

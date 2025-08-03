@@ -4,7 +4,7 @@ gem 'rails', '~> 7.1.0'
 gem 'puma', '~> 6.0'
 
 group :dev do
-  gem 'sqlite3', '~> 1.4'
+  gem 'sqlite3', '~> 2.7'
   # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
   gem 'web-console', '>= 3.3.0'
   gem 'listen', '~> 3.5'

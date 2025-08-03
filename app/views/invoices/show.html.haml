@@ -1,77 +1,123 @@
-%h1.page-header
-  Invoice
-  = @invoice.document_number
-  - if not @invoice.published?
-    %small
-      Draft
-  - else
-    %small
-      Booked
+.invoice-document
+  .invoice-header.row.mb-4
+    .col-md-6
+      %h1.h2.mb-3
+        Invoice
+        = @invoice.document_number
+        - if not @invoice.published?
+          %span.badge.bg-warning.ms-2 Draft
+        - else
+          %span.badge.bg-success.ms-2 Booked
 
-%p
-  %b Document number:
-  = @invoice.document_number
-%p
-  %b Customer:
-  = @invoice.customer_id
-  = @invoice.customer_name || @invoice.customer.name
-%p
-  %b Project:
-  = @invoice.project_id
-  = @invoice.project.description if @invoice.project
-%p
-  %b Date:
-  = @invoice.date
-%p
-  %b Token:
-  = @invoice.token
-%p
-  %b Cust reference:
-  = @invoice.cust_reference
-%p
-  %b Cust order no:
-  = @invoice.cust_order
-%p
-  %b Prelude:
-  = @invoice.prelude
+      .invoice-details
+        - if @invoice.date
+          .row.mb-2
+            .col-sm-4
+              %strong Date:
+            .col-sm-8
+              = @invoice.date
+        .row.mb-2
+          .col-sm-4
+            %strong Customer:
+          .col-sm-8
+            = @invoice.customer_name || @invoice.customer.name
+        - if @invoice.project
+          .row.mb-2
+            .col-sm-4
+              %strong Project:
+            .col-sm-8
+              = @invoice.project.description
+        - if @invoice.cust_reference.present?
+          .row.mb-2
+            .col-sm-4
+              %strong Reference:
+            .col-sm-8
+              = @invoice.cust_reference
+        - if @invoice.cust_order.present?
+          .row.mb-2
+            .col-sm-4
+              %strong Order No:
+            .col-sm-8
+              = @invoice.cust_order
 
-%h2
-  Lines
+    .col-md-6
+      - if @invoice.token.present?
+        .invoice-meta.text-end
+          .small.text-muted
+            Token:
+            = @invoice.token
 
-- @invoice.invoice_lines.each do |line|
-  .row
-    .col-sm-12
-      %b
-        = line.title
-  .row
-    .col-sm-12
-      - (line.description||"").split("\n").each do |desc|
-        = desc
-        %br
-  - if line.type == 'item'
-    .row
-      .col-sm-4.col-md-2
-        Rate:
-        = format_currency(line.rate)
-      .col-sm-4.col-md-2
-        Quantity:
-        = line.quantity
-      .col-sm-4.col-md-2
-        Product class:
-        = line.sales_tax_product_class.name if line.sales_tax_product_class
-      .col-sm-4.col-md-2.pull-right
-        Net:
-        = format_currency(line.quantity * line.rate) if line.quantity
+  - if @invoice.prelude.present?
+    .invoice-prelude.mb-4
+      .card
+        .card-body
+          = simple_format(@invoice.prelude)
 
-%b
-  Sum Net:
-= format_currency(@invoice.sum_net)
-%br
-%b
-  Sum Total:
-= format_currency(@invoice.sum_total)
-%br
-%br
+  .invoice-lines.mb-4
+    %table.table.table-bordered
+      %thead.table-light
+        %tr
+          %th{style: "width: 55%"} Description
+          %th.text-end{style: "width: 10%"} Quantity
+          %th.text-end{style: "width: 15%"} Rate
+          %th.text-center{style: "width: 10%"} Tax Class
+          %th.text-end{style: "width: 15%"} Amount
+      %tbody
+        - @invoice.invoice_lines.each do |line|
+          - case line.type
+          - when 'item'
+            %tr
+              %td
+                %strong= line.title
+                - if line.description.present?
+                  %br
+                  %small.text-muted= simple_format(line.description, {}, wrapper_tag: 'span')
+              %td.text-end
+                = number_with_precision(line.quantity, precision: 2, strip_insignificant_zeros: true)
+              %td.text-end
+                = format_currency(line.rate)
+              %td.text-center
+                %small= line.sales_tax_product_class&.name
+              %td.text-end
+                %strong= format_currency(line.amount || (line.quantity * line.rate))
+          - when 'subheading'
+            %tr
+              %td.fw-bold{colspan: 5, style: "background-color: #f8f9fa; padding: 12px 8px;"}
+                = line.title
+          - when 'text', 'plain'
+            %tr
+              %td{colspan: 5, style: "padding: 8px;"}
+                - if line.title.present?
+                  %div= line.title
+                - if line.description.present?
+                  %div.text-muted{style: "margin-left: 20px;"}
+                    - if line.type == 'plain'
+                      %pre.mb-0{style: "font-family: monospace; white-space: pre-wrap;"}= line.description
+                    - else
+                      = simple_format(line.description)
+
+  .invoice-summary
+    .row.justify-content-end
+      .col-md-4
+        %table.table.table-sm
+          %tbody
+            %tr
+              %td.text-end
+                %strong Sum Net:
+              %td.text-end
+                %strong= format_currency(@invoice.sum_net)
+            - if @invoice.invoice_tax_classes.any?
+              - @invoice.invoice_tax_classes.each do |tax_class|
+                %tr
+                  %td.text-end
+                    Tax (#{tax_class.percentage}%):
+                  %td.text-end
+                    = format_currency(tax_class.value)
+            %tr.table-dark
+              %td.text-end
+                %strong Sum Total:
+              %td.text-end
+                %strong= format_currency(@invoice.sum_total)
 
 = action_buttons_wrapper do
   - unless @invoice.published

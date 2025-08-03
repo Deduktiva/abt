@@ -62,14 +62,15 @@
                 %span{data: {invoice_lines_target: 'total'}}
                   = format_currency(0)
 
-        - unless @invoice.id.nil?
-          %button.btn.btn-info.float-end{type: 'button', data: {action: 'click->invoice-lines#addLine'}}
+        %br
+        = action_buttons_wrapper do
+          = f.submit 'Save', class: 'btn btn-primary'
+          = button_to 'Test Booking', test_booking_invoice_path(@invoice), method: :post, class: 'btn btn-warning', data: { 'turbo-confirm': 'This will save your changes and run a test booking calculation. Continue?' }
+          %button.btn.btn-info{type: 'button', data: {action: 'click->invoice-lines#addLine'}}
             + Add Line
-        %br{clear: 'all'}
-
-  %br
-  = action_buttons_wrapper do
-    = f.submit 'Save', class: 'btn btn-primary'
-    - unless @invoice.id.nil?
-      = button_to 'Test Booking', test_booking_invoice_path(@invoice), method: :post, class: 'btn btn-warning', data: { 'turbo-confirm': 'This will save your changes and run a test booking calculation. Continue?' }
-    = cancel_button(@invoice)
+          = cancel_button(@invoice)
+    - else
+      %br
+      = action_buttons_wrapper do
+        = f.submit 'Save', class: 'btn btn-primary'
+        = cancel_button(@invoice)

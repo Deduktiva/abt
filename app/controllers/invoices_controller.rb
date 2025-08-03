@@ -15,10 +15,18 @@ class InvoicesController < ApplicationController
                       .reorder(Arel.sql('document_number DESC NULLS FIRST'))
 
     # Get available years for pagination (years that have invoices)
+    # Use database-specific EXTRACT function (works in PostgreSQL, MySQL, and modern SQLite)
+    year_sql = case ActiveRecord::Base.connection.adapter_name.downcase
+               when 'sqlite'
+                 "strftime('%Y', date)"
+               else
+                 "EXTRACT(YEAR FROM date)"
+               end
+
     @available_years = Invoice.where.not(date: nil)
-                             .group(Arel.sql("strftime('%Y', date)"))
-                             .order(Arel.sql("strftime('%Y', date) DESC"))
-                             .pluck(Arel.sql("strftime('%Y', date)"))
+                             .group(Arel.sql(year_sql))
+                             .order(Arel.sql("#{year_sql} DESC"))
+                             .pluck(Arel.sql(year_sql))
                              .map(&:to_i)
 
     respond_to do |format|

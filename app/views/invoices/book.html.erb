@@ -10,7 +10,7 @@ published: <%= @invoice.published %><br>
 </pre>
 
 <% if @booked and !@invoice.published? %>
-<%= link_to 'Preview', preview_invoice_path(@invoice), :class => 'btn btn-default' %> &nbsp;
+<%= link_to 'Preview', preview_invoice_path(@invoice), :class => 'btn btn-secondary' %> &nbsp;
 <%= button_to 'Book!', book_invoice_path(@invoice, :save => true), :class => 'btn btn-warning' %>
 <% end %>
 

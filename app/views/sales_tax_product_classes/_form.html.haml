@@ -2,9 +2,17 @@
   = f.error_notification
 
   .form-inputs
-    = f.input :name, :placeholder => "Standard goods"
-    = f.input :indicator_code, :placeholder => "A"
+    .row
+      .col-sm-6
+        = f.label :name
+        = f.text_field :name, :class => 'form-control', :placeholder => "Standard goods"
+    .row
+      .col-sm-3
+        = f.label :indicator_code
+        = f.text_field :indicator_code, :class => 'form-control', :placeholder => "A"
+
+  %br
 
   .form-actions
-    = f.button :submit, :class => 'btn-primary'
-    = link_to 'Cancel', sales_tax_product_classes_path, :class => "btn btn-danger"
+    = f.button :submit, :class => 'btn btn-primary'
+    = link_to 'Cancel', sales_tax_product_classes_path, :class => "btn btn-secondary"

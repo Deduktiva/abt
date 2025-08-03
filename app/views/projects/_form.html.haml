@@ -3,11 +3,25 @@
   = f.error_notification
 
   .form-inputs
-    = f.input :matchcode, :input_html => { :class => "span6" }
-    = f.input :description, :input_html => { :class => "span6", :rows => 3 }
-    = f.input :time_budget
-    = f.association :bill_to_customer
+    .row
+      .col-sm-6
+        = f.label :matchcode
+        = f.text_field :matchcode, :class => 'form-control'
+    .row
+      .col-sm-6
+        = f.label :description
+        = f.text_area :description, :class => 'form-control', :rows => 3
+    .row
+      .col-sm-3
+        = f.label :time_budget
+        = f.text_field :time_budget, :class => 'form-control'
+    .row
+      .col-sm-6
+        = f.label :bill_to_customer_id
+        = f.collection_select :bill_to_customer_id, Customer.all, :id, :name, {}, {:class => 'form-control'}
+
+  %br
 
   .form-actions
-    = f.button :submit, :class => 'btn-primary'
-    = link_to 'Cancel', @project, :class => "btn btn-danger"
+    = f.button :submit, :class => 'btn btn-primary'
+    = link_to 'Cancel', @project, :class => "btn btn-secondary"

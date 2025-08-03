@@ -3,13 +3,23 @@
   = f.error_notification
 
   .form-inputs
-    = f.association :sales_tax_customer_class, :label => "Customer Class"
-    = f.association :sales_tax_product_class, :label => "Product Class"
-    = f.input :rate, :wrapper => :append do
-      = f.input_field :rate, :type => :number
-      %span.add-on>
-        \%
+    .row
+      .col-sm-6
+        = f.label :sales_tax_customer_class_id, "Customer Class"
+        = f.collection_select :sales_tax_customer_class_id, SalesTaxCustomerClass.all, :id, :name, {}, {:class => 'form-control', :required => true}
+    .row
+      .col-sm-6
+        = f.label :sales_tax_product_class_id, "Product Class"
+        = f.collection_select :sales_tax_product_class_id, SalesTaxProductClass.all, :id, :name, {}, {:class => 'form-control', :required => true}
+    .row
+      .col-sm-3
+        = f.label :rate
+        .input-group
+          = f.number_field :rate, :class => 'form-control', :step => 0.01
+          %span.input-group-text %
+
+  %br
 
   .form-actions
-    = f.button :submit, :class => 'btn-primary'
-    = link_to 'Cancel', sales_tax_rates_path, :class => "btn btn-danger"
+    = f.button :submit, :class => 'btn btn-primary'
+    = link_to 'Cancel', sales_tax_rates_path, :class => "btn btn-secondary"

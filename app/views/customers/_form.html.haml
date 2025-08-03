@@ -18,7 +18,7 @@
     .row
       .col-sm-3
         = f.label :vat_id, :label => 'VATID'
-        = f.text_field :vat_id, :class => 'form-control' 
+        = f.text_field :vat_id, :class => 'form-control'
     .row
       .col-sm-4
         = f.label :email, :label => 'E-Mail'
@@ -40,4 +40,4 @@
 
   .form-actions
     = f.button :submit, :class => 'btn-primary'
-    = link_to 'Cancel', @customer, :class => "btn btn-danger"
+    = link_to 'Cancel', @customer, :class => "btn btn-secondary"

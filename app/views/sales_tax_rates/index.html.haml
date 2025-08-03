@@ -1,6 +1,6 @@
 %h1.page-header Listing Sales Tax Rates
 
-%table.table.table-striped.table-condensed
+%table.table.table-striped.table-sm
   %tr
     %th{:width=>"30%"} Customer class
     %th{:width=>"30%"} Product class
@@ -22,7 +22,7 @@
   %p
     You don't seem to have a sales tax setup right now.
   %p
-    Start by creating  
+    Start by creating
     %a{:href => new_sales_tax_product_class_path}< product classes
     and then
     %a{:href => new_sales_tax_customer_class_path}< customer classes.
@@ -34,13 +34,13 @@
     %p.text-success
       %span.glyphicon.glyphicon-ok
       Your sales tax setup looks good.
-    
+
   - else
     %h2 Missing tax rates
     %p.text-error
       You should create these tax rates:
 
-    %table.table.table-striped.table-condensed
+    %table.table.table-striped.table-sm
       %tr
         %th{:width=>"30%"} Customer class
         %th{:width=>"30%"} Product class
@@ -58,8 +58,8 @@
               %input{:type => :hidden, :name => "authencity_token", :value => form_authenticity_token}
               %input{:type => :hidden, :name => "sales_tax_rate[sales_tax_customer_class_id]", :value => missing_rate[:customer].id}
               %input{:type => :hidden, :name => "sales_tax_rate[sales_tax_product_class_id]", :value => missing_rate[:product].id}
-              %input{:type => :number, :name => "sales_tax_rate[rate]", :class => "numeric float"}              
-              \% &nbsp;              
+              %input{:type => :number, :name => "sales_tax_rate[rate]", :class => "numeric float"}
+              \% &nbsp;
               %button{:type => :submit, :class => "btn"}
                 Create
 %br

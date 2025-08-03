@@ -1,23 +1,23 @@
-.navbar-header
-  = link_to "ABT", root_path, :class => 'navbar-brand'
-.collapse.navbar-collapse
-  %ul.nav.navbar-nav
-    %li
-      = link_to('Customers', customers_path)
-    %li
-      = link_to('Projects', projects_path)
-    %li
-      = link_to('Catalog', products_path)
-    %li
-      = link_to('Invoices', invoices_path)
-  %ul.nav.navbar-nav.navbar-right
-    %li.dropdown
-      %a.dropdown-toggle{:data => {:toggle => :dropdown}, :href => "#"}
+= link_to "ABT", root_path, :class => 'navbar-brand'
+%button.navbar-toggler{:type => "button", :"data-bs-toggle" => "collapse", :"data-bs-target" => "#navbarNav"}
+  %span.navbar-toggler-icon
+.collapse.navbar-collapse#navbarNav
+  %ul.navbar-nav.me-auto
+    %li.nav-item
+      = link_to('Customers', customers_path, :class => 'nav-link')
+    %li.nav-item
+      = link_to('Projects', projects_path, :class => 'nav-link')
+    %li.nav-item
+      = link_to('Catalog', products_path, :class => 'nav-link')
+    %li.nav-item
+      = link_to('Invoices', invoices_path, :class => 'nav-link')
+  %ul.navbar-nav
+    %li.nav-item.dropdown
+      %a.nav-link.dropdown-toggle{:"data-bs-toggle" => "dropdown", :href => "#", :role => "button"}
         Configuration
-        %b.caret
       %ul.dropdown-menu
         %li
-          = link_to('Sales Tax', sales_tax_rates_path)
+          = link_to('Sales Tax', sales_tax_rates_path, :class => 'dropdown-item')
 
 -#  - if user_signed_in?
 -#    %li

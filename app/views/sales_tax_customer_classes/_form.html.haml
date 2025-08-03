@@ -2,9 +2,18 @@
   = f.error_notification
 
   .form-inputs
-    = f.input :name, :placeholder => "National"
-    = f.input :invoice_note, :hint => "Appears on every invoice.", :input_html => { :class => "span6", :rows => 3 }
+    .row
+      .col-sm-6
+        = f.label :name
+        = f.text_field :name, :class => 'form-control', :placeholder => "National"
+    .row
+      .col-sm-6
+        = f.label :invoice_note
+        = f.text_area :invoice_note, :class => 'form-control', :rows => 3
+        %small.form-text.text-muted Appears on every invoice.
+
+  %br
 
   .form-actions
-    = f.button :submit, :class => 'btn-primary'
-    = link_to 'Cancel', sales_tax_customer_classes_path, :class => "btn btn-danger"
+    = f.button :submit, :class => 'btn btn-primary'
+    = link_to 'Cancel', sales_tax_customer_classes_path, :class => "btn btn-secondary"

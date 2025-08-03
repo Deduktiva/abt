@@ -28,7 +28,7 @@ gem 'sass-rails', '>= 6'
 gem 'uglifier', '>= 1.3.0'
 
 gem 'jquery-rails'
-gem 'bootstrap-sass', '~> 3.4.1'
+gem 'bootstrap', '~> 5.3'
 gem 'haml-rails'
 gem 'simple_form'
 

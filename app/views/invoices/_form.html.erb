@@ -14,34 +14,34 @@
 <div class="form-inputs">
     <div class="row">
         <div class="col-sm-4">
-            <div class="form-group">
-                <label>Customer</label>
-                <%= f.collection_select :customer_id, Customer.all, :id, :name, {}, {:class => 'form-control'} %>
+            <div class="mb-3">
+                <label class="form-label">Customer</label>
+                <%= f.collection_select :customer_id, Customer.all, :id, :name, {}, {:class => 'form-select'} %>
             </div>
         </div>
         <div class="col-sm-4">
-            <div class="form-group">
-                <label>Project</label>
-                <%= f.collection_select :project_id, Project.all, :id, :matchcode, {}, {:class => 'form-control'} %>
+            <div class="mb-3">
+                <label class="form-label">Project</label>
+                <%= f.collection_select :project_id, Project.all, :id, :matchcode, {}, {:class => 'form-select'} %>
             </div>
         </div>
         <div class="col-sm-4">
-            <div class="form-group">
-                <label>Date</label>
-                (set at booking)
+            <div class="mb-3">
+                <label class="form-label">Date</label>
+                <div class="form-control-plaintext">(set at booking)</div>
             </div>
         </div>
     </div>
     <div class="row">
         <div class="col-sm-4">
-            <div class="form-group">
-                <label>Customer reference</label>
+            <div class="mb-3">
+                <label class="form-label">Customer reference</label>
                 <%= f.text_field :cust_reference, {:class => 'form-control'} %>
             </div>
         </div>
         <div class="col-sm-4">
-            <div class="form-group">
-                <label>Customer Order No</label>
+            <div class="mb-3">
+                <label class="form-label">Customer Order No</label>
                 <%= f.text_field :cust_order, {:class => 'form-control'} %>
             </div>
         </div>
@@ -49,7 +49,10 @@
 
     <div class="row">
         <div class="col-sm-12">
-            <%= f.text_area :prelude, { :class => 'form-control', :rows => 2, :placeholder => 'Thank you for your business...' } %>
+            <div class="mb-3">
+                <label class="form-label">Prelude</label>
+                <%= f.text_area :prelude, { :class => 'form-control', :rows => 2, :placeholder => 'Thank you for your business...' } %>
+            </div>
         </div>
     </div>
 
@@ -59,80 +62,88 @@
     <hr>
 
     <div ng-app="invoiceLinesApp">
-        <div ng-controller='InvoiceLinesController' ng-init="setLines(<%=json_lines(@invoice.invoice_lines)%>); takeOverForm()">
+        <div ng-controller="InvoiceLinesController" ng-init="setLines(<%=json_lines(@invoice.invoice_lines)%>); takeOverForm()">
             <div ng-repeat="line in lines" ng-controller="InvoiceLinesLineController">
                 <!-- begin line -->
-                <div class="row">
-                    <div class="col-sm-2">
-                        <select class="form-control" ng-model="line.type" required="required">
-                            <option value="subheading">Subheading</option>
-                            <option value="text">Text</option>
-                            <option value="plain">Plaintext</option>
-                            <option value="item">Item</option>
-                        </select>
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label class="form-label">Type</label>
+                                <select class="form-select" ng-model="line.type" required="required">
+                                    <option value="subheading">Subheading</option>
+                                    <option value="text">Text</option>
+                                    <option value="plain">Plaintext</option>
+                                    <option value="item">Item</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-7">
+                                <label class="form-label">Title</label>
+                                <input class="form-control" ng-model="line.title" required="required">
+                            </div>
+                            <div class="col-sm-3 text-end">
+                                <label class="form-label">&nbsp;</label>
+                                <div>
+                                    <button class="btn btn-sm btn-info" type="button" ng-click="showProductDropdown()" ng-hide="line.type != 'item'">...</button>
+                                    <button class="btn btn-sm btn-secondary" type="button" ng-click="moveLineUp(line)">▲</button>
+                                    <button class="btn btn-sm btn-secondary" type="button" ng-click="moveLineDown(line)">▼</button>
+                                    <button class="btn btn-sm btn-danger" type="button" ng-click="removeLine(line)">🗑</button>
+                                </div>
+                            </div>
                         </div>
-                    <div class="col-sm-7">
-                        <input class="form-control" ng-model="line.title" required="required">
-                    </div>
-                    <div class="col-sm-3 text-right">
-                        <button class="btn btn-info" type="button" ng-click="showProductDropdown()" ng-hide="line.type != 'item'">...</button>
-                        <button class="btn btn-default" type="button" ng-click="moveLineUp(line)"><span class="glyphicon glyphicon-chevron-up"></span></button>
-                        <button class="btn btn-default" type="button" ng-click="moveLineDown(line)"><span class="glyphicon glyphicon-chevron-down"></span></button>
-                        <button class="btn btn-danger" type="button" ng-click="removeLine(line)"><span class="glyphicon glyphicon-trash"></span></button>
+                        <div class="row mt-2" ng-hide="!isProductDropdownShown">
+                            <div class="col-sm-11">
+                                <div class="mb-3">
+                                    <select class="form-select" ng-model="product_dropdown_product"
+                                            ng-options="o as o.title for o in products"></select>
+                                </div>
+                            </div>
+                            <div class="col-sm-1">
+                                <div class="mb-3">
+                                    <button class="btn btn-success" type="button" ng-click="useSelectedProduct()">✓</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2" ng-hide="line.type == 'subheading'">
+                            <div class="col-sm-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-control" ng-model="line.description"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2" ng-hide="line.type != 'item'">
+                            <div class="col-sm-3 col-md-2">
+                                <div class="mb-3">
+                                    <label class="form-label">Rate</label>
+                                    <input class="form-control" type="text" pattern="[0-9]+(\.[0-9]{1,2})?" ng-model="line.rate" ng-required="line.type == 'item'" placeholder="0.00">
+                                </div>
+                            </div>
+                            <div class="col-sm-3 col-md-2">
+                                <div class="mb-3">
+                                    <label class="form-label">Quantity</label>
+                                    <input class="form-control" type="text" pattern="[0-9]+(\.[0-9]+)?" ng-model="line.quantity" ng-required="line.type == 'item'" placeholder="1">
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-md-3">
+                                <div class="mb-3">
+                                    <label class="form-label">Product class</label>
+                                    <select class="form-select" ng-model="line.sales_tax_product_class_id" ng-required="line.type == 'item'"
+                                            ng-options="o.id as o.name for o in sales_tax_product_classes"></select>
+                                </div>
+                            </div>
+                            <div class="col-sm-2 text-end">
+                                <div class="mb-3">
+                                    <label class="form-label">Net</label>
+                                    <div class="fw-bold">{{ line.quantity * line.rate }}</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="row" ng-hide="!isProductDropdownShown">
-                    <div class="col-sm-11">
-                        <div class="form-group">
-                            <select class="form-control" ng-model="product_dropdown_product"
-                                    ng-options="o as o.title for o in products"></select>
-                        </div>
-                    </div>
-                    <div class="col-sm-1">
-                        <div class="form-group">
-                            <button class="btn btn-success" type="button" ng-click="useSelectedProduct()"><span class="glyphicon glyphicon-ok"></span></button>
-                        </div>
-                    </div>
-                </div>
-                <div class="row" ng-hide="line.type == 'subheading'">
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <label>Description</label>
-                            <textarea class="form-control" ng-model="line.description"></textarea>
-                        </div>
-                    </div>
-                </div>
-                <div class="row" ng-hide="line.type != 'item'">
-                    <div class="col-sm-4 col-md-2">
-                        <div class="form-group">
-                            <label>Rate</label>
-                            <input class="form-control" type="number" step="any" ng-model="line.rate" ng-required="line.type == 'item'">
-                        </div>
-                    </div>
-                    <div class="col-sm-4 col-md-2">
-                        <div class="form-group">
-                            <label>Quantity</label>
-                            <input class="form-control" type="number" step="any" ng-model="line.quantity" ng-required="line.type == 'item'">
-                        </div>
-                    </div>
-                    <div class="col-sm-4 col-md-2">
-                        <div class="form-group">
-                            <label>Product class</label>
-                            <select class="form-control" ng-model="line.sales_tax_product_class_id" ng-required="line.type == 'item'"
-                                    ng-options="o.id as o.name for o in sales_tax_product_classes"></select>
-                        </div>
-                    </div>
-                    <div class="col-sm-4 col-md-2 pull-right">
-                        <div class="form-group">
-                            <label>Net</label>
-                            {{ line.quantity * line.rate }}
-                        </div>
-                    </div>
-                </div>
-                <hr>
                 <!-- end line -->
             </div>
-            <button class="btn btn-info pull-right" type="button" ng-click="addLine()">
+            <button class="btn btn-info float-end" type="button" ng-click="addLine()">
                 + Add Line
             </button>
             <br clear="all">

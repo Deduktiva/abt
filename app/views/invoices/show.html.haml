@@ -74,18 +74,18 @@
 %br
 
 - unless @invoice.published
-  = link_to 'Edit', edit_invoice_path(@invoice)
-  \|
+  = link_to 'Edit', edit_invoice_path(@invoice), :class => 'btn btn-primary'
+  = " "
 - if @invoice.attachment
-  = link_to 'PDF', @invoice.attachment
+  = link_to 'PDF', @invoice.attachment, :class => 'btn btn-success'
 - else
-  = link_to 'Preview', preview_invoice_path(@invoice)
+  = link_to 'Preview', preview_invoice_path(@invoice), :class => 'btn btn-info'
 
-\|
-= link_to 'Back', invoices_path
+= " "
+= link_to 'Back', invoices_path, :class => 'btn btn-secondary'
 
 %br
 %br
 
 - unless @invoice.published
-  = button_to 'Test Booking', book_invoice_path(@invoice, :save => false)
+  = button_to 'Test Booking', book_invoice_path(@invoice, :save => false), :class => 'btn btn-warning'

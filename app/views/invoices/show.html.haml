@@ -132,7 +132,7 @@
   - if @invoice.attachment
     = action_button 'PDF', @invoice.attachment, :success, { target: '_blank', data: { turbo: false } }
   - else
-    = action_button 'Preview', preview_invoice_path(@invoice), :info
+    = action_button 'Preview', preview_invoice_path(@invoice), :info, { target: '_blank', data: { turbo: false } }
   = action_button 'Back', invoices_path, :secondary
   - unless @invoice.published
     = button_to 'Test Booking', test_booking_invoice_path(@invoice), method: :post, class: 'btn btn-warning'

@@ -79,29 +79,29 @@ if Rails.env.development?
 
   # Sample customers
   good_company = Customer.find_or_create_by(matchcode: 'GOODEU') do |customer|
-    customer.name = 'Good Company Europe B.V.'
+    customer.name = 'Good Company Poland B.V.'
     customer.address = <<~ADDRESS.strip
-      Businessstraat 123
-      1234 AB Amsterdam
-      Netherlands
+      Ulica Podhalańska 2
+      80-322 Gdańsk
+      Poland
     ADDRESS
     customer.time_budget = 1200
-    customer.vat_id = 'NL123456789B01'
-    customer.email = 'accounting@goodcompany.eu'
+    customer.vat_id = 'PL0123456789'
+    customer.email = 'accounting-goodeu@example.com'
     customer.notes = 'Long-term client, monthly invoicing'
     customer.sales_tax_customer_class = eu_class
   end
 
   local_company = Customer.find_or_create_by(matchcode: 'LOCALNAT') do |customer|
-    customer.name = 'Local National Company Ltd.'
+    customer.name = 'Local National Company B.V.'
     customer.address = <<~ADDRESS.strip
-      High Street 45
-      SW1A 1AA London
-      United Kingdom
+      Businessstraat 123
+      1234 AB Amsterdam
+      Netherlands
     ADDRESS
     customer.time_budget = 800
-    customer.vat_id = 'GB999999999'
-    customer.email = 'finance@localcompany.co.uk'
+    customer.vat_id = 'NL123456789B01'
+    customer.email = 'accounting-localnat@example.com'
     customer.notes = 'Project-based work'
     customer.sales_tax_customer_class = national_class
   end
@@ -114,7 +114,7 @@ if Rails.env.development?
       United States
     ADDRESS
     customer.time_budget = 2000
-    customer.email = 'ap@usacorp.com'
+    customer.email = 'ap-us@example.com'
     customer.notes = 'US-based client, quarterly invoicing'
     customer.sales_tax_customer_class = export_class
   end
@@ -158,9 +158,9 @@ if Rails.env.development?
   end
 
   # Sample invoices (unpublished for testing)
-  unless Invoice.exists?(customer: good_company, project: webapp_project)
+  unless Invoice.exists?(customer: local_company, project: webapp_project)
     invoice = Invoice.create!(
-      customer: good_company,
+      customer: local_company,
       project: webapp_project,
       cust_reference: 'PO-2025-001',
       cust_order: 'ORDER-WEB-2025',
@@ -198,9 +198,9 @@ if Rails.env.development?
     )
   end
 
-  unless Invoice.exists?(customer: local_company, project: consulting_project)
+  unless Invoice.exists?(customer: good_company, project: consulting_project)
     Invoice.create!(
-      customer: local_company,
+      customer: good_company,
       project: consulting_project,
       cust_reference: 'REF-CONSULT-2025',
       prelude: 'Technical consulting services for infrastructure upgrade',

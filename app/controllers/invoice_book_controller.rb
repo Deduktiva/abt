@@ -53,63 +53,15 @@ class InvoiceBookController
       return !@failed
     end
 
-    @invoice.invoice_tax_classes.all.each do |tax_class| tax_class.destroy! end
-    customer_sales_tax_rates.each do |cst|
-      data = ActionController::Parameters.new({
-        sales_tax_product_class: cst.sales_tax_product_class,
-        name: cst.sales_tax_product_class.name,
-        indicator_code: cst.sales_tax_product_class.indicator_code,
-        rate: cst.rate,
-        net: 0,
-        total: 0
-      }).permit!
-      @invoice.invoice_tax_classes.create! data
-    end
+    # Calculate taxes using the extracted service
+    tax_calculator = InvoiceTaxCalculator.new(@invoice)
+    tax_calculation_successful = tax_calculator.calculate!
 
-    have_an_item = false
-    @log << '--- BEGIN LINES ---'
+    # Add calculator logs and errors to our log
+    @log.concat(tax_calculator.log)
+    tax_calculator.errors.each { |err| error(err) }
 
-    @invoice.invoice_lines.each do |line|
-      @log << "#{line.id}.  #{line.type} #{line.title} #{line.description}"
-
-      if line.type == 'item'
-        have_an_item = true
-        error "no quantity on line id #{line.id}" if line.quantity.nil?
-        error "no rate on line id #{line.id}" if line.rate.nil?
-        line.amount = line.quantity * line.rate
-        @log << "#{line.id}.     Qty #{line.quantity} * #{line.rate} = #{line.amount}"
-
-        itc = @invoice.invoice_tax_classes.find_by_sales_tax_product_class_id(line.sales_tax_product_class_id)
-        error "no tax config for product class #{line.sales_tax_product_class_id}" if itc.nil?
-
-        line.sales_tax_name = itc.name
-        line.sales_tax_rate = itc.rate
-        line.sales_tax_indicator_code = itc.indicator_code
-
-        itc.net += line.amount
-        itc.save!
-      else
-        line.amount = nil
-        line.rate = nil
-        line.quantity = nil
-      end
-      Rails.logger.debug "line: #{line.inspect}"
-      line.save!
-    end
-    @log << '--- END LINES ---'
-    @log << ''
-
-    @log << 'Sums:'
-    @invoice.sum_net = 0
-    @invoice.sum_total = 0
-    @invoice.invoice_tax_classes.all.each do |itc|
-      @invoice.sum_net += itc.net
-      @invoice.sum_total += itc.total
-      @log << "TAX #{itc.name}/#{itc.indicator_code}: #{itc.rate}% of #{itc.net} = #{itc.value}"
-    end
-    @log << "== SUM: Net: #{@invoice.sum_net}, Total: #{@invoice.sum_total}"
-
-    unless have_an_item
+    unless tax_calculator.has_items?
       error 'not even one item line'
     end
 

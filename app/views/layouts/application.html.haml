@@ -5,10 +5,10 @@
     = csrf_meta_tags
     = csp_meta_tag
     = stylesheet_link_tag    "application", :media => "all"
-    = javascript_include_tag "application"
+    = javascript_importmap_tags
     = yield :head
   %body
-    %nav.navbar.navbar-expand-lg.navbar-light.bg-light.fixed-top
+    %nav.navbar.navbar-expand-lg.navbar-light.bg-light.fixed-top{"data-controller" => "navbar"}
       .container-fluid
         = render 'layouts/navigation'
     #main{:role => "main"}

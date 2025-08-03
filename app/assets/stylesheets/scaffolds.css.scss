@@ -5,9 +5,18 @@ div {
 }
 
 .field_with_errors {
-  padding: 2px;
-  background-color: red;
-  display: table;
+  /* Don't break Bootstrap grid layout but still show errors */
+  
+  /* For form controls inside error wrapper */
+  .form-control, .form-select {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+  }
+  
+  /* For labels */
+  .form-label {
+    color: #dc3545;
+  }
 }
 
 #error_explanation {

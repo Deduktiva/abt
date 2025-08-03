@@ -24,13 +24,15 @@ gem 'bootsnap', '>= 1.4.2', require: false
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.7'
 
+# Rails hotwire
+gem 'importmap-rails'
+gem 'turbo-rails'
+gem 'stimulus-rails'
+
 gem 'sass-rails', '>= 6'
 gem 'uglifier', '>= 1.3.0'
 
-gem 'jquery-rails'
 gem 'bootstrap', '~> 5.3'
 gem 'haml-rails'
 gem 'simple_form'
 
-gem 'lodash-rails'
-gem 'angularjs-rails'

@@ -62,23 +62,7 @@ class InvoicesController < ApplicationController
     @invoice = Invoice.find(params[:id])
     return unless check_unpublished
 
-    state = nil
-
-    ActiveRecord::Base.transaction(requires_new: true) do
-      state = {success: @invoice.update(invoice_params)}
-      unless params[:invoice_lines].nil? or params[:invoice_lines].empty?
-        @invoice.invoice_lines.delete_all(:delete_all)
-        new_lines = JSON.parse params[:invoice_lines]
-        new_lines.each do |new_line|
-          new_line = ActionController::Parameters.new(new_line).permit(
-              :type, :title, :description, :rate, :quantity, :sales_tax_product_class_id
-          )
-          unless @invoice.invoice_lines.create new_line
-            state[:success] = false
-          end
-        end
-      end
-    end
+    state = {success: @invoice.update(invoice_params)}
 
     respond_to do |format|
       if state[:success]
@@ -168,6 +152,7 @@ class InvoicesController < ApplicationController
   end
 
   def invoice_params
-    params.require(:invoice).permit(:customer_id, :project_id, :cust_reference, :cust_order, :prelude)
+    params.require(:invoice).permit(:customer_id, :project_id, :cust_reference, :cust_order, :prelude,
+      invoice_lines_attributes: [:id, :type, :title, :description, :rate, :quantity, :sales_tax_product_class_id, :position, :_destroy])
   end
 end

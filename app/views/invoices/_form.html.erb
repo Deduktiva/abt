@@ -56,118 +56,46 @@
         </div>
     </div>
 
-    <input type="text" id="invoice_lines" name="invoice_lines">
-
     <% unless @invoice.id.nil? %>
-    <hr>
+    <div data-controller="invoice-lines">
+        <!-- Lines container -->
+        <div data-invoice-lines-target="container">
+            <%= f.fields_for :invoice_lines do |line_form| %>
+                <%= render 'invoice_line_fields', f: line_form, line: line_form.object %>
+            <% end %>
+        </div>
 
-    <div ng-app="invoiceLinesApp">
-        <script>window.abtCurrency = '<%= current_currency %>';</script>
-        <div ng-controller="InvoiceLinesController" ng-init="setLines(<%=json_lines(@invoice.invoice_lines)%>); takeOverForm()">
-            <div ng-repeat="line in lines" ng-controller="InvoiceLinesLineController">
-                <!-- begin line -->
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-sm-2">
-                                <label class="form-label">Type</label>
-                                <select class="form-select" ng-model="line.type" required="required">
-                                    <option value="subheading">Subheading</option>
-                                    <option value="text">Text</option>
-                                    <option value="plain">Plaintext</option>
-                                    <option value="item">Item</option>
-                                </select>
-                            </div>
-                            <div class="col-sm-7">
-                                <label class="form-label">Title</label>
-                                <input class="form-control" ng-model="line.title" required="required">
-                            </div>
-                            <div class="col-sm-3 text-end">
-                                <label class="form-label">&nbsp;</label>
-                                <div>
-                                    <button class="btn btn-sm btn-info" type="button" ng-click="showProductDropdown()" ng-hide="line.type != 'item'">...</button>
-                                    <button class="btn btn-sm btn-secondary" type="button" ng-click="moveLineUp(line)">▲</button>
-                                    <button class="btn btn-sm btn-secondary" type="button" ng-click="moveLineDown(line)">▼</button>
-                                    <button class="btn btn-sm btn-danger" type="button" ng-click="removeLine(line)">🗑</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mt-2" ng-hide="!isProductDropdownShown">
-                            <div class="col-sm-11">
-                                <div class="mb-3">
-                                    <select class="form-select" ng-model="product_dropdown_product"
-                                            ng-options="o as o.title for o in products"></select>
-                                </div>
-                            </div>
-                            <div class="col-sm-1">
-                                <div class="mb-3">
-                                    <button class="btn btn-success" type="button" ng-click="useSelectedProduct()">✓</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mt-2" ng-hide="line.type == 'subheading'">
-                            <div class="col-sm-12">
-                                <div class="mb-3">
-                                    <label class="form-label">Description</label>
-                                    <textarea class="form-control" ng-model="line.description"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mt-2" ng-hide="line.type != 'item'">
-                            <div class="col-sm-3 col-md-2">
-                                <div class="mb-3">
-                                    <label class="form-label">Rate</label>
-                                    <input class="form-control" type="text" pattern="[0-9]+(\.[0-9]{1,2})?" ng-model="line.rate" ng-required="line.type == 'item'" placeholder="0.00">
-                                </div>
-                            </div>
-                            <div class="col-sm-3 col-md-2">
-                                <div class="mb-3">
-                                    <label class="form-label">Quantity</label>
-                                    <input class="form-control" type="text" pattern="[0-9]+(\.[0-9]+)?" ng-model="line.quantity" ng-required="line.type == 'item'" placeholder="1">
-                                </div>
-                            </div>
-                            <div class="col-sm-4 col-md-3">
-                                <div class="mb-3">
-                                    <label class="form-label">Product class</label>
-                                    <select class="form-select" ng-model="line.sales_tax_product_class_id" ng-required="line.type == 'item'"
-                                            ng-options="o.id as o.name for o in sales_tax_product_classes"></select>
-                                </div>
-                            </div>
-                            <div class="col-sm-2 text-end">
-                                <div class="mb-3">
-                                    <label class="form-label">Net</label>
-                                    <div class="fw-bold">{{ line.quantity * line.rate | abtCurrency }}</div>
-                                </div>
-                            </div>
-                        </div>
+        <!-- Template for new lines -->
+        <template data-invoice-lines-target="template">
+            <% new_line = @invoice.invoice_lines.build(:type => "item", :amount => 0, :rate => 0, :quantity => 1) %>
+            <%= f.fields_for :invoice_lines, new_line, child_index: 'NEW_RECORD' do |line_form| %>
+                <%= render 'invoice_line_fields', f: line_form, line: new_line %>
+            <% end %>
+        </template>
+
+        <div class="row">
+            <div class="col-sm-10"></div>
+            <div class="col-sm-2 text-end">
+                <div class="mb-3">
+                    <label class="form-label">Total</label>
+                    <div class="form-control-plaintext" data-invoice-lines-target="total">
+                    <%= format_currency(0) %>
                     </div>
                 </div>
-                <!-- end line -->
             </div>
-            <button class="btn btn-info float-end" type="button" ng-click="addLine()">
-                + Add Line
-            </button>
-            <br clear="all">
-
-            <hr>
-            <div class="row">
-                <div class="col-sm-2">
-                    <b>Total:</b> {{invoice_total() | abtCurrency}}
-                </div>
-            </div>
-
-            <hr>
-            <button class="btn btn-primary" type="submit" ng-click="saveLines()">
-                Save Invoice and Lines
-            </button>
         </div>
+
+        <br clear="all">
+        <button class="btn btn-info float-end" type="button" data-action="click->invoice-lines#addLine">
+            + Add Line
+        </button>
+    </div>
     <% end %>
 
-    </div>
 </div>
 <br>
 <div class="form-actions">
-    <hr>
     <%= f.submit 'Save', { :class => 'btn btn-primary' } %>
+    <%= link_to 'Cancel', invoices_path, :class => 'btn btn-secondary ms-2' %>
 </div>
 <% end %>

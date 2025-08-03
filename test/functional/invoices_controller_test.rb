@@ -36,38 +36,35 @@ class InvoicesControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should update invoice with angular-style JSON lines" do
+  test "should update invoice with nested attributes" do
     invoice = Invoice.create!(
       customer: customers(:good_eu),
       project: projects(:test_project),
       cust_reference: "TEST"
     )
 
-    invoice_lines_json = [
-      {
-        type: "item",
-        title: "Test Product",
-        description: "A test product",
-        rate: "100.00",
-        quantity: "2",
-        sales_tax_product_class_id: nil
-      },
-      {
-        type: "text",
-        title: "Note",
-        description: "Additional information",
-        rate: "0",
-        quantity: "0",
-        sales_tax_product_class_id: nil
-      }
-    ].to_json
-
     put :update, params: {
       id: invoice.id,
       invoice: {
-        cust_reference: "UPDATED_REF"
-      },
-      invoice_lines: invoice_lines_json
+        cust_reference: "UPDATED_REF",
+        invoice_lines_attributes: {
+          "0" => {
+            type: "item",
+            title: "Test Product",
+            description: "A test product",
+            rate: "100.00",
+            quantity: "2",
+            position: "1",
+            sales_tax_product_class_id: ""
+          },
+          "1" => {
+            type: "text",
+            title: "Note",
+            description: "Additional information",
+            position: "2"
+          }
+        }
+      }
     }
 
     assert_redirected_to invoice_path(invoice)

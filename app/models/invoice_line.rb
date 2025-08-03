@@ -11,15 +11,28 @@ class InvoiceLine < ApplicationRecord
     'type_'
   end
 
-  after_validation :calculate_amount
+  before_save :clear_non_item_fields
+  before_save :calculate_amount
+
+  def calculate_amount
+    if is_item
+      self[:amount] = self[:rate] * self[:quantity]
+    else
+      self[:amount] = 0
+    end
+  end
 
 private
   def is_item
     self[:type] == 'item'
   end
 
-  def calculate_amount
-    return unless self[:type] == 'item'
-    self[:amount] = self[:rate] * self[:quantity]
+  def clear_non_item_fields
+    unless is_item
+      self[:rate] = nil
+      self[:quantity] = nil
+      self[:sales_tax_product_class_id] = nil
+      self[:amount] = nil
+    end
   end
 end

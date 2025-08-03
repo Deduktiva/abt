@@ -1,7 +1,7 @@
 = link_to "ABT", root_path, :class => 'navbar-brand'
-%button.navbar-toggler{:type => "button", :"data-bs-toggle" => "collapse", :"data-bs-target" => "#navbarNav"}
+%button.navbar-toggler{:type => "button", :"data-navbar-target" => "toggle", :"data-action" => "click->navbar#toggle"}
   %span.navbar-toggler-icon
-.collapse.navbar-collapse#navbarNav
+.collapse.navbar-collapse{"data-navbar-target" => "menu"}
   %ul.navbar-nav.me-auto
     %li.nav-item
       = link_to('Customers', customers_path, :class => 'nav-link')
@@ -12,10 +12,10 @@
     %li.nav-item
       = link_to('Invoices', invoices_path, :class => 'nav-link')
   %ul.navbar-nav
-    %li.nav-item.dropdown
-      %a.nav-link.dropdown-toggle{:"data-bs-toggle" => "dropdown", :href => "#", :role => "button"}
+    %li.nav-item.dropdown{"data-controller" => "navbar"}
+      %a.nav-link.dropdown-toggle{:href => "#", :role => "button", :"data-navbar-target" => "toggle", :"data-action" => "click->navbar#toggle"}
         Configuration
-      %ul.dropdown-menu
+      %ul.dropdown-menu{"data-navbar-target" => "menu"}
         %li
           = link_to('Sales Tax', sales_tax_rates_path, :class => 'dropdown-item')
 

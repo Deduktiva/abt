@@ -147,8 +147,13 @@ class InvoicesController < ApplicationController
     @invoice = Invoice.find(params[:id])
     return unless check_unpublished
 
-    # First save any changes to the invoice
-    if @invoice.update(invoice_params)
+    # Update invoice if there are form params (called from edit page)
+    update_success = true
+    if params[:invoice].present?
+      update_success = @invoice.update(invoice_params)
+    end
+
+    if update_success
       # Run the test booking calculation and persist the totals
       issuer = IssuerCompany.get_the_issuer!
       @booker = InvoiceBookController.new @invoice, issuer
@@ -169,7 +174,7 @@ class InvoicesController < ApplicationController
       end
 
       respond_to do |format|
-        format.html { redirect_to book_invoice_path(@invoice) }
+        format.html { redirect_to @invoice }
       end
     else
       # If saving failed, redirect back to edit with errors

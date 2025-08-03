@@ -132,4 +132,4 @@
     = action_button 'Preview', preview_invoice_path(@invoice), :info
   = action_button 'Back', invoices_path, :secondary
   - unless @invoice.published
-    = button_to 'Test Booking', book_invoice_path(@invoice, :save => false), class: 'btn btn-warning'
+    = button_to 'Test Booking', test_booking_invoice_path(@invoice), method: :post, class: 'btn btn-warning'

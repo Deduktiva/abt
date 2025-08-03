@@ -222,7 +222,7 @@ class InvoicesControllerTest < ActionController::TestCase
       }
     }
 
-    assert_redirected_to book_invoice_path(invoice)
+    assert_redirected_to invoice_path(invoice)
     invoice.reload
     assert_equal "UPDATED_FOR_TEST_BOOKING", invoice.cust_reference
     assert_equal "Updated Test Product", invoice.invoice_lines.first.title
@@ -309,6 +309,35 @@ class InvoicesControllerTest < ActionController::TestCase
     assert_equal 50.0, invoice.sum_net  # New calculation
     assert_equal 0.0, invoice.sum_total  # Reset to 0
     assert_equal 0, invoice.invoice_tax_classes.count  # Tax classes cleared
+  end
+
+  test "should handle test booking from show page without form params" do
+    invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "TEST"
+    )
+
+    # Add an invoice line
+    invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Test Product',
+      description: 'A test product',
+      rate: 100.0,
+      quantity: 2.0,
+      sales_tax_product_class: sales_tax_product_classes(:standard),
+      position: 1
+    )
+
+    post :test_booking, params: { id: invoice.id }
+
+    assert_redirected_to invoice_path(invoice)
+    invoice.reload
+
+    # Verify that test booking calculated and persisted totals
+    assert invoice.sum_net > 0, "sum_net should be calculated"
+    assert invoice.sum_total > 0, "sum_total should be calculated and persisted"
+    assert invoice.invoice_tax_classes.any?, "tax classes should be created"
   end
 
 end

@@ -131,6 +131,7 @@
     = action_button 'Edit', edit_invoice_path(@invoice), :primary
   - if @invoice.attachment
     = action_button 'PDF', @invoice.attachment, :success, { target: '_blank', data: { turbo: false } }
+    = button_to 'Send E-Mail', send_email_invoice_path(@invoice), { class: 'btn btn-warning', data: { 'turbo-confirm': 'Really e-mail this invoice?' } }
   - else
     = action_button 'Preview', preview_invoice_path(@invoice), :info, { target: '_blank', data: { turbo: false } }
   = action_button 'Back', invoices_path, :secondary

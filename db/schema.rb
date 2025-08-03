@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_03_200400) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_03_223649) do
   create_table "attachments", force: :cascade do |t|
     t.string "title"
     t.string "filename"
@@ -33,6 +33,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_03_200400) do
     t.text "supplier_number"
     t.string "email"
     t.integer "payment_terms_days", default: 30, null: false
+    t.string "invoice_email_auto_to", default: "", null: false
+    t.string "invoice_email_auto_subject_template", default: "", null: false
+    t.boolean "invoice_email_auto_enabled", default: false, null: false
   end
 
   create_table "document_numbers", force: :cascade do |t|
@@ -120,6 +123,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_03_200400) do
     t.string "pdf_logo_width"
     t.string "pdf_logo_height"
     t.binary "png_logo"
+    t.string "document_email_from", default: "from@example.com", null: false
+    t.string "document_email_auto_bcc", default: "bcc@example.com", null: false
     t.index ["active"], name: "index_issuer_companies_on_active", unique: true
   end
 

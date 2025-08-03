@@ -196,10 +196,31 @@ class InvoicesController < ApplicationController
     end
   end
 
-  protected
+  def send_email
+    @invoice = Invoice.find(params[:id])
+    return unless check_published
+
+    InvoiceMailer.with(invoice: @invoice).customer_email.deliver_later
+
+    respond_to do |format|
+      format.html { redirect_to @invoice, notice: 'Sent E-Mail.' }
+      format.json { render json: @invoice, status: :sent, location: @invoice }
+    end
+  end
+
+protected
   def check_unpublished
     if @invoice.published?
       flash[:error] = 'Published invoices can not be modified.'
+      redirect_to invoice_url(@invoice)
+      return false
+    end
+    true
+  end
+
+  def check_published
+    if !@invoice.published?
+      flash[:error] = 'Draft invoices can not be used for this action.'
       redirect_to invoice_url(@invoice)
       return false
     end

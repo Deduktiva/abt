@@ -58,7 +58,7 @@ puts "✅ Essential data created"
 if Rails.env.development?
   puts "🧪 Creating development sample data..."
 
-  IssuerCompany.find_or_create_by(active: true) do |issuer|
+  issuer_company = IssuerCompany.find_or_create_by(active: true) do |issuer|
     issuer.active = true
     issuer.short_name = 'My Example'
     issuer.legal_name = 'My Example B.V.'
@@ -73,8 +73,22 @@ if Rails.env.development?
     issuer.bankaccount_number = "NL91ABNA0417164300"
     issuer.document_contact_line1 = "www.example.com      hi@example.com"
     issuer.document_contact_line2 = "voice + xxx xxxxxx"
-    issuer.document_accent_color = "#0000ff"
+    issuer.document_accent_color = "#3366cc"
     issuer.invoice_footer = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+  end
+
+  # Load example logos if they don't exist yet
+  if issuer_company.pdf_logo.blank?
+    pdf_logo_path = Rails.root.join('test', 'fixtures', 'files', 'example_logo.pdf')
+    png_logo_path = Rails.root.join('test', 'fixtures', 'files', 'example_logo.png')
+
+    issuer_company.update!(
+      pdf_logo: File.binread(pdf_logo_path),
+      pdf_logo_width: "53.0mm",
+      pdf_logo_height: "16.0mm",
+      png_logo: File.binread(png_logo_path)
+    )
+    puts "📊 Loaded example logos for issuer company"
   end
 
   # Sample customers

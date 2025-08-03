@@ -1,5 +1,9 @@
 %h1.page-header Welcome to ABT
 
+- if @data[:issuer_company].png_logo.present?
+  .mb-4.text-center
+    = image_tag png_logo_issuer_company_path, alt: @data[:issuer_company].legal_name, style: 'max-height: 100px; max-width: 300px;'
+
 %dl
   - @stats.each do |name, value|
     %dt

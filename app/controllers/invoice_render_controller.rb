@@ -21,6 +21,18 @@ class InvoiceRenderController < ApplicationController
       xml.document :class => 'invoice' do |xml_invoice|
         xml_invoice.tag! 'accent-color', @issuer.document_accent_color
         xml_invoice.tag! 'footer', @issuer.invoice_footer
+
+        # Add logo information if available
+        if @issuer.pdf_logo.present?
+          logo_file = Tempfile.new(['logo', '.pdf'], Rails.root.join('tmp'))
+          logo_file.binmode
+          logo_file.write(@issuer.pdf_logo)
+          logo_file.close
+
+          xml_invoice.tag! 'logo-path', logo_file.path
+          xml_invoice.tag! 'logo-width', @issuer.pdf_logo_width
+          xml_invoice.tag! 'logo-height', @issuer.pdf_logo_height
+        end
         xml_invoice.issuer do |xml_issuer|
           xml_issuer.address @issuer.legal_name + "\n" + @issuer.address
           xml_issuer.tag! 'short-name', @issuer.short_name

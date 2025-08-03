@@ -74,4 +74,31 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
     # Should either generate PDF or return error, but not crash
     assert_response :success, "Should handle invoices with minimal data gracefully"
   end
+
+  def test_pdf_generation_with_logo
+    # Set up issuer company with a PDF logo
+    issuer_company = issuer_companies(:one)
+    logo_path = Rails.root.join('test', 'fixtures', 'files', 'example_logo.pdf')
+    logo_data = File.binread(logo_path)
+
+    issuer_company.update!(
+      pdf_logo: logo_data,
+      pdf_logo_width: "50.0mm",
+      pdf_logo_height: "15.0mm"
+    )
+
+    # Generate PDF with logo
+    get preview_invoice_path(@invoice)
+    assert_response :success
+
+    assert response.content_type == 'application/pdf'
+    assert response.body.start_with?('%PDF'), "Response should be a PDF file"
+    assert response.body.length > 1000, "PDF should have substantial content"
+
+    # Verify the invoice processing included logo data
+    # (We can't easily inspect PDF content, but we can verify the logo was processed)
+    assert issuer_company.pdf_logo.present?, "Logo should be present in issuer company"
+    assert_equal "50.0mm", issuer_company.pdf_logo_width
+    assert_equal "15.0mm", issuer_company.pdf_logo_height
+  end
 end

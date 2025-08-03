@@ -96,6 +96,26 @@
             - else
               %em Not set
 
+        .row.mb-2
+          .col-sm-4
+            %strong PDF Logo:
+          .col-sm-8
+            - if @issuer_company.pdf_logo.present?
+              %span.badge.bg-success Logo uploaded
+              - if @issuer_company.pdf_logo_width && @issuer_company.pdf_logo_height
+                %small.text-muted (#{@issuer_company.pdf_logo_width}×#{@issuer_company.pdf_logo_height})
+            - else
+              %em No logo set
+
+        .row.mb-2
+          .col-sm-4
+            %strong PNG Logo:
+          .col-sm-8
+            - if @issuer_company.png_logo.present?
+              %span.badge.bg-success Logo uploaded
+            - else
+              %em No logo set
+
   .col-md-6
     .card
       .card-header

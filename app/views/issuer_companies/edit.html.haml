@@ -1,0 +1,88 @@
+= page_header('Edit Issuer Company')
+
+= form_with(model: @issuer_company, url: issuer_company_path, method: :patch, local: true, class: 'form') do |form|
+  - if @issuer_company.errors.any?
+    .alert.alert-danger
+      %h4= "#{pluralize(@issuer_company.errors.count, "error")} prohibited this issuer company from being saved:"
+      %ul
+        - @issuer_company.errors.each do |error|
+          %li= error.full_message
+
+  .row
+    .col-md-6
+      .card
+        .card-header
+          %h5 Company Information
+        .card-body
+          .mb-3
+            = form.label :active, class: 'form-label'
+            = form.check_box :active, class: 'form-check-input ms-2'
+
+          .mb-3
+            = form.label :short_name, class: 'form-label'
+            = form.text_field :short_name, class: 'form-control'
+
+          .mb-3
+            = form.label :legal_name, class: 'form-label'
+            = form.text_field :legal_name, class: 'form-control'
+
+          .mb-3
+            = form.label :vat_id, class: 'form-label'
+            = form.text_field :vat_id, class: 'form-control'
+
+          .mb-3
+            = form.label :currency, class: 'form-label'
+            = form.text_field :currency, class: 'form-control'
+
+          .mb-3
+            = form.label :address, class: 'form-label'
+            = form.text_area :address, rows: 4, class: 'form-control'
+
+    .col-md-6
+      .card
+        .card-header
+          %h5 Banking Information
+        .card-body
+          .mb-3
+            = form.label :bankaccount_bank, class: 'form-label'
+            = form.text_field :bankaccount_bank, class: 'form-control'
+
+          .mb-3
+            = form.label :bankaccount_bic, class: 'form-label'
+            = form.text_field :bankaccount_bic, class: 'form-control'
+
+          .mb-3
+            = form.label :bankaccount_number, class: 'form-label'
+            = form.text_field :bankaccount_number, class: 'form-control'
+
+  .row.mt-4
+    .col-md-6
+      .card
+        .card-header
+          %h5 Document Settings
+        .card-body
+          .mb-3
+            = form.label :document_contact_line1, class: 'form-label'
+            = form.text_field :document_contact_line1, class: 'form-control'
+
+          .mb-3
+            = form.label :document_contact_line2, class: 'form-label'
+            = form.text_field :document_contact_line2, class: 'form-control'
+
+          .mb-3
+            = form.label :document_accent_color, class: 'form-label'
+            = form.color_field :document_accent_color, class: 'form-control form-control-color'
+
+    .col-md-6
+      .card
+        .card-header
+          %h5 Invoice Footer
+        .card-body
+          .mb-3
+            = form.label :invoice_footer, class: 'form-label'
+            = form.text_area :invoice_footer, rows: 6, class: 'form-control'
+
+  = action_buttons_wrapper do
+    = form.submit 'Update Issuer Company', class: 'btn btn-primary'
+    = action_button 'Show', issuer_company_path, :secondary
+    = action_button 'Back', issuer_company_path, :secondary

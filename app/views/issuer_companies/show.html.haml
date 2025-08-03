@@ -1,0 +1,107 @@
+= page_header_with_edit_button('Issuer Company', edit_issuer_company_path)
+
+.row
+  .col-md-6
+    .card
+      .card-header
+        %h5 Company Information
+      .card-body
+        .row.mb-2
+          .col-sm-4
+            %strong Active:
+          .col-sm-8
+            - if @issuer_company.active?
+              %span.badge.bg-success Yes
+            - else
+              %span.badge.bg-danger No
+
+        .row.mb-2
+          .col-sm-4
+            %strong Short Name:
+          .col-sm-8
+            = @issuer_company.short_name
+
+        .row.mb-2
+          .col-sm-4
+            %strong Legal Name:
+          .col-sm-8
+            = @issuer_company.legal_name
+
+        .row.mb-2
+          .col-sm-4
+            %strong VAT ID:
+          .col-sm-8
+            = @issuer_company.vat_id
+
+        .row.mb-2
+          .col-sm-4
+            %strong Currency:
+          .col-sm-8
+            = @issuer_company.currency
+
+        .row.mb-2
+          .col-sm-4
+            %strong Address:
+          .col-sm-8
+            = simple_format(@issuer_company.address)
+
+  .col-md-6
+    .card
+      .card-header
+        %h5 Banking Information
+      .card-body
+        .row.mb-2
+          .col-sm-4
+            %strong Bank:
+          .col-sm-8
+            = @issuer_company.bankaccount_bank
+
+        .row.mb-2
+          .col-sm-4
+            %strong BIC:
+          .col-sm-8
+            = @issuer_company.bankaccount_bic
+
+        .row.mb-2
+          .col-sm-4
+            %strong Account Number:
+          .col-sm-8
+            = @issuer_company.bankaccount_number
+
+.row.mt-4
+  .col-md-6
+    .card
+      .card-header
+        %h5 Document Settings
+      .card-body
+        .row.mb-2
+          .col-sm-4
+            %strong Contact Line 1:
+          .col-sm-8
+            = @issuer_company.document_contact_line1
+
+        .row.mb-2
+          .col-sm-4
+            %strong Contact Line 2:
+          .col-sm-8
+            = @issuer_company.document_contact_line2
+
+        .row.mb-2
+          .col-sm-4
+            %strong Accent Color:
+          .col-sm-8
+            - if @issuer_company.document_accent_color.present?
+              %span.badge{style: "background-color: #{@issuer_company.document_accent_color}"}
+                = @issuer_company.document_accent_color
+            - else
+              %em Not set
+
+  .col-md-6
+    .card
+      .card-header
+        %h5 Invoice Footer
+      .card-body
+        - if @issuer_company.invoice_footer.present?
+          = simple_format(@issuer_company.invoice_footer)
+        - else
+          %em No footer text set

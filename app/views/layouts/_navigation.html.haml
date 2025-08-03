@@ -17,6 +17,8 @@
         Configuration
       %ul.dropdown-menu{"data-navbar-target" => "menu"}
         %li
+          = link_to('Issuer Company', issuer_company_path, :class => 'dropdown-item')
+        %li
           = link_to('Sales Tax', sales_tax_rates_path, :class => 'dropdown-item')
 
 -#  - if user_signed_in?

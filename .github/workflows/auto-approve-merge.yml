@@ -1,6 +1,6 @@
 name: Auto Approve and Merge
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
   issues: write
 

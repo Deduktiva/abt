@@ -14,6 +14,9 @@ Rails.application.routes.draw do
       post 'book'
       post 'send_email'
     end
+    collection do
+      post 'bulk_send_emails'
+    end
   end
   resources :products
   resources :projects

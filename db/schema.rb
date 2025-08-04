@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_04_103818) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_04_150442) do
   create_table "attachments", force: :cascade do |t|
     t.string "title"
     t.string "filename"
@@ -101,6 +101,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_04_103818) do
     t.decimal "sum_total"
     t.string "token"
     t.text "tax_note"
+    t.datetime "email_sent_at"
     t.index ["document_number"], name: "index_invoices_on_document_number", unique: true
   end
 

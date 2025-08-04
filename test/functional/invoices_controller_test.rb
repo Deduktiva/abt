@@ -143,7 +143,7 @@ class InvoicesControllerTest < ActionController::TestCase
       project: projects(:test_project),
       cust_reference: "TEST_DRAFT",
       sum_net: 100.0,
-      sum_total: 0.0  # Draft invoices have sum_total = 0
+      sum_total: 0.0  # INVALID Draft invoices have sum_total = 0
     )
 
     # Add invoice line with tax class
@@ -160,8 +160,6 @@ class InvoicesControllerTest < ActionController::TestCase
     get :show, params: { id: invoice.id }
     assert_response :success
     assert_select '.badge.bg-warning', text: 'Draft'
-    # Should show prompt to use test booking for total calculation
-    assert_select 'em', text: 'Use "Test Booking" to calculate'
   end
 
   test "should get edit" do
@@ -205,7 +203,7 @@ class InvoicesControllerTest < ActionController::TestCase
 
   test "should update invoice with nested attributes" do
     invoice = Invoice.create!(
-      customer: customers(:good_eu),
+      customer: customers(:good_national),  # has 20% tax
       project: projects(:test_project),
       cust_reference: "TEST"
     )
@@ -222,7 +220,7 @@ class InvoicesControllerTest < ActionController::TestCase
             rate: "100.00",
             quantity: "2",
             position: "1",
-            sales_tax_product_class_id: ""
+            sales_tax_product_class_id: sales_tax_product_classes(:standard).id
           },
           "1" => {
             type: "text",
@@ -242,68 +240,19 @@ class InvoicesControllerTest < ActionController::TestCase
 
     # Verify totals are calculated correctly
     invoice.reload
-    assert_in_delta 200.0, invoice.sum_net, 0.01  # 100.00 * 2
-    assert_in_delta 0.0, invoice.sum_total, 0.01  # For draft invoices, total stays 0
-  end
-
-  test "should handle test booking with saving changes" do
-    invoice = Invoice.create!(
-      customer: customers(:good_eu),
-      project: projects(:test_project),
-      cust_reference: "TEST"
-    )
-
-    # Add an invoice line to test booking
-    invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Test Product',
-      description: 'A test product',
-      rate: 100.0,
-      quantity: 2.0,
-      sales_tax_product_class: sales_tax_product_classes(:standard),
-      position: 1
-    )
-
-    post :test_booking, params: {
-      id: invoice.id,
-      invoice: {
-        cust_reference: "UPDATED_FOR_TEST_BOOKING",
-        invoice_lines_attributes: {
-          "0" => {
-            id: invoice.invoice_lines.first.id,
-            type: "item",
-            title: "Updated Test Product",
-            description: "Updated description",
-            rate: "150.00",
-            quantity: "3",
-            position: "1",
-            sales_tax_product_class_id: sales_tax_product_classes(:standard).id
-          }
-        }
-      }
-    }
-
-    assert_redirected_to invoice_path(invoice)
-    invoice.reload
-    assert_equal "UPDATED_FOR_TEST_BOOKING", invoice.cust_reference
-    assert_equal "Updated Test Product", invoice.invoice_lines.first.title
-    assert_equal 150.0, invoice.invoice_lines.first.rate
-    assert_equal 3.0, invoice.invoice_lines.first.quantity
-
-    # Verify that test booking calculated and persisted totals
-    assert invoice.sum_net > 0, "sum_net should be calculated"
-    assert invoice.sum_total > 0, "sum_total should be calculated and persisted"
+    assert invoice.sum_net == 200.0, "sum_net should be calculated (#{invoice.sum_net})"
+    assert invoice.sum_total == 240.0, "sum_total should be calculated (#{invoice.sum_total})"
     assert invoice.invoice_tax_classes.any?, "tax classes should be created"
   end
 
-  test "should handle test booking with validation errors" do
+  test "should handle updating invoice with validation errors" do
     invoice = Invoice.create!(
       customer: customers(:good_eu),
       project: projects(:test_project),
       cust_reference: "TEST"
     )
 
-    post :test_booking, params: {
+    put :update, params: {
       id: invoice.id,
       invoice: {
         customer_id: nil, # This should cause validation error
@@ -312,64 +261,6 @@ class InvoicesControllerTest < ActionController::TestCase
     }
 
     assert_response :success
-  end
-
-  test "should reject test booking for published invoices" do
-    invoice = Invoice.create!(
-      customer: customers(:good_eu),
-      project: projects(:test_project),
-      cust_reference: "TEST",
-      published: true
-    )
-
-    post :test_booking, params: { id: invoice.id }
-
-    assert_redirected_to invoice_path(invoice)
-    assert_match /Published invoices can not be modified/, flash[:error]
-  end
-
-  test "should reset totals when draft invoice is modified after test booking" do
-    invoice = Invoice.create!(
-      customer: customers(:good_eu),
-      project: projects(:test_project),
-      cust_reference: "TEST",
-      sum_net: 200.0,
-      sum_total: 238.0  # Simulate after test booking
-    )
-
-    # Add tax classes to simulate test booking results
-    invoice.invoice_tax_classes.create!(
-      sales_tax_product_class: sales_tax_product_classes(:standard),
-      rate: 19.0,
-      net: 200.0,
-      value: 38.0,
-      total: 238.0
-    )
-
-    # Modify the invoice
-    put :update, params: {
-      id: invoice.id,
-      invoice: {
-        cust_reference: "MODIFIED_REF",
-        invoice_lines_attributes: {
-          "0" => {
-            type: "item",
-            title: "New Product",
-            rate: "50.00",
-            quantity: "1",
-            position: "1"
-          }
-        }
-      }
-    }
-
-    assert_redirected_to invoice_path(invoice)
-    invoice.reload
-
-    # Verify totals are reset
-    assert_equal 50.0, invoice.sum_net  # New calculation
-    assert_equal 0.0, invoice.sum_total  # Reset to 0
-    assert_equal 0, invoice.invoice_tax_classes.count  # Tax classes cleared
   end
 
   test "should handle test booking from show page without form params" do
@@ -390,18 +281,18 @@ class InvoicesControllerTest < ActionController::TestCase
       position: 1
     )
 
-    post :test_booking, params: { id: invoice.id }
+    post :book, params: { id: invoice.id, save: false }
 
-    assert_redirected_to invoice_path(invoice)
+    assert_redirected_to book_invoice_path(invoice)
     invoice.reload
 
     # Verify that test booking calculated and persisted totals
-    assert invoice.sum_net > 0, "sum_net should be calculated"
-    assert invoice.sum_total > 0, "sum_total should be calculated and persisted"
+    assert invoice.sum_net == 200.0, "sum_net should be calculated (#{invoice.sum_net})"
+    assert invoice.sum_total == 200.0, "sum_total should be calculated (#{invoice.sum_total})"
     assert invoice.invoice_tax_classes.any?, "tax classes should be created"
   end
 
-  test "should reuse existing tax classes during test booking optimization" do
+  test "should reuse existing tax classes during update" do
     invoice = Invoice.create!(
       customer: customers(:good_eu),
       project: projects(:test_project),
@@ -420,7 +311,7 @@ class InvoicesControllerTest < ActionController::TestCase
     )
 
     # Run test booking first time to create tax classes
-    post :test_booking, params: { id: invoice.id }
+    put :update, params: { id: invoice.id, invoice: { cust_reference: "NEW_REF" } }
     invoice.reload
 
     # Remember the tax class ID
@@ -431,7 +322,7 @@ class InvoicesControllerTest < ActionController::TestCase
     invoice.invoice_lines.first.update!(quantity: 3.0)
 
     # Run test booking again - should reuse existing tax class
-    post :test_booking, params: { id: invoice.id }
+    put :update, params: { id: invoice.id, invoice: { cust_reference: "NEW_REF2" } }
     invoice.reload
 
     # Verify the tax class was updated, not recreated

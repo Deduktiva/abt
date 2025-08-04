@@ -1,8 +1,8 @@
 require 'test_helper'
 
-class InvoiceTaxCalculatorTest < ActiveSupport::TestCase
+class InvoiceTaxCalculationTest < ActiveSupport::TestCase
   def setup
-    @customer = customers(:good_eu)
+    @customer = customers(:good_national)
     @project = projects(:test_project)
     @product_class = sales_tax_product_classes(:standard)
 
@@ -35,27 +35,23 @@ class InvoiceTaxCalculatorTest < ActiveSupport::TestCase
       position: 2
     )
 
-    calculator = InvoiceTaxCalculator.new(@invoice)
-    result = calculator.calculate!
-
-    assert result, "Tax calculation should succeed"
-    assert_empty calculator.errors, "Should have no errors"
-
     # Check line amounts were calculated
     line1.reload
     line2.reload
     assert_equal 200.0, line1.amount
     assert_equal 50.0, line2.amount
 
+    @invoice.save  # does most of the relevant work
+    @invoice.reload
+
     # Check tax classes were created
     assert_not_empty @invoice.invoice_tax_classes
     tax_class = @invoice.invoice_tax_classes.first
     assert_equal 250.0, tax_class.net # 200 + 50
 
-    # Check invoice totals (EU customer has 0% tax)
-    @invoice.reload
+    # Check invoice totals
     assert_equal 250.0, @invoice.sum_net
-    assert_equal 250.0, @invoice.sum_total  # EU: 0% tax so total = net
+    assert_equal 300.0, @invoice.sum_total  # national: 20% → 250 + 50 tax = 300
   end
 
   test "handles text lines correctly by clearing amounts" do
@@ -79,57 +75,10 @@ class InvoiceTaxCalculatorTest < ActiveSupport::TestCase
       position: 2
     )
 
-    calculator = InvoiceTaxCalculator.new(@invoice)
-    result = calculator.calculate!
-
-    assert result, "Tax calculation should succeed"
-
     text_line.reload
     assert_nil text_line.rate
     assert_nil text_line.quantity
     assert_equal 0.0, text_line.amount
-  end
-
-  test "reports errors for item lines missing required data" do
-    # Create item line with valid data first to avoid callback issues
-    line = @invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Product',
-      rate: 100.0,
-      quantity: 1.0,
-      sales_tax_product_class: @product_class,
-      position: 1
-    )
-
-    # Then directly update the database to set rate to nil
-    line.update_column(:rate, nil)
-
-    calculator = InvoiceTaxCalculator.new(@invoice)
-    result = calculator.calculate!
-
-    assert_not result, "Tax calculation should fail"
-    assert_includes calculator.errors, "no rate on line id #{line.id}"
-  end
-
-  test "reports errors for item lines without quantity" do
-    # Create item line with valid data first to avoid callback issues
-    line = @invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Product',
-      rate: 100.0,
-      quantity: 1.0,
-      sales_tax_product_class: @product_class,
-      position: 1
-    )
-
-    # Then directly update the database to set quantity to nil
-    line.update_column(:quantity, nil)
-
-    calculator = InvoiceTaxCalculator.new(@invoice)
-    result = calculator.calculate!
-
-    assert_not result, "Tax calculation should fail"
-    assert_includes calculator.errors, "no quantity on line id #{line.id}"
   end
 
   test "reports errors for missing tax configuration" do
@@ -143,11 +92,10 @@ class InvoiceTaxCalculatorTest < ActiveSupport::TestCase
       position: 1
     )
 
-    calculator = InvoiceTaxCalculator.new(@invoice)
-    result = calculator.calculate!
+    result = @invoice.validate_lines_for_booking
 
-    assert_not result, "Tax calculation should fail"
-    assert_includes calculator.errors, "no tax config for product class 99999"
+    assert_not result[:success], "Tax calculation should fail"
+    assert_includes result[:errors], "no tax config for product class 99999"
   end
 
   test "has_items? returns true when invoice has item lines" do
@@ -160,8 +108,7 @@ class InvoiceTaxCalculatorTest < ActiveSupport::TestCase
       position: 1
     )
 
-    calculator = InvoiceTaxCalculator.new(@invoice)
-    assert calculator.has_items?
+    assert @invoice.has_items?
   end
 
   test "has_items? returns false when invoice has no item lines" do
@@ -172,8 +119,7 @@ class InvoiceTaxCalculatorTest < ActiveSupport::TestCase
       position: 1
     )
 
-    calculator = InvoiceTaxCalculator.new(@invoice)
-    assert_not calculator.has_items?
+    assert_not @invoice.has_items?
   end
 
   test "clears existing tax classes before calculation" do
@@ -196,8 +142,7 @@ class InvoiceTaxCalculatorTest < ActiveSupport::TestCase
       position: 1
     )
 
-    calculator = InvoiceTaxCalculator.new(@invoice)
-    calculator.calculate!
+    @invoice.save
 
     # Old tax classes should be gone, new ones created
     @invoice.reload
@@ -217,13 +162,11 @@ class InvoiceTaxCalculatorTest < ActiveSupport::TestCase
       position: 1
     )
 
-    calculator = InvoiceTaxCalculator.new(@invoice)
-    calculator.calculate!
+    result = @invoice.validate_lines_for_booking
 
-    log = calculator.log
+    log = result[:log]
     assert_includes log, '--- BEGIN LINES ---'
     assert_includes log, '--- END LINES ---'
-    assert_includes log, 'Sums:'
     assert log.any? { |line| line.include?('Test Product') }
     assert log.any? { |line| line.include?('Qty 2.0 * 100.0 = 200.0') }
   end

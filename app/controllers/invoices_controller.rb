@@ -96,14 +96,16 @@ class InvoicesController < ApplicationController
     @invoice = Invoice.find(params[:id])
     return unless check_unpublished
 
-    state = {success: @invoice.update(invoice_params)}
+    update_success = @invoice.update(invoice_params)
 
     respond_to do |format|
-      if state[:success]
+      if update_success
         format.html { redirect_to @invoice, notice: 'Invoice was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render template: 'edit' }
+        # If saving failed, redirect back to edit with errors
+        set_form_options
+        format.html { render :edit }
         format.json { render json: @invoice.errors, status: :unprocessable_entity }
       end
     end
@@ -134,12 +136,7 @@ class InvoicesController < ApplicationController
       issuer = IssuerCompany.get_the_issuer!
       @booker = InvoiceBookController.new @invoice, issuer
 
-      ActiveRecord::Base.transaction(requires_new: true) do
-        @booked = @booker.book want_save
-        unless want_save
-          raise ActiveRecord::Rollback, 'preview only'
-        end
-      end
+      @booked = @booker.book want_save
       @booking_log = @booker.log
 
       if @booked
@@ -170,48 +167,6 @@ class InvoicesController < ApplicationController
 
       respond_to do |format|
         format.html
-      end
-    end
-  end
-
-  def test_booking
-    @invoice = Invoice.find(params[:id])
-    return unless check_unpublished
-
-    # Update invoice if there are form params (called from edit page)
-    update_success = true
-    if params[:invoice].present?
-      update_success = @invoice.update(invoice_params)
-    end
-
-    if update_success
-      # Run the test booking calculation and persist the totals
-      issuer = IssuerCompany.get_the_issuer!
-      @booker = InvoiceBookController.new @invoice, issuer
-
-      # Use the tax calculator to compute and persist totals without publishing
-      calculator = InvoiceTaxCalculator.new(@invoice)
-      @booked = calculator.calculate!
-      @booking_log = calculator.log
-
-      # Store booking data in session for the redirected page
-      session[:booking_log] = @booking_log
-      session[:booked] = @booked
-
-      if @booked
-        flash[:notice] = "Test booking succeeded."
-      else
-        flash[:error] = "Test booking failed."
-      end
-
-      respond_to do |format|
-        format.html { redirect_to @invoice }
-      end
-    else
-      # If saving failed, redirect back to edit with errors
-      set_form_options
-      respond_to do |format|
-        format.html { render :edit }
       end
     end
   end

@@ -1,12 +1,12 @@
 good_eu:
   matchcode: GOOD
-  name: A Good Company, Inc.
+  name: A Good Company B.V.
   address: |
     Lulzstreet 3/2/1
-    LH234234 Heathrow
-    GREATER ENGLAND AND SCOTLAND
+    LH234234 Shiphol
+    European Union
   time_budget: 1200
-  vat_id: GB99999999
+  vat_id: EU99999999
   notes: MyText
   sales_tax_customer_class: eu
 

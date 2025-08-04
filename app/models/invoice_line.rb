@@ -8,8 +8,8 @@ class InvoiceLine < ApplicationRecord
 
   validates :title, presence: true
   validates :type, presence: true, inclusion: TYPE_OPTIONS.values
-  validates :rate, presence: true, if: :is_item
-  validates :quantity, presence: true, if: :is_item
+  validates :rate, presence: true, if: :is_item?
+  validates :quantity, presence: true, if: :is_item?
 
   belongs_to :invoice
   belongs_to :sales_tax_product_class, :optional => true
@@ -22,20 +22,20 @@ class InvoiceLine < ApplicationRecord
   before_save :calculate_amount
 
   def calculate_amount
-    if is_item
+    if is_item?
       self[:amount] = self[:rate] * self[:quantity]
     else
       self[:amount] = 0
     end
   end
 
-private
-  def is_item
+  def is_item?
     self[:type] == 'item'
   end
 
+private
   def clear_non_item_fields
-    unless is_item
+    unless is_item?
       self[:rate] = nil
       self[:quantity] = nil
       self[:sales_tax_product_class_id] = nil

@@ -25,6 +25,9 @@ class InvoiceBookController
       return !@failed
     end
 
+    # trigger before_save callbacks which populate customer fields
+    @invoice.save
+
     if @invoice.date.nil?
       @invoice.date = Date.today
     end
@@ -42,14 +45,13 @@ class InvoiceBookController
     @log << ''
 
     # Calculate taxes
-    tax_calculator = InvoiceTaxCalculator.new(@invoice)
-    tax_calculation_successful = tax_calculator.calculate!
+    line_validation_result = @invoice.validate_lines_for_booking
 
     # Add calculator logs and errors to our log
-    @log.concat(tax_calculator.log)
-    tax_calculator.errors.each { |err| error(err) }
+    @log.concat(line_validation_result[:log])
+    line_validation_result[:errors].each { |err| error(err) }
 
-    unless tax_calculator.has_items?
+    unless @invoice.has_items?
       error 'not even one item line'
     end
 

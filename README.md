@@ -13,5 +13,3 @@ Dependencies
 
 Bundler, fop, a web server.
 
-A minimal Puppet deployment module is provided in `puppet/`. You'll need to find the fop jar files yourself.
-

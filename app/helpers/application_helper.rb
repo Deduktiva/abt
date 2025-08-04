@@ -16,6 +16,15 @@ module ApplicationHelper
     @current_currency ||= IssuerCompany.get_the_issuer!&.currency || 'EUR'
   end
 
+  def page_title
+    issuer = IssuerCompany.get_the_issuer!
+    if issuer&.short_name.present?
+      "ABT: #{issuer.short_name}"
+    else
+      "ABT"
+    end
+  end
+
   def format_currency(amount)
     return '' if amount.nil?
     case current_currency

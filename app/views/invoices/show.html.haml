@@ -15,7 +15,7 @@
             .col-sm-4
               %strong Date:
             .col-sm-8
-              = @invoice.date
+              = format_date(@invoice.date)
         .row.mb-2
           .col-sm-4
             %strong Customer:
@@ -57,7 +57,7 @@
               %strong Email Status:
             .col-sm-8
               - if @invoice.email_sent_at
-                %span.badge.bg-success Sent #{@invoice.email_sent_at.strftime('%Y-%m-%d %H:%M')}
+                %span.badge.bg-success Sent #{format_datetime(@invoice.email_sent_at)}
               - elsif @invoice.customer.email.present? || @invoice.customer.invoice_email_auto_enabled
                 %span.badge.bg-warning Unsent
               - else

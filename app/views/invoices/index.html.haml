@@ -60,13 +60,13 @@
           %td= invoice.document_number
           %td= invoice.customer.name
           %td= invoice.project && invoice.project.display_name
-          %td= invoice.date
+          %td= format_date(invoice.date)
           %td= invoice.cust_reference
           %td= invoice.cust_order
           - if @email_filter != 'all'
             %td
               - if invoice.email_sent_at
-                %span.badge.bg-success Sent #{invoice.email_sent_at.strftime('%m-%d')}
+                %span.badge.bg-success Sent #{format_date(invoice.email_sent_at)}
               - else
                 %span.badge.bg-warning Unsent
           %td
@@ -101,13 +101,13 @@
         %td= invoice.document_number
         %td= invoice.customer.name
         %td= invoice.project && invoice.project.display_name
-        %td= invoice.date
+        %td= format_date(invoice.date)
         %td= invoice.cust_reference
         %td= invoice.cust_order
         - if @email_filter != 'all'
           %td
             - if invoice.email_sent_at
-              %span.badge.bg-success Sent #{invoice.email_sent_at.strftime('%m-%d')}
+              %span.badge.bg-success Sent #{format_date(invoice.email_sent_at)}
             - else
               %span.badge.bg-warning Unsent
         %td

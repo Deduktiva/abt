@@ -124,4 +124,13 @@ module ApplicationHelper
     action_button('Cancel', cancel_path, :secondary)
   end
 
+  def format_date(date)
+    return '' if date.nil?
+    date.strftime('%Y-%m-%d')
+  end
+
+  def format_datetime(datetime)
+    return '' if datetime.nil?
+    datetime.strftime('%Y-%m-%d %H:%M')
+  end
 end

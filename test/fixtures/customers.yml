@@ -10,6 +10,7 @@ good_eu:
   notes: MyText
   email: customer@good-company.co.uk
   sales_tax_customer_class: eu
+  active: true
 
 good_national:
   matchcode: GOODNAT
@@ -23,6 +24,7 @@ good_national:
   notes:
   email: billing@local-company.com
   sales_tax_customer_class: national
+  active: true
 
 auto_email_customer:
   matchcode: AUTOEMAIL
@@ -38,6 +40,7 @@ auto_email_customer:
   invoice_email_auto_to: billing@autoemail.com
   invoice_email_auto_subject_template: "Invoice $CUST_ORDER$ - Ref: $CUST_REF$"
   sales_tax_customer_class: national
+  active: true
 
 no_email_customer:
   matchcode: NOEMAIL
@@ -49,3 +52,4 @@ no_email_customer:
   time_budget: 500
   vat_id: NOEMAIL789
   sales_tax_customer_class: eu
+  active: true

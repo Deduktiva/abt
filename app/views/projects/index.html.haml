@@ -1,11 +1,17 @@
 = page_header_with_new_button('Listing projects', new_project_path)
 
+.mb-3
+  = link_to 'All', projects_path, class: "btn btn-sm #{'btn-primary' if params[:active].blank?} #{'btn-outline-primary' unless params[:active].blank?}"
+  = link_to 'Active', projects_path(active: true), class: "btn btn-sm #{'btn-primary' if params[:active] == 'true'} #{'btn-outline-primary' unless params[:active] == 'true'}"
+  = link_to 'Inactive', projects_path(active: false), class: "btn btn-sm #{'btn-primary' if params[:active] == 'false'} #{'btn-outline-primary' unless params[:active] == 'false'}"
+
 %table.table.table-striped.table-sm
   %tr
     %th Matchcode
     %th Description
     %th Time budget
     %th Bill to customer
+    %th Status
     %th{:width => "3%"}
     %th{:width => "3%"}
     %th{:width => "3%"}
@@ -16,7 +22,16 @@
       %td= project.description
       %td= project.time_budget
       %td= project.bill_to_customer.try(:matchcode)
+      %td
+        - if project.active?
+          %span.badge.bg-success Active
+        - else
+          %span.badge.bg-secondary Inactive
       %td= list_action_link('Show', project, :show)
       %td= list_action_link('Edit', edit_project_path(project), :edit)
-      %td= destroy_link(project, "Are you sure you want to delete project \"#{project.matchcode}\"?")
+      %td
+        - if project.can_be_deleted?
+          = destroy_link(project, "Are you sure you want to delete project \"#{project.matchcode}\"?")
+        - else
+          %span.text-muted.small Used
 

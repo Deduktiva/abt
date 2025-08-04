@@ -31,5 +31,14 @@
             = @project.bill_to_customer.name
             %small.text-muted (#{@project.bill_to_customer.matchcode})
 
+        .row.mb-2
+          .col-sm-3
+            %strong Status:
+          .col-sm-9
+            - if @project.active?
+              %span.badge.bg-success Active
+            - else
+              %span.badge.bg-secondary Inactive
+
 = action_buttons_wrapper do
   = action_button 'Back', projects_path, :secondary

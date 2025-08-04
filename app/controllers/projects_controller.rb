@@ -2,7 +2,14 @@ class ProjectsController < ApplicationController
   # GET /projects
   # GET /projects.json
   def index
-    @projects = Project.all
+    # Filter by active status if specified
+    if params[:active] == 'true'
+      @projects = Project.active
+    elsif params[:active] == 'false'
+      @projects = Project.inactive
+    else
+      @projects = Project.all
+    end
 
     respond_to do |format|
       format.html # index.html.erb
@@ -73,16 +80,20 @@ class ProjectsController < ApplicationController
   # DELETE /projects/1.json
   def destroy
     @project = Project.find(params[:id])
-    @project.destroy
 
     respond_to do |format|
-      format.html { redirect_to projects_url }
-      format.json { head :no_content }
+      if @project.destroy
+        format.html { redirect_to projects_url, notice: 'Project was successfully deleted.' }
+        format.json { head :no_content }
+      else
+        format.html { redirect_to projects_url, alert: @project.errors.full_messages.join(', ') }
+        format.json { render json: @project.errors, status: :unprocessable_entity }
+      end
     end
   end
 
 private
   def projects_params
-    params.require(:project).permit(:bill_to_customer_id, :description, :matchcode, :time_budget)
+    params.require(:project).permit(:bill_to_customer_id, :description, :matchcode, :time_budget, :active)
   end
 end

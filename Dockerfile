@@ -29,9 +29,11 @@ RUN apt-get update -qq && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Install Passenger for Apache
-RUN gem install passenger --no-document && \
-    passenger-install-apache2-module --auto --languages ruby
+# Install Passenger for Apache using system package
+RUN apt-get update -qq && \
+    apt-get install -y -qq libapache2-mod-passenger && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Configure FOP extra jars
 ENV FOP_EXTRA_JAR_PATH /usr/local/fop-extra-jars
@@ -78,12 +80,6 @@ RUN a2enmod rewrite && \
     a2enmod passenger && \
     a2ensite abt && \
     a2dissite 000-default
-
-# Create Apache passenger configuration
-RUN passenger-install-apache2-module --snippet > /etc/apache2/mods-available/passenger.load && \
-    echo "LoadModule passenger_module $(passenger-config --root)/buildout/apache2/mod_passenger.so" > /etc/apache2/mods-available/passenger.load && \
-    echo "PassengerRoot $(passenger-config --root)" > /etc/apache2/mods-available/passenger.conf && \
-    echo "PassengerDefaultRuby $(which ruby)" >> /etc/apache2/mods-available/passenger.conf
 
 # Expose port
 EXPOSE 80

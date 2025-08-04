@@ -10,6 +10,8 @@ RUN apt-get update -qq && \
         # Database clients
         libpq-dev \
         libsqlite3-dev \
+        # YAML library for psych gem
+        libyaml-dev \
         # System utilities
         curl \
         git \
@@ -46,6 +48,7 @@ WORKDIR /var/www/abt
 USER abtuser
 
 # Install bundler (gems will be installed from mounted volume)
+ENV PATH="/home/abtuser/.local/share/gem/ruby/3.3.0/bin:$PATH"
 RUN gem install bundler --no-document
 
 # Set development environment

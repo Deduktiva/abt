@@ -88,6 +88,18 @@
 
         .row.mb-2
           .col-sm-4
+            %strong Email From:
+          .col-sm-8
+            = @issuer_company.document_email_from
+
+        .row.mb-2
+          .col-sm-4
+            %strong Email Auto BCC:
+          .col-sm-8
+            = @issuer_company.document_email_auto_bcc
+
+        .row.mb-2
+          .col-sm-4
             %strong Accent Color:
           .col-sm-8
             - if @issuer_company.document_accent_color.present?

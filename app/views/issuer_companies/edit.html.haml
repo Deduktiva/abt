@@ -15,23 +15,23 @@
           %h5 Company Information
         .card-body
           .mb-3
-            = form.label :short_name, class: 'form-label'
+            = form.label :short_name, 'Short Name', class: 'form-label'
             = form.text_field :short_name, class: 'form-control'
 
           .mb-3
-            = form.label :legal_name, class: 'form-label'
+            = form.label :legal_name, 'Legal Name', class: 'form-label'
             = form.text_field :legal_name, class: 'form-control'
 
           .mb-3
-            = form.label :vat_id, class: 'form-label'
+            = form.label :vat_id, 'VAT ID', class: 'form-label'
             = form.text_field :vat_id, class: 'form-control'
 
           .mb-3
-            = form.label :currency, class: 'form-label'
+            = form.label :currency, 'Currency', class: 'form-label'
             = form.text_field :currency, class: 'form-control'
 
           .mb-3
-            = form.label :address, class: 'form-label'
+            = form.label :address, 'Address', class: 'form-label'
             = form.text_area :address, rows: 4, class: 'form-control'
 
     .col-md-6
@@ -40,15 +40,15 @@
           %h5 Banking Information
         .card-body
           .mb-3
-            = form.label :bankaccount_bank, class: 'form-label'
+            = form.label :bankaccount_bank, 'Bank', class: 'form-label'
             = form.text_field :bankaccount_bank, class: 'form-control'
 
           .mb-3
-            = form.label :bankaccount_bic, class: 'form-label'
+            = form.label :bankaccount_bic, 'BIC', class: 'form-label'
             = form.text_field :bankaccount_bic, class: 'form-control'
 
           .mb-3
-            = form.label :bankaccount_number, class: 'form-label'
+            = form.label :bankaccount_number, 'Account Number', class: 'form-label'
             = form.text_field :bankaccount_number, class: 'form-control'
 
   .row.mt-4
@@ -58,15 +58,23 @@
           %h5 Document Settings
         .card-body
           .mb-3
-            = form.label :document_contact_line1, class: 'form-label'
+            = form.label :document_contact_line1, 'Contact Line 1', class: 'form-label'
             = form.text_field :document_contact_line1, class: 'form-control'
 
           .mb-3
-            = form.label :document_contact_line2, class: 'form-label'
+            = form.label :document_contact_line2, 'Contact Line 2', class: 'form-label'
             = form.text_field :document_contact_line2, class: 'form-control'
 
           .mb-3
-            = form.label :document_accent_color, class: 'form-label'
+            = form.label :document_email_from, 'Email From', class: 'form-label'
+            = form.email_field :document_email_from, class: 'form-control'
+
+          .mb-3
+            = form.label :document_email_auto_bcc, 'Email Auto BCC', class: 'form-label'
+            = form.email_field :document_email_auto_bcc, class: 'form-control'
+
+          .mb-3
+            = form.label :document_accent_color, 'Accent Color', class: 'form-label'
             = form.color_field :document_accent_color, class: 'form-control form-control-color'
 
           .mb-3
@@ -103,10 +111,10 @@
           %h5 Invoice Footer
         .card-body
           .mb-3
-            = form.label :invoice_footer, class: 'form-label'
+            = form.label :invoice_footer, 'Invoice Footer', class: 'form-label'
             = form.text_area :invoice_footer, rows: 6, class: 'form-control'
 
-  = action_buttons_wrapper do
-    = form.submit 'Update Issuer Company', class: 'btn btn-primary'
-    = action_button 'Show', issuer_company_path, :secondary
-    = action_button 'Back', issuer_company_path, :secondary
+  .mt-4
+    = action_buttons_wrapper do
+      = form.submit 'Update Issuer Company', class: 'btn btn-primary'
+      = action_button 'Back', issuer_company_path, :secondary

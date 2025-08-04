@@ -70,7 +70,7 @@ class InvoiceMailerTest < ActionMailer::TestCase
     assert_match "Dear A Good Company B.V.", text_body
     assert_match "INV-2024-001", text_body
     assert_match invoice.due_date.to_s, text_body
-    assert_match "Example Company B.V.", text_body
+    assert_match "Example Company B.V.", text_body  # issuer legal_name from fixture
   end
 
   test "customer_email subject template handles empty substitution values" do

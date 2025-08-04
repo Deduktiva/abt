@@ -1,1 +1,6 @@
 = yield
+\
+- if @issuer
+  = @issuer.legal_name
+  - @issuer.address.split("\n").each do |line|
+    = line

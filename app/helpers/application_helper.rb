@@ -74,12 +74,25 @@ module ApplicationHelper
 
   def destroy_link(resource, confirm_text = nil)
     confirm_text ||= "Are you sure you want to delete this #{resource.class.name.downcase}?"
-    list_action_link('🗑', resource, :destroy, {
-      data: {
-        'turbo-method': 'delete',
-        'turbo-confirm': confirm_text
-      }
-    })
+
+    if action_name == 'index'
+      # Show trashcan icon on index pages (space-saving)
+      list_action_link('🗑', resource, :destroy, {
+        data: {
+          'turbo-method': 'delete',
+          'turbo-confirm': confirm_text
+        }
+      })
+    else
+      # Show "Delete" text on detail pages with proper action button styling
+      link_to('Delete', resource, {
+        data: {
+          'turbo-method': 'delete',
+          'turbo-confirm': confirm_text
+        },
+        class: 'btn btn-danger'
+      })
+    end
   end
 
   def action_buttons_wrapper(&block)
@@ -124,4 +137,13 @@ module ApplicationHelper
     action_button('Cancel', cancel_path, :secondary)
   end
 
+  def format_date(date)
+    return '' if date.nil?
+    date.strftime('%Y-%m-%d')
+  end
+
+  def format_datetime(datetime)
+    return '' if datetime.nil?
+    datetime.strftime('%Y-%m-%d %H:%M')
+  end
 end

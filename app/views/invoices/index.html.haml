@@ -1,122 +1,90 @@
 = page_header_with_new_button('Listing invoices', new_invoice_path)
 
-.row.mb-4
-  .col-md-6
-    - if @available_years.any?
-      .year-pagination
-        %nav{"aria-label" => "Year navigation"}
-          %ul.pagination.pagination-sm.justify-content-start
-            - @available_years.each do |year|
-              %li.page-item{class: (@selected_year == year ? 'active' : '')}
-                - if @selected_year == year
-                  %span.page-link= year
-                - else
-                  = link_to year, invoices_path(year: year, email_filter: @email_filter), class: 'page-link'
-  .col-md-6
-    .email-filter
-      %nav{"aria-label" => "Email filter"}
-        %ul.pagination.pagination-sm.justify-content-end
-          %li.page-item{class: (@email_filter == 'all' ? 'active' : '')}
-            = link_to 'All', invoices_path(year: @selected_year, email_filter: 'all'), class: 'page-link'
-          %li.page-item{class: (@email_filter == 'sent' ? 'active' : '')}
-            = link_to 'Email Sent', invoices_path(year: @selected_year, email_filter: 'sent'), class: 'page-link'
-          %li.page-item{class: (@email_filter == 'unsent' ? 'active' : '')}
-            = link_to 'Email Unsent', invoices_path(year: @selected_year, email_filter: 'unsent'), class: 'page-link'
+.bulk-select-container{data: { controller: 'bulk-select' }}
+  = form_with url: bulk_send_emails_invoices_path, method: :post, local: true, id: 'bulk-email-form', class: 'mb-3' do |form|
+    .row
+      .col-md-6
+        .email-filter
+          %nav{"aria-label" => "E-Mail status"}
+            %ul.pagination.pagination-sm.justify-content-start
+              %li.page-item{class: (@email_filter == 'all' ? 'active' : '')}
+                = link_to 'All', invoices_path(year: @selected_year, email_filter: 'all'), class: 'page-link'
+              %li.page-item{class: (@email_filter == 'unsent' ? 'active' : '')}
+                = link_to 'Unsent', invoices_path(year: @selected_year, email_filter: 'unsent'), class: 'page-link'
 
-- if @email_filter == 'unsent' && @invoices.any?
-  .bulk-email-container{data: { controller: 'bulk-select' }}
-    = form_with url: bulk_send_emails_invoices_path, method: :post, local: true, id: 'bulk-email-form', class: 'mb-3' do |form|
-      .d-flex.align-items-center.gap-2
         = form.submit 'Send Selected Emails', class: 'btn btn-primary btn-sm', disabled: true, data: { confirm: 'Are you sure you want to send emails for the selected invoices?', 'bulk-select-target': 'submitButton' }
-        %small.text-muted Select invoices below to queue for email sending
 
+      .col-md-6
+        - if @available_years.any?
+          .year-pagination
+            %nav{"aria-label" => "Year navigation"}
+              %ul.pagination.pagination-sm.justify-content-end
+                - @available_years.each do |year|
+                  %li.page-item{class: (@selected_year == year ? 'active' : '')}
+                    - if @selected_year == year
+                      %span.page-link= year
+                    - else
+                      = link_to year, invoices_path(year: year, email_filter: @email_filter), class: 'page-link'
+
+  - if @email_filter == 'unsent' && @invoices.any?
     %table.table.table-striped.table-sm
       %tr
-        - if @email_filter == 'unsent'
-          %th
-            %input#select-all{type: 'checkbox', 'data-action': 'change->bulk-select#toggleAll', 'data-bulk-select-target': 'selectAll'}
+        %th
+          %input#select-all{type: 'checkbox', 'data-action': 'change->bulk-select#toggleAll', 'data-bulk-select-target': 'selectAll'}
         %th Document#
         %th Customer
         %th Project
         %th Date
         %th Cust Reference
         %th Cust Order No
-        - if @email_filter != 'all'
-          %th Email Status
-        %th{:width => "3%"}
-        %th{:width => "3%"}
-        %th{:width => "3%"}
+        %th E-Mail
         %th{:width => "3%"}
 
       - @invoices.each do |invoice|
         %tr
-          - if @email_filter == 'unsent'
-            %td
-              = check_box_tag 'invoice_ids[]', invoice.id, false,
-                form: 'bulk-email-form',
-                'data-action': 'change->bulk-select#updateButton',
-                'data-bulk-select-target': 'checkbox',
-                class: 'invoice-checkbox'
-          %td= invoice.document_number
+          %td
+            = check_box_tag 'invoice_ids[]', invoice.id, false,
+              form: 'bulk-email-form',
+              'data-action': 'change->bulk-select#updateButton',
+              'data-bulk-select-target': 'checkbox',
+              class: 'invoice-checkbox'
+          %td= link_to(invoice.document_number, invoice)
           %td= invoice.customer.name
           %td= invoice.project && invoice.project.display_name
-          %td= invoice.date
+          %td= format_date(invoice.date)
           %td= invoice.cust_reference
           %td= invoice.cust_order
-          - if @email_filter != 'all'
-            %td
-              - if invoice.email_sent_at
-                %span.badge.bg-success Sent #{invoice.email_sent_at.strftime('%m-%d')}
-              - else
-                %span.badge.bg-warning Unsent
+          %td
+            - if invoice.email_sent_at
+              %span.badge.bg-success Sent #{format_date(invoice.email_sent_at)}
+            - else
+              %span.badge.bg-warning Unsent
           %td
             - if invoice.published? and not invoice.attachment.nil?
               = link_to 'PDF', attachment_path(invoice.attachment), target: '_blank', data: { turbo: false }, class: 'btn btn-sm btn-outline-success py-0'
-          %td= list_action_link('Show', invoice, :show)
-          %td
-            - unless invoice.published?
-              = list_action_link('Edit', edit_invoice_path(invoice), :edit)
-          %td
-            - unless invoice.published?
-              = destroy_link(invoice, "Are you sure you want to delete invoice \"#{invoice.document_number || "##{invoice.id}"}\"?")
 
-- else
-  %table.table.table-striped.table-sm
-    %tr
-      %th Document#
-      %th Customer
-      %th Project
-      %th Date
-      %th Cust Reference
-      %th Cust Order No
-      - if @email_filter != 'all'
-        %th Email Status
-      %th{:width => "3%"}
-      %th{:width => "3%"}
-      %th{:width => "3%"}
-      %th{:width => "3%"}
-
-    - @invoices.each do |invoice|
+  - else
+    %table.table.table-striped.table-sm
       %tr
-        %td= invoice.document_number
-        %td= invoice.customer.name
-        %td= invoice.project && invoice.project.display_name
-        %td= invoice.date
-        %td= invoice.cust_reference
-        %td= invoice.cust_order
-        - if @email_filter != 'all'
+        %th Document#
+        %th Customer
+        %th Project
+        %th Date
+        %th Cust Reference
+        %th Cust Order No
+        %th{:width => "3%"}
+
+      - @invoices.each do |invoice|
+        %tr
           %td
-            - if invoice.email_sent_at
-              %span.badge.bg-success Sent #{invoice.email_sent_at.strftime('%m-%d')}
+            = link_to(invoice.document_number || "Draft \##{invoice.id}", invoice)
+          %td= invoice.customer.name
+          %td= invoice.project && invoice.project.display_name
+          %td= format_date(invoice.date)
+          %td= invoice.cust_reference
+          %td= invoice.cust_order
+          %td
+            - if invoice.published? and not invoice.attachment.nil?
+              = link_to 'PDF', attachment_path(invoice.attachment), target: '_blank', data: { turbo: false }, class: 'btn btn-sm btn-outline-success py-0'
             - else
-              %span.badge.bg-warning Unsent
-        %td
-          - if invoice.published? and not invoice.attachment.nil?
-            = link_to 'PDF', attachment_path(invoice.attachment), target: '_blank', data: { turbo: false }, class: 'btn btn-sm btn-outline-success py-0'
-        %td= list_action_link('Show', invoice, :show)
-        %td
-          - unless invoice.published?
-            = list_action_link('Edit', edit_invoice_path(invoice), :edit)
-        %td
-          - unless invoice.published?
-            = destroy_link(invoice, "Are you sure you want to delete invoice \"#{invoice.document_number || "##{invoice.id}"}\"?")
+              = list_action_link('Edit', edit_invoice_path(invoice), :edit)

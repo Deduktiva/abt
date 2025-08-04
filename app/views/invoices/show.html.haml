@@ -15,7 +15,7 @@
             .col-sm-4
               %strong Date:
             .col-sm-8
-              = @invoice.date
+              = format_date(@invoice.date)
         .row.mb-2
           .col-sm-4
             %strong Customer:
@@ -57,7 +57,7 @@
               %strong Email Status:
             .col-sm-8
               - if @invoice.email_sent_at
-                %span.badge.bg-success Sent #{@invoice.email_sent_at.strftime('%Y-%m-%d %H:%M')}
+                %span.badge.bg-success Sent #{format_datetime(@invoice.email_sent_at)}
               - elsif @invoice.customer.email.present? || @invoice.customer.invoice_email_auto_enabled
                 %span.badge.bg-warning Unsent
               - else
@@ -141,6 +141,7 @@
 
 .email-preview-wrapper{"data-controller" => "email-preview", "data-email-preview-invoice-id-value" => @invoice.id}
   = action_buttons_wrapper do
+    = action_button 'Back', invoices_path, :secondary
     - unless @invoice.published
       = action_button 'Edit', edit_invoice_path(@invoice), :primary
     - if @invoice.attachment
@@ -150,9 +151,9 @@
           Send E-Mail
     - else
       = action_button 'Preview', preview_invoice_path(@invoice), :info, { target: '_blank', data: { turbo: false } }
-    = action_button 'Back', invoices_path, :secondary
     - unless @invoice.published
       = button_to 'Test Booking', book_invoice_path(@invoice, :save => false), method: :post, class: 'btn btn-warning'
+      = destroy_link(@invoice, "Are you sure you want to delete invoice \"#{@invoice.document_number || "##{@invoice.id}"}\"?")
 
   // Email Preview Modal
   .modal.d-none{"data-email-preview-target" => "modal", "data-action" => "click->email-preview#closeOnBackdrop keydown@window->email-preview#closeOnEscape", "style" => "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1050; display: flex; align-items: center; justify-content: center;"}

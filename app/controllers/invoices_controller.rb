@@ -23,10 +23,7 @@ class InvoicesController < ApplicationController
                         .reorder(Arel.sql('document_number DESC NULLS FIRST'))
     end
 
-    # Apply email filter
     case @email_filter
-    when 'sent'
-      @invoices = @invoices.email_sent
     when 'unsent'
       @invoices = @invoices.email_unsent.published
     end

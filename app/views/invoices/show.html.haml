@@ -141,6 +141,7 @@
 
 .email-preview-wrapper{"data-controller" => "email-preview", "data-email-preview-invoice-id-value" => @invoice.id}
   = action_buttons_wrapper do
+    = action_button 'Back', invoices_path, :secondary
     - unless @invoice.published
       = action_button 'Edit', edit_invoice_path(@invoice), :primary
     - if @invoice.attachment
@@ -150,7 +151,6 @@
           Send E-Mail
     - else
       = action_button 'Preview', preview_invoice_path(@invoice), :info, { target: '_blank', data: { turbo: false } }
-    = action_button 'Back', invoices_path, :secondary
     - unless @invoice.published
       = button_to 'Test Booking', book_invoice_path(@invoice, :save => false), method: :post, class: 'btn btn-warning'
 

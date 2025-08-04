@@ -14,7 +14,7 @@ group :dev do
 end
 
 group :test, :prod do
-  gem 'pg', '~> 1.1'
+  gem 'pg', '~> 1.6'
 end
 
 gem 'config'

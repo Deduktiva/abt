@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+  abt-webapp-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.development
+    container_name: abt_webapp_dev
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount source code for development
+      - .:/var/www/abt
+      # Exclude node_modules and gems from mount
+      - /var/www/abt/node_modules
+      - /var/www/abt/vendor/bundle
+      # Log persistence
+      - abt_dev_logs:/var/www/abt/log
+    environment:
+      RAILS_ENV: development
+      RACK_ENV: development
+      # Database connection to containerized PostgreSQL
+      DATABASE_URL: "postgresql://abt_user:abt_password@abt-postgres-dev:5432/abt_development"
+      # Redis connection for ActiveJob
+      REDIS_URL: "redis://abt-redis-dev:6379/0"
+      # FOP configuration
+      FOP_COMMAND: "/usr/bin/fop"
+      # Development secrets (not for production!)
+      SECRET_KEY_BASE: "development_secret_key_base_not_for_production"
+    depends_on:
+      - abt-postgres-dev
+      - abt-redis-dev
+    networks:
+      - abt-dev-network
+    working_dir: /var/www/abt
+    command: ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
+
+  abt-worker-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.development
+    container_name: abt_worker_dev
+    volumes:
+      # Mount source code for development
+      - .:/var/www/abt
+      # Exclude node_modules and gems from mount
+      - /var/www/abt/node_modules
+      - /var/www/abt/vendor/bundle
+      # Share logs with webapp
+      - abt_dev_logs:/var/www/abt/log
+    environment:
+      RAILS_ENV: development
+      RACK_ENV: development
+      # Database connection to containerized PostgreSQL
+      DATABASE_URL: "postgresql://abt_user:abt_password@abt-postgres-dev:5432/abt_development"
+      # Redis connection for ActiveJob
+      REDIS_URL: "redis://abt-redis-dev:6379/0"
+      # FOP configuration
+      FOP_COMMAND: "/usr/bin/fop"
+      # Development secrets (not for production!)
+      SECRET_KEY_BASE: "development_secret_key_base_not_for_production"
+    depends_on:
+      - abt-postgres-dev
+      - abt-redis-dev
+    networks:
+      - abt-dev-network
+    working_dir: /var/www/abt
+    command: ["bundle", "exec", "rails", "jobs:work"]
+
+  abt-postgres-dev:
+    image: postgres:17
+    container_name: abt_postgres_dev
+    environment:
+      POSTGRES_DB: abt_development
+      POSTGRES_USER: abt_user
+      POSTGRES_PASSWORD: abt_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - abt_dev_postgres_data:/var/lib/postgresql/data
+    networks:
+      - abt-dev-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U abt_user -d abt_development"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  abt-redis-dev:
+    image: redis:8-alpine
+    container_name: abt_redis_dev
+    ports:
+      - "6380:6379"
+    volumes:
+      - abt_dev_redis_data:/data
+    networks:
+      - abt-dev-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  abt_dev_logs:
+    driver: local
+  abt_dev_postgres_data:
+    driver: local
+  abt_dev_redis_data:
+    driver: local
+
+networks:
+  abt-dev-network:
+    driver: bridge

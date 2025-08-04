@@ -31,5 +31,12 @@ module Abt
     # Route Solid Queue's ActiveRecord models to the dedicated queue database
     # in all environments so the jobs status page can read them.
     config.solid_queue.connects_to = { database: { writing: :queue } }
+
+    # Support for subdirectory deployment (e.g., /abt/ behind reverse proxy)
+    if ENV['RAILS_RELATIVE_URL_ROOT']
+      config.relative_url_root = ENV['RAILS_RELATIVE_URL_ROOT']
+    elsif ENV['X_FORWARDED_PREFIX']
+      config.relative_url_root = ENV['X_FORWARDED_PREFIX']
+    end
   end
 end

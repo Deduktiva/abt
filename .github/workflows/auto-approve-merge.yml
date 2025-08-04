@@ -1,4 +1,8 @@
 name: Auto Approve and Merge
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
 
 on:
   issue_comment:

@@ -7,6 +7,8 @@ set -e  # Exit on any error
 
 # Set production environment for all Rails commands
 export RAILS_ENV=production
+export BUNDLE_DEPLOYMENT=true
+export BUNDLE_WITHOUT=development:test
 
 # Colors for output
 RED='\033[0;31m'

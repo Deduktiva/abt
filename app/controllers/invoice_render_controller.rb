@@ -5,6 +5,7 @@ class InvoiceRenderController < ApplicationController
   def initialize(invoice, issuer)
     @invoice = invoice
     @issuer = issuer
+    @fop_renderer = FopRenderer.new
   end
 
   def emit_xml(xml, logo_file_path)
@@ -113,68 +114,19 @@ class InvoiceRenderController < ApplicationController
 
   def render
     Rails.logger.info "InvoiceRenderController#render"
-    customer_sales_tax_rates = @invoice.customer.sales_tax_rates
 
-    rails_tmp = Rails.root.join('tmp')
-    template_path = Rails.root.join('lib', 'foptemplate')
-    tpl_xsl = template_path.join('invoice.xsl')
-    fop_conf = template_path.join('fop-conf.xml')
-
-    # Resolve FOP binary path, can be relative
-    fop_binary = if Settings.fop.binary_path.start_with?('/')
-      Settings.fop.binary_path
-    else
-      Rails.root.join(Settings.fop.binary_path).to_s
+    logo_data = @issuer.pdf_logo.present? ? @issuer.pdf_logo : nil
+    @fop_renderer.render_pdf_with_logo(logo_data) do |logo_file_path|
+      generate_xml_string(logo_file_path)
     end
+  end
 
-    return Tempfile.create('abt', rails_tmp) do |xml_file|
-      return Tempfile.create(['logo', '.pdf'], rails_tmp) do |logo_file|
-        if @issuer.pdf_logo.present?
-          logo_file.binmode
-          logo_file.write(@issuer.pdf_logo)
-          logo_file.close
-          logo_file_path = logo_file.path
-        else
-          logo_file_path = nil
-        end
+  private
 
-        xml_file.path
-        xml = Builder::XmlMarkup.new(:target=>xml_file, :indent => 2)
-        emit_xml(xml, logo_file_path)
-        xml_file.flush
-
-        Rails.logger.info "InvoiceRenderController wrote to: #{xml_file.path}"
-        Rails.logger.debug File.read(xml_file.path)
-
-        begin
-          pdffile = Tempfile.new('abt-pdf', Rails.root.join('tmp'))
-          pdffile.close
-
-          fop_command = '' +
-              "cd \"#{template_path}\" && " +
-              "\"#{fop_binary}\" " +
-              "-xml \"#{xml_file.path}\" -xsl \"#{tpl_xsl}\" -pdf \"#{pdffile.path}\" -c \"#{fop_conf}\""
-
-          Rails.logger.debug "Calling fop: #{fop_command}"
-
-          fop_result = nil
-          IO.popen(fop_command, mode="r", :err=>[:child, :out]) do |fop_io|
-            fop_result = fop_io.read
-          end
-          Rails.logger.debug "fop result: #{fop_result}"
-
-          begin
-            return File.read(pdffile.path)
-          rescue Errno::ENOENT
-            raise "fop failed:\n#{fop_result}"
-          end
-        rescue
-          Rails.logger.error "fop failed: #{$!}"
-          raise
-        ensure
-          pdffile.close!
-        end
-      end
-    end
+  def generate_xml_string(logo_file_path)
+    xml_string = ""
+    xml = Builder::XmlMarkup.new(:target => xml_string, :indent => 2)
+    emit_xml(xml, logo_file_path)
+    xml_string
   end
 end

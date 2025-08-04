@@ -9,7 +9,7 @@ Bundler.require(*Rails.groups)
 module Abt
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 7.0
+    config.load_defaults 8.0
 
     config.action_mailer.delivery_method = :mailgun
     config.action_mailer.mailgun_settings = Rails.application.credentials.mailgun

@@ -47,8 +47,8 @@ class SalesTaxProductClassesController < ApplicationController
         format.html { redirect_to @sales_tax_product_class, notice: 'Sales tax product class was successfully created.' }
         format.json { render json: @sales_tax_product_class, status: :created, location: @sales_tax_product_class }
       else
-        format.html { render template: "new" }
-        format.json { render json: @sales_tax_product_class.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @sales_tax_product_class.errors, status: :unprocessable_content }
       end
     end
   end
@@ -63,8 +63,8 @@ class SalesTaxProductClassesController < ApplicationController
         format.html { redirect_to @sales_tax_product_class, notice: 'Sales tax product class was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render template: "edit" }
-        format.json { render json: @sales_tax_product_class.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @sales_tax_product_class.errors, status: :unprocessable_content }
       end
     end
   end

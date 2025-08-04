@@ -91,8 +91,8 @@ class InvoicesController < ApplicationController
         format.html { redirect_to @invoice, notice: 'Invoice was successfully created.' }
         format.json { render json: @invoice, status: :created, location: @invoice }
       else
-        format.html { render template: 'new' }
-        format.json { render json: @invoice.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @invoice.errors, status: :unprocessable_content }
       end
     end
   end
@@ -112,8 +112,8 @@ class InvoicesController < ApplicationController
       else
         # If saving failed, redirect back to edit with errors
         set_form_options
-        format.html { render :edit }
-        format.json { render json: @invoice.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @invoice.errors, status: :unprocessable_content }
       end
     end
   end

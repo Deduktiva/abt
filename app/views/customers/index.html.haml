@@ -1,23 +1,24 @@
 = page_header_with_new_button('Listing customers', new_customer_path)
 
 .mb-3
-  .btn-group{role: "group", "aria-label": "Customer filter"}
-    = link_to "All", customers_path, class: "btn #{'btn-primary' if params[:filter].blank?} #{'btn-outline-primary' unless params[:filter].blank?}"
-    = link_to "Active", customers_path(filter: 'active'), class: "btn #{'btn-primary' if params[:filter] == 'active'} #{'btn-outline-primary' unless params[:filter] == 'active'}"
-    = link_to "Inactive", customers_path(filter: 'inactive'), class: "btn #{'btn-primary' if params[:filter] == 'inactive'} #{'btn-outline-primary' unless params[:filter] == 'inactive'}"
+  .btn-toolbar.mb-3{:role=>"toolbar", "aria-label"=>"List toolbar"}
+    .btn-group.btn-group-sm.me-2.status-filter{:role=>"group", "aria-label"=>"Customer status filter"}
+      = link_to 'All', customers_path(filter: 'all'), class: (params[:filter] == 'all' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+      = link_to 'Active', customers_path(filter: 'active'), class: (params[:filter] == 'active' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+      = link_to 'Inactive', customers_path(filter: 'inactive'), class: (params[:filter] == 'inactive' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
 
 %table.table.table-striped.table-sm
   %tr
-    %th Matchcode
-    %th Name
-    %th Status
+    %th{:width => "10%"} Matchcode
+    %th{:width => "30%"} Name
+    %th{:width => "7%"} Status
     %th Time budget
     %th{:width => "3%"}
     %th{:width => "3%"}
     %th{:width => "3%"}
 
   - @customers.each do |customer|
-    %tr{class: customer.active? ? '' : 'table-secondary'}
+    %tr
       %td= customer.matchcode
       %td= customer.name
       %td
@@ -33,4 +34,3 @@
           %span.text-muted.small{title: "Cannot delete - customer used in invoices"} Used
         - else
           = destroy_link(customer, "Are you sure you want to delete customer \"#{customer.matchcode}\" (#{customer.name})?")
-

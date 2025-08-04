@@ -1,23 +1,30 @@
 .fieldset
 = simple_form_for(@product, :validation => true, :html => {:class => 'form-horizontal'}) do |f|
-  = f.error_notification
+  - if @product.errors.any?
+    .alert.alert-danger
+      %h4
+        = pluralize(@product.errors.count, 'error')
+        prohibited saving:
+      %ul
+        - @product.errors.full_messages.each do |msg|
+          %li= msg
 
   .form-inputs
     .row.mb-3
-      = f.label :title, class: 'col-sm-3 col-form-label'
-      .col-sm-9
+      = f.label :title, class: 'col-lg-2 col-md-3 col-form-label'
+      .col-sm-3
         = f.text_field :title, {:class => 'form-control', :required => true}
     .row.mb-3
-      = f.label :description, class: 'col-sm-3 col-form-label'
+      = f.label :description, class: 'col-lg-2 col-md-3 col-form-label'
       .col-sm-9
         = f.text_area :description, {:class => 'form-control', :rows => 4}
     .row.mb-3
-      = f.label :rate, class: 'col-sm-3 col-form-label'
-      .col-sm-9
+      = f.label :rate, class: 'col-lg-2 col-md-3 col-form-label'
+      .col-sm-3
         = f.number_field :rate, {:class => 'form-control', :required => true}
     .row.mb-3
-      = f.label :sales_tax_product_class_id, class: 'col-sm-3 col-form-label'
-      .col-sm-9
+      = f.label :sales_tax_product_class_id, class: 'col-lg-2 col-md-3 col-form-label', label: "Sales Tax Class"
+      .col-sm-3
         = f.collection_select :sales_tax_product_class_id, SalesTaxProductClass.all, :id, :name, { prompt: 'Select tax class...' }, {:class => 'form-select', :required => true}
 
   %br

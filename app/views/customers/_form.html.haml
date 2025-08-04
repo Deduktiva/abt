@@ -1,62 +1,70 @@
 .fieldset
 = simple_form_for(@customer, :validation => true, :html => {:class => 'form-horizontal' }) do |f|
-  = f.error_notification
+  - if @customer.errors.any?
+    .alert.alert-danger
+      %h4
+        = pluralize(@customer.errors.count, 'error')
+        prohibited saving:
+      %ul
+        - @customer.errors.full_messages.each do |msg|
+          %li= msg
 
   .form-inputs
     .row.mb-3
-      = f.label :matchcode, class: 'col-sm-3 col-form-label'
-      .col-sm-9
+      = f.label :matchcode, class: 'col-lg-2 col-md-3 col-form-label'
+      .col-md-5.col-sm-7
         = f.text_field :matchcode, :class => 'form-control'
+      .col-md-3
+        .form-check
+          = f.input_field :active, as: :boolean, class: 'form-check-input'
+          = f.label :active, class: 'form-check-label'
+
     .row.mb-3
-      = f.label :name, class: 'col-sm-3 col-form-label'
-      .col-sm-9
+      = f.label :name, class: 'col-lg-2 col-md-3 col-form-label'
+      .col-lg-5
         = f.text_area :name, :class => 'form-control', :rows => 2
     .row.mb-3
-      = f.label :address, class: 'col-sm-3 col-form-label'
-      .col-sm-9
+      = f.label :address, class: 'col-lg-2 col-md-3 col-form-label'
+      .col-lg-5
         = f.text_area :address, :class => 'form-control', :rows => 3
     .row.mb-3
-      = f.label :vat_id, 'VATID', class: 'col-sm-3 col-form-label'
+      = f.label :vat_id, 'VATID', class: 'col-lg-2 col-md-3 col-form-label'
       .col-sm-5
         = f.text_field :vat_id, :class => 'form-control'
     .row.mb-3
-      = f.label :sales_tax_customer_class_id, class: 'col-sm-3 col-form-label'
+      = f.label :sales_tax_customer_class_id, class: 'col-lg-2 col-md-3 col-form-label', label: "Sales Tax Class"
       .col-sm-5
         = f.collection_select :sales_tax_customer_class_id, SalesTaxCustomerClass.all, :id, :name, { prompt: 'Select tax class...' }, {:class => 'form-select', :required => true}
-    .row.mb-3
-      = f.label :active, class: 'col-sm-3 col-form-label'
-      .col-sm-1
-        = f.input :active, as: :boolean, label: false
     %hr
     .row.mb-3
-      = f.label :email, 'E-Mail', class: 'col-sm-3 col-form-label'
-      .col-sm-9
+      = f.label :email, 'E-Mail', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-lg-5
         = f.text_field :email, :class => 'form-control'
     .row.mb-3
-      = f.label :invoice_email_auto_enabled, 'Automated Invoice E-Mail', class: 'col-sm-3 col-form-label'
-      .col-sm-1
-        = f.input :invoice_email_auto_enabled, as: :boolean, label: false
-      .col-sm-4
+      = f.label :invoice_email_auto_enabled, 'Auto. Invoice E-Mail', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-lg-1.col-md-2.col-sm-2
+        .form-check
+          = f.input_field :invoice_email_auto_enabled, as: :boolean, class: 'form-check-input'
+          = f.label :invoice_email_auto_enabled, class: 'form-check-label', label: 'On'
+      .col-lg-4
         = f.text_field :invoice_email_auto_to, {:class => 'form-control', :placeholder => 'To:'}
-      .col-sm-4
+      .col-lg-4
         = f.text_field :invoice_email_auto_subject_template, {:class => 'form-control', :placeholder => 'Subject: XXXX $CUST_REF$ $CUST_ORDER$'}
     %hr
     .row.mb-3
-      = f.label :time_budget, class: 'col-sm-3 col-form-label'
-      .col-sm-5
+      = f.label :time_budget, class: 'col-lg-2 col-md-3 col-form-label'
+      .col-lg-5.col-md-4
         = f.text_field :time_budget, :class => 'form-control'
     .row.mb-3
-      = f.label :payment_terms_days, 'Payment terms (days)', class: 'col-sm-3 col-form-label'
-      .col-sm-5
+      = f.label :payment_terms_days, 'Payment terms (days)', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-lg-5.col-md-4
         = f.number_field :payment_terms_days, :class => 'form-control', :min => 1, :max => 365, :value => (@customer.payment_terms_days || 30)
     %hr
     .row.mb-3
-      = f.label :notes, class: 'col-sm-3 col-form-label'
-      .col-sm-9
+      = f.label :notes, class: 'col-lg-2 col-md-3 col-form-label'
+      .col-lg-10.col-md-9
         = f.text_area :notes, :class => 'form-control', :rows => 5
     %hr
-
-  %br
 
   = action_buttons_wrapper do
     = f.button :submit, :class => 'btn btn-primary'

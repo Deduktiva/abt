@@ -7,39 +7,43 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get index" do
-    get projects_url
+    get projects_url(filter: 'all')
     assert_response :success
     assert_select 'table tr', count: Project.count + 1 # +1 for header row
   end
 
-  test "should filter active projects" do
-    # Create an inactive project
-    inactive_project = Project.create!(
+  test "should filter customers by active status" do
+    # Create inactive project
+    inactive = Project.create!(
       matchcode: 'INACTIVE',
       description: 'Inactive project',
-      bill_to_customer: @customer,
-      active: false
+      active: false,
+      bill_to_customer: @customer
     )
 
-    get projects_url(active: true)
+    # Defaults to active only
+    get projects_url
     assert_response :success
-    # Should not include inactive project
-    assert_select 'table tr', count: Project.active.count + 1
-  end
+    assert_select '.status-filter .active', text: 'Active'
+    assert_select 'td', text: 'INACTIVE', count: 0
 
-  test "should filter inactive projects" do
-    # Create an inactive project
-    inactive_project = Project.create!(
-      matchcode: 'INACTIVE',
-      description: 'Inactive project',
-      bill_to_customer: @customer,
-      active: false
-    )
-
-    get projects_url(active: false)
+    # Test showing only active
+    get projects_url(filter: 'active')
     assert_response :success
-    # Should only include inactive projects
-    assert_select 'table tr', count: Project.inactive.count + 1
+    assert_select '.status-filter .active', text: 'Active'
+    assert_select 'td', text: 'INACTIVE', count: 0
+
+    # Test showing only inactive
+    get projects_url(filter: 'inactive')
+    assert_response :success
+    assert_select '.status-filter .active', text: 'Inactive'
+    assert_select 'td', text: 'INACTIVE'
+
+    # Test showing all
+    get projects_url(filter: 'all')
+    assert_response :success
+    assert_select '.status-filter .active', text: 'All'
+    assert_select 'td', text: 'INACTIVE'
   end
 
   test "should show project" do
@@ -184,13 +188,5 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select 'input[type="checkbox"][name="project[active]"]'
     assert_select 'label.form-check-label', text: 'Active'
-  end
-
-  test "index shows status filter buttons" do
-    get projects_url
-    assert_response :success
-    assert_select 'a.btn', text: 'All'
-    assert_select 'a.btn', text: 'Active'
-    assert_select 'a.btn', text: 'Inactive'
   end
 end

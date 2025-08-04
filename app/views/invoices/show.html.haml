@@ -1,9 +1,9 @@
-.invoice-document
-  .invoice-header.row.mb-4{class: @invoice.prelude.present? ? 'no-bottom-border' : ''}
+%div
+  .invoice-header.row.mb-2
     .col-md-6
       %h1.h2.mb-3
         Invoice
-        = @invoice.document_number
+        = @invoice.document_number || "Draft \##{@invoice.id}"
         - if not @invoice.published?
           %span.badge.bg-warning.ms-2 Draft
         - else
@@ -69,7 +69,7 @@
         .card-body
           = simple_format(@invoice.prelude)
 
-  .invoice-lines.mb-4
+  .invoice-lines.mb-2
     %table.table.table-bordered
       %thead.table-light
         %tr
@@ -133,11 +133,7 @@
               %td.text-end
                 %strong Sum Total:
               %td.text-end
-                - if @invoice.sum_total > 0
-                  %strong= format_currency(@invoice.sum_total)
-                - else
-                  %strong
-                    %em Use "Test Booking" to calculate
+                %strong= format_currency(@invoice.sum_total)
 
 .email-preview-wrapper{"data-controller" => "email-preview", "data-email-preview-invoice-id-value" => @invoice.id}
   = action_buttons_wrapper do

@@ -3,7 +3,7 @@ body { padding-top: 60px; }
 
 // Rainbow gradient navbar
 .navbar {
-  background: linear-gradient(90deg, 
+  background: linear-gradient(90deg,
     rgba(255, 99, 132, 0.8) 0%,
     rgba(255, 159, 64, 0.8) 16.66%,
     rgba(255, 205, 86, 0.8) 33.33%,
@@ -12,17 +12,17 @@ body { padding-top: 60px; }
     rgba(153, 102, 255, 0.8) 83.33%,
     rgba(201, 203, 207, 0.8) 100%
   ) !important;
-  
+
   .navbar-brand, .navbar-nav .nav-link {
     color: #333 !important;
     text-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
     font-weight: 500;
   }
-  
+
   .navbar-toggler {
     border-color: #333 !important;
   }
-  
+
   .navbar-toggler-icon {
     filter: invert(1);
   }
@@ -58,33 +58,8 @@ body { padding-top: 60px; }
   display: inline;
 }
 
-// Invoice document styling
-.invoice-document {
-  background: white;
-  padding: 2rem;
-  margin: 1rem 0;
-  border: 1px solid #dee2e6;
-  border-radius: 0.375rem;
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-}
-
-.invoice-header {
-  border-bottom: 2px solid #dee2e6;
-  padding-bottom: 1.5rem;
-  margin-bottom: 1.5rem;
-  
-  &.no-bottom-border {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-}
-
 .invoice-details .row {
   border-bottom: 1px solid #f8f9fa;
-}
-
-.invoice-lines table {
-  font-size: 0.95rem;
 }
 
 .invoice-lines table th {
@@ -97,10 +72,4 @@ body { padding-top: 60px; }
 .invoice-lines table td {
   padding: 0.5rem;
   vertical-align: top;
-}
-
-.invoice-summary {
-  margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 2px solid #dee2e6;
 }

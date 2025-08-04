@@ -2,14 +2,15 @@ class CustomersController < ApplicationController
   # GET /customers
   # GET /customers.json
   def index
-    # Show all customers by default, but allow filtering
+    # Show active customers by default
+    params[:filter] ||= 'active'
     @customers = case params[:filter]
-                 when 'active'
-                   Customer.active
+                 when 'all'
+                   Customer.all
                  when 'inactive'
                    Customer.inactive
                  else
-                   Customer.all
+                   Customer.active
                  end
 
     @customers = @customers.order(:matchcode)
@@ -57,8 +58,8 @@ class CustomersController < ApplicationController
         format.html { redirect_to @customer, notice: 'Customer was successfully created.' }
         format.json { render json: @customer, status: :created, location: @customer }
       else
-        format.html { render template: "new" }
-        format.json { render json: @customer.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @customer.errors, status: :unprocessable_content }
       end
     end
   end
@@ -73,8 +74,8 @@ class CustomersController < ApplicationController
         format.html { redirect_to @customer, notice: 'Customer was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render template: "edit" }
-        format.json { render json: @customer.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @customer.errors, status: :unprocessable_content }
       end
     end
   end
@@ -95,7 +96,7 @@ class CustomersController < ApplicationController
           redirect_to customers_url,
           alert: @customer.errors.full_messages.join(', ')
         }
-        format.json { render json: @customer.errors, status: :unprocessable_entity }
+        format.json { render json: @customer.errors, status: :unprocessable_content }
       end
     end
   end

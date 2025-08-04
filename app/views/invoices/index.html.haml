@@ -1,30 +1,20 @@
 = page_header_with_new_button('Listing invoices', new_invoice_path)
 
+
 .bulk-select-container{data: { controller: 'bulk-select' }}
-  = form_with url: bulk_send_emails_invoices_path, method: :post, local: true, id: 'bulk-email-form', class: 'mb-3' do |form|
-    .row
-      .col-md-6
-        .email-filter
-          %nav{"aria-label" => "E-Mail status"}
-            %ul.pagination.pagination-sm.justify-content-start
-              %li.page-item{class: (@email_filter == 'all' ? 'active' : '')}
-                = link_to 'All', invoices_path(year: @selected_year, email_filter: 'all'), class: 'page-link'
-              %li.page-item{class: (@email_filter == 'unsent' ? 'active' : '')}
-                = link_to 'Unsent', invoices_path(year: @selected_year, email_filter: 'unsent'), class: 'page-link'
+  = form_with url: bulk_send_emails_invoices_path, method: :post, local: true, id: 'bulk-email-form' do |form|
+    .btn-toolbar.mb-3{:role=>"toolbar", "aria-label"=>"List toolbar"}
+      .btn-group.btn-group-sm.me-2.email-filter{:role=>"group", "aria-label"=>"E-Mail status"}
+        = link_to 'All', invoices_path(year: @selected_year, email_filter: 'all'), class: (@email_filter == 'all' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+        = link_to 'Unsent', invoices_path(year: @selected_year, email_filter: 'unsent'), class: (@email_filter == 'unsent' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
 
-        = form.submit 'Send Selected Emails', class: 'btn btn-primary btn-sm', disabled: true, data: { confirm: 'Are you sure you want to send emails for the selected invoices?', 'bulk-select-target': 'submitButton' }
+      - if @email_filter == 'unsent'
+        = form.submit 'Send Selected Emails', class: 'btn btn-warning btn-sm me-2 align-self-start', disabled: true, data: { confirm: 'Are you sure you want to send emails for the selected invoices?', 'bulk-select-target': 'submitButton' }
 
-      .col-md-6
-        - if @available_years.any?
-          .year-pagination
-            %nav{"aria-label" => "Year navigation"}
-              %ul.pagination.pagination-sm.justify-content-end
-                - @available_years.each do |year|
-                  %li.page-item{class: (@selected_year == year ? 'active' : '')}
-                    - if @selected_year == year
-                      %span.page-link= year
-                    - else
-                      = link_to year, invoices_path(year: year, email_filter: @email_filter), class: 'page-link'
+      - if @available_years.any?
+        .btn-group.btn-group-sm.ms-auto.year-pagination{:role=>"group", "aria-label"=>"Year navigation"}
+          - @available_years.each do |year|
+            = link_to year, invoices_path(year: year, email_filter: @email_filter), class: (@selected_year == year ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
 
   - if @email_filter == 'unsent' && @invoices.any?
     %table.table.table-striped.table-sm

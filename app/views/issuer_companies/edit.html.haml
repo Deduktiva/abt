@@ -3,10 +3,12 @@
 = form_with(model: @issuer_company, url: issuer_company_path, method: :patch, local: true, class: 'form', multipart: true) do |form|
   - if @issuer_company.errors.any?
     .alert.alert-danger
-      %h4= "#{pluralize(@issuer_company.errors.count, "error")} prohibited this issuer company from being saved:"
+      %h4
+        = pluralize(@issuer_company.errors.count, 'error')
+        prohibited saving:
       %ul
-        - @issuer_company.errors.each do |error|
-          %li= error.full_message
+        - @issuer_company.errors.full_messages.each do |msg|
+          %li= msg
 
   .row
     .col-md-6

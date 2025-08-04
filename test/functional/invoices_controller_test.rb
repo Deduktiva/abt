@@ -331,4 +331,52 @@ class InvoicesControllerTest < ActionController::TestCase
     assert updated_tax_class.net > 0, "Tax class should have updated net amount"
   end
 
+  test "should update tax values when replacing customer from national to EU" do
+    # Start with a national customer (20% tax)
+    invoice = Invoice.create!(
+      customer: customers(:good_national),
+      project: projects(:test_project),
+      cust_reference: "TAX_TEST"
+    )
+
+    # Add an invoice line
+    invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Test Product',
+      description: 'A test product',
+      rate: 100.0,
+      quantity: 2.0,
+      sales_tax_product_class: sales_tax_product_classes(:standard),
+      position: 1
+    )
+
+    # Update with national customer to calculate initial taxes
+    put :update, params: { id: invoice.id, invoice: { cust_reference: "TAX_TEST_NATIONAL" } }
+    invoice.reload
+
+    # Verify national customer has 20% tax
+    assert_equal 200.0, invoice.sum_net, "Net should be 200.0"
+    assert_equal 240.0, invoice.sum_total, "Total should be 240.0 (200 + 20% tax)"
+    tax_class = invoice.invoice_tax_classes.first
+    assert_equal 20.0, tax_class.rate, "Tax rate should be 20%"
+    assert_equal 40.0, tax_class.value, "Tax value should be 40.0"
+
+    # Now change to EU customer (0% tax)
+    put :update, params: {
+      id: invoice.id,
+      invoice: {
+        customer_id: customers(:good_eu).id,
+        cust_reference: "TAX_TEST_EU"
+      }
+    }
+    invoice.reload
+
+    # Verify EU customer has 0% tax
+    assert_equal 200.0, invoice.sum_net, "Net should remain 200.0"
+    assert_equal 200.0, invoice.sum_total, "Total should be 200.0 (no tax)"
+    tax_class = invoice.invoice_tax_classes.first
+    assert_equal 0.0, tax_class.rate, "Tax rate should be 0%"
+    assert_equal 0.0, tax_class.value, "Tax value should be 0.0"
+  end
+
 end

@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '~> 7.1.0'
+gem 'rails', '~> 8.0.2'
 gem 'puma', '~> 6.0'
 
 group :dev do

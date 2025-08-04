@@ -1,0 +1,242 @@
+#!/bin/bash
+
+# Container-based Development Helper Script for ABT
+# Manages the local development environment using containers
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Configuration
+COMPOSE_FILE="docker-compose.development.yml"
+PROJECT_NAME="abt-development"
+
+# Function to print colored output
+print_status() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Function to check if we're in the correct directory
+check_directory() {
+    if [[ ! -f "config.ru" || ! -f "Gemfile" || ! -d "app" ]]; then
+        print_error "This doesn't appear to be the ABT application root directory."
+        exit 1
+    fi
+    
+    if [[ ! -f "$COMPOSE_FILE" ]]; then
+        print_error "Development compose file ($COMPOSE_FILE) not found."
+        exit 1
+    fi
+}
+
+# Function to check container runtime
+check_container_runtime() {
+    if command -v podman-compose >/dev/null 2>&1; then
+        COMPOSE_CMD="podman-compose"
+    elif command -v docker-compose >/dev/null 2>&1; then
+        COMPOSE_CMD="docker-compose"
+    elif command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+        COMPOSE_CMD="docker compose"
+    else
+        print_error "No container compose runtime found. Please install podman-compose or docker-compose."
+        exit 1
+    fi
+}
+
+# Function to show help
+show_help() {
+    echo "ABT Container Development Helper"
+    echo
+    echo "Usage: $0 <command>"
+    echo
+    echo "Commands:"
+    echo "  start     - Start the development environment"
+    echo "  stop      - Stop the development environment"
+    echo "  restart   - Restart the development environment"
+    echo "  logs      - Show logs from all services"
+    echo "  shell     - Open a shell in the webapp container"
+    echo "  console   - Open Rails console in the webapp container"
+    echo "  test      - Run the test suite in a container"
+    echo "  setup     - Initial setup (build images, create database)"
+    echo "  clean     - Clean up containers and volumes"
+    echo "  status    - Show status of all containers"
+    echo "  help      - Show this help message"
+}
+
+# Function to start development environment
+dev_start() {
+    print_status "Starting development environment..."
+    check_directory
+    check_container_runtime
+    
+    $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" up -d
+    
+    print_success "Development environment started!"
+    print_status "Services available:"
+    echo "  - ABT webapp: http://localhost:3000"
+    echo "  - PostgreSQL: localhost:5433"
+    echo "  - Redis: localhost:6380"
+    echo
+    print_status "Use '$0 logs' to view logs"
+}
+
+# Function to stop development environment
+dev_stop() {
+    print_status "Stopping development environment..."
+    check_directory
+    check_container_runtime
+    
+    $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" down
+    print_success "Development environment stopped!"
+}
+
+# Function to restart development environment
+dev_restart() {
+    print_status "Restarting development environment..."
+    dev_stop
+    dev_start
+}
+
+# Function to show logs
+dev_logs() {
+    check_directory
+    check_container_runtime
+    
+    if [[ $# -gt 1 ]]; then
+        # Show logs for specific service
+        $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" logs -f "${@:2}"
+    else
+        # Show logs for all services
+        $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" logs -f
+    fi
+}
+
+# Function to open shell
+dev_shell() {
+    check_directory
+    check_container_runtime
+    
+    print_status "Opening shell in webapp container..."
+    $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" exec abt-webapp-dev /bin/bash
+}
+
+# Function to open Rails console
+dev_console() {
+    check_directory
+    check_container_runtime
+    
+    print_status "Opening Rails console..."
+    $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" exec abt-webapp-dev bundle exec rails console
+}
+
+# Function to run tests
+dev_test() {
+    check_directory
+    check_container_runtime
+    
+    print_status "Running test suite..."
+    $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" exec abt-webapp-dev bundle exec rails test
+}
+
+# Function to setup development environment
+dev_setup() {
+    print_status "Setting up development environment..."
+    check_directory
+    check_container_runtime
+    
+    # Build images
+    print_status "Building development images..."
+    $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" build
+    
+    # Start services
+    print_status "Starting services..."
+    $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" up -d abt-postgres-dev abt-redis-dev
+    
+    # Wait for database
+    print_status "Waiting for database to be ready..."
+    sleep 10
+    
+    # Setup database
+    print_status "Setting up database..."
+    $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" run --rm abt-webapp-dev bundle exec rails db:setup
+    
+    print_success "Development environment setup complete!"
+    print_status "Use '$0 start' to start the full environment"
+}
+
+# Function to clean up
+dev_clean() {
+    print_status "Cleaning up development environment..."
+    check_directory
+    check_container_runtime
+    
+    $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" down -v --remove-orphans
+    print_warning "All containers and volumes have been removed!"
+}
+
+# Function to show status
+dev_status() {
+    check_directory
+    check_container_runtime
+    
+    print_status "Development environment status:"
+    $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" ps
+}
+
+# Main function
+main() {
+    case "${1:-help}" in
+        start)
+            dev_start
+            ;;
+        stop)
+            dev_stop
+            ;;
+        restart)
+            dev_restart
+            ;;
+        logs)
+            dev_logs "$@"
+            ;;
+        shell)
+            dev_shell
+            ;;
+        console)
+            dev_console
+            ;;
+        test)
+            dev_test
+            ;;
+        setup)
+            dev_setup
+            ;;
+        clean)
+            dev_clean
+            ;;
+        status)
+            dev_status
+            ;;
+        help|*)
+            show_help
+            ;;
+    esac
+}
+
+main "$@"

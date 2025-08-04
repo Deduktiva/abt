@@ -1,55 +1,19 @@
 - content_for :title, "Invoice #{@invoice.document_number}"
 
-:css
-  .greeting {
-    font-size: 18px;
-    font-weight: 500;
-    margin-bottom: 20px;
-    color: #2c3e50;
-  }
-  .main-message {
-    font-size: 16px;
-    margin-bottom: 20px;
-    line-height: 1.7;
-  }
-  .invoice-highlight {
-    background-color: #f8f9fa;
-    border-left: 4px solid #{@issuer.document_accent_color || '#007bff'};
-    padding: 15px 20px;
-    margin: 20px 0;
-    border-radius: 0 4px 4px 0;
-  }
-  .invoice-number {
-    font-weight: 600;
-    color: #2c3e50;
-    font-size: 16px;
-  }
-  .invoice-detail, .due-date {
-    color: #6c757d;
-    margin-top: 5px;
-    font-size: 14px;
-  }
-  .due-date {
-    margin-top: 8px;
-  }
-  .closing {
-    margin-top: 30px;
-    margin-bottom: 30px;
-  }
 .greeting
   Dear #{@invoice.customer.name},
 
 .main-message
   We've attached your invoice for the services provided. Please review the details and let us know if you have any questions.
 
-.invoice-highlight
-  .invoice-number
+.document-highlight
+  .document-number
     Invoice #{@invoice.document_number}
   - if @invoice.cust_order.present?
-    .invoice-detail
+    .document-detail
       Order: #{@invoice.cust_order}
   - if @invoice.cust_reference.present?
-    .invoice-detail
+    .document-detail
       Reference: #{@invoice.cust_reference}
   .due-date
     Due date: #{@invoice.due_date}

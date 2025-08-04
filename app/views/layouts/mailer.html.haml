@@ -52,6 +52,41 @@
         max-width: 180px;
         max-height: 90px;
       }
+      .greeting {
+        font-size: 18px;
+        font-weight: 500;
+        margin-bottom: 20px;
+        color: #2c3e50;
+      }
+      .main-message {
+        font-size: 16px;
+        margin-bottom: 20px;
+        line-height: 1.7;
+      }
+      .document-highlight {
+        background-color: #f8f9fa;
+        border-left: 4px solid #{@issuer&.document_accent_color || '#007bff'};
+        padding: 15px 20px;
+        margin: 20px 0;
+        border-radius: 0 4px 4px 0;
+      }
+      .document-number {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 16px;
+      }
+      .document-detail, .due-date {
+        color: #6c757d;
+        margin-top: 5px;
+        font-size: 14px;
+      }
+      .due-date {
+        margin-top: 8px;
+      }
+      .closing {
+        margin-top: 30px;
+        margin-bottom: 30px;
+      }
   %body
     .email-container
       .header-stripe

@@ -45,10 +45,16 @@ class IssuerCompaniesController < ApplicationController
   end
 
   def issuer_company_params
-    params.require(:issuer_company).permit(:short_name, :legal_name, :vat_id, :address,
-                                           :bankaccount_bank, :bankaccount_bic, :bankaccount_number,
-                                           :document_contact_line1, :document_contact_line2,
-                                           :document_accent_color, :invoice_footer, :currency,
-                                           :pdf_logo, :pdf_logo_width, :pdf_logo_height, :png_logo)
+    params.require(:issuer_company).permit(
+      :short_name, :legal_name, :vat_id, :address,
+      :bankaccount_bank, :bankaccount_bic, :bankaccount_number,
+      :document_contact_line1, :document_contact_line2,
+      :document_accent_color,
+      :invoice_footer,
+      :currency,
+      :document_email_from,
+      :document_email_auto_bcc,
+      :pdf_logo, :pdf_logo_width, :pdf_logo_height, :png_logo
+    )
   end
 end

@@ -7,6 +7,7 @@ class InvoicesController < ApplicationController
   def index
     # Get the selected year from params, default to current year
     @selected_year = params[:year]&.to_i || Date.current.year
+    @email_filter = params[:email_filter] || 'all'
 
     # Filter invoices by selected year, including draft invoices (date = nil) for current year
     year_start = Date.new(@selected_year, 1, 1)
@@ -20,6 +21,14 @@ class InvoicesController < ApplicationController
       # For other years, only show invoices with dates in that year
       @invoices = Invoice.where(date: year_start..year_end)
                         .reorder(Arel.sql('document_number DESC NULLS FIRST'))
+    end
+
+    # Apply email filter
+    case @email_filter
+    when 'sent'
+      @invoices = @invoices.email_sent
+    when 'unsent'
+      @invoices = @invoices.email_unsent.published
     end
 
     # Get available years for pagination (years that have invoices)
@@ -214,11 +223,36 @@ class InvoicesController < ApplicationController
     @invoice = Invoice.find(params[:id])
     return unless check_published
 
-    InvoiceMailer.with(invoice: @invoice).customer_email.deliver_later
+    InvoiceEmailSenderJob.perform_later(@invoice.id)
 
     respond_to do |format|
-      format.html { redirect_to @invoice, notice: 'Sent E-Mail.' }
+      format.html { redirect_to @invoice, notice: 'E-Mail queued for sending.' }
       format.json { render json: @invoice, status: :ok, location: @invoice }
+    end
+  end
+
+  def bulk_send_emails
+    invoice_ids = params[:invoice_ids] || []
+    invoice_ids = invoice_ids.reject(&:blank?)
+
+    if invoice_ids.empty?
+      redirect_to invoices_path, alert: 'No invoices selected.'
+      return
+    end
+
+    invoices = Invoice.where(id: invoice_ids, published: true)
+    queued_count = 0
+
+    invoices.each do |invoice|
+      if invoice.customer.email.present? || invoice.customer.invoice_email_auto_enabled
+        InvoiceEmailSenderJob.perform_later(invoice.id)
+        queued_count += 1
+      end
+    end
+
+    respond_to do |format|
+      format.html { redirect_to invoices_path, notice: "#{queued_count} emails queued for sending." }
+      format.json { render json: { queued_count: queued_count }, status: :ok }
     end
   end
 

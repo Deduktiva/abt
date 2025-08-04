@@ -1,0 +1,189 @@
+#!/bin/bash
+
+# Production Update Script for ABT
+# Automates the manual deployment process for production environment
+
+set -e  # Exit on any error
+
+# Set production environment for all Rails commands
+export RAILS_ENV=production
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+print_status() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Function to check if we're in the correct directory
+check_directory() {
+    print_status "Checking if we're in the correct directory..."
+    
+    # Check for Rails application files
+    if [[ ! -f "config.ru" || ! -f "Gemfile" || ! -d "app" ]]; then
+        print_error "This doesn't appear to be the ABT application root directory."
+        print_error "Please run this script from the ABT application root directory."
+        exit 1
+    fi
+    
+    # Check for ABT-specific files
+    if [[ ! -f "app/models/invoice.rb" || ! -d "lib/foptemplate" ]]; then
+        print_error "This doesn't appear to be the ABT application directory."
+        print_error "Missing ABT-specific files."
+        exit 1
+    fi
+    
+    print_success "Directory check passed - we're in the ABT application root."
+}
+
+# Function to check if we're running as the correct user
+check_user() {
+    print_status "Checking user permissions..."
+    
+    local current_user=$(whoami)
+    print_status "Running as user: $current_user"
+    
+    # Check if we can write to the application directory
+    if [[ ! -w "." ]]; then
+        print_error "Current user ($current_user) doesn't have write permissions to the application directory."
+        print_error "Please run this script as the application user."
+        exit 1
+    fi
+    
+    # Check if we can read/write Gemfile.lock
+    if [[ -f "Gemfile.lock" && ! -w "Gemfile.lock" ]]; then
+        print_error "Cannot write to Gemfile.lock. Please check permissions."
+        exit 1
+    fi
+    
+    print_success "User permission check passed."
+}
+
+# Function to update code from git
+update_git() {
+    print_status "Updating code from Git repository..."
+    
+    # Check if we're in a git repository
+    if [[ ! -d ".git" ]]; then
+        print_error "This directory is not a Git repository."
+        exit 1
+    fi
+    
+    # Check for uncommitted changes
+    if ! git diff --quiet || ! git diff --cached --quiet; then
+        print_warning "There are uncommitted changes in the working directory."
+        print_warning "Deployment may fail or overwrite local changes."
+        read -p "Continue anyway? (y/N): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            print_error "Deployment cancelled by user."
+            exit 1
+        fi
+    fi
+    
+    # Perform git pull with rebase
+    if git pull --rebase; then
+        print_success "Git update completed successfully."
+    else
+        print_error "Git pull failed. Please resolve conflicts manually."
+        exit 1
+    fi
+}
+
+# Function to install/update Ruby gems
+update_gems() {
+    print_status "Installing/updating Ruby gems..."
+    
+    if bundle install; then
+        print_success "Bundle install completed successfully."
+    else
+        print_error "Bundle install failed."
+        exit 1
+    fi
+}
+
+# Function to precompile assets
+precompile_assets() {
+    print_status "Precompiling assets for production..."
+    
+    if bundle exec rails assets:precompile; then
+        print_success "Asset precompilation completed successfully."
+    else
+        print_error "Asset precompilation failed."
+        exit 1
+    fi
+}
+
+# Function to run database migrations
+migrate_database() {
+    print_status "Running database migrations..."
+    
+    if bundle exec rails db:migrate; then
+        print_success "Database migration completed successfully."
+    else
+        print_error "Database migration failed."
+        exit 1
+    fi
+}
+
+# Function to handle Apache restart
+restart_apache() {
+    print_status "Handling application restart..."
+    
+    # Create/touch restart.txt for Passenger
+    if touch tmp/restart.txt; then
+        print_success "Created tmp/restart.txt - Passenger will restart the application."
+    else
+        print_error "Could not create tmp/restart.txt"
+        exit 1
+    fi
+}
+
+# Main deployment function
+main() {
+    echo "========================================"
+    echo "  ABT Production Deployment Script"
+    echo "========================================"
+    echo
+    
+    # Perform all checks and deployment steps
+    check_directory
+    check_user
+    update_git
+    update_gems
+    precompile_assets
+    migrate_database
+    restart_apache
+    
+    echo
+    print_success "Production deployment completed successfully!"
+    echo
+    print_status "Summary of actions performed:"
+    echo "  ✓ Updated code from Git repository"
+    echo "  ✓ Installed/updated Ruby gems"
+    echo "  ✓ Precompiled assets for production"
+    echo "  ✓ Ran database migrations"
+    echo "  ✓ Triggered application restart"
+    echo
+    print_status "The application should now be running the latest version."
+}
+
+# Run the deployment
+main "$@"

@@ -218,7 +218,7 @@ class InvoicesController < ApplicationController
 
     respond_to do |format|
       format.html { redirect_to @invoice, notice: 'Sent E-Mail.' }
-      format.json { render json: @invoice, status: :sent, location: @invoice }
+      format.json { render json: @invoice, status: :ok, location: @invoice }
     end
   end
 

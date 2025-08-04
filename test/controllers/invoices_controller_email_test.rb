@@ -99,12 +99,12 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     published_invoice = invoices(:published_invoice)
     get invoice_path(published_invoice)
     assert_response :success
-    assert_select 'form[action=?]', send_email_invoice_path(published_invoice)
+    assert_select 'button[data-action*="email-preview#open"]'
 
     # Test draft invoice - button should not appear
     draft_invoice = invoices(:draft_invoice)
     get invoice_path(draft_invoice)
     assert_response :success
-    assert_select 'form[action=?]', send_email_invoice_path(draft_invoice), count: 0
+    assert_select 'button[data-action*="email-preview#open"]', count: 0
   end
 end

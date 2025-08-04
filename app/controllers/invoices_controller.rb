@@ -1,6 +1,7 @@
 require 'json'
 
 class InvoicesController < ApplicationController
+  include EmailPreviewHelper
   # GET /invoices
   # GET /invoices.json
   def index
@@ -198,52 +199,13 @@ class InvoicesController < ApplicationController
 
   def preview_email
     @invoice = Invoice.find(params[:id])
-    @format = params[:format] || 'html'
-
     mail = InvoiceMailer.with(invoice: @invoice).customer_email
 
-    @email_to = mail.to&.join(', ')
-    @email_from = mail.from&.first
-    @email_bcc = mail.bcc&.join(', ') if mail.bcc&.any?
-    @email_subject = mail.subject
-
-    # Get both HTML and text parts
-    if mail.multipart?
-      @email_body_html = mail.html_part&.body&.decoded
-      @email_body_text = mail.text_part&.body&.decoded
-    else
-      # Single part email
-      if mail.content_type.include?('text/html')
-        @email_body_html = mail.body.decoded
-        @email_body_text = nil
-      else
-        @email_body_text = mail.body.decoded
-        @email_body_html = nil
-      end
-    end
-
-    # Get attachments info
-    @attachments = mail.attachments.map do |attachment|
-      {
-        filename: attachment.filename,
-        content_type: attachment.content_type,
-        size: attachment.body.raw_source.bytesize
-      }
-    end
+    email_data = extract_email_preview_data(mail)
 
     respond_to do |format|
       format.html { render layout: 'application' }
-      format.json {
-        render json: {
-          to: @email_to,
-          from: @email_from,
-          bcc: @email_bcc,
-          subject: @email_subject,
-          html_body: @email_body_html,
-          text_body: @email_body_text,
-          attachments: @attachments
-        }
-      }
+      format.json { render json: email_data }
     end
   end
 

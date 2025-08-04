@@ -2,14 +2,15 @@ class CustomersController < ApplicationController
   # GET /customers
   # GET /customers.json
   def index
-    # Show all customers by default, but allow filtering
+    # Show active customers by default
+    params[:filter] ||= 'active'
     @customers = case params[:filter]
-                 when 'active'
-                   Customer.active
+                 when 'all'
+                   Customer.all
                  when 'inactive'
                    Customer.inactive
                  else
-                   Customer.all
+                   Customer.active
                  end
 
     @customers = @customers.order(:matchcode)
@@ -57,7 +58,7 @@ class CustomersController < ApplicationController
         format.html { redirect_to @customer, notice: 'Customer was successfully created.' }
         format.json { render json: @customer, status: :created, location: @customer }
       else
-        format.html { render template: "new" }
+        format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @customer.errors, status: :unprocessable_entity }
       end
     end
@@ -73,7 +74,7 @@ class CustomersController < ApplicationController
         format.html { redirect_to @customer, notice: 'Customer was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render template: "edit" }
+        format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @customer.errors, status: :unprocessable_entity }
       end
     end

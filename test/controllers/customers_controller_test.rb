@@ -6,9 +6,9 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get index" do
-    get customers_url
+    get customers_url(filter: 'all')
     assert_response :success
-    assert_select 'h1', text: /customers/i
+    assert_select 'table tr', count: Customer.count + 1 # +1 for header row
   end
 
   test "should get show" do
@@ -91,26 +91,35 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
 
   test "should filter customers by active status" do
     # Create inactive customer
-    inactive_customer = Customer.create!(
+    inactive = Customer.create!(
       matchcode: 'INACTIVE',
       name: 'Inactive Customer',
       active: false,
       sales_tax_customer_class: @customer.sales_tax_customer_class
     )
 
-    # Test showing all customers
+    # Defaults to active only
     get customers_url
     assert_response :success
-    assert_select 'td', text: 'INACTIVE'
-
-    # Test showing only active customers
-    get customers_url(filter: 'active')
-    assert_response :success
+    assert_select '.status-filter .active', text: 'Active'
     assert_select 'td', text: 'INACTIVE', count: 0
 
-    # Test showing only inactive customers
+    # Test showing only active
+    get customers_url(filter: 'active')
+    assert_response :success
+    assert_select '.status-filter .active', text: 'Active'
+    assert_select 'td', text: 'INACTIVE', count: 0
+
+    # Test showing only inactive
     get customers_url(filter: 'inactive')
     assert_response :success
+    assert_select '.status-filter .active', text: 'Inactive'
+    assert_select 'td', text: 'INACTIVE'
+
+    # Test showing all
+    get customers_url(filter: 'all')
+    assert_response :success
+    assert_select '.status-filter .active', text: 'All'
     assert_select 'td', text: 'INACTIVE'
   end
 

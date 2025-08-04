@@ -2,14 +2,15 @@ class ProjectsController < ApplicationController
   # GET /projects
   # GET /projects.json
   def index
-    # Filter by active status if specified
-    if params[:active] == 'true'
-      @projects = Project.active
-    elsif params[:active] == 'false'
-      @projects = Project.inactive
-    else
-      @projects = Project.all
-    end
+    params[:filter] ||= 'active'
+    @projects = case params[:filter]
+                 when 'all'
+                   Project.all
+                 when 'inactive'
+                   Project.inactive
+                 else
+                   Project.active
+                 end
 
     respond_to do |format|
       format.html # index.html.erb
@@ -54,7 +55,7 @@ class ProjectsController < ApplicationController
         format.html { redirect_to @project, notice: 'Project was successfully created.' }
         format.json { render json: @project, status: :created, location: @project }
       else
-        format.html { render template: "new" }
+        format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @project.errors, status: :unprocessable_entity }
       end
     end
@@ -70,7 +71,7 @@ class ProjectsController < ApplicationController
         format.html { redirect_to @project, notice: 'Project was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render template: "edit" }
+        format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @project.errors, status: :unprocessable_entity }
       end
     end

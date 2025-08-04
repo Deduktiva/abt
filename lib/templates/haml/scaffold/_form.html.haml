@@ -1,5 +1,12 @@
-= simple_form_for(@<%= singular_table_name %>) do |f|
-  = f.error_notification
+= simple_form_for(@<%= singular_table_name %>, :validation => true, :html => {:class => 'form-horizontal' }) do |f|
+  - if @<%= singular_table_name %>.errors.any?
+    .alert.alert-danger
+      %h4
+        = pluralize(@<%= singular_table_name %>.errors.count, 'error')
+        prohibited saving:
+      %ul
+        - @<%= singular_table_name %>.errors.full_messages.each do |msg|
+          %li= msg
 
   .form-inputs
   <%- attributes.each do |attribute| -%>

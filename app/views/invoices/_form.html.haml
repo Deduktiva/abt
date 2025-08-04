@@ -1,10 +1,9 @@
 = form_for(@invoice) do |f|
   - if @invoice.errors.any?
-    #error_explanation
-      %h2
+    .alert.alert-danger
+      %h4
         = pluralize(@invoice.errors.count, 'error')
-        prohibited this invoice from being saved:
-
+        prohibited saving:
       %ul
         - @invoice.errors.full_messages.each do |msg|
           %li= msg

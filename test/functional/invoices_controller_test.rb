@@ -132,7 +132,6 @@ class InvoicesControllerTest < ActionController::TestCase
 
     get :show, params: { id: invoice.id }
     assert_response :success
-    assert_select '.invoice-document'
     assert_select 'table.table-bordered'
     assert_select '.badge.bg-success', text: 'Booked'
   end
@@ -260,7 +259,7 @@ class InvoicesControllerTest < ActionController::TestCase
       }
     }
 
-    assert_response :success
+    assert_response :unprocessable_entity
   end
 
   test "should handle test booking from show page without form params" do

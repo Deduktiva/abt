@@ -1,5 +1,12 @@
 = simple_form_for(@sales_tax_product_class, :validation => true, :html => {:class => "form-horizontal"}) do |f|
-  = f.error_notification
+  - if @sales_tax_product_class.errors.any?
+    .alert.alert-danger
+      %h4
+        = pluralize(@sales_tax_product_class.errors.count, 'error')
+        prohibited saving:
+      %ul
+        - @sales_tax_product_class.errors.full_messages.each do |msg|
+          %li= msg
 
   .form-inputs
     .row.mb-3

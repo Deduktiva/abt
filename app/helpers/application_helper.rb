@@ -96,7 +96,7 @@ module ApplicationHelper
   end
 
   def action_buttons_wrapper(&block)
-    content_tag :div, class: 'd-flex gap-2 mb-3', &block
+    content_tag :div, class: 'd-flex gap-2 mb-3 mt-3', &block
   end
 
   def action_button(text, path, type = :primary, options = {})

@@ -47,7 +47,7 @@ class SalesTaxCustomerClassesController < ApplicationController
         format.html { redirect_to @sales_tax_customer_class, notice: 'Sales tax customer class was successfully created.' }
         format.json { render json: @sales_tax_customer_class, status: :created, location: @sales_tax_customer_class }
       else
-        format.html { render template: "new" }
+        format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @sales_tax_customer_class.errors, status: :unprocessable_entity }
       end
     end
@@ -63,7 +63,7 @@ class SalesTaxCustomerClassesController < ApplicationController
         format.html { redirect_to @sales_tax_customer_class, notice: 'Sales tax customer class was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render template: "edit" }
+        format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @sales_tax_customer_class.errors, status: :unprocessable_entity }
       end
     end

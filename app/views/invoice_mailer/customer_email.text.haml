@@ -1,10 +1,16 @@
 Dear #{@invoice.customer.name},
-\
-please find our invoice #{@invoice.document_number} attached.
-It will be due on #{@invoice.due_date}.
-\
-Thank you for your business.
-\
+
+We've attached your invoice for the services provided. Please review the details and let us know if you have any questions.
+
+Invoice #{@invoice.document_number}
+- if @invoice.cust_order.present?
+  Order: #{@invoice.cust_order}
+- if @invoice.cust_reference.present?
+  Reference: #{@invoice.cust_reference}
+Due date: #{@invoice.due_date}
+
+Thank you for your business. We appreciate your continued partnership.
+
 = @issuer.legal_name
 - @issuer.address.split("\n").each do |line|
   = line

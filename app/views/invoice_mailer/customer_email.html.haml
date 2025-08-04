@@ -1,19 +1,120 @@
-%p
-  Dear #{@invoice.customer.name},
+%html
+  %head
+    %meta{"http-equiv" => "Content-Type", "content" => "text/html; charset=UTF-8"}
+    %meta{"name" => "viewport", "content" => "width=device-width, initial-scale=1.0"}
+    %title Invoice #{@invoice.document_number}
+    :css
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f8f9fa;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+      .header-stripe {
+        height: 12px;
+        background-color: #{@issuer.document_accent_color || '#007bff'};
+      }
+      .email-content {
+        padding: 40px 30px;
+      }
+      .greeting {
+        font-size: 18px;
+        font-weight: 500;
+        margin-bottom: 20px;
+        color: #2c3e50;
+      }
+      .main-message {
+        font-size: 16px;
+        margin-bottom: 20px;
+        line-height: 1.7;
+      }
+      .invoice-highlight {
+        background-color: #f8f9fa;
+        border-left: 4px solid #{@issuer.document_accent_color || '#007bff'};
+        padding: 15px 20px;
+        margin: 20px 0;
+        border-radius: 0 4px 4px 0;
+      }
+      .invoice-number {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 16px;
+      }
+      .invoice-detail, .due-date {
+        color: #6c757d;
+        margin-top: 5px;
+        font-size: 14px;
+      }
+      .due-date {
+        margin-top: 8px;
+      }
+      .closing {
+        margin-top: 30px;
+        margin-bottom: 30px;
+      }
+      .footer {
+        border-top: 1px solid #e9ecef;
+        padding-top: 25px;
+        margin-top: 40px;
+        color: #6c757d;
+        font-size: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .company-info {
+        flex: 1;
+      }
+      .company-name {
+        font-weight: 600;
+        color: #{@issuer.document_accent_color || '#007bff'};
+        margin-bottom: 10px;
+      }
+      .address-line {
+        margin: 3px 0;
+      }
+      .company-logo {
+        margin-left: 20px;
+        max-width: 180px;
+        max-height: 90px;
+      }
+  %body
+    .email-container
+      .header-stripe
+      .email-content
+        .greeting
+          Dear #{@invoice.customer.name},
 
-%p
-  please find our invoice
-  = @invoice.document_number
-  attached.
+        .main-message
+          We've attached your invoice for the services provided. Please review the details and let us know if you have any questions.
 
-  %span
-    It will be due on #{@invoice.due_date}.
+        .invoice-highlight
+          .invoice-number
+            Invoice #{@invoice.document_number}
+          - if @invoice.cust_order.present?
+            .invoice-detail
+              Order: #{@invoice.cust_order}
+          - if @invoice.cust_reference.present?
+            .invoice-detail
+              Reference: #{@invoice.cust_reference}
+          .due-date
+            Due date: #{@invoice.due_date}
 
-%p
-  Thank you for your business.
+        .closing
+          Thank you for your business. We appreciate your continued partnership.
 
-%p.footer
-  .accent= @issuer.legal_name
-  - @issuer.address.split("\n").each do |line|
-    %br
-    = line
+        .footer
+          .company-info
+            .company-name= @issuer.legal_name
+            - @issuer.address.split("\n").each do |line|
+              .address-line= line
+          - if @issuer.png_logo.present?
+            %img.company-logo{src: "data:image/png;base64,#{Base64.encode64(@issuer.png_logo).gsub(/\n/, '')}", alt: @issuer.legal_name}

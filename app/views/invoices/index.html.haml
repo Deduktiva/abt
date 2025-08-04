@@ -1,7 +1,7 @@
 = page_header_with_new_button('Listing invoices', new_invoice_path)
 
 .bulk-select-container{data: { controller: 'bulk-select' }}
-  = form_with url: bulk_send_emails_invoices_path, method: :post, local: true, id: 'bulk-email-form', class: 'mb-3' do |form|
+  = form_with url: bulk_send_emails_invoices_path, method: :post, local: true, id: 'bulk-email-form' do |form|
     .row
       .col-md-6
         .email-filter
@@ -12,7 +12,8 @@
               %li.page-item{class: (@email_filter == 'unsent' ? 'active' : '')}
                 = link_to 'Unsent', invoices_path(year: @selected_year, email_filter: 'unsent'), class: 'page-link'
 
-        = form.submit 'Send Selected Emails', class: 'btn btn-primary btn-sm', disabled: true, data: { confirm: 'Are you sure you want to send emails for the selected invoices?', 'bulk-select-target': 'submitButton' }
+        - if @email_filter == 'unsent'
+          = form.submit 'Send Selected Emails', class: 'btn btn-warning btn-sm', disabled: true, data: { confirm: 'Are you sure you want to send emails for the selected invoices?', 'bulk-select-target': 'submitButton' }
 
       .col-md-6
         - if @available_years.any?

@@ -189,8 +189,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   test "index shows status filter buttons" do
     get projects_url
     assert_response :success
-    assert_select 'a.btn', text: 'All'
-    assert_select 'a.btn', text: 'Active'
-    assert_select 'a.btn', text: 'Inactive'
+    assert_select 'a.page-link', text: 'All'
+    assert_select 'a.page-link', text: 'Active'
+    assert_select 'a.page-link', text: 'Inactive'
   end
 end

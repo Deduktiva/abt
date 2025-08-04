@@ -1,9 +1,15 @@
 = page_header_with_new_button('Listing projects', new_project_path)
 
 .mb-3
-  = link_to 'All', projects_path, class: "btn btn-sm #{'btn-primary' if params[:active].blank?} #{'btn-outline-primary' unless params[:active].blank?}"
-  = link_to 'Active', projects_path(active: true), class: "btn btn-sm #{'btn-primary' if params[:active] == 'true'} #{'btn-outline-primary' unless params[:active] == 'true'}"
-  = link_to 'Inactive', projects_path(active: false), class: "btn btn-sm #{'btn-primary' if params[:active] == 'false'} #{'btn-outline-primary' unless params[:active] == 'false'}"
+  .project-filter
+    %nav{"aria-label" => "Project status filter"}
+      %ul.pagination.pagination-sm.justify-content-start
+        %li.page-item{class: (params[:active].blank? ? 'active' : '')}
+          = link_to 'All', projects_path, class: 'page-link'
+        %li.page-item{class: (params[:active] == 'true' ? 'active' : '')}
+          = link_to 'Active', projects_path(active: true), class: 'page-link'
+        %li.page-item{class: (params[:active] == 'false' ? 'active' : '')}
+          = link_to 'Inactive', projects_path(active: false), class: 'page-link'
 
 %table.table.table-striped.table-sm
   %tr

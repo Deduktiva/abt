@@ -16,5 +16,9 @@
       %td= customer.time_budget
       %td= list_action_link('Show', customer, :show)
       %td= list_action_link('Edit', edit_customer_path(customer), :edit)
-      %td= destroy_link(customer, "Are you sure you want to delete customer \"#{customer.matchcode}\" (#{customer.name})?")
+      %td
+        - if customer.used_in_invoices?
+          %span.text-muted.small{title: "Cannot delete - customer used in invoices"} Used
+        - else
+          = destroy_link(customer, "Are you sure you want to delete customer \"#{customer.matchcode}\" (#{customer.name})?")
 

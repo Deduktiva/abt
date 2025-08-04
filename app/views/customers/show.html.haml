@@ -34,3 +34,5 @@
 = action_buttons_wrapper do
   = action_button 'Edit', edit_customer_path(@customer), :primary
   = action_button 'Back', customers_path, :secondary
+  - unless @customer.used_in_invoices?
+    = button_to 'Delete', @customer, method: :delete, class: 'btn btn-danger', data: { 'turbo-confirm': "Are you sure you want to delete customer \"#{@customer.matchcode}\" (#{@customer.name})?" }

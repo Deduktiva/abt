@@ -7,8 +7,6 @@ set -e  # Exit on any error
 
 # Set production environment for all Rails commands
 export RAILS_ENV=production
-export BUNDLE_DEPLOYMENT=true
-export BUNDLE_WITHOUT=development:test
 
 # Colors for output
 RED='\033[0;31m'
@@ -37,57 +35,57 @@ print_error() {
 # Function to check if we're in the correct directory
 check_directory() {
     print_status "Checking if we're in the correct directory..."
-    
+
     # Check for Rails application files
     if [[ ! -f "config.ru" || ! -f "Gemfile" || ! -d "app" ]]; then
         print_error "This doesn't appear to be the ABT application root directory."
         print_error "Please run this script from the ABT application root directory."
         exit 1
     fi
-    
+
     # Check for ABT-specific files
     if [[ ! -f "app/models/invoice.rb" || ! -d "lib/foptemplate" ]]; then
         print_error "This doesn't appear to be the ABT application directory."
         print_error "Missing ABT-specific files."
         exit 1
     fi
-    
+
     print_success "Directory check passed - we're in the ABT application root."
 }
 
 # Function to check if we're running as the correct user
 check_user() {
     print_status "Checking user permissions..."
-    
+
     local current_user=$(whoami)
     print_status "Running as user: $current_user"
-    
+
     # Check if we can write to the application directory
     if [[ ! -w "." ]]; then
         print_error "Current user ($current_user) doesn't have write permissions to the application directory."
         print_error "Please run this script as the application user."
         exit 1
     fi
-    
+
     # Check if we can read/write Gemfile.lock
     if [[ -f "Gemfile.lock" && ! -w "Gemfile.lock" ]]; then
         print_error "Cannot write to Gemfile.lock. Please check permissions."
         exit 1
     fi
-    
+
     print_success "User permission check passed."
 }
 
 # Function to update code from git
 update_git() {
     print_status "Updating code from Git repository..."
-    
+
     # Check if we're in a git repository
     if [[ ! -d ".git" ]]; then
         print_error "This directory is not a Git repository."
         exit 1
     fi
-    
+
     # Check for uncommitted changes
     if ! git diff --quiet || ! git diff --cached --quiet; then
         print_warning "There are uncommitted changes in the working directory."
@@ -99,7 +97,7 @@ update_git() {
             exit 1
         fi
     fi
-    
+
     # Perform git pull with rebase
     if git pull --rebase; then
         print_success "Git update completed successfully."
@@ -112,7 +110,8 @@ update_git() {
 # Function to install/update Ruby gems
 update_gems() {
     print_status "Installing/updating Ruby gems..."
-    
+    bundle config set deployment true
+    bundle config set without development:test
     if bundle install; then
         print_success "Bundle install completed successfully."
     else
@@ -124,7 +123,7 @@ update_gems() {
 # Function to precompile assets
 precompile_assets() {
     print_status "Precompiling assets for production..."
-    
+
     if bundle exec rails assets:precompile; then
         print_success "Asset precompilation completed successfully."
     else
@@ -136,7 +135,7 @@ precompile_assets() {
 # Function to run database migrations
 migrate_database() {
     print_status "Running database migrations..."
-    
+
     if bundle exec rails db:migrate; then
         print_success "Database migration completed successfully."
     else
@@ -148,7 +147,7 @@ migrate_database() {
 # Function to handle Apache restart
 restart_apache() {
     print_status "Handling application restart..."
-    
+
     # Create/touch restart.txt for Passenger
     if touch tmp/restart.txt; then
         print_success "Created tmp/restart.txt - Passenger will restart the application."
@@ -164,7 +163,7 @@ main() {
     echo "  ABT Production Deployment Script"
     echo "========================================"
     echo
-    
+
     # Perform all checks and deployment steps
     check_directory
     check_user
@@ -173,7 +172,7 @@ main() {
     precompile_assets
     migrate_database
     restart_apache
-    
+
     echo
     print_success "Production deployment completed successfully!"
     echo

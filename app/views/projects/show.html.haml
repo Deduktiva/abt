@@ -1,17 +1,35 @@
-%h1.page-header
-  Project
-  = @project.matchcode
-%p
-  %b Description:
-  %blockquote
-    = @project.description
-%p
-  %b Time budget:
-  = @project.time_budget
-%p
-  %b Bill to customer:
-  = @project.bill_to_customer.matchcode
+= page_header_with_edit_button("Project #{@project.matchcode}", edit_project_path(@project))
+
+.row
+  .col-md-8
+    .card
+      .card-header
+        %h5 Project Information
+      .card-body
+        .row.mb-2
+          .col-sm-3
+            %strong Matchcode:
+          .col-sm-9
+            = @project.matchcode
+
+        .row.mb-2
+          .col-sm-3
+            %strong Description:
+          .col-sm-9
+            = simple_format(@project.description)
+
+        .row.mb-2
+          .col-sm-3
+            %strong Time Budget:
+          .col-sm-9
+            = @project.time_budget
+
+        .row.mb-2
+          .col-sm-3
+            %strong Bill to Customer:
+          .col-sm-9
+            = @project.bill_to_customer.name
+            %small.text-muted (#{@project.bill_to_customer.matchcode})
 
 = action_buttons_wrapper do
-  = action_button 'Edit', edit_project_path(@project), :primary
   = action_button 'Back', projects_path, :secondary

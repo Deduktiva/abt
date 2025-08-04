@@ -1,19 +1,34 @@
-%h1.page-header
-  Product "#{@product.title}"
+= page_header_with_edit_button("Product \"#{@product.title}\"", edit_product_path(@product))
 
-%p
-  %b Description:
-  %blockquote
-    = @product.description
+.row
+  .col-md-8
+    .card
+      .card-header
+        %h5 Product Information
+      .card-body
+        .row.mb-2
+          .col-sm-3
+            %strong Title:
+          .col-sm-9
+            = @product.title
 
-%p
-  %b Rate:
-  = format_currency(@product.rate)
+        .row.mb-2
+          .col-sm-3
+            %strong Description:
+          .col-sm-9
+            = simple_format(@product.description)
 
-%p
-  %b Sales tax product class:
-  = @product.sales_tax_product_class.name
+        .row.mb-2
+          .col-sm-3
+            %strong Rate:
+          .col-sm-9
+            = format_currency(@product.rate)
+
+        .row.mb-2
+          .col-sm-3
+            %strong Sales Tax Class:
+          .col-sm-9
+            = @product.sales_tax_product_class.name
 
 = action_buttons_wrapper do
-  = action_button 'Edit', edit_product_path(@product), :primary
   = action_button 'Back', products_path, :secondary

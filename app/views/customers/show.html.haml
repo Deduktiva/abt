@@ -1,46 +1,109 @@
-%h1.page-header
-  Customer
-  = @customer.matchcode
-  - unless @customer.active?
-    %span.badge.bg-warning.ms-2 Inactive
+= page_header_with_edit_button("Customer #{@customer.matchcode}", edit_customer_path(@customer))
 
-%p
-  %b Active:
-  - if @customer.active?
-    %span.badge.bg-success Yes
-  - else
-    %span.badge.bg-danger No
-%p
-  %b Matchcode:
-  = @customer.matchcode
-%p
-  %b Name:
-  = @customer.name
-%p
-  %b Address:
-  = @customer.address
-%p
-  %b E-Mail:
-  = @customer.email
-%p
-  %b VATID:
-  = @customer.vat_id
-%p
-  %b Time budget:
-  = @customer.time_budget
-%p
-  %b Payment terms:
-  = @customer.payment_terms_days
-  days
-%p
-  %b Notes:
-  = @customer.notes
-%p
-  %b Sales Tax Class:
-  = @customer.sales_tax_customer_class.try(:name)
+.row
+  .col-md-6
+    .card
+      .card-header
+        %h5 Basic Information
+      .card-body
+        .row.mb-2
+          .col-sm-4
+            %strong Active:
+          .col-sm-8
+            - if @customer.active?
+              %span.badge.bg-success Yes
+            - else
+              %span.badge.bg-danger No
+
+        .row.mb-2
+          .col-sm-4
+            %strong Matchcode:
+          .col-sm-8
+            = @customer.matchcode
+
+        .row.mb-2
+          .col-sm-4
+            %strong Name:
+          .col-sm-8
+            = @customer.name
+
+        .row.mb-2
+          .col-sm-4
+            %strong Address:
+          .col-sm-8
+            = simple_format(@customer.address)
+
+        .row.mb-2
+          .col-sm-4
+            %strong VAT ID:
+          .col-sm-8
+            = @customer.vat_id
+
+        .row.mb-2
+          .col-sm-4
+            %strong Sales Tax Class:
+          .col-sm-8
+            = @customer.sales_tax_customer_class&.name
+
+  .col-md-6
+    .card
+      .card-header
+        %h5 Contact & Terms
+      .card-body
+        .row.mb-2
+          .col-sm-4
+            %strong Email:
+          .col-sm-8
+            = @customer.email
+
+        .row.mb-2
+          .col-sm-4
+            %strong Payment Terms:
+          .col-sm-8
+            = @customer.payment_terms_days
+            days
+
+        .row.mb-2
+          .col-sm-4
+            %strong Time Budget:
+          .col-sm-8
+            = @customer.time_budget
+
+- if @customer.invoice_email_auto_enabled?
+  .row.mt-4
+    .col-md-12
+      .card
+        .card-header
+          %h5 Automated Email Settings
+        .card-body
+          .row.mb-2
+            .col-sm-3
+              %strong Auto Email:
+            .col-sm-9
+              %span.badge.bg-success Enabled
+
+          .row.mb-2
+            .col-sm-3
+              %strong To:
+            .col-sm-9
+              = @customer.invoice_email_auto_to
+
+          .row.mb-2
+            .col-sm-3
+              %strong Subject Template:
+            .col-sm-9
+              = @customer.invoice_email_auto_subject_template
+
+- if @customer.notes.present?
+  .row.mt-4
+    .col-md-12
+      .card
+        .card-header
+          %h5 Notes
+        .card-body
+          = simple_format(@customer.notes)
 
 = action_buttons_wrapper do
-  = action_button 'Edit', edit_customer_path(@customer), :primary
   = action_button 'Back', customers_path, :secondary
   - unless @customer.used_in_invoices?
     = button_to 'Delete', @customer, method: :delete, class: 'btn btn-danger', data: { 'turbo-confirm': "Are you sure you want to delete customer \"#{@customer.matchcode}\" (#{@customer.name})?" }

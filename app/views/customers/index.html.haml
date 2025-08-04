@@ -1,18 +1,30 @@
 = page_header_with_new_button('Listing customers', new_customer_path)
 
+.mb-3
+  .btn-group{role: "group", "aria-label": "Customer filter"}
+    = link_to "All", customers_path, class: "btn #{'btn-primary' if params[:filter].blank?} #{'btn-outline-primary' unless params[:filter].blank?}"
+    = link_to "Active", customers_path(filter: 'active'), class: "btn #{'btn-primary' if params[:filter] == 'active'} #{'btn-outline-primary' unless params[:filter] == 'active'}"
+    = link_to "Inactive", customers_path(filter: 'inactive'), class: "btn #{'btn-primary' if params[:filter] == 'inactive'} #{'btn-outline-primary' unless params[:filter] == 'inactive'}"
+
 %table.table.table-striped.table-sm
   %tr
     %th Matchcode
     %th Name
+    %th Status
     %th Time budget
     %th{:width => "3%"}
     %th{:width => "3%"}
     %th{:width => "3%"}
 
   - @customers.each do |customer|
-    %tr
+    %tr{class: customer.active? ? '' : 'table-secondary'}
       %td= customer.matchcode
       %td= customer.name
+      %td
+        - if customer.active?
+          %span.badge.bg-success Active
+        - else
+          %span.badge.bg-secondary Inactive
       %td= customer.time_budget
       %td= list_action_link('Show', customer, :show)
       %td= list_action_link('Edit', edit_customer_path(customer), :edit)

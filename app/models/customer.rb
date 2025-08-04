@@ -6,6 +6,10 @@ class Customer < ApplicationRecord
   has_many :sales_tax_rates, :through => :sales_tax_customer_class
   has_many :invoices
 
+  # Scopes for filtering
+  scope :active, -> { where(active: true) }
+  scope :inactive, -> { where(active: false) }
+
   # Check if this customer has been used in any invoices
   def used_in_invoices?
     invoices.exists?
@@ -13,6 +17,15 @@ class Customer < ApplicationRecord
 
   # Prevent deletion if customer has been used
   before_destroy :check_if_used
+
+  # Allow deactivation instead of deletion for used customers
+  def can_be_deleted?
+    !used_in_invoices?
+  end
+
+  def can_be_deactivated?
+    used_in_invoices?
+  end
 
   private
 

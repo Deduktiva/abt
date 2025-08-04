@@ -1,7 +1,15 @@
 %h1.page-header
   Customer
   = @customer.matchcode
+  - unless @customer.active?
+    %span.badge.bg-warning.ms-2 Inactive
 
+%p
+  %b Active:
+  - if @customer.active?
+    %span.badge.bg-success Yes
+  - else
+    %span.badge.bg-danger No
 %p
   %b Matchcode:
   = @customer.matchcode

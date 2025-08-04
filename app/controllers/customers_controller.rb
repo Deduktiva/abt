@@ -2,7 +2,17 @@ class CustomersController < ApplicationController
   # GET /customers
   # GET /customers.json
   def index
-    @customers = Customer.all
+    # Show all customers by default, but allow filtering
+    @customers = case params[:filter]
+                 when 'active'
+                   Customer.active
+                 when 'inactive'
+                   Customer.inactive
+                 else
+                   Customer.all
+                 end
+
+    @customers = @customers.order(:matchcode)
 
     respond_to do |format|
       format.html # index.html.erb
@@ -94,7 +104,7 @@ private
   def customers_params
     params.require(:customer).permit(
         :matchcode, :name, :address, :email, :vat_id, :time_budget, :notes, :sales_tax_customer_class_id, :payment_terms_days,
-        :invoice_email_auto_to, :invoice_email_auto_subject_template, :invoice_email_auto_enabled
+        :invoice_email_auto_to, :invoice_email_auto_subject_template, :invoice_email_auto_enabled, :active
     )
   end
 end

@@ -88,4 +88,45 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     # Check that used customers show "Used" instead of delete link
     assert_select 'span.text-muted', text: 'Used'
   end
+
+  test "should filter customers by active status" do
+    # Create inactive customer
+    inactive_customer = Customer.create!(
+      matchcode: 'INACTIVE',
+      name: 'Inactive Customer',
+      active: false,
+      sales_tax_customer_class: @customer.sales_tax_customer_class
+    )
+
+    # Test showing all customers
+    get customers_url
+    assert_response :success
+    assert_select 'td', text: 'INACTIVE'
+
+    # Test showing only active customers
+    get customers_url(filter: 'active')
+    assert_response :success
+    assert_select 'td', text: 'INACTIVE', count: 0
+
+    # Test showing only inactive customers
+    get customers_url(filter: 'inactive')
+    assert_response :success
+    assert_select 'td', text: 'INACTIVE'
+  end
+
+  test "should show active status in show page" do
+    get customer_url(@customer)
+    assert_response :success
+    assert_select 'span.badge.bg-success', text: 'Yes'
+  end
+
+  test "should allow updating customer active status" do
+    patch customer_url(@customer), params: {
+      customer: { active: false }
+    }
+    assert_redirected_to customer_url(@customer)
+
+    @customer.reload
+    assert_not @customer.active?
+  end
 end

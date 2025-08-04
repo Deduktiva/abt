@@ -55,8 +55,8 @@ class ProjectsController < ApplicationController
         format.html { redirect_to @project, notice: 'Project was successfully created.' }
         format.json { render json: @project, status: :created, location: @project }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @project.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @project.errors, status: :unprocessable_content }
       end
     end
   end
@@ -71,8 +71,8 @@ class ProjectsController < ApplicationController
         format.html { redirect_to @project, notice: 'Project was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @project.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @project.errors, status: :unprocessable_content }
       end
     end
   end
@@ -88,7 +88,7 @@ class ProjectsController < ApplicationController
         format.json { head :no_content }
       else
         format.html { redirect_to projects_url, alert: @project.errors.full_messages.join(', ') }
-        format.json { render json: @project.errors, status: :unprocessable_entity }
+        format.json { render json: @project.errors, status: :unprocessable_content }
       end
     end
   end

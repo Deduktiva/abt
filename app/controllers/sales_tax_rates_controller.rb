@@ -62,8 +62,8 @@ class SalesTaxRatesController < ApplicationController
         format.html { redirect_to sales_tax_rates_path, notice: 'Sales tax rate was successfully created.' }
         format.json { render json: @sales_tax_rate, status: :created, location: @sales_tax_rate }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @sales_tax_rate.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @sales_tax_rate.errors, status: :unprocessable_content }
       end
     end
   end
@@ -78,8 +78,8 @@ class SalesTaxRatesController < ApplicationController
         format.html { redirect_to sales_tax_rates_url, notice: 'Sales tax rate was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @sales_tax_rate.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @sales_tax_rate.errors, status: :unprocessable_content }
       end
     end
   end

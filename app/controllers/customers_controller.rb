@@ -58,8 +58,8 @@ class CustomersController < ApplicationController
         format.html { redirect_to @customer, notice: 'Customer was successfully created.' }
         format.json { render json: @customer, status: :created, location: @customer }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @customer.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @customer.errors, status: :unprocessable_content }
       end
     end
   end
@@ -74,8 +74,8 @@ class CustomersController < ApplicationController
         format.html { redirect_to @customer, notice: 'Customer was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @customer.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @customer.errors, status: :unprocessable_content }
       end
     end
   end
@@ -96,7 +96,7 @@ class CustomersController < ApplicationController
           redirect_to customers_url,
           alert: @customer.errors.full_messages.join(', ')
         }
-        format.json { render json: @customer.errors, status: :unprocessable_entity }
+        format.json { render json: @customer.errors, status: :unprocessable_content }
       end
     end
   end

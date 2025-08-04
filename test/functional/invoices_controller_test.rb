@@ -259,7 +259,7 @@ class InvoicesControllerTest < ActionController::TestCase
       }
     }
 
-    assert_response :unprocessable_entity
+    assert_response :unprocessable_content
   end
 
   test "should handle test booking from show page without form params" do

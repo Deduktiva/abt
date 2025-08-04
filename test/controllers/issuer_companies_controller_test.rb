@@ -41,4 +41,24 @@ class IssuerCompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_select '.alert-danger'
     assert_select 'form'
   end
+
+  test "should preserve whitespace in contact lines on show page" do
+    # Update the fixture to have explicit whitespace
+    @issuer_company.update!(
+      document_contact_line1: "www.example.com      hi@example.com",
+      document_contact_line2: "voice + xxx xxxxxx"
+    )
+
+    get issuer_company_url
+    assert_response :success
+
+    # Check that whitespace is preserved in the rendered HTML
+    assert_select 'span[style*="white-space: pre-wrap"]' do |elements|
+      contact_line1_element = elements.find { |el| el.text.include?("www.example.com      hi@example.com") }
+      contact_line2_element = elements.find { |el| el.text.include?("voice + xxx xxxxxx") }
+
+      assert contact_line1_element, "Contact Line 1 with preserved whitespace not found"
+      assert contact_line2_element, "Contact Line 2 with preserved whitespace not found"
+    end
+  end
 end

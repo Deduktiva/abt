@@ -1,5 +1,5 @@
 .invoice-document
-  .invoice-header.row.mb-4
+  .invoice-header.row.mb-4{class: @invoice.prelude.present? ? 'no-bottom-border' : ''}
     .col-md-6
       %h1.h2.mb-3
         Invoice
@@ -21,6 +21,9 @@
             %strong Customer:
           .col-sm-8
             = @invoice.customer_name || @invoice.customer.name
+
+    .col-md-6
+      .invoice-details.mt-md-5
         - if @invoice.project_id.present?
           .row.mb-2
             .col-sm-4
@@ -42,13 +45,12 @@
               %strong Order No:
             .col-sm-8
               = @invoice.cust_order
-
-    .col-md-6
-      - if @invoice.token.present?
-        .invoice-meta.text-end
-          .small.text-muted
-            Token:
-            = @invoice.token
+        - if @invoice.token.present?
+          .row.mb-2
+            .col-sm-4
+              %strong Token:
+            .col-sm-8
+              .small.text-muted= @invoice.token
 
   - if @invoice.prelude.present?
     .invoice-prelude.mb-4

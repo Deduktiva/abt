@@ -72,6 +72,11 @@ body { padding-top: 60px; }
   border-bottom: 2px solid #dee2e6;
   padding-bottom: 1.5rem;
   margin-bottom: 1.5rem;
+  
+  &.no-bottom-border {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
 }
 
 .invoice-details .row {

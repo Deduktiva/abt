@@ -1,0 +1,142 @@
+name: Auto Approve and Merge
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  auto-approve-merge:
+    if: |
+      github.event.issue.pull_request &&
+      github.event.comment.body == '/approve' &&
+      github.event.comment.author_association == 'OWNER'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get PR details
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            return {
+              head_sha: pr.head.sha,
+              mergeable: pr.mergeable,
+              draft: pr.draft
+            };
+
+      - name: Check if PR is ready
+        if: fromJSON(steps.pr.outputs.result).draft == true
+        run: |
+          echo "PR is still a draft, skipping auto-merge"
+          exit 1
+
+      - name: Wait for CI to complete
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const head_sha = '${{ fromJSON(steps.pr.outputs.result).head_sha }}';
+
+            // Wait up to 30 minutes for CI to complete
+            const maxWaitTime = 30 * 60 * 1000; // 30 minutes
+            const startTime = Date.now();
+
+            while (Date.now() - startTime < maxWaitTime) {
+              const { data: checks } = await github.rest.checks.listForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: head_sha
+              });
+
+              const { data: statuses } = await github.rest.repos.listCommitStatusesForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: head_sha
+              });
+
+              // Check if all checks are completed
+              const allChecks = [...checks.check_runs, ...statuses];
+              const pendingChecks = allChecks.filter(check =>
+                (check.status === 'queued' || check.status === 'in_progress') ||
+                (check.state === 'pending')
+              );
+
+              if (pendingChecks.length === 0) {
+                // All checks completed, check if any failed
+                const failedChecks = allChecks.filter(check =>
+                  check.conclusion === 'failure' || check.state === 'failure' ||
+                  check.conclusion === 'cancelled' || check.state === 'error'
+                );
+
+                if (failedChecks.length > 0) {
+                  console.log('Some checks failed:', failedChecks.map(c => c.name || c.context));
+                  await github.rest.issues.createComment({
+                    issue_number: context.issue.number,
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    body: '❌ Cannot auto-merge: CI checks failed'
+                  });
+                  process.exit(1);
+                } else {
+                  console.log('All checks passed!');
+                  break;
+                }
+              }
+
+              console.log(`Waiting for ${pendingChecks.length} checks to complete...`);
+              await new Promise(resolve => setTimeout(resolve, 30000)); // Wait 30 seconds
+            }
+
+            if (Date.now() - startTime >= maxWaitTime) {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: '⏰ Timeout waiting for CI to complete'
+              });
+              process.exit(1);
+            }
+
+      - name: Approve PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              event: 'APPROVE',
+              body: '✅ Auto-approved via /approve command'
+            });
+
+      - name: Auto-merge PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              await github.rest.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                merge_method: 'squash'
+              });
+
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: '🎉 Auto-merged successfully!'
+              });
+            } catch (error) {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `❌ Failed to auto-merge: ${error.message}`
+              });
+              throw error;
+            }

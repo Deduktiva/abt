@@ -29,7 +29,7 @@ RUN apt-get update -qq && \
 
 # Configure FOP extra jars
 ENV FOP_EXTRA_JAR_PATH /usr/local/fop-extra-jars
-RUN curl -o pdfimages.tgz 'https://www.apache.org/dyn/closer.cgi?filename=/xmlgraphics/fop-pdf-images/binaries/fop-pdf-images-2.11-bin.tar.gz&action=download' && \
+RUN curl -L -o pdfimages.tgz 'https://archive.apache.org/dist/xmlgraphics/fop-pdf-images/binaries/fop-pdf-images-2.11-bin.tar.gz' && \
     mkdir "$FOP_EXTRA_JAR_PATH" && \
     tar --strip-components=1 -x -f pdfimages.tgz -C "$FOP_EXTRA_JAR_PATH" && \
     rm pdfimages.tgz

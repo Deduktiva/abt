@@ -126,14 +126,34 @@
                   %strong
                     %em Use "Test Booking" to calculate
 
-= action_buttons_wrapper do
-  - unless @invoice.published
-    = action_button 'Edit', edit_invoice_path(@invoice), :primary
-  - if @invoice.attachment
-    = action_button 'PDF', @invoice.attachment, :success, { target: '_blank', data: { turbo: false } }
-    = button_to 'Send E-Mail', send_email_invoice_path(@invoice), { class: 'btn btn-warning', data: { 'turbo-confirm': 'Really e-mail this invoice?' } }
-  - else
-    = action_button 'Preview', preview_invoice_path(@invoice), :info, { target: '_blank', data: { turbo: false } }
-  = action_button 'Back', invoices_path, :secondary
-  - unless @invoice.published
-    = button_to 'Test Booking', book_invoice_path(@invoice, :save => false), method: :post, class: 'btn btn-warning'
+.email-preview-wrapper{"data-controller" => "email-preview", "data-email-preview-invoice-id-value" => @invoice.id}
+  = action_buttons_wrapper do
+    - unless @invoice.published
+      = action_button 'Edit', edit_invoice_path(@invoice), :primary
+    - if @invoice.attachment
+      = action_button 'PDF', @invoice.attachment, :success, { target: '_blank', data: { turbo: false } }
+      - if @invoice.customer&.email.present? || (@invoice.customer&.invoice_email_auto_enabled && @invoice.customer&.invoice_email_auto_to.present?)
+        %button.btn.btn-warning{"data-action" => "click->email-preview#open"}
+          Send E-Mail
+    - else
+      = action_button 'Preview', preview_invoice_path(@invoice), :info, { target: '_blank', data: { turbo: false } }
+    = action_button 'Back', invoices_path, :secondary
+    - unless @invoice.published
+      = button_to 'Test Booking', book_invoice_path(@invoice, :save => false), method: :post, class: 'btn btn-warning'
+
+  // Email Preview Modal
+  .modal.d-none{"data-email-preview-target" => "modal", "data-action" => "click->email-preview#closeOnBackdrop keydown@window->email-preview#closeOnEscape", "style" => "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1050; display: flex; align-items: center; justify-content: center;"}
+    .modal-dialog.modal-lg{"style" => "max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto;"}
+      .modal-content
+        .modal-header.d-flex.justify-content-between.align-items-center
+          %h5.modal-title.mb-0
+            Preview - Invoice #{@invoice.document_number}
+          .d-flex.align-items-center
+            %button.btn.btn-success.btn-sm.me-2{"data-action" => "click->email-preview#sendEmail"}
+              Send E-Mail
+            %button.btn-close{"type" => "button", "data-action" => "click->email-preview#close", "aria-label" => "Close"}
+        .modal-body{"data-email-preview-target" => "content"}
+          .text-center
+            .spinner-border{"role" => "status"}
+              %span.visually-hidden Loading...
+            %p Loading email preview...

@@ -7,10 +7,15 @@ published:
 = @invoice.published
 %br
 
-%br
-%b Booking Log:
-%pre
-  = @booking_log.join("\n")
+- if @booking_summary.present?
+  %br
+  %b Booking Result:
+  .alert{class: @booked ? 'alert-success' : 'alert-danger'}
+    = @booking_summary
+    - if @booking_errors.present?
+      %br
+      %strong Errors:
+      = @booking_errors
 
 - if @booked and !@invoice.published?
   = button_to 'Book!', book_invoice_path(@invoice, :save => true), class: 'btn btn-warning me-2'

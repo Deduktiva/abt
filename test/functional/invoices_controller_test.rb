@@ -378,4 +378,40 @@ class InvoicesControllerTest < ActionController::TestCase
     assert_equal 0.0, tax_class.value, "Tax value should be 0.0"
   end
 
+  test "should handle large invoice booking without cookie overflow" do
+    # Create an invoice with many lines to trigger the cookie overflow issue
+    invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "LARGE_INVOICE_TEST"
+    )
+
+    # Add many invoice lines to make the booking log large
+    15.times do |i|
+      invoice.invoice_lines.create!(
+        type: 'item',
+        title: "Large Invoice Item #{i + 1}",
+        description: "This is a test item with a longer description to increase the booking log size for invoice line #{i + 1}",
+        rate: 85.0 + i,
+        quantity: 10.0 + i,
+        sales_tax_product_class: sales_tax_product_classes(:standard),
+        position: i + 1
+      )
+    end
+
+    # Test booking should work without cookie overflow
+    post :book, params: { id: invoice.id, save: false }
+
+    assert_redirected_to book_invoice_path(invoice)
+
+    # Verify flash data was set instead of session data to avoid cookie overflow
+    assert flash[:booking_success].present?, "Flash should contain booking success status"
+    assert flash[:booking_summary].present?, "Flash should contain booking summary"
+    assert flash[:booking_summary].include?('succeeded'), "Flash summary should indicate success"
+
+    # Test the GET request to the booking results page
+    get :book, params: { id: invoice.id }
+    assert_response :success
+  end
+
 end

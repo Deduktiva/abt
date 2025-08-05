@@ -25,7 +25,7 @@
         .input-group.mb-3
           %select.form-select{data: {product_select: true}}
             %option{value: ''} Select a product...
-            - Product.all.each do |product|
+            - Product.order(:title).each do |product|
               %option{value: product.id, data: {title: product.title, description: product.description, rate: product.rate, tax_class: product.sales_tax_product_class_id}}
                 = "#{product.title} - €#{product.rate}"
 

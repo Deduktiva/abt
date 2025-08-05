@@ -138,6 +138,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_05_001644) do
     t.integer "sales_tax_product_class_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["title"], name: "index_products_on_title"
   end
 
   create_table "projects", force: :cascade do |t|

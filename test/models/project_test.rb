@@ -104,4 +104,21 @@ class ProjectTest < ActiveSupport::TestCase
     assert_respond_to @project, :bill_to_customer
     assert_equal @customer, @project.bill_to_customer
   end
+
+  test "should allow projects without bill_to_customer" do
+    project_without_customer = Project.new(
+      matchcode: 'NO_CUSTOMER_PROJECT',
+      description: 'Project without customer'
+    )
+
+    assert project_without_customer.valid?
+    assert_nil project_without_customer.bill_to_customer
+
+    # Should be able to save
+    assert project_without_customer.save
+
+    # Should still have all expected methods
+    assert_respond_to project_without_customer, :bill_to_customer
+    assert_equal 'Project without customer', project_without_customer.display_name
+  end
 end

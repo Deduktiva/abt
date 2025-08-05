@@ -95,6 +95,6 @@ class ProjectsController < ApplicationController
 
 private
   def projects_params
-    params.require(:project).permit(:bill_to_customer_id, :description, :matchcode, :time_budget, :active)
+    params.require(:project).permit(:bill_to_customer_id, :description, :matchcode, :active)
   end
 end

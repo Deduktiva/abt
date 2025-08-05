@@ -77,7 +77,6 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
           matchcode: 'NEW_PROJECT',
           description: 'New project',
           bill_to_customer_id: @customer.id,
-          time_budget: '40 hours',
           active: true
         }
       }
@@ -94,7 +93,6 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
           matchcode: 'NO_CUSTOMER_PROJECT',
           description: 'Project without customer for reuse',
           bill_to_customer_id: '', # Empty customer ID
-          time_budget: '0 hours',
           active: true
         }
       }

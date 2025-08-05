@@ -63,11 +63,6 @@
             = @customer.payment_terms_days
             days
 
-        .row.mb-2
-          .col-sm-4
-            %strong Time Budget:
-          .col-sm-8
-            = @customer.time_budget
 
 - if @customer.invoice_email_auto_enabled?
   .row.mt-4

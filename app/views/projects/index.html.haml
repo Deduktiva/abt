@@ -12,7 +12,6 @@
     %th{:width => "10%"} Matchcode
     %th{:width => "30%"} Name
     %th{:width => "7%"} Status
-    %th Time budget
     %th Bill to customer
     %th{:width => "3%"}
     %th{:width => "3%"}
@@ -27,7 +26,6 @@
           %span.badge.bg-success Active
         - else
           %span.badge.bg-secondary Inactive
-      %td= project.time_budget
       %td= project.bill_to_customer.try(:matchcode)
       %td= list_action_link('Show', project, :show)
       %td= list_action_link('Edit', edit_project_path(project), :edit)

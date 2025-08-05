@@ -1,20 +1,17 @@
 one:
   matchcode: PROJ001
   description: Main test project
-  time_budget: 100
   bill_to_customer: good_eu
   active: true
 
 two:
   matchcode: PROJ002
   description: Secondary test project
-  time_budget: 200
   bill_to_customer: good_national
   active: true
 
 test_project:
   matchcode: TEST
   description: Test project for PDF generation tests
-  time_budget: 100
   bill_to_customer: good_eu
   active: true

@@ -52,10 +52,6 @@
         = f.text_field :invoice_email_auto_subject_template, {:class => 'form-control', :placeholder => 'Subject: XXXX $CUST_REF$ $CUST_ORDER$'}
     %hr
     .row.mb-3
-      = f.label :time_budget, class: 'col-lg-2 col-md-3 col-form-label'
-      .col-lg-5.col-md-4
-        = f.text_field :time_budget, :class => 'form-control'
-    .row.mb-3
       = f.label :payment_terms_days, 'Payment terms (days)', class: 'col-lg-2 col-md-3 col-form-label'
       .col-lg-5.col-md-4
         = f.number_field :payment_terms_days, :class => 'form-control', :min => 1, :max => 365, :value => (@customer.payment_terms_days || 30)

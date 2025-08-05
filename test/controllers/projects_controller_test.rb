@@ -87,6 +87,26 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert Project.last.active?
   end
 
+  test "should create project without customer" do
+    assert_difference('Project.count') do
+      post projects_url, params: {
+        project: {
+          matchcode: 'NO_CUSTOMER_PROJECT',
+          description: 'Project without customer for reuse',
+          bill_to_customer_id: '', # Empty customer ID
+          time_budget: '0 hours',
+          active: true
+        }
+      }
+    end
+
+    assert_redirected_to project_url(Project.last)
+    new_project = Project.last
+    assert new_project.active?
+    assert_nil new_project.bill_to_customer
+    assert_equal 'NO_CUSTOMER_PROJECT', new_project.matchcode
+  end
+
   test "should get edit" do
     get edit_project_url(@project)
     assert_response :success

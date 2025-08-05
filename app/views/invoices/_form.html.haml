@@ -13,7 +13,7 @@
       .col-sm-4
         .mb-3
           %label.form-label Customer
-          = f.collection_select :customer_id, Customer.active, :id, :name, { prompt: 'Select customer...' }, {class: 'form-select'}
+          = f.collection_select :customer_id, Customer.active.order(:name), :id, :name, { prompt: 'Select customer...' }, {class: 'form-select'}
       .col-sm-4
         .mb-3
           %label.form-label Project

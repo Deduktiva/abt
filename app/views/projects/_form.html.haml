@@ -30,7 +30,7 @@
     .row.mb-3
       = f.label :bill_to_customer_id, class: 'col-lg-2 col-md-3 col-form-label'
       .col-lg-5.col-md-4
-        = f.collection_select :bill_to_customer_id, Customer.all, :id, :name, { prompt: 'Select customer...' }, {:class => 'form-select'}
+        = f.collection_select :bill_to_customer_id, Customer.order(:name), :id, :name, { prompt: 'Select customer...' }, {:class => 'form-select'}
 
   = action_buttons_wrapper do
     = f.button :submit, :class => 'btn btn-primary'

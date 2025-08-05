@@ -128,13 +128,6 @@ jobs:
                 pull_number: context.issue.number,
                 merge_method: 'squash'
               });
-
-              await github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: '🎉 Auto-merged successfully!'
-              });
             } catch (error) {
               await github.rest.issues.createComment({
                 issue_number: context.issue.number,

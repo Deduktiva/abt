@@ -13,7 +13,7 @@ module InvoiceHelper
 
   def json_products
     res = Jbuilder.new do |json|
-      json.array! Product.all do |product|
+      json.array! Product.order(:title) do |product|
         json.extract! product, :id, :title, :description, :rate, :sales_tax_product_class_id
       end
     end

@@ -22,21 +22,23 @@ Turbo.config.drive.progressBarDelay = 100
 
 ### Usage Example
 
-The `projects_controller.rb` demonstrates Turbo Stream usage:
+The `projects_controller.rb` contains commented-out Turbo Stream examples:
 
 ```ruby
 respond_to do |format|
   if @project.save
     format.html { redirect_to @project, notice: 'Project was successfully created.' }
-    format.turbo_stream { render turbo_stream: turbo_stream.prepend("projects", partial: "projects/project", locals: { project: @project }) }
+    # format.turbo_stream { render turbo_stream: turbo_stream.prepend("projects", partial: "projects/project", locals: { project: @project }) }
     format.json { render json: @project, status: :created, location: @project }
   else
     format.html { render :new, status: :unprocessable_content }
-    format.turbo_stream { render turbo_stream: turbo_stream.replace("project_form", partial: "projects/form", locals: { project: @project }) }
+    # format.turbo_stream { render turbo_stream: turbo_stream.replace("project_form", partial: "projects/form", locals: { project: @project }) }
     format.json { render json: @project.errors, status: :unprocessable_content }
   end
 end
 ```
+
+**Note**: These examples are commented out because the required partials don't exist yet. Uncomment and adapt them when implementing actual Turbo Stream functionality.
 
 ### Future Implementation
 
@@ -107,5 +109,5 @@ errorController.testError({ params: { message: "Test error message" }});
 #### Controller Not Found
 If `el.controller` returns undefined, access via:
 ```javascript
-const errorController = window.Stimulus.controllers.find(c => c.identifier === 'error-navigation');
+const errorController = window.Stimulus.controllers.find(c => c.identifier === 'error-notification');
 ```

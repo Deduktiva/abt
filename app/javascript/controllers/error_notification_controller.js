@@ -9,26 +9,34 @@ export default class extends Controller {
     this.maxErrorsValue = this.maxErrorsValue || 5
     this.updateDisplay()
 
+    // Store bound methods for proper cleanup
+    this.boundHandleFetchError = this.handleFetchError.bind(this)
+    this.boundHandleFrameMissing = this.handleFrameMissing.bind(this)
+    this.boundHandleSubmitEnd = this.handleSubmitEnd.bind(this)
+    this.boundHandleOffline = this.handleOffline.bind(this)
+    this.boundHandleOnline = this.handleOnline.bind(this)
+    this.boundHandleOutsideClick = this.handleOutsideClick.bind(this)
+
     // Listen for Turbo errors
-    document.addEventListener('turbo:fetch-request-error', this.handleFetchError.bind(this))
-    document.addEventListener('turbo:frame-missing', this.handleFrameMissing.bind(this))
-    document.addEventListener('turbo:submit-end', this.handleSubmitEnd.bind(this))
+    document.addEventListener('turbo:fetch-request-error', this.boundHandleFetchError)
+    document.addEventListener('turbo:frame-missing', this.boundHandleFrameMissing)
+    document.addEventListener('turbo:submit-end', this.boundHandleSubmitEnd)
 
     // Handle network offline/online
-    window.addEventListener('offline', this.handleOffline.bind(this))
-    window.addEventListener('online', this.handleOnline.bind(this))
+    window.addEventListener('offline', this.boundHandleOffline)
+    window.addEventListener('online', this.boundHandleOnline)
 
     // Close dropdown when clicking outside
-    document.addEventListener('click', this.handleOutsideClick.bind(this))
+    document.addEventListener('click', this.boundHandleOutsideClick)
   }
 
   disconnect() {
-    document.removeEventListener('turbo:fetch-request-error', this.handleFetchError.bind(this))
-    document.removeEventListener('turbo:frame-missing', this.handleFrameMissing.bind(this))
-    document.removeEventListener('turbo:submit-end', this.handleSubmitEnd.bind(this))
-    window.removeEventListener('offline', this.handleOffline.bind(this))
-    window.removeEventListener('online', this.handleOnline.bind(this))
-    document.removeEventListener('click', this.handleOutsideClick.bind(this))
+    document.removeEventListener('turbo:fetch-request-error', this.boundHandleFetchError)
+    document.removeEventListener('turbo:frame-missing', this.boundHandleFrameMissing)
+    document.removeEventListener('turbo:submit-end', this.boundHandleSubmitEnd)
+    window.removeEventListener('offline', this.boundHandleOffline)
+    window.removeEventListener('online', this.boundHandleOnline)
+    document.removeEventListener('click', this.boundHandleOutsideClick)
   }
 
   handleFetchError(event) {

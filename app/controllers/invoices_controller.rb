@@ -152,25 +152,31 @@ class InvoicesController < ApplicationController
         flash[:error] = "#{action} failed."
       end
 
-      # Store booking data in session for the redirected page
-      session[:booking_log] = @booking_log
-      session[:booked] = @booked
+      # Store simplified booking result in flash
+      if @booked
+        flash[:booking_success] = true
+        flash[:booking_summary] = "#{action} succeeded. #{@booking_log.length} log entries."
+      else
+        flash[:booking_success] = false
+        flash[:booking_summary] = "#{action} failed. Errors: #{@booking_log.select { |line| line.start_with?('E:') }.length}"
+        # Store only error messages in flash for debugging
+        errors = @booking_log.select { |line| line.start_with?('E:') }
+        flash[:booking_errors] = errors.join('; ') if errors.any?
+      end
 
       respond_to do |format|
         format.html { redirect_to book_invoice_path(@invoice) }
       end
     else
-      # Show the booking results from session data
-      @booking_log = session.delete(:booking_log)
-      @booked = session.delete(:booked)
+      # Show the booking results from flash data
+      @booked = flash[:booking_success]
+      @booking_summary = flash[:booking_summary]
+      @booking_errors = flash[:booking_errors]
 
-      # If no session data (e.g., browser back button), redirect to invoice
-      if @booking_log.nil? && @booked.nil?
+      # If no flash data (e.g., direct access), redirect to invoice
+      if @booked.nil?
         redirect_to @invoice and return
       end
-
-      @booking_log ||= []
-      @booked ||= false
 
       respond_to do |format|
         format.html

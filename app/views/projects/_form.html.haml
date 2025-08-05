@@ -28,7 +28,7 @@
       .col-lg-5.col-md-4
         = f.text_field :time_budget, :class => 'form-control'
     .row.mb-3
-      = f.label :bill_to_customer_id, 'Bill to customer (optional)', class: 'col-lg-2 col-md-3 col-form-label'
+      = f.label :bill_to_customer_id, 'Bill to customer', class: 'col-lg-2 col-md-3 col-form-label'
       .col-lg-5.col-md-4
         = f.collection_select :bill_to_customer_id, Customer.order(:name), :id, :name, { prompt: 'Select customer...', include_blank: 'No customer (reusable project)' }, {:class => 'form-select'}
 

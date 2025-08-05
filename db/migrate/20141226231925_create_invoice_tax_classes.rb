@@ -1,6 +1,6 @@
 class CreateInvoiceTaxClasses < ActiveRecord::Migration[6.0]
   class Invoice < ActiveRecord::Base
-    serialize :tax_classes
+    serialize :tax_classes, coder: YAML
     has_many :invoice_tax_classes
   end
   class InvoiceTaxClass < ActiveRecord::Base; end

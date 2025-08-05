@@ -25,6 +25,10 @@ class CustomersController < ApplicationController
   # GET /customers/1.json
   def show
     @customer = Customer.find(params[:id])
+    @available_projects = Project.where(
+      "bill_to_customer_id = ? OR bill_to_customer_id IS NULL",
+      @customer.id
+    ).order(:matchcode)
 
     respond_to do |format|
       format.html # show.html.erb
@@ -104,7 +108,7 @@ class CustomersController < ApplicationController
 private
   def customers_params
     params.require(:customer).permit(
-        :matchcode, :name, :address, :email, :vat_id, :notes, :sales_tax_customer_class_id, :payment_terms_days,
+        :matchcode, :name, :address, :vat_id, :notes, :sales_tax_customer_class_id, :payment_terms_days,
         :invoice_email_auto_to, :invoice_email_auto_subject_template, :invoice_email_auto_enabled, :active
     )
   end

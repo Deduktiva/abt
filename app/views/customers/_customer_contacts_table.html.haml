@@ -1,0 +1,34 @@
+-# Customer contacts table with add form
+%table.table.table-striped.table-sm
+  %thead.table-light
+    %tr
+      %th{style: 'width: 20%; padding: 0.75rem; font-weight: 600;'} Name
+      %th{style: 'width: 25%; padding: 0.75rem; font-weight: 600;'} Email
+      %th{style: 'width: 20%; padding: 0.75rem; font-weight: 600;'} Document Types
+      %th{style: 'width: 25%; padding: 0.75rem; font-weight: 600;'} Projects
+      %th.text-center{style: 'width: 10%; padding: 0.75rem; font-weight: 600;'} Actions
+  %tbody
+    - customer.customer_contacts.each do |contact|
+      = render 'customers/customer_contact_row', contact: contact
+
+- if local_assigns[:show_new_form]
+  %h6.mt-3 Add New Contact
+  = form_with model: [customer, customer.customer_contacts.build], local: false do |f|
+    - if local_assigns[:new_contact_errors]
+      .alert.alert-danger.mb-3
+        = local_assigns[:new_contact_errors].full_messages.join(", ")
+    .row.g-2
+      .col-md-3
+        = f.text_field :name, class: "form-control", placeholder: "Contact name", required: true
+      .col-md-3
+        = f.email_field :email, class: "form-control", placeholder: "email@example.com", required: true
+      .col-md-2
+        = f.hidden_field :receives_invoices, value: true
+        .badge.bg-primary invoices
+      .col-md-2
+        %small.text-muted Projects added after saving
+      .col-md-2
+        = f.submit "Save", class: "btn btn-success"
+        = link_to "Cancel", customer_customer_contacts_cancel_new_path(customer, format: :turbo_stream),
+          class: "btn btn-secondary ms-1",
+          data: { turbo_frame: "customer_contacts_#{customer.id}" }

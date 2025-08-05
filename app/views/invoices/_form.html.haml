@@ -17,7 +17,7 @@
       .col-sm-4
         .mb-3
           %label.form-label Project
-          = f.collection_select :project_id, Project.all, :id, :display_name, { prompt: 'Select project...' }, {class: 'form-select'}
+          = f.collection_select :project_id, Project.order(:matchcode), :id, :display_name, { prompt: 'Select project...' }, {class: 'form-select'}
       .col-sm-4
         .mb-3
           %label.form-label Date

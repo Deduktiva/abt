@@ -330,7 +330,7 @@ if Rails.env.development?
       cust_order: 'ORDER-WEB-2025-001',
       prelude: 'Web application development services - January 2025',
       date: Date.new(2025, 1, 15),
-      published: true,
+      published: false, # Create as unpublished first
       document_number: '20250001'
     )
 
@@ -364,6 +364,10 @@ if Rails.env.development?
       position: 3
     )
 
+    # Properly initialize the invoice by running the booking process
+    current_year_invoice.save! # Trigger before_save callbacks
+    current_year_invoice.due_date = current_year_invoice.date + current_year_invoice.customer.payment_terms_days.days
+
     # Calculate and set tax classes for the booked invoice
     net_amount = (40.0 * 85.00) + (32.0 * 85.00) + (8.0 * 75.00)
     current_year_invoice.invoice_tax_classes.create!(
@@ -375,6 +379,24 @@ if Rails.env.development?
       value: 0.0,
       total: net_amount
     )
+
+    # Set invoice totals and generate token, then publish
+    current_year_invoice.sum_net = net_amount
+    current_year_invoice.sum_total = net_amount # EU customer, no tax
+    current_year_invoice.token = Rfc4648Base32.i_to_s((SecureRandom.random_number(100).to_s + (current_year_invoice.customer.id + 100000).to_s + current_year_invoice.document_number.to_s).to_i)
+    current_year_invoice.published = true # Now publish the invoice
+
+    # Create a sample PDF attachment
+    sample_pdf_path = Rails.root.join('test', 'fixtures', 'files', 'example_logo.pdf')
+    if File.exist?(sample_pdf_path)
+      current_year_invoice.attachment = Attachment.new
+      current_year_invoice.attachment.set_data File.binread(sample_pdf_path), 'application/pdf'
+      current_year_invoice.attachment.filename = "#{issuer_company.short_name}-Invoice-#{current_year_invoice.document_number}.pdf"
+      current_year_invoice.attachment.title = "#{issuer_company.short_name} Invoice #{current_year_invoice.document_number}"
+      current_year_invoice.attachment.save!
+    end
+
+    current_year_invoice.save!
   end
 
   # Booked invoice for last year (2024)
@@ -386,7 +408,7 @@ if Rails.env.development?
       cust_order: 'ORDER-CONSULT-2024-045',
       prelude: 'Technical consulting services - December 2024',
       date: Date.new(2024, 12, 20),
-      published: true,
+      published: false, # Create as unpublished first
       document_number: '20240145'
     )
 
@@ -420,6 +442,10 @@ if Rails.env.development?
       position: 3
     )
 
+    # Properly initialize the invoice by running the booking process
+    last_year_invoice.save! # Trigger before_save callbacks
+    last_year_invoice.due_date = last_year_invoice.date + last_year_invoice.customer.payment_terms_days.days
+
     # Calculate and set tax classes for the booked invoice
     net_amount = (24.0 * 95.00) + (16.0 * 95.00) + (8.0 * 85.00)
     tax_amount = net_amount * 0.20 # 20% for national customer
@@ -433,6 +459,34 @@ if Rails.env.development?
       value: tax_amount,
       total: net_amount + tax_amount
     )
+
+    # Set invoice totals and generate token, then publish
+    last_year_invoice.sum_net = net_amount
+    last_year_invoice.sum_total = net_amount + tax_amount # National customer with 20% VAT
+    last_year_invoice.token = Rfc4648Base32.i_to_s((SecureRandom.random_number(100).to_s + (last_year_invoice.customer.id + 100000).to_s + last_year_invoice.document_number.to_s).to_i)
+    last_year_invoice.published = true # Now publish the invoice
+
+    # Create a sample PDF attachment
+    sample_pdf_path = Rails.root.join('test', 'fixtures', 'files', 'example_logo.pdf')
+    if File.exist?(sample_pdf_path)
+      last_year_invoice.attachment = Attachment.new
+      last_year_invoice.attachment.set_data File.binread(sample_pdf_path), 'application/pdf'
+      last_year_invoice.attachment.filename = "#{issuer_company.short_name}-Invoice-#{last_year_invoice.document_number}.pdf"
+      last_year_invoice.attachment.title = "#{issuer_company.short_name} Invoice #{last_year_invoice.document_number}"
+      last_year_invoice.attachment.save!
+    end
+
+    last_year_invoice.save!
+  end
+
+  # Update document number sequence to account for seeded invoices
+  dn = DocumentNumber.find_by_code('invoice')
+  if dn && dn.last_date.nil?
+    # Initialize the sequence with the seeded invoice numbers
+    dn.last_date = Date.new(2025, 1, 15) # Date of the latest seeded invoice
+    dn.sequence = 1 # Next number after 20250001 would be 20250002
+    dn.last_number = '20250001'
+    dn.save!
   end
 
   puts "✅ Development sample data created"

@@ -28,8 +28,11 @@
           .col-sm-3
             %strong Bill to Customer:
           .col-sm-9
-            = @project.bill_to_customer.name
-            %small.text-muted (#{@project.bill_to_customer.matchcode})
+            - if @project.bill_to_customer
+              = @project.bill_to_customer.name
+              %small.text-muted (#{@project.bill_to_customer.matchcode})
+            - else
+              %span.text-muted No customer (reusable project)
 
         .row.mb-2
           .col-sm-3

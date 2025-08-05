@@ -99,7 +99,6 @@ if Rails.env.development?
       80-322 Gdańsk
       Poland
     ADDRESS
-    customer.time_budget = 1200
     customer.vat_id = 'PL0123456789'
     customer.email = 'accounting-goodeu@example.com'
     customer.notes = 'Long-term client, monthly invoicing'
@@ -113,7 +112,6 @@ if Rails.env.development?
       1234 AB Amsterdam
       Netherlands
     ADDRESS
-    customer.time_budget = 800
     customer.vat_id = 'NL123456789B01'
     customer.email = 'accounting-localnat@example.com'
     customer.notes = 'Project-based work'
@@ -127,7 +125,6 @@ if Rails.env.development?
       New York, NY 10001
       United States
     ADDRESS
-    customer.time_budget = 2000
     customer.email = 'ap-us@example.com'
     customer.notes = 'US-based client, quarterly invoicing'
     customer.sales_tax_customer_class = export_class
@@ -136,19 +133,16 @@ if Rails.env.development?
   # Sample projects
   webapp_project = Project.find_or_create_by(matchcode: 'WEBAPP') do |project|
     project.description = 'Web Application Development'
-    project.time_budget = 160
     project.bill_to_customer = good_company
   end
 
   consulting_project = Project.find_or_create_by(matchcode: 'CONSULT') do |project|
     project.description = 'IT Consulting Services'
-    project.time_budget = 80
     project.bill_to_customer = local_company
   end
 
   api_project = Project.find_or_create_by(matchcode: 'APIDEV') do |project|
     project.description = 'API Development and Integration'
-    project.time_budget = 120
     project.bill_to_customer = export_company
   end
 

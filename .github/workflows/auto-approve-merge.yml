@@ -137,3 +137,61 @@ jobs:
               });
               throw error;
             }
+
+      - name: Delete source branch
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              // Get PR details to get the source branch name
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number
+              });
+
+              const sourceBranchName = pr.head.ref;
+              const sourceRepo = pr.head.repo.full_name;
+              const targetRepo = context.repo.owner + '/' + context.repo.repo;
+
+              // Only delete if the source branch is from the same repository (not a fork)
+              if (sourceRepo !== targetRepo) {
+                console.log(`Skipping branch deletion: source branch is from fork ${sourceRepo}`);
+                return;
+              }
+
+              // Check if the branch is protected
+              try {
+                const { data: branch } = await github.rest.repos.getBranch({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  branch: sourceBranchName
+                });
+
+                if (branch.protected) {
+                  console.log(`Skipping deletion of protected branch: ${sourceBranchName}`);
+                  return;
+                }
+              } catch (error) {
+                // Branch might not exist anymore, which is fine
+                if (error.status === 404) {
+                  console.log(`Branch ${sourceBranchName} not found, may have been already deleted`);
+                  return;
+                }
+                // For other errors, log but don't fail the workflow
+                console.log(`Aborting: Could not check branch protection status: ${error.message}`);
+                return;
+              }
+
+              // Delete the source branch
+              await github.rest.git.deleteRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `heads/${sourceBranchName}`
+              });
+
+              console.log(`Successfully deleted source branch: ${sourceBranchName}`);
+            } catch (error) {
+              // Log the error but don't fail the workflow - branch deletion is not critical
+              console.log(`Warning: Failed to delete source branch: ${error.message}`);
+            }

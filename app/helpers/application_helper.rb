@@ -146,4 +146,23 @@ module ApplicationHelper
     return '' if datetime.nil?
     datetime.strftime('%Y-%m-%d %H:%M')
   end
+
+  def app_version
+    # Cache the version to avoid repeated git calls
+    @app_version ||= begin
+      if Rails.env.test?
+        # Don't call git in tests to avoid slowing them down
+        "test-version"
+      else
+        # Try to get git revision
+        revision = `git rev-parse --short HEAD 2>/dev/null`.strip
+        if $?.success? && !revision.empty?
+          "v#{revision}"
+        else
+          # Fallback if git is not available or not in a git repo
+          "unknown"
+        end
+      end
+    end
+  end
 end

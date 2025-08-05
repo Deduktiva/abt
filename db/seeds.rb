@@ -223,6 +223,224 @@ if Rails.env.development?
     )
   end
 
+  # Complex draft invoice with different line types
+  unless Invoice.exists?(customer: export_company, project: api_project)
+    complex_invoice = Invoice.create!(
+      customer: export_company,
+      project: api_project,
+      cust_reference: 'API-DEV-2025-Q1',
+      cust_order: 'PO-API-5589',
+      prelude: 'API development project with multiple deliverables and milestone phases',
+      date: 2.weeks.ago.to_date,
+      published: false
+    )
+
+    # Add different types of invoice lines
+    complex_invoice.invoice_lines.create!(
+      type: 'subheading',
+      title: 'Phase 1: Initial Setup and Planning',
+      position: 1
+    )
+
+    complex_invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Project Setup',
+      description: 'Repository setup, CI/CD configuration, and development environment',
+      quantity: 8.0,
+      rate: 95.00,
+      sales_tax_product_class: standard_product,
+      position: 2
+    )
+
+    complex_invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'API Design and Documentation',
+      description: 'OpenAPI specification, endpoint design, and technical documentation',
+      quantity: 16.0,
+      rate: 85.00,
+      sales_tax_product_class: standard_product,
+      position: 3
+    )
+
+    complex_invoice.invoice_lines.create!(
+      type: 'text',
+      title: 'Phase 1 completed on schedule with all deliverables approved by client.',
+      position: 4
+    )
+
+    complex_invoice.invoice_lines.create!(
+      type: 'subheading',
+      title: 'Phase 2: Core Development',
+      position: 5
+    )
+
+    complex_invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Authentication & Authorization',
+      description: 'JWT implementation, role-based access control, and security middleware',
+      quantity: 24.0,
+      rate: 85.00,
+      sales_tax_product_class: standard_product,
+      position: 6
+    )
+
+    complex_invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Core API Endpoints',
+      description: 'CRUD operations, data validation, and error handling',
+      quantity: 40.0,
+      rate: 85.00,
+      sales_tax_product_class: standard_product,
+      position: 7
+    )
+
+    complex_invoice.invoice_lines.create!(
+      type: 'text',
+      title: 'All endpoints tested and documented. Performance requirements exceeded.',
+      position: 8
+    )
+
+    complex_invoice.invoice_lines.create!(
+      type: 'subheading',
+      title: 'Phase 3: Integration and Testing',
+      position: 9
+    )
+
+    complex_invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Integration Testing',
+      description: 'End-to-end testing, third-party API integration, and performance testing',
+      quantity: 20.0,
+      rate: 85.00,
+      sales_tax_product_class: standard_product,
+      position: 10
+    )
+
+    complex_invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Project Management',
+      description: 'Sprint planning, stakeholder communication, and delivery coordination',
+      quantity: 12.0,
+      rate: 75.00,
+      sales_tax_product_class: standard_product,
+      position: 11
+    )
+  end
+
+  # Booked invoice for current year (2025)
+  unless Invoice.exists?(document_number: '20250001')
+    current_year_invoice = Invoice.create!(
+      customer: good_company,
+      project: webapp_project,
+      cust_reference: 'WEBAPP-2025-001',
+      cust_order: 'ORDER-WEB-2025-001',
+      prelude: 'Web application development services - January 2025',
+      date: Date.new(2025, 1, 15),
+      published: true,
+      document_number: '20250001'
+    )
+
+    current_year_invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Frontend Development',
+      description: 'React.js component development and UI implementation',
+      quantity: 40.0,
+      rate: 85.00,
+      sales_tax_product_class: standard_product,
+      position: 1
+    )
+
+    current_year_invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Backend Development',
+      description: 'Database design and REST API implementation',
+      quantity: 32.0,
+      rate: 85.00,
+      sales_tax_product_class: standard_product,
+      position: 2
+    )
+
+    current_year_invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Project Management',
+      description: 'Sprint planning and client communication',
+      quantity: 8.0,
+      rate: 75.00,
+      sales_tax_product_class: standard_product,
+      position: 3
+    )
+
+    # Calculate and set tax classes for the booked invoice
+    net_amount = (40.0 * 85.00) + (32.0 * 85.00) + (8.0 * 75.00)
+    current_year_invoice.invoice_tax_classes.create!(
+      sales_tax_product_class: standard_product,
+      name: standard_product.name,
+      indicator_code: standard_product.indicator_code,
+      rate: 0.0, # EU customer has 0% rate
+      net: net_amount,
+      value: 0.0,
+      total: net_amount
+    )
+  end
+
+  # Booked invoice for last year (2024)
+  unless Invoice.exists?(document_number: '20240145')
+    last_year_invoice = Invoice.create!(
+      customer: local_company,
+      project: consulting_project,
+      cust_reference: 'CONSULT-2024-Q4',
+      cust_order: 'ORDER-CONSULT-2024-045',
+      prelude: 'Technical consulting services - December 2024',
+      date: Date.new(2024, 12, 20),
+      published: true,
+      document_number: '20240145'
+    )
+
+    last_year_invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Infrastructure Consulting',
+      description: 'Cloud architecture review and optimization recommendations',
+      quantity: 24.0,
+      rate: 95.00,
+      sales_tax_product_class: standard_product,
+      position: 1
+    )
+
+    last_year_invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Security Assessment',
+      description: 'Security audit and penetration testing',
+      quantity: 16.0,
+      rate: 95.00,
+      sales_tax_product_class: standard_product,
+      position: 2
+    )
+
+    last_year_invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Documentation',
+      description: 'Technical documentation and implementation guides',
+      quantity: 8.0,
+      rate: 85.00,
+      sales_tax_product_class: standard_product,
+      position: 3
+    )
+
+    # Calculate and set tax classes for the booked invoice
+    net_amount = (24.0 * 95.00) + (16.0 * 95.00) + (8.0 * 85.00)
+    tax_amount = net_amount * 0.20 # 20% for national customer
+
+    last_year_invoice.invoice_tax_classes.create!(
+      sales_tax_product_class: standard_product,
+      name: standard_product.name,
+      indicator_code: standard_product.indicator_code,
+      rate: 20.0, # National customer has 20% VAT
+      net: net_amount,
+      value: tax_amount,
+      total: net_amount + tax_amount
+    )
+  end
+
   puts "✅ Development sample data created"
   puts ""
   puts "📊 Sample Data Summary:"

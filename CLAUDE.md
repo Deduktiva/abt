@@ -115,6 +115,7 @@ For testing against PostgreSQL (matches production environment):
 ### Testing Guidelines
 - Write simple unit tests when implementing new features
 - Test database auto-migrates via `ActiveRecord::Migration.maintain_test_schema!` in test_helper.rb
+- **NEVER use `assigns()` in tests** - it has been extracted to a gem in modern Rails. Use `assert_select` or other response testing methods instead
 
 ### Multi-Region Compatibility
 - This app supports multiple regions - NEVER hardcode currency symbols like $ or USD

@@ -32,5 +32,3 @@
       %td
         - if project.can_be_deleted?
           = destroy_link(project, "Are you sure you want to delete project \"#{project.matchcode}\"?")
-        - else
-          %span.text-muted.small Used

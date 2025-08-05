@@ -117,7 +117,6 @@ if Rails.env.development?
       Poland
     ADDRESS
     customer.vat_id = 'PL0123456789'
-    customer.email = 'accounting-goodeu@example.com'
     customer.notes = 'Long-term client, monthly invoicing'
     customer.sales_tax_customer_class = eu_class
     customer.language = english
@@ -131,7 +130,6 @@ if Rails.env.development?
       Netherlands
     ADDRESS
     customer.vat_id = 'NL123456789B01'
-    customer.email = 'accounting-localnat@example.com'
     customer.notes = 'Project-based work'
     customer.sales_tax_customer_class = national_class
     customer.language = german
@@ -144,7 +142,7 @@ if Rails.env.development?
       New York, NY 10001
       United States
     ADDRESS
-    customer.email = 'ap-us@example.com'
+    customer.time_budget = 2000
     customer.notes = 'US-based client, quarterly invoicing'
     customer.sales_tax_customer_class = export_class
     customer.language = english
@@ -715,6 +713,81 @@ if Rails.env.development?
     dn_delivery.save!
   end
 
+  # Create additional projects for GOODEU customer (for customer contacts testing)
+  goodeu_project1 = Project.find_or_create_by(matchcode: 'GOODEU-WEB') do |project|
+    project.description = 'Good Company Web Portal'
+    project.time_budget = 200
+    project.bill_to_customer = good_company
+  end
+
+  goodeu_project2 = Project.find_or_create_by(matchcode: 'GOODEU-MOBILE') do |project|
+    project.description = 'Good Company Mobile App'
+    project.time_budget = 150
+    project.bill_to_customer = good_company
+  end
+
+  # Customer contacts for all customers except GOODEU
+  unless CustomerContact.exists?(customer: local_company)
+    CustomerContact.create!(
+      customer: local_company,
+      name: 'Maria Schmidt',
+      email: 'maria.schmidt@localnat.com',
+      receives_invoices: true
+    )
+
+    CustomerContact.create!(
+      customer: local_company,
+      name: 'Hans de Vries',
+      email: 'hans.devries@localnat.com',
+      receives_invoices: false
+    )
+  end
+
+  unless CustomerContact.exists?(customer: export_company)
+    CustomerContact.create!(
+      customer: export_company,
+      name: 'John Johnson',
+      email: 'john.johnson@usacorp.com',
+      receives_invoices: true
+    )
+
+    CustomerContact.create!(
+      customer: export_company,
+      name: 'Sarah Williams',
+      email: 'sarah.williams@usacorp.com',
+      receives_invoices: true
+    )
+  end
+
+  # Customer contacts for GOODEU with specific project associations as per requirements
+  unless CustomerContact.exists?(customer: good_company)
+    # Contact associated to both projects (receives invoices)
+    contact1 = CustomerContact.create!(
+      customer: good_company,
+      name: 'Anna Kowalski',
+      email: 'anna.kowalski@goodeu.pl',
+      receives_invoices: true
+    )
+    contact1.projects = [goodeu_project1, goodeu_project2]
+
+    # Contact for no specific project (receives invoices)
+    CustomerContact.create!(
+      customer: good_company,
+      name: 'Piotr Nowak',
+      email: 'piotr.nowak@goodeu.pl',
+      receives_invoices: true
+    )
+
+    # Contact with single project (not marked for invoice receiving)
+    contact3 = CustomerContact.create!(
+      customer: good_company,
+      name: 'Katarzyna Wiśniewski',
+      email: 'katarzyna.wisniewski@goodeu.pl',
+      receives_invoices: false
+    )
+    contact3.projects = [goodeu_project1]
+  end
+
   puts "✅ Development sample data created"
   puts ""
   puts "📊 Sample Data Summary:"
@@ -723,11 +796,13 @@ if Rails.env.development?
   puts "  Products: #{Product.count}"
   puts "  Invoices: #{Invoice.count}"
   puts "  Delivery Notes: #{DeliveryNote.count}"
+  puts "  Customer Contacts: #{CustomerContact.count}"
   puts "  Tax Classes: #{SalesTaxCustomerClass.count} customer, #{SalesTaxProductClass.count} product"
   puts "  Tax Rates: #{SalesTaxRate.count}"
   puts ""
   puts "🚀 You can now:"
   puts "  - Browse customers at /customers"
+  puts "  - Manage customer contacts on customer detail pages"
   puts "  - Create new invoices and delivery notes"
   puts "  - Test PDF generation with sample data"
 end

@@ -1,0 +1,27 @@
+-# New contact form row (shown when adding)
+= form_with model: [customer, customer.customer_contacts.build], local: false, data: { controller: "contact-form" } do |f|
+  - if local_assigns[:errors]
+    %tr
+      %td{colspan: 5}
+        .alert.alert-danger.mb-0
+          = errors.full_messages.join(", ")
+  %tr{style: 'vertical-align: middle; background-color: #f8f9fa;'}
+    %td{style: 'padding: 0.5rem 0.75rem; width: 20%;'}
+      = f.text_field :name, class: "form-control form-control-sm",
+        style: "font-size: 0.875rem;", placeholder: "Contact name", required: true
+    %td{style: 'padding: 0.5rem 0.75rem; width: 25%;'}
+      = f.email_field :email, class: "form-control form-control-sm",
+        style: "font-size: 0.875rem;", placeholder: "email@example.com", required: true
+    %td{style: 'padding: 0.5rem 0.75rem; width: 20%;'}
+      = f.hidden_field :receives_invoices, value: true
+      .badge.bg-primary invoices
+    %td{style: 'padding: 0.5rem 0.75rem; width: 25%;'}
+      -# Projects will be empty for new contacts
+      .d-flex.flex-wrap.gap-1.align-items-center{style: 'min-height: 32px;'}
+        %small.text-muted Add projects after saving
+    %td.text-center{style: 'padding: 0.5rem 0.75rem; width: 10%;'}
+      = f.submit "Save", class: "btn btn-success btn-sm", style: "font-size: 0.875rem; padding: 0.25rem 0.5rem;"
+      = link_to "Cancel", customer_customer_contacts_cancel_new_path(customer),
+        class: "btn btn-secondary btn-sm ms-1",
+        style: "font-size: 0.875rem; padding: 0.25rem 0.5rem;",
+        data: { turbo_frame: "customer_contacts_#{customer.id}" }

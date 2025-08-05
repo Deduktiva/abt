@@ -1,0 +1,25 @@
+-# Customer contact row with edit functionality
+= turbo_frame_tag "customer_contact_#{contact.id}" do
+  %tr{style: 'vertical-align: middle;'}
+  %td{style: 'padding: 0.5rem 0.75rem;'}= contact.name
+  %td{style: 'padding: 0.5rem 0.75rem;'}= contact.email
+  %td{style: 'padding: 0.5rem 0.75rem;'}
+    - if contact.receives_invoices?
+      .badge.bg-primary invoices
+  %td{style: 'padding: 0.5rem 0.75rem;'}
+    .d-flex.flex-wrap.gap-1.align-items-center{style: 'min-height: 32px;'}
+      - if contact.projects.any?
+        - contact.projects.each do |project|
+          .badge.bg-secondary= project.display_name
+      - else
+        %small.text-muted No projects
+  %td.text-center{style: 'padding: 0.5rem 0.75rem;'}
+    .d-flex.gap-1.justify-content-center
+      = link_to "✏️", edit_customer_contact_path(contact, format: :turbo_stream),
+        class: "btn btn-outline-primary btn-sm",
+        title: "Edit contact",
+        data: { turbo_frame: "customer_contact_#{contact.id}" }
+      = form_with url: customer_contact_path(contact), method: :delete, local: false,
+        data: { turbo_frame: "customer_contacts_#{contact.customer.id}" } do |f|
+        = f.submit "🗑", class: "btn btn-outline-danger btn-sm",
+          data: { turbo_confirm: "Delete this contact?" }

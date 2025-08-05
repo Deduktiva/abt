@@ -20,6 +20,26 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_10_173512) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "customer_contact_projects", force: :cascade do |t|
+    t.integer "customer_contact_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["customer_contact_id", "project_id"], name: "index_customer_contact_projects_unique", unique: true
+    t.index ["customer_contact_id"], name: "index_customer_contact_projects_on_customer_contact_id"
+    t.index ["project_id"], name: "index_customer_contact_projects_on_project_id"
+  end
+
+  create_table "customer_contacts", force: :cascade do |t|
+    t.integer "customer_id", null: false
+    t.string "name", null: false
+    t.string "email", null: false
+    t.boolean "receives_invoices", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["customer_id"], name: "index_customer_contacts_on_customer_id"
+  end
+
   create_table "customers", force: :cascade do |t|
     t.string "matchcode"
     t.text "name"
@@ -30,7 +50,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_10_173512) do
     t.integer "sales_tax_customer_class_id"
     t.text "vat_id"
     t.text "supplier_number"
-    t.string "email"
     t.integer "payment_terms_days", default: 30, null: false
     t.string "invoice_email_auto_to", default: "", null: false
     t.string "invoice_email_auto_subject_template", default: "", null: false
@@ -223,6 +242,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_10_173512) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "customer_contact_projects", "customer_contacts"
+  add_foreign_key "customer_contact_projects", "projects"
+  add_foreign_key "customer_contacts", "customers"
   add_foreign_key "customers", "languages"
   add_foreign_key "delivery_note_lines", "delivery_notes"
   add_foreign_key "delivery_notes", "attachments", column: "acceptance_attachment_id"

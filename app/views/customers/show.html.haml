@@ -54,14 +54,8 @@
   .col-md-6
     .card
       .card-header
-        Contact & Terms
+        Terms
       .card-body
-        .row.mb-2
-          .col-sm-4
-            %strong Email:
-          .col-sm-8
-            = @customer.email
-
         .row.mb-2
           .col-sm-4
             %strong Payment Terms:
@@ -94,6 +88,19 @@
               %strong Subject Template:
             .col-sm-9
               = @customer.invoice_email_auto_subject_template
+
+.row.mt-4
+  .col-md-12
+    .card
+      .card-header
+        %h5 Customer Contacts
+      .card-body
+        = turbo_frame_tag "customer_contacts_#{@customer.id}" do
+          = render 'customer_contacts_table', customer: @customer, show_new_form: false
+
+        = link_to "Add Contact", new_customer_customer_contact_path(@customer, format: :turbo_stream),
+          class: "btn btn-success btn-sm",
+          data: { turbo_frame: "customer_contacts_#{@customer.id}" }
 
 - if @customer.notes.present?
   .row.mt-4

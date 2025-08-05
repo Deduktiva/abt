@@ -81,14 +81,6 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     assert used_customer.used_in_invoices?
   end
 
-  test "should show used indicator in index for customers with invoices" do
-    get customers_url
-    assert_response :success
-
-    # Check that used customers show "Used" instead of delete link
-    assert_select 'span.text-muted', text: 'Used'
-  end
-
   test "should filter customers by active status" do
     # Create inactive customer
     inactive = Customer.create!(

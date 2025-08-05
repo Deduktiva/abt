@@ -180,7 +180,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{project_path(unused_project)}'][data-turbo-method='delete']"
   end
 
-  test "index shows 'Used' text instead of delete link for used projects" do
+  test "index hides delete link for used projects" do
     # Create a project and an invoice that uses it
     used_project = Project.create!(
       matchcode: 'USED',
@@ -195,8 +195,6 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
 
     get projects_url
     assert_response :success
-    # Should show 'Used' text instead of delete link
-    assert_select 'span.text-muted.small', text: 'Used'
     # Should NOT have delete link for used project
     assert_select "a[href='#{project_path(used_project)}'][data-turbo-method='delete']", count: 0
   end

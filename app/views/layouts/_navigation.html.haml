@@ -12,6 +12,17 @@
     %li.nav-item
       = link_to('Invoices', invoices_path, :class => 'nav-link')
   %ul.navbar-nav
+    %li.nav-item.dropdown{"data-controller" => "error-notification", "data-error-notification-max-errors-value" => "5", :style => "display: none;", "data-error-notification-target" => "icon"}
+      %a.nav-link{:href => "#", :role => "button", :"data-action" => "click->error-notification#toggle"}
+        %span.badge.rounded-pill.bg-danger{"data-error-notification-target" => "badge"}
+      %ul.dropdown-menu.dropdown-menu-end{"data-error-notification-target" => "dropdown", "data-action" => "click->error-notification#preventClose", :style => "width: 280px; max-height: 300px; overflow-y: auto; z-index: 1050; right: 0; left: auto;"}
+        %li.dropdown-header.px-3.py-2
+          .d-flex.justify-content-between.align-items-center
+            %span.fw-bold Recent Errors
+            %button.btn.btn-xs.btn-outline-danger{"data-action" => "click->error-notification#clearAll", :type => "button", :style => "font-size: 0.75rem; padding: 0.25rem 0.5rem;"} Clear All
+        %li
+          %hr.dropdown-divider
+        %ul.list-unstyled.mb-0{"data-error-notification-target" => "list"}
     %li.nav-item.dropdown{"data-controller" => "navbar"}
       %a.nav-link.dropdown-toggle{:href => "#", :role => "button", :"data-navbar-target" => "toggle", :"data-action" => "click->navbar#toggle"}
         Configuration

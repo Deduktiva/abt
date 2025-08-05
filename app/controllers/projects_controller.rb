@@ -53,9 +53,11 @@ class ProjectsController < ApplicationController
     respond_to do |format|
       if @project.save
         format.html { redirect_to @project, notice: 'Project was successfully created.' }
+        format.turbo_stream { render turbo_stream: turbo_stream.prepend("projects", partial: "projects/project", locals: { project: @project }) }
         format.json { render json: @project, status: :created, location: @project }
       else
         format.html { render :new, status: :unprocessable_content }
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("project_form", partial: "projects/form", locals: { project: @project }) }
         format.json { render json: @project.errors, status: :unprocessable_content }
       end
     end
@@ -69,9 +71,11 @@ class ProjectsController < ApplicationController
     respond_to do |format|
       if @project.update(projects_params)
         format.html { redirect_to @project, notice: 'Project was successfully updated.' }
+        format.turbo_stream { render turbo_stream: turbo_stream.replace(dom_id(@project), partial: "projects/project", locals: { project: @project }) }
         format.json { head :no_content }
       else
         format.html { render :edit, status: :unprocessable_content }
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("project_form", partial: "projects/form", locals: { project: @project }) }
         format.json { render json: @project.errors, status: :unprocessable_content }
       end
     end

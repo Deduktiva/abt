@@ -5,11 +5,11 @@ class ProjectsController < ApplicationController
     params[:filter] ||= 'active'
     @projects = case params[:filter]
                  when 'all'
-                   Project.all
+                   Project.order(:matchcode)
                  when 'inactive'
-                   Project.inactive
+                   Project.inactive.order(:matchcode)
                  else
-                   Project.active
+                   Project.active.order(:matchcode)
                  end
 
     respond_to do |format|

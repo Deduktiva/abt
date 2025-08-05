@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_05_001257) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_05_001644) do
   create_table "attachments", force: :cascade do |t|
     t.string "title"
     t.string "filename"
@@ -148,6 +148,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_05_001257) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "active", default: true, null: false
+    t.index ["matchcode"], name: "index_projects_on_matchcode"
   end
 
   create_table "sales_tax_customer_classes", force: :cascade do |t|

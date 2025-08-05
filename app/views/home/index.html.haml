@@ -1,49 +1,80 @@
-%h1.page-header Welcome to ABT
+%h1.page-header Business Dashboard
 
-- if @data[:issuer_company].png_logo.present?
-  .mb-4.text-center
-    = image_tag png_logo_issuer_company_path, alt: @data[:issuer_company].legal_name, style: 'max-height: 100px; max-width: 300px;'
+.row
+  .col-md-8
+    .card
+      .card-header
+        %h5 Business Statistics
+      .card-body
+        .row.mb-3
+          .col-md-6
+            .card.border-primary
+              .card-body.text-center
+                %h2.text-primary.mb-1= @stats[:invoices_current_year]
+                %p.card-text.mb-0 Invoices this year
+          .col-md-6
+            .card.border-success
+              .card-body.text-center
+                %h2.text-success.mb-1= format_currency(@stats[:invoices_ytd_total])
+                %p.card-text.mb-0 Revenue YTD
 
-%dl
-  - @stats.each do |name, value|
-    %dt
-      = name.capitalize
-      %dd
-        = value
+        .row
+          .col-md-6
+            .card.border-info
+              .card-body.text-center
+                %h2.text-info.mb-1= @stats[:invoices_total_count]
+                %p.card-text.mb-0 Total published invoices
+          .col-md-6
+            .card.border-warning
+              .card-body.text-center
+                %h2.text-warning.mb-1= format_currency(@stats[:invoices_total_amount])
+                %p.card-text.mb-0 Total revenue
 
-%div
-  %dl
-    %dt
-      Company Name:
-      %dd{:style => "color: #{@data[:issuer_company].document_accent_color}"}
-        = @data[:issuer_company].legal_name
-    %dt
-      Address:
-      %dd
-        %address
-          = @data[:issuer_company].address.gsub("\n", ', ')
-    %dt
-      VAT ID:
-      %dd
-        = @data[:issuer_company].vat_id
-    %dt
-      Bank Account:
-      %dd
-        = @data[:issuer_company].bankaccount_bank
-      %dd
-        = @data[:issuer_company].bankaccount_bic
-      %dd
-        = @data[:issuer_company].bankaccount_number
+  .col-md-4
+    .card
+      .card-header
+        %h5 Company Information
+      .card-body
+        - if @data[:issuer_company].png_logo.present?
+          .mb-3.text-center
+            = image_tag png_logo_issuer_company_path, alt: @data[:issuer_company].legal_name, style: 'max-height: 80px; max-width: 200px;'
 
-%div
-  - if not @data[:is_setup_done]
-    %p
-      Quick start: setup sales tax for your country:
-    %p
-      Start by creating
-      %a{:href => new_sales_tax_product_class_path}< product classes
-      and then
-      %a{:href => new_sales_tax_customer_class_path}< customer classes.
-    %p
-      When you have both,
-      %a{:href => new_sales_tax_rate_path}< create tax rates for them.
+        %h6.text-primary{:style => "color: #{@data[:issuer_company].document_accent_color} !important"}
+          = @data[:issuer_company].legal_name
+
+        .mb-2
+          %strong Address:
+          %div
+            - @data[:issuer_company].address.split("\n").each do |line|
+              - unless line.strip.empty?
+                %div= line.strip
+
+        .mb-2
+          %strong VAT ID:
+          %div= @data[:issuer_company].vat_id
+
+        .mb-2
+          %strong Bank:
+          %div= @data[:issuer_company].bankaccount_bank
+          %div
+            = @data[:issuer_company].bankaccount_bic
+            = " • "
+            = @data[:issuer_company].bankaccount_number
+
+- if not @data[:is_setup_done]
+  .row.mt-4
+    .col-12
+      .alert.alert-warning
+        %h5 Quick Setup Required
+        %p.mb-2
+          To start using ABT, you need to configure sales tax settings:
+        %ol.mb-0
+          %li
+            Create
+            %a{:href => new_sales_tax_product_class_path} product classes
+          %li
+            Create
+            %a{:href => new_sales_tax_customer_class_path} customer classes
+          %li
+            Define
+            %a{:href => new_sales_tax_rate_path} tax rates

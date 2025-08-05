@@ -209,4 +209,52 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'input[type="checkbox"][name="project[active]"]'
     assert_select 'label.form-check-label', text: 'Active'
   end
+
+  test "should show project without customer" do
+    # Create a project without a customer
+    project_without_customer = Project.create!(
+      matchcode: 'NO_CUSTOMER',
+      description: 'Project without customer',
+      bill_to_customer: nil,
+      active: true
+    )
+
+    get project_url(project_without_customer)
+    assert_response :success
+    assert_select 'span.text-muted', text: 'No customer (reusable project)'
+  end
+
+  test "should edit project without customer" do
+    # Create a project without a customer
+    project_without_customer = Project.create!(
+      matchcode: 'NO_CUSTOMER',
+      description: 'Project without customer',
+      bill_to_customer: nil,
+      active: true
+    )
+
+    get edit_project_url(project_without_customer)
+    assert_response :success
+    # Form should render without errors
+    assert_select 'select[name="project[bill_to_customer_id]"]'
+    assert_select 'option', text: 'No customer (reusable project)'
+  end
+
+  test "should update project to remove customer" do
+    # Start with a project that has a customer
+    assert_not_nil @project.bill_to_customer
+
+    # Update to remove the customer
+    patch project_url(@project), params: {
+      project: {
+        bill_to_customer_id: '', # Empty to remove customer
+        description: 'Updated to have no customer'
+      }
+    }
+    assert_redirected_to project_url(@project)
+
+    @project.reload
+    assert_nil @project.bill_to_customer
+    assert_equal 'Updated to have no customer', @project.description
+  end
 end

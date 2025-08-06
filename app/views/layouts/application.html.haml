@@ -8,9 +8,22 @@
     %link{rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'}
     = stylesheet_link_tag    "application", :media => "all"
     = javascript_importmap_tags
+    :javascript
+      // Automatically use browser's dark mode preference
+      (function() {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = prefersDark ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-bs-theme', theme);
+
+        // Listen for changes to the browser's color scheme preference
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+          const newTheme = e.matches ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-bs-theme', newTheme);
+        });
+      })();
     = yield :head
   %body.d-flex.flex-column.min-vh-100
-    %nav.navbar.navbar-expand-lg.navbar-light.bg-light.fixed-top{"data-controller" => "navbar"}
+    %nav.navbar.navbar-expand-lg.bg-body-tertiary.fixed-top{"data-controller" => "navbar"}
       .container-fluid
         = render 'layouts/navigation'
     %main#main{:role => "main", :class => "flex-grow-1"}

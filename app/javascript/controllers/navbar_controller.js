@@ -4,8 +4,10 @@ export default class extends Controller {
   static targets = ["menu", "toggle"]
 
   connect() {
-    // Close menu when clicking outside
+    // Store bound function reference for proper cleanup
     this.boundCloseOnOutsideClick = this.closeOnOutsideClick.bind(this)
+
+    // Close menu when clicking outside
     document.addEventListener('click', this.boundCloseOnOutsideClick)
   }
 

@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["select", "search", "dropdown", "option", "customerField"]
+  static targets = ["select", "search", "dropdown", "customerField"]
   static values = {
     currentCustomerId: Number,
     currentProjectId: Number
@@ -10,7 +10,15 @@ export default class extends Controller {
   connect() {
     this.boundDocumentClickHandler = this.handleDocumentClick.bind(this)
     this.boundCustomerChangedHandler = this.customerChanged.bind(this)
-    this.loadProjects()
+
+
+    // Only load projects if we have a customer selected
+    if (this.currentCustomerIdValue) {
+      this.loadProjects()
+    } else {
+      this.showSelectCustomerMessage()
+    }
+
     this.setupEventListeners()
   }
 
@@ -22,6 +30,7 @@ export default class extends Controller {
     if (this.hasCustomerFieldTarget) {
       this.customerFieldTarget.removeEventListener('blur', this.boundCustomerChangedHandler)
       this.customerFieldTarget.removeEventListener('change', this.boundCustomerChangedHandler)
+      this.customerFieldTarget.removeEventListener('input', this.boundCustomerChangedHandler)
     }
   }
 
@@ -30,6 +39,7 @@ export default class extends Controller {
     if (this.hasCustomerFieldTarget) {
       this.customerFieldTarget.addEventListener('blur', this.boundCustomerChangedHandler)
       this.customerFieldTarget.addEventListener('change', this.boundCustomerChangedHandler)
+      this.customerFieldTarget.addEventListener('input', this.boundCustomerChangedHandler)
     }
 
     // Setup search functionality
@@ -57,8 +67,14 @@ export default class extends Controller {
 
     if (newCustomerId !== oldCustomerId.toString()) {
       this.currentCustomerIdValue = newCustomerId ? parseInt(newCustomerId) : null
-      await this.loadProjects()
-      this.validateCurrentProject()
+
+      if (this.currentCustomerIdValue) {
+        await this.loadProjects()
+      } else {
+        // No customer selected - clear projects and show message
+        this.clearSelection()
+        this.showSelectCustomerMessage()
+      }
     }
   }
 
@@ -79,7 +95,9 @@ export default class extends Controller {
       params.append('include_reusable', 'true')
       params.append('filter', 'active')
 
-      const response = await fetch(`/projects?${params}`, {
+      const url = `/projects?${params}`
+
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Accept': 'text/vnd.turbo-stream.html',
@@ -89,13 +107,16 @@ export default class extends Controller {
 
       if (response.ok) {
         const turboStreamHtml = await response.text()
-        Turbo.renderStreamMessage(turboStreamHtml)
 
-        // Wait for DOM update, then re-attach event listeners and restore selection
-        setTimeout(() => {
+        // Use MutationObserver to watch for DOM changes
+        this.observeDropdownChanges(() => {
           this.attachOptionEventListeners()
+          this.reattachSearchListener()
+          this.validateCurrentProject()
           this.hideLoading()
-        }, 10)
+        })
+
+        Turbo.renderStreamMessage(turboStreamHtml)
       } else {
         this.handleError(`Failed to load projects: ${response.statusText}`)
         this.restoreDisplayOrShowError()
@@ -141,57 +162,44 @@ export default class extends Controller {
     })
   }
 
-  renderOptions() {
-    // This method is no longer needed since we use Turbo Streams
-    // but keeping it for backward compatibility during transition
-    const dropdownContent = this.dropdownTarget.querySelector('.dropdown-content')
-    if (!dropdownContent) return
+  reattachSearchListener() {
+    // Re-attach search functionality after Turbo Stream update
+    if (this.hasSearchTarget) {
+      const searchInput = this.searchTarget
+      if (searchInput) {
+        // Remove existing listeners by replacing with clone
+        const newSearchInput = searchInput.cloneNode(true)
+        searchInput.parentNode.replaceChild(newSearchInput, searchInput)
 
-    dropdownContent.innerHTML = ''
-
-    if (this.projects.length === 0) {
-      dropdownContent.innerHTML = '<div class="dropdown-item text-muted">No projects available</div>'
-      return
+        // Re-attach event listeners
+        newSearchInput.addEventListener('input', this.filterOptions.bind(this))
+        newSearchInput.addEventListener('keydown', this.handleKeyNavigation.bind(this))
+      }
     }
-
-    this.projects.forEach(project => {
-      const option = this.createOptionElement(project)
-      dropdownContent.appendChild(option)
-    })
   }
 
-  createOptionElement(project) {
-    const option = document.createElement('div')
-    option.className = 'dropdown-item project-option'
-    option.dataset.projectId = project.id
-    option.dataset.projectName = project.name.toLowerCase()
-    option.dataset.projectMatchcode = project.matchcode.toLowerCase()
+  observeDropdownChanges(callback) {
+    const observer = new MutationObserver((mutations) => {
+      // Check if project options were added/changed
+      const hasProjectOptions = mutations.some(mutation =>
+        Array.from(mutation.addedNodes).some(node =>
+          node.nodeType === Node.ELEMENT_NODE &&
+          (node.classList?.contains('project-option') ||
+           node.querySelector?.('.project-option'))
+        )
+      )
 
-    const nameDiv = document.createElement('div')
-    nameDiv.className = 'fw-normal'
-    nameDiv.textContent = project.name
+      if (hasProjectOptions) {
+        observer.disconnect()
+        callback()
+      }
+    })
 
-    const detailDiv = document.createElement('div')
-    detailDiv.className = 'small text-muted d-flex justify-content-between align-items-center'
-
-    const matchcodeSpan = document.createElement('span')
-    matchcodeSpan.textContent = project.matchcode
-    detailDiv.appendChild(matchcodeSpan)
-
-    if (project.is_reusable) {
-      const reusableIcon = document.createElement('span')
-      reusableIcon.className = 'text-success'
-      reusableIcon.title = 'Reusable project'
-      reusableIcon.textContent = '♻️'
-      detailDiv.appendChild(reusableIcon)
-    }
-
-    option.appendChild(nameDiv)
-    option.appendChild(detailDiv)
-
-    option.addEventListener('click', () => this.selectProject(project))
-
-    return option
+    // Observe changes to the dropdown target
+    observer.observe(this.dropdownTarget, {
+      childList: true,
+      subtree: true
+    })
   }
 
   selectProject(project) {
@@ -222,9 +230,10 @@ export default class extends Controller {
   validateCurrentProject() {
     if (!this.currentProjectIdValue) return
 
-    const validProject = this.projects.find(p => p.id === this.currentProjectIdValue)
+    // Check if the current project exists in the DOM (after Turbo Stream update)
+    const validProjectElement = this.dropdownTarget.querySelector(`[data-project-id="${this.currentProjectIdValue}"]`)
 
-    if (!validProject) {
+    if (!validProjectElement) {
       // Clear invalid project
       this.currentProjectIdValue = null
       this.clearSelection()
@@ -365,6 +374,19 @@ export default class extends Controller {
     const display = this.selectTarget.querySelector('.select-display')
     if (display) {
       display.innerHTML = '<span class="text-muted">Loading...</span>'
+    }
+  }
+
+  showSelectCustomerMessage() {
+    const display = this.selectTarget.querySelector('.select-display')
+    if (display) {
+      display.innerHTML = '<span class="text-muted">Select customer first...</span>'
+    }
+
+    // Also update the dropdown content
+    const dropdownContent = this.dropdownTarget.querySelector('.dropdown-content')
+    if (dropdownContent) {
+      dropdownContent.innerHTML = '<div class="dropdown-item text-muted">Select a customer first</div>'
     }
   }
 

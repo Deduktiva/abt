@@ -3,18 +3,46 @@ class ProjectsController < ApplicationController
   # GET /projects.json
   def index
     params[:filter] ||= 'active'
+
     @projects = case params[:filter]
                  when 'all'
-                   Project.order(:matchcode)
+                   Project.all
                  when 'inactive'
-                   Project.inactive.order(:matchcode)
+                   Project.inactive
                  else
-                   Project.active.order(:matchcode)
+                   Project.active
                  end
+
+    # Filters for AJAX requests
+    if params[:customer_id].present?
+      want_reusable_projects = params[:include_reusable].present? && params[:include_reusable] == 'true'
+
+      if want_reusable_projects
+        @projects = @projects.where(
+          'bill_to_customer_id = ? OR bill_to_customer_id IS NULL',
+          params[:customer_id]
+        )
+      else
+        @projects = @projects.where(bill_to_customer_id: params[:customer_id])
+      end
+    end
+
+    @projects = @projects.order(:matchcode, :description)
 
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @projects }
+      format.turbo_stream { render :filter_options }
+      format.json {
+        render json: @projects.map { |project|
+          {
+            id: project.id,
+            name: project.display_name,
+            matchcode: project.matchcode,
+            description: project.description,
+            is_reusable: project.bill_to_customer_id.nil?
+          }
+        }
+      }
     end
   end
 

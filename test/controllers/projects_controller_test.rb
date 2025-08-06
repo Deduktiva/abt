@@ -247,4 +247,141 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_nil @project.bill_to_customer
     assert_equal 'Updated to have no customer', @project.description
   end
+
+  test "should filter projects by customer_id in JSON format" do
+    # Create additional projects for testing
+    customer_a = customers(:good_eu)
+    customer_b = customers(:good_national)
+
+    project_a = Project.create!(
+      matchcode: 'CUST_A',
+      description: 'Project for Customer A',
+      bill_to_customer: customer_a,
+      active: true
+    )
+
+    project_b = Project.create!(
+      matchcode: 'CUST_B',
+      description: 'Project for Customer B',
+      bill_to_customer: customer_b,
+      active: true
+    )
+
+    get projects_url(format: :json, customer_id: customer_a.id)
+    assert_response :success
+
+    projects = JSON.parse(response.body)
+    customer_a_project_ids = projects.map { |p| p['id'] }
+
+    assert_includes customer_a_project_ids, project_a.id
+    assert_not_includes customer_a_project_ids, project_b.id
+  end
+
+  test "should include reusable projects when include_reusable is true" do
+    # Create a reusable project (no customer)
+    reusable_project = Project.create!(
+      matchcode: 'REUSABLE',
+      description: 'Reusable project',
+      bill_to_customer: nil,
+      active: true
+    )
+
+    get projects_url(format: :json, include_reusable: 'true')
+    assert_response :success
+
+    projects = JSON.parse(response.body)
+    project_ids = projects.map { |p| p['id'] }
+    reusable_flags = projects.map { |p| p['is_reusable'] }
+
+    assert_includes project_ids, reusable_project.id
+    assert_includes reusable_flags, true
+  end
+
+  test "should filter by customer and include reusable projects" do
+    customer = customers(:good_eu)
+
+    # Create project assigned to customer
+    customer_project = Project.create!(
+      matchcode: 'ASSIGNED',
+      description: 'Project assigned to customer',
+      bill_to_customer: customer,
+      active: true
+    )
+
+    # Create reusable project
+    reusable_project = Project.create!(
+      matchcode: 'REUSABLE',
+      description: 'Reusable project',
+      bill_to_customer: nil,
+      active: true
+    )
+
+    # Create project for different customer
+    other_customer = customers(:good_national)
+    other_project = Project.create!(
+      matchcode: 'OTHER',
+      description: 'Project for other customer',
+      bill_to_customer: other_customer,
+      active: true
+    )
+
+    get projects_url(format: :json, customer_id: customer.id, include_reusable: 'true')
+    assert_response :success
+
+    projects = JSON.parse(response.body)
+    project_ids = projects.map { |p| p['id'] }
+
+    # Should include customer's project and reusable project
+    assert_includes project_ids, customer_project.id
+    assert_includes project_ids, reusable_project.id
+
+    # Should NOT include other customer's project
+    assert_not_includes project_ids, other_project.id
+  end
+
+  test "JSON response includes all required fields" do
+    get projects_url(format: :json, filter: 'active')
+    assert_response :success
+
+    projects = JSON.parse(response.body)
+    assert projects.length > 0
+
+    project = projects.first
+    assert project.key?('id')
+    assert project.key?('name')
+    assert project.key?('matchcode')
+    assert project.key?('description')
+    assert project.key?('is_reusable')
+  end
+
+  test "JSON response marks reusable projects correctly" do
+    # Create projects with and without customers
+    with_customer = Project.create!(
+      matchcode: 'WITH_CUST',
+      description: 'With customer',
+      bill_to_customer: customers(:good_eu),
+      active: true
+    )
+
+    without_customer = Project.create!(
+      matchcode: 'NO_CUST',
+      description: 'Without customer',
+      bill_to_customer: nil,
+      active: true
+    )
+
+    get projects_url(format: :json, filter: 'active')
+    assert_response :success
+
+    projects = JSON.parse(response.body)
+
+    with_cust_data = projects.find { |p| p['id'] == with_customer.id }
+    without_cust_data = projects.find { |p| p['id'] == without_customer.id }
+
+    assert_not_nil with_cust_data
+    assert_not_nil without_cust_data
+
+    assert_equal false, with_cust_data['is_reusable']
+    assert_equal true, without_cust_data['is_reusable']
+  end
 end

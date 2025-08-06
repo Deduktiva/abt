@@ -135,6 +135,13 @@ For testing against PostgreSQL (matches production environment):
 - `list_action_link(text, path, type)` - Compact buttons for table actions
 - `page_header_with_new_button` - Standard page headers with + New button
 
+### JavaScript/Stimulus Controllers
+- **ALWAYS implement `disconnect()` method** in Stimulus controllers that add event listeners
+- Store bound function references (e.g., `this.boundHandler = this.method.bind(this)`) for proper cleanup
+- Remove event listeners in `disconnect()` using the same bound reference used in `addEventListener`
+- When re-attaching listeners to dynamically created elements, remove existing listeners first to prevent duplicates
+- Document event listeners are particularly important to clean up to prevent memory leaks
+
 ### Communication Style
 - Use direct, technical language in all communications
 - Avoid management/business buzzwords and corporate speak

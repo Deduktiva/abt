@@ -1,0 +1,11 @@
+=turbo_stream.replace "project-dropdown-content" do
+  - if @projects.empty?
+    .dropdown-item.text-muted No projects available
+  - else
+    - @projects.each do |project|
+      .dropdown-item.project-option{ data: { project_id: project.id, project_name: project.display_name.downcase, project_matchcode: project.matchcode.downcase } }
+        .fw-normal= project.display_name
+        .small.text-muted.d-flex.justify-content-between.align-items-center
+          %span= project.matchcode
+          - if project.bill_to_customer_id.nil?
+            %span.text-success{ title: 'Reusable project' } ♻️

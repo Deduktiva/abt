@@ -1,0 +1,42 @@
+// Project dropdown styles
+.project-dropdown {
+  .dropdown-menu {
+    width: 100%;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .project-option {
+    cursor: pointer;
+
+    &:hover,
+    &.focus {
+      background-color: var(--bs-gray-100);
+    }
+
+    &.focus {
+      outline: none;
+    }
+  }
+
+  .select-display {
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // Make the select button look consistent with form controls
+  .btn.form-control {
+    min-height: calc(1.5em + 0.75rem + 2px);
+  }
+}
+
+// Bootstrap dropdown enhancements
+.dropdown-item.text-muted {
+  cursor: default;
+
+  &:hover {
+    background-color: transparent;
+  }
+}

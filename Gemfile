@@ -13,6 +13,11 @@ group :dev do
   gem 'spring-watcher-listen', '~> 2.1.0'
 end
 
+group :test do
+  gem 'simplecov', require: false
+  gem 'simplecov-lcov', require: false
+end
+
 group :test, :prod do
   gem 'pg', '~> 1.6'
 end

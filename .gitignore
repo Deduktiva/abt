@@ -39,3 +39,6 @@ config/database.yml
 /.idea
 /.rakeTasks
 /.generators
+
+# Coverage reports
+/coverage

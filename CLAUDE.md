@@ -141,6 +141,7 @@ For testing against PostgreSQL (matches production environment):
 - Remove event listeners in `disconnect()` using the same bound reference used in `addEventListener`
 - When re-attaching listeners to dynamically created elements, remove existing listeners first to prevent duplicates
 - Document event listeners are particularly important to clean up to prevent memory leaks
+- **Run `npm run lint` after writing Stimulus controllers** to check for event listener memory leaks
 
 ### Communication Style
 - Use direct, technical language in all communications

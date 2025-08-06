@@ -1,0 +1,12 @@
+{
+  "name": "abt",
+  "version": "1.0.0",
+  "description": "ABT Invoice Management System",
+  "main": "app/javascript/application.js",
+  "scripts": {
+    "lint": "node stimulus-memory-leak-checker.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

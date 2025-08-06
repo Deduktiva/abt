@@ -9,6 +9,15 @@ export default class extends Controller {
   }
 
   connect() {
+    this.boundFormatToggleHandler = this.handleFormatToggle.bind(this)
+  }
+
+  disconnect() {
+    // Clean up any dynamically added event listeners
+    const formatButtons = this.element.querySelectorAll('[data-format]')
+    formatButtons.forEach(button => {
+      button.removeEventListener('click', this.boundFormatToggleHandler)
+    })
   }
 
   open(event) {
@@ -121,27 +130,37 @@ export default class extends Controller {
 
   setupFormatToggle() {
     const formatButtons = this.contentTarget.querySelectorAll('[data-format]')
+
+    // Remove existing listeners first to prevent duplicates
+    formatButtons.forEach(button => {
+      button.removeEventListener('click', this.boundFormatToggleHandler)
+    })
+
+    // Add new listeners with bound reference
+    formatButtons.forEach(button => {
+      button.addEventListener('click', this.boundFormatToggleHandler)
+    })
+  }
+
+  handleFormatToggle(event) {
+    event.preventDefault()
+    const button = event.currentTarget
+    const format = button.getAttribute('data-format')
+    const formatButtons = this.contentTarget.querySelectorAll('[data-format]')
     const contentSections = this.contentTarget.querySelectorAll('[data-format-content]')
 
-    formatButtons.forEach(button => {
-      button.addEventListener('click', (event) => {
-        event.preventDefault()
-        const format = button.getAttribute('data-format')
+    // Update button states
+    formatButtons.forEach(btn => btn.classList.remove('active'))
+    button.classList.add('active')
 
-        // Update button states
-        formatButtons.forEach(btn => btn.classList.remove('active'))
-        button.classList.add('active')
-
-        // Show/hide content sections
-        contentSections.forEach(section => {
-          const sectionFormat = section.getAttribute('data-format-content')
-          if (sectionFormat === format) {
-            section.classList.remove('d-none')
-          } else {
-            section.classList.add('d-none')
-          }
-        })
-      })
+    // Show/hide content sections
+    contentSections.forEach(section => {
+      const sectionFormat = section.getAttribute('data-format-content')
+      if (sectionFormat === format) {
+        section.classList.remove('d-none')
+      } else {
+        section.classList.add('d-none')
+      }
     })
   }
 

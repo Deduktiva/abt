@@ -39,7 +39,7 @@ class CustomerContactsControllerTest < ActionDispatch::IntegrationTest
       }, as: :json
     end
 
-    assert_response :success
+    assert_response :unprocessable_entity
     response_data = JSON.parse(response.body)
     assert_not response_data['success']
     assert_includes response_data['errors'], "Name can't be blank"
@@ -73,7 +73,7 @@ class CustomerContactsControllerTest < ActionDispatch::IntegrationTest
       }
     }, as: :json
 
-    assert_response :success
+    assert_response :unprocessable_entity
     response_data = JSON.parse(response.body)
     assert_not response_data['success']
     assert_includes response_data['errors'], "Name can't be blank"

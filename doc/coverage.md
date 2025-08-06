@@ -33,11 +33,18 @@ The report shows:
 
 ## CI Integration
 
-Coverage is automatically measured in GitHub Actions:
+Coverage is automatically measured in GitHub Actions with comprehensive reporting:
 
+### Visibility Features
+- **PR Comments:** Automated coverage report comments on pull requests with percentages
+- **Status Checks:** GitHub status check that fails if coverage drops below 60%
+- **GitHub Actions Summary:** Coverage percentages displayed in job step summary
 - **HTML Reports:** Available as CI artifacts for 30 days
-- **LCOV Format:** Generated for potential integration with external services
-- **Thresholds:** CI fails if coverage drops below 60% or decreases by more than 5%
+
+### Enforcement
+- **Minimum Coverage:** CI fails if line coverage drops below 60%
+- **Coverage Drop Protection:** SimpleCov prevents drops greater than 5%
+- **Branch Protection:** Can be configured to require coverage status checks for merging
 
 ## Configuration
 

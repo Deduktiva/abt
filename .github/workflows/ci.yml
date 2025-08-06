@@ -103,11 +103,24 @@ jobs:
         echo "## Code Coverage Summary" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         if [ -f coverage/coverage.lcov ]; then
-          TOTAL_LINES=$(grep -c "^LF:" coverage/coverage.lcov | head -n 1 || echo "0")
-          HIT_LINES=$(grep -c "^LH:" coverage/coverage.lcov | head -n 1 || echo "0")
+          # Parse coverage from LCOV file
+          TOTAL_LINES=$(grep "^LF:" coverage/coverage.lcov | awk -F: '{sum+=$2} END {print sum+0}')
+          HIT_LINES=$(grep "^LH:" coverage/coverage.lcov | awk -F: '{sum+=$2} END {print sum+0}')
+
           if [ "$TOTAL_LINES" -gt 0 ] && [ "$HIT_LINES" -gt 0 ]; then
-            COVERAGE=$(awk "BEGIN {printf \"%.1f\", ($HIT_LINES/$TOTAL_LINES)*100}")
-            echo "📊 **Line Coverage: ${COVERAGE}%**" >> $GITHUB_STEP_SUMMARY
+            LINE_COVERAGE=$(awk "BEGIN {printf \"%.1f\", ($HIT_LINES/$TOTAL_LINES)*100}")
+            echo "LINE_COVERAGE=${LINE_COVERAGE}" >> $GITHUB_ENV
+            echo "📊 **Line Coverage: ${LINE_COVERAGE}%**" >> $GITHUB_STEP_SUMMARY
+
+            # Parse branch coverage if available
+            TOTAL_BRANCHES=$(grep "^BRF:" coverage/coverage.lcov | awk -F: '{sum+=$2} END {print sum+0}')
+            HIT_BRANCHES=$(grep "^BRH:" coverage/coverage.lcov | awk -F: '{sum+=$2} END {print sum+0}')
+
+            if [ "$TOTAL_BRANCHES" -gt 0 ] && [ "$HIT_BRANCHES" -gt 0 ]; then
+              BRANCH_COVERAGE=$(awk "BEGIN {printf \"%.1f\", ($HIT_BRANCHES/$TOTAL_BRANCHES)*100}")
+              echo "BRANCH_COVERAGE=${BRANCH_COVERAGE}" >> $GITHUB_ENV
+              echo "📊 **Branch Coverage: ${BRANCH_COVERAGE}%**" >> $GITHUB_STEP_SUMMARY
+            fi
           else
             echo "📊 Coverage report generated successfully" >> $GITHUB_STEP_SUMMARY
           fi
@@ -123,13 +136,35 @@ jobs:
         path: coverage/
         retention-days: 30
 
-    - name: Coverage Report Comment
-      if: github.event_name == 'pull_request'
+    - name: Coverage Status Check
       run: |
-        if [ -f coverage/coverage.lcov ]; then
-          echo "Coverage report generated for PR #${{ github.event.number }}"
-          echo "See artifacts for detailed HTML coverage report"
+        if [ -n "$LINE_COVERAGE" ]; then
+          COVERAGE_INT=$(echo "$LINE_COVERAGE" | cut -d. -f1)
+          if [ "$COVERAGE_INT" -lt 60 ]; then
+            echo "❌ Coverage $LINE_COVERAGE% is below minimum threshold of 60%"
+            exit 1
+          else
+            echo "✅ Coverage $LINE_COVERAGE% meets minimum threshold of 60%"
+          fi
+        else
+          echo "⚠️  Could not determine coverage percentage"
+          exit 1
         fi
+
+    - name: Coverage PR Comment
+      if: github.event_name == 'pull_request'
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        header: coverage
+        message: |
+          ## 📊 Coverage Report
+
+          **Line Coverage:** ${{ env.LINE_COVERAGE }}% ${{ env.LINE_COVERAGE >= 60 && '✅' || '❌' }}
+          ${{ env.BRANCH_COVERAGE && format('**Branch Coverage:** {0}%', env.BRANCH_COVERAGE) || '' }}
+
+          📈 **Status:** ${{ env.LINE_COVERAGE >= 60 && 'Meets minimum threshold (60%)' || 'Below minimum threshold (60%)' }}
+
+          📁 [View detailed HTML report in CI artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
   stimulus-memory-leak-check:
     name: Stimulus Memory Leak Check

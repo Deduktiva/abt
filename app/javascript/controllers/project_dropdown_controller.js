@@ -8,15 +8,28 @@ export default class extends Controller {
   }
 
   connect() {
+    this.boundDocumentClickHandler = this.handleDocumentClick.bind(this)
+    this.boundCustomerChangedHandler = this.customerChanged.bind(this)
     this.loadProjects()
     this.setupEventListeners()
+  }
+
+  disconnect() {
+    // Remove document event listener
+    document.removeEventListener('click', this.boundDocumentClickHandler)
+
+    // Remove customer field event listeners
+    if (this.hasCustomerFieldTarget) {
+      this.customerFieldTarget.removeEventListener('blur', this.boundCustomerChangedHandler)
+      this.customerFieldTarget.removeEventListener('change', this.boundCustomerChangedHandler)
+    }
   }
 
   setupEventListeners() {
     // Listen for customer field changes
     if (this.hasCustomerFieldTarget) {
-      this.customerFieldTarget.addEventListener('blur', this.customerChanged.bind(this))
-      this.customerFieldTarget.addEventListener('change', this.customerChanged.bind(this))
+      this.customerFieldTarget.addEventListener('blur', this.boundCustomerChangedHandler)
+      this.customerFieldTarget.addEventListener('change', this.boundCustomerChangedHandler)
     }
 
     // Setup search functionality
@@ -29,11 +42,13 @@ export default class extends Controller {
     this.selectTarget.addEventListener('click', this.toggleDropdown.bind(this))
 
     // Close dropdown when clicking outside
-    document.addEventListener('click', (event) => {
-      if (!this.element.contains(event.target)) {
-        this.closeDropdown()
-      }
-    })
+    document.addEventListener('click', this.boundDocumentClickHandler)
+  }
+
+  handleDocumentClick(event) {
+    if (!this.element.contains(event.target)) {
+      this.closeDropdown()
+    }
   }
 
   async customerChanged(event) {
@@ -108,11 +123,15 @@ export default class extends Controller {
     // Re-attach click listeners to project options after Turbo Stream update
     const options = this.dropdownTarget.querySelectorAll('.project-option')
     options.forEach(option => {
-      const projectId = parseInt(option.dataset.projectId)
-      const projectName = option.querySelector('.fw-normal').textContent
-      const projectMatchcode = option.querySelector('.small').textContent.trim()
+      // Remove any existing listeners by cloning the node
+      const newOption = option.cloneNode(true)
+      option.parentNode.replaceChild(newOption, option)
 
-      option.addEventListener('click', () => {
+      const projectId = parseInt(newOption.dataset.projectId)
+      const projectName = newOption.querySelector('.fw-normal').textContent
+      const projectMatchcode = newOption.querySelector('.small').textContent.trim()
+
+      newOption.addEventListener('click', () => {
         this.selectProject({
           id: projectId,
           name: projectName,

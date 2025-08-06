@@ -15,3 +15,15 @@ test_project:
   description: Test project for PDF generation tests
   bill_to_customer: good_eu
   active: true
+
+reusable_project:
+  matchcode: REUSABLE
+  description: Reusable project without customer
+  bill_to_customer:
+  active: true
+
+inactive_project:
+  matchcode: INACTIVE
+  description: Inactive project for filtering tests
+  bill_to_customer: good_eu
+  active: false

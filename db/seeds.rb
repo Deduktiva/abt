@@ -146,6 +146,22 @@ if Rails.env.development?
     project.bill_to_customer = export_company
   end
 
+  # Reusable projects (no customer assigned)
+  training_project = Project.find_or_create_by(matchcode: 'TRAINING') do |project|
+    project.description = 'Technical Training & Workshops'
+    project.bill_to_customer = nil  # Reusable project
+  end
+
+  maintenance_project = Project.find_or_create_by(matchcode: 'MAINT') do |project|
+    project.description = 'System Maintenance & Support'
+    project.bill_to_customer = nil  # Reusable project
+  end
+
+  research_project = Project.find_or_create_by(matchcode: 'RESEARCH') do |project|
+    project.description = 'R&D and Technology Research'
+    project.bill_to_customer = nil  # Reusable project
+  end
+
   # Sample products
   Product.find_or_create_by(title: 'Software Development') do |product|
     product.description = 'Custom software development services per hour'
@@ -166,9 +182,9 @@ if Rails.env.development?
   end
 
   # Sample invoices (unpublished for testing)
-  unless Invoice.exists?(customer: local_company, project: webapp_project)
+  unless Invoice.exists?(customer: good_company, project: webapp_project)
     invoice = Invoice.create!(
-      customer: local_company,
+      customer: good_company,
       project: webapp_project,
       cust_reference: 'PO-2025-001',
       cust_order: 'ORDER-WEB-2025',
@@ -206,13 +222,26 @@ if Rails.env.development?
     )
   end
 
-  unless Invoice.exists?(customer: good_company, project: consulting_project)
+  unless Invoice.exists?(customer: local_company, project: consulting_project)
     Invoice.create!(
-      customer: good_company,
+      customer: local_company,
       project: consulting_project,
       cust_reference: 'REF-CONSULT-2025',
       prelude: 'Technical consulting services for infrastructure upgrade',
       date: 3.days.ago.to_date,
+      published: false
+    )
+  end
+
+  # Sample invoice using a reusable project
+  unless Invoice.exists?(customer: export_company, project: training_project)
+    Invoice.create!(
+      customer: export_company,
+      project: training_project,
+      cust_reference: 'TRAIN-2025-001',
+      cust_order: 'TRAINING-ORDER-001',
+      prelude: 'Technical training workshop for development team',
+      date: 5.days.ago.to_date,
       published: false
     )
   end

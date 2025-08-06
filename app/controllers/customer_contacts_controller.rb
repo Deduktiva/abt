@@ -87,10 +87,15 @@ class CustomerContactsController < ApplicationController
             "customer_contacts_#{@customer.id}",
             partial: "customers/customer_contacts_table",
             locals: { customer: @customer, show_new_form: true, new_contact_errors: @customer_contact.errors }
-          )
+          ), status: :unprocessable_entity
         end
-        format.json { render json: { success: false, errors: @customer_contact.errors.full_messages } }
+        format.json { render json: { success: false, errors: @customer_contact.errors.full_messages }, status: :unprocessable_entity }
       end
+    end
+  rescue StandardError => e
+    respond_to do |format|
+      format.turbo_stream { head :internal_server_error }
+      format.json { render json: { success: false, error: "Server error occurred" }, status: :internal_server_error }
     end
   end
 
@@ -120,7 +125,7 @@ class CustomerContactsController < ApplicationController
               locals: { customer: @customer_contact.customer, show_new_form: false }
             )
           end
-          format.json { render json: { success: false, errors: @customer_contact.errors.full_messages } }
+          format.json { render json: { success: false, errors: @customer_contact.errors.full_messages }, status: :unprocessable_entity }
         end
       end
     else
@@ -143,9 +148,14 @@ class CustomerContactsController < ApplicationController
               locals: { customer: @customer_contact.customer, show_new_form: false }
             )
           end
-          format.json { render json: { success: false, errors: @customer_contact.errors.full_messages } }
+          format.json { render json: { success: false, errors: @customer_contact.errors.full_messages }, status: :unprocessable_entity }
         end
       end
+    end
+  rescue StandardError => e
+    respond_to do |format|
+      format.turbo_stream { head :internal_server_error }
+      format.json { render json: { success: false, error: "Server error occurred" }, status: :internal_server_error }
     end
   end
 
@@ -171,8 +181,13 @@ class CustomerContactsController < ApplicationController
             locals: { customer: customer, show_new_form: false }
           )
         end
-        format.json { render json: { success: false, errors: @customer_contact.errors.full_messages } }
+        format.json { render json: { success: false, errors: @customer_contact.errors.full_messages }, status: :unprocessable_entity }
       end
+    end
+  rescue StandardError => e
+    respond_to do |format|
+      format.turbo_stream { head :internal_server_error }
+      format.json { render json: { success: false, error: "Server error occurred" }, status: :internal_server_error }
     end
   end
 

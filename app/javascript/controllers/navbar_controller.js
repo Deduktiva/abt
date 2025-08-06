@@ -5,14 +5,17 @@ export default class extends Controller {
 
   connect() {
     // Close menu when clicking outside
-    document.addEventListener('click', this.closeOnOutsideClick.bind(this))
+    this.boundCloseOnOutsideClick = this.closeOnOutsideClick.bind(this)
+    document.addEventListener('click', this.boundCloseOnOutsideClick)
   }
 
   disconnect() {
-    document.removeEventListener('click', this.closeOnOutsideClick.bind(this))
+    document.removeEventListener('click', this.boundCloseOnOutsideClick)
   }
 
-  toggle() {
+  toggle(event) {
+    event.preventDefault()
+
     if (this.hasMenuTarget) {
       this.menuTarget.classList.toggle('show')
 

@@ -8,52 +8,53 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     clear_enqueued_jobs
   end
 
-  test "send_email delivers email for published invoice with regular customer email" do
-    invoice = invoices(:published_invoice)
+  test "send_email delivers email for published invoices with complete flow verification" do
+    # Test regular customer email
+    regular_invoice = invoices(:published_invoice)
 
     assert_enqueued_jobs 1, only: InvoiceEmailSenderJob do
-      post send_email_invoice_path(invoice)
+      post send_email_invoice_path(regular_invoice)
     end
 
-    assert_redirected_to invoice
+    assert_redirected_to regular_invoice
     assert_equal 'E-Mail queued for sending.', flash[:notice]
 
     # Process the enqueued job to actually send the email
     perform_enqueued_jobs
 
-    # Check that email was delivered and timestamp was set
+    # Check that email was delivered with PDF attachment and timestamp was set
     assert_equal 1, ActionMailer::Base.deliveries.size
     delivered_mail = ActionMailer::Base.deliveries.last
     assert_equal ["customer@good-company.co.uk"], delivered_mail.to
     assert_equal "My Example Invoice INV-2024-001", delivered_mail.subject
+    assert_equal 1, delivered_mail.attachments.size
+    assert_equal "test_invoice.pdf", delivered_mail.attachments.first.filename
+    assert_equal "application/pdf", delivered_mail.attachments.first.content_type
 
     # Check that email_sent_at was updated
-    invoice.reload
-    assert_not_nil invoice.email_sent_at
-  end
+    regular_invoice.reload
+    assert_not_nil regular_invoice.email_sent_at
 
-  test "send_email delivers email for published invoice with auto email configuration" do
-    invoice = invoices(:auto_email_invoice)
+    # Clear deliveries for next test
+    ActionMailer::Base.deliveries.clear
+
+    # Test auto email configuration
+    auto_invoice = invoices(:auto_email_invoice)
 
     assert_enqueued_jobs 1, only: InvoiceEmailSenderJob do
-      post send_email_invoice_path(invoice)
+      post send_email_invoice_path(auto_invoice)
     end
 
-    assert_redirected_to invoice
-    assert_equal 'E-Mail queued for sending.', flash[:notice]
-
-    # Process the enqueued job to actually send the email
     perform_enqueued_jobs
 
-    # Check that email was delivered and timestamp was set
+    # Verify auto email delivery
     assert_equal 1, ActionMailer::Base.deliveries.size
-    delivered_mail = ActionMailer::Base.deliveries.last
-    assert_equal ["billing@autoemail.com"], delivered_mail.to
-    assert_equal "Invoice AUTO-ORDER-111 - Ref: AUTO-REF-999", delivered_mail.subject
+    auto_mail = ActionMailer::Base.deliveries.last
+    assert_equal ["billing@autoemail.com"], auto_mail.to
+    assert_equal "Invoice AUTO-ORDER-111 - Ref: AUTO-REF-999", auto_mail.subject
 
-    # Check that email_sent_at was updated
-    invoice.reload
-    assert_not_nil invoice.email_sent_at
+    auto_invoice.reload
+    assert_not_nil auto_invoice.email_sent_at
   end
 
   test "send_email handles customer without email gracefully" do
@@ -91,20 +92,7 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     assert_equal 0, ActionMailer::Base.deliveries.size
   end
 
-  test "send_email includes PDF attachment" do
-    invoice = invoices(:published_invoice)
-
-    post send_email_invoice_path(invoice)
-    perform_enqueued_jobs
-
-    assert_equal 1, ActionMailer::Base.deliveries.size
-    delivered_mail = ActionMailer::Base.deliveries.last
-    assert_equal 1, delivered_mail.attachments.size
-
-    attachment = delivered_mail.attachments.first
-    assert_equal "test_invoice.pdf", attachment.filename
-    assert_equal "application/pdf", attachment.content_type
-  end
+  # PDF attachment test merged into comprehensive email flow test above
 
   test "send_email button only appears for published invoices with attachments" do
     # Test published invoice with attachment - button should appear

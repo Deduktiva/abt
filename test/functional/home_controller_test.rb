@@ -1,15 +1,10 @@
 require 'test_helper'
 
 class HomeControllerTest < ActionController::TestCase
-  test "should get index" do
+  test "should display home page with business statistics and dashboard" do
     get :index
     assert_response :success
     assert_select 'h1', text: 'Business Dashboard'
-  end
-
-  test "should display business statistics" do
-    get :index
-    assert_response :success
 
     # Check that statistics cards are displayed
     assert_select '.card-body .text-primary', text: /\d+/
@@ -22,6 +17,12 @@ class HomeControllerTest < ActionController::TestCase
     assert_select 'p', text: 'Revenue YTD'
     assert_select 'p', text: 'Total published invoices'
     assert_select 'p', text: 'Total revenue'
+
+    # Verify that current year statistics are included
+    assert_select '.card-body h2.text-primary'
+    assert_select '.card-body h2.text-success'
+    assert_select '.card-body h2.text-info'
+    assert_select '.card-body h2.text-warning'
   end
 
   test "should display setup warning when not configured" do
@@ -35,14 +36,4 @@ class HomeControllerTest < ActionController::TestCase
     assert_select '.alert-warning h5', text: 'Quick Setup Required'
   end
 
-  test "statistics should include current year data" do
-    get :index
-    assert_response :success
-
-    # Verify that statistics are displayed (no need to check assigns in modern Rails)
-    assert_select '.card-body h2.text-primary'
-    assert_select '.card-body h2.text-success'
-    assert_select '.card-body h2.text-info'
-    assert_select '.card-body h2.text-warning'
-  end
 end

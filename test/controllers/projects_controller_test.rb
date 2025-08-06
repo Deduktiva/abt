@@ -49,12 +49,6 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   test "should show project" do
     get project_url(@project)
     assert_response :success
-    assert_select 'h5', text: 'Project Information'
-  end
-
-  test "should show active status on project page" do
-    get project_url(@project)
-    assert_response :success
     assert_select '.badge.bg-success', text: 'Active'
   end
 

@@ -10,22 +10,20 @@
 %table.table.table-striped.table-sm
   %tr
     %th{:width => "10%"} Matchcode
-    %th{:width => "30%"} Name
     %th{:width => "7%"} Status
-    %th{:width => "3%"}
+    %th Name
     %th{:width => "3%"}
     %th{:width => "3%"}
 
   - @customers.each do |customer|
     %tr
-      %td= customer.matchcode
-      %td= customer.name
+      %td= link_to customer.matchcode, customer
       %td
         - if customer.active?
           %span.badge.bg-success Active
         - else
           %span.badge.bg-secondary Inactive
-      %td= list_action_link('Show', customer, :show)
+      %td= customer.name
       %td= list_action_link('Edit', edit_customer_path(customer), :edit)
       %td
         - if !customer.used_in_invoices?

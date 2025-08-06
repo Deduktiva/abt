@@ -8,8 +8,6 @@
     %li.nav-item
       = link_to('Projects', projects_path, :class => 'nav-link')
     %li.nav-item
-      = link_to('Catalog', products_path, :class => 'nav-link')
-    %li.nav-item
       = link_to('Invoices', invoices_path, :class => 'nav-link')
   %ul.navbar-nav
     %li.nav-item.dropdown{"data-controller" => "error-notification", "data-error-notification-max-errors-value" => "5", :style => "display: none;", "data-error-notification-target" => "icon"}
@@ -29,6 +27,8 @@
       %ul.dropdown-menu{"data-navbar-target" => "menu"}
         %li
           = link_to('Issuer Company', issuer_company_path, :class => 'dropdown-item')
+        %li
+          = link_to('Product Catalog', products_path, :class => 'dropdown-item')
         %li
           = link_to('Sales Tax', sales_tax_rates_path, :class => 'dropdown-item')
 

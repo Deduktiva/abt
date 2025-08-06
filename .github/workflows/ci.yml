@@ -96,37 +96,18 @@ jobs:
         DATABASE_URL: postgres://postgres:postgres@localhost:5432/abt_test
         RAILS_LOG_LEVEL: debug
       run: |
-        bundle exec rails test
+        bundle exec rails test 2>&1 | tee test_output.log
 
-    - name: Parse coverage results
-      run: |
-        if [ -f coverage/coverage.lcov ]; then
-          # Parse line coverage from LCOV DA (data) entries
-          TOTAL_LINES=$(grep "^DA:" coverage/coverage.lcov | wc -l)
-          HIT_LINES=$(grep "^DA:" coverage/coverage.lcov | awk -F, '$2 > 0' | wc -l)
+        # Extract coverage from SimpleCov console output
+        LINE_COVERAGE=$(grep "Line Coverage:" test_output.log | sed -E 's/.*Line Coverage: ([0-9.]+)%.*/\1/')
+        BRANCH_COVERAGE=$(grep "Branch Coverage:" test_output.log | sed -E 's/.*Branch Coverage: ([0-9.]+)%.*/\1/')
 
-          if [ "$TOTAL_LINES" -gt 0 ]; then
-            LINE_COVERAGE=$(awk "BEGIN {printf \"%.1f\", ($HIT_LINES/$TOTAL_LINES)*100}")
-            echo "LINE_COVERAGE=${LINE_COVERAGE}" >> $GITHUB_ENV
-
-            # Parse branch coverage if available
-            TOTAL_BRANCHES=$(grep "^BRF:" coverage/coverage.lcov | awk -F: '{sum+=$2} END {print sum+0}')
-            HIT_BRANCHES=$(grep "^BRH:" coverage/coverage.lcov | awk -F: '{sum+=$2} END {print sum+0}')
-
-            if [ "$TOTAL_BRANCHES" -gt 0 ] && [ "$HIT_BRANCHES" -gt 0 ]; then
-              BRANCH_COVERAGE=$(awk "BEGIN {printf \"%.1f\", ($HIT_BRANCHES/$TOTAL_BRANCHES)*100}")
-              echo "BRANCH_COVERAGE=${BRANCH_COVERAGE}" >> $GITHUB_ENV
-            fi
-
-            echo "Parsed coverage: Line=${LINE_COVERAGE}% (${HIT_LINES}/${TOTAL_LINES}), Branch=${BRANCH_COVERAGE:-N/A}% (${HIT_BRANCHES:-0}/${TOTAL_BRANCHES:-0})"
-          else
-            echo "❌ No line coverage data found in LCOV file"
-            exit 1
-          fi
-        else
-          echo "❌ LCOV coverage file not found"
-          exit 1
+        echo "LINE_COVERAGE=${LINE_COVERAGE}" >> $GITHUB_ENV
+        if [ -n "$BRANCH_COVERAGE" ]; then
+          echo "BRANCH_COVERAGE=${BRANCH_COVERAGE}" >> $GITHUB_ENV
         fi
+
+        echo "Parsed coverage: Line=${LINE_COVERAGE}%, Branch=${BRANCH_COVERAGE:-N/A}%"
 
     - name: Generate coverage summary
       run: |

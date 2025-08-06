@@ -81,7 +81,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     assert used_customer.used_in_invoices?
   end
 
-  test "should filter customers by active status" do
+  test "should filter customers by active status and handle index properly" do
     # Create inactive customer
     inactive = Customer.create!(
       matchcode: 'INACTIVE',
@@ -90,29 +90,25 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
       sales_tax_customer_class: @customer.sales_tax_customer_class
     )
 
-    # Defaults to active only
+    # Test all filter options in a single request cycle
+    ['active', 'inactive', 'all'].each do |filter_type|
+      get customers_url(filter: filter_type)
+      assert_response :success
+      assert_select ".status-filter .active", text: filter_type.capitalize
+
+      case filter_type
+      when 'active'
+        assert_select 'td', text: 'INACTIVE', count: 0
+      when 'inactive', 'all'
+        assert_select 'td', text: 'INACTIVE'
+      end
+    end
+
+    # Test default behavior (should default to active)
     get customers_url
     assert_response :success
     assert_select '.status-filter .active', text: 'Active'
     assert_select 'td', text: 'INACTIVE', count: 0
-
-    # Test showing only active
-    get customers_url(filter: 'active')
-    assert_response :success
-    assert_select '.status-filter .active', text: 'Active'
-    assert_select 'td', text: 'INACTIVE', count: 0
-
-    # Test showing only inactive
-    get customers_url(filter: 'inactive')
-    assert_response :success
-    assert_select '.status-filter .active', text: 'Inactive'
-    assert_select 'td', text: 'INACTIVE'
-
-    # Test showing all
-    get customers_url(filter: 'all')
-    assert_response :success
-    assert_select '.status-filter .active', text: 'All'
-    assert_select 'td', text: 'INACTIVE'
   end
 
   test "should show active status in show page" do

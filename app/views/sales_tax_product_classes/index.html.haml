@@ -1,4 +1,4 @@
-= page_header_with_new_button('Listing Sales Tax Product Classes', new_sales_tax_product_class_path)
+= page_header_with_new_button('Listing Sales Tax - Product Classes', new_sales_tax_product_class_path)
 
 %table.table.table-striped.table-sm
   %tr
@@ -13,4 +13,3 @@
       %td= sales_tax_product_class.indicator_code
       %td= list_action_link('Edit', edit_sales_tax_product_class_path(sales_tax_product_class), :edit)
       %td= destroy_link(sales_tax_product_class, "Are you sure you want to delete product class \"#{sales_tax_product_class.name}\"?")
-

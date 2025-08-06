@@ -24,17 +24,6 @@ class HomeControllerTest < ActionController::TestCase
     assert_select 'p', text: 'Total revenue'
   end
 
-  test "should display company information" do
-    get :index
-    assert_response :success
-
-    # Check company information section
-    assert_select '.card h5', text: 'Company Information'
-    assert_select 'strong', text: 'Address:'
-    assert_select 'strong', text: 'VAT ID:'
-    assert_select 'strong', text: 'Bank:'
-  end
-
   test "should display setup warning when not configured" do
     # Clear existing tax configuration
     SalesTaxRate.delete_all

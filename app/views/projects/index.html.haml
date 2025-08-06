@@ -10,24 +10,22 @@
 %table.table.table-striped.table-sm
   %tr
     %th{:width => "10%"} Matchcode
-    %th{:width => "30%"} Name
     %th{:width => "7%"} Status
+    %th Name
     %th Bill to customer
-    %th{:width => "3%"}
     %th{:width => "3%"}
     %th{:width => "3%"}
 
   - @projects.each do |project|
     %tr
-      %td= project.matchcode
-      %td= project.description
+      %td= link_to project.matchcode, project
       %td
         - if project.active?
           %span.badge.bg-success Active
         - else
           %span.badge.bg-secondary Inactive
+      %td= project.description
       %td= project.bill_to_customer.try(:matchcode)
-      %td= list_action_link('Show', project, :show)
       %td= list_action_link('Edit', edit_project_path(project), :edit)
       %td
         - if project.can_be_deleted?

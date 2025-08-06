@@ -1,4 +1,4 @@
-= page_header_with_new_button('Listing Sales Tax Customer Classes', new_sales_tax_customer_class_path)
+= page_header_with_new_button('Listing Sales Tax - Customer Classes', new_sales_tax_customer_class_path)
 
 %table.table.table-striped.table-sm
   %tr
@@ -13,4 +13,3 @@
       %td= sales_tax_customer_class.invoice_note
       %td= list_action_link('Edit', edit_sales_tax_customer_class_path(sales_tax_customer_class), :edit)
       %td= destroy_link(sales_tax_customer_class, "Are you sure you want to delete customer class \"#{sales_tax_customer_class.name}\"?")
-

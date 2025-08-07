@@ -142,7 +142,6 @@ if Rails.env.development?
       New York, NY 10001
       United States
     ADDRESS
-    customer.time_budget = 2000
     customer.notes = 'US-based client, quarterly invoicing'
     customer.sales_tax_customer_class = export_class
     customer.language = english
@@ -716,13 +715,11 @@ if Rails.env.development?
   # Create additional projects for GOODEU customer (for customer contacts testing)
   goodeu_project1 = Project.find_or_create_by(matchcode: 'GOODEU-WEB') do |project|
     project.description = 'Good Company Web Portal'
-    project.time_budget = 200
     project.bill_to_customer = good_company
   end
 
   goodeu_project2 = Project.find_or_create_by(matchcode: 'GOODEU-MOBILE') do |project|
     project.description = 'Good Company Mobile App'
-    project.time_budget = 150
     project.bill_to_customer = good_company
   end
 

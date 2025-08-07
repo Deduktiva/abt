@@ -28,12 +28,22 @@ window.saveContact = function(contactId) {
     },
     body: formData
   })
-  .then(response => response.text())
-  .then(html => {
-    // Process turbo-stream response manually
-    Turbo.renderStreamMessage(html);
+  .then(response => {
+    if (response.ok) {
+      return response.text().then(html => {
+        // Process turbo-stream response manually
+        Turbo.renderStreamMessage(html);
+      });
+    } else {
+      // Handle validation errors
+      return response.text().then(html => {
+        // Still process the turbo-stream response even for validation errors
+        Turbo.renderStreamMessage(html);
+      });
+    }
   })
   .catch(error => {
     console.error('Error saving contact:', error);
+    alert('An error occurred while saving the contact.');
   });
 }

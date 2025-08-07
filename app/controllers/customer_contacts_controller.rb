@@ -53,11 +53,14 @@ class CustomerContactsController < ApplicationController
   def cancel_edit
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.replace(
-          "customer_contact_#{@customer_contact.id}",
-          partial: "customers/customer_contact_row",
-          locals: { contact: @customer_contact }
-        )
+        render turbo_stream: [
+          turbo_stream.remove("customer_contact_#{@customer_contact.id}_error"),
+          turbo_stream.replace(
+            "customer_contact_#{@customer_contact.id}",
+            partial: "customers/customer_contact_row",
+            locals: { contact: @customer_contact }
+          )
+        ]
       end
       format.html do
         # For regular HTML requests, redirect back to customer page
@@ -150,11 +153,14 @@ class CustomerContactsController < ApplicationController
           format.json { render json: { success: true } }
         else
           format.turbo_stream do
-            render turbo_stream: turbo_stream.replace(
-              "customer_contact_#{@customer_contact.id}",
-              partial: "customers/customer_contact_edit_form",
-              locals: { contact: @customer_contact }
-            )
+            render turbo_stream: [
+              turbo_stream.remove("customer_contact_#{@customer_contact.id}_error"),
+              turbo_stream.replace(
+                "customer_contact_#{@customer_contact.id}",
+                partial: "customers/customer_contact_edit_form",
+                locals: { contact: @customer_contact, contact_errors: @customer_contact.errors }
+              )
+            ]
           end
           format.json { render json: { success: false, errors: @customer_contact.errors.full_messages }, status: :unprocessable_content }
         end

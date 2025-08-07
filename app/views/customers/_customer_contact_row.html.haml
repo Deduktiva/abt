@@ -20,6 +20,6 @@
         data: { turbo_prefetch: false }
       = form_with url: customer_contact_path(contact.id), method: :delete,
         local: false,
-        data: { turbo_frame: "customer_contacts_#{contact.customer.id}" } do |f|
+        format: :turbo_stream do |f|
         = f.submit "🗑", class: "btn btn-outline-danger btn-sm",
           data: { turbo_confirm: "Delete this contact?" }

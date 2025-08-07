@@ -95,13 +95,11 @@
       .card-header
         %h5 Customer Contacts
       .card-body
-        = turbo_frame_tag "customer_contacts_#{@customer.id}" do
-          = render 'customer_contacts_table', customer: @customer, show_new_form: false
+        = render 'customer_contacts_table', customer: @customer, show_new_form: false
 
         = button_to "Add Contact", new_customer_customer_contact_path(@customer, format: :turbo_stream),
           method: :get,
-          class: "btn btn-success btn-sm",
-          form: { data: { turbo_frame: "customer_contacts_#{@customer.id}" } }
+          class: "btn btn-success btn-sm"
 
 - if @customer.notes.present?
   .row.mt-4

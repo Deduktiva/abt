@@ -37,6 +37,10 @@
         = f.collection_select :sales_tax_customer_class_id, SalesTaxCustomerClass.all, :id, :name, { prompt: 'Select tax class...' }, {:class => 'form-select', :required => true}
     %hr
     .row.mb-3
+      = f.label :email, 'E-Mail', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-lg-5
+        = f.text_field :email, :class => 'form-control'
+    .row.mb-3
       = f.label :invoice_email_auto_enabled, 'Auto. Invoice E-Mail', class: 'col-lg-2 col-md-3 col-form-label'
       .col-lg-1.col-md-2.col-sm-2
         .form-check

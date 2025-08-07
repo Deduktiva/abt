@@ -1,29 +1,36 @@
 -# Customer contact edit form with integrated error handling
+- customer_projects = Project.active.where(bill_to_customer: contact.customer)
+- available_projects_data = customer_projects.map { |p| { id: p.id, matchcode: p.matchcode, description: p.description, display_name: p.display_name } }.to_json
 - if local_assigns[:contact_errors] && contact_errors.any?
   %tr{id: "customer_contact_#{contact.id}_error"}
     %td{colspan: 5, style: 'padding: 0.25rem 0.75rem;'}
       .alert.alert-danger.mb-0{style: 'font-size: 0.875rem; padding: 0.25rem 0.5rem;'}
         = contact_errors.full_messages.join(", ")
-%tr{id: "customer_contact_#{contact.id}", class: 'table-active', style: 'vertical-align: middle;', data: { contact_id: contact.id }}
+%tr{id: "customer_contact_#{contact.id}", class: 'table-active', style: 'vertical-align: middle;', data: { controller: 'customer-contacts', contact_id: contact.id, customer_id: contact.customer.id, available_projects: available_projects_data }}
   %td{style: 'padding: 0.5rem 0.75rem;'}
-    = text_field_tag "name", contact.name, class: "form-control form-control-sm", required: true
+    = text_field_tag "name", contact.name, class: "form-control form-control-sm", required: true, data: { field: 'name', action: 'change->customer-contacts#updateField' }
   %td{style: 'padding: 0.5rem 0.75rem;'}
-    = email_field_tag "email", contact.email, class: "form-control form-control-sm", required: true
+    = email_field_tag "email", contact.email, class: "form-control form-control-sm", required: true, data: { field: 'email', action: 'change->customer-contacts#updateField' }
   %td{style: 'padding: 0.5rem 0.75rem;'}
-    .form-check
-      = check_box_tag "receives_invoices", "1", contact.receives_invoices, class: "form-check-input"
-      = label_tag "receives_invoices", "Invoices", class: "form-check-label"
+    .tag-input-container{data: { field: 'receives_flags' }}
+      .tag-input.form-control.form-control-sm{style: 'min-height: 32px; display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center;', data: { action: 'click->customer-contacts#focusTagInput' }}
+        - if contact.receives_invoices?
+          .badge.bg-primary{data: { tag: 'invoices' }, style: 'font-size: 0.75rem; padding: 0.25rem 0.5rem; display: flex; align-items: center; gap: 0.25rem;'}
+            invoices
+            %button.btn-close.btn-close-white{type: 'button', style: 'font-size: 0.6em; margin-left: 0.25rem;', data: { action: 'click->customer-contacts#removeTag' }}
+        %input.tag-input-field{type: 'text', style: 'border: none; outline: none; flex: 1; min-width: 80px; font-size: 0.875rem;', placeholder: 'Add document type...', data: { action: 'keydown->customer-contacts#handleTagInput input->customer-contacts#showTagSuggestions blur->customer-contacts#hideTagSuggestions' }}
+      .tag-suggestions.dropdown-menu{style: 'display: none; position: absolute; z-index: 1000;'}
   %td{style: 'padding: 0.5rem 0.75rem;'}
-    - customer_projects = Project.active.where(bill_to_customer: contact.customer)
-    - if customer_projects.any?
-      = select_tag :project_ids,
-        options_from_collection_for_select(customer_projects, :id, :display_name, contact.project_ids),
-        { multiple: true, class: "form-select form-select-sm", size: 2, name: "project_ids[]" }
-    - else
-      %small.text-muted No projects available
+    .tag-input-container{data: { field: 'projects' }}
+      .tag-input.form-control.form-control-sm{style: 'min-height: 32px; display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center;', data: { action: 'click->customer-contacts#focusTagInput' }}
+        - contact.projects.each do |project|
+          .badge.bg-secondary{data: { tag: project.id }, style: 'font-size: 0.75rem; padding: 0.25rem 0.5rem; display: flex; align-items: center; gap: 0.25rem;'}
+            = project.display_name
+            %button.btn-close.btn-close-white{type: 'button', style: 'font-size: 0.6em; margin-left: 0.25rem;', data: { action: 'click->customer-contacts#removeTag' }}
+        %input.tag-input-field{type: 'text', style: 'border: none; outline: none; flex: 1; min-width: 80px; font-size: 0.875rem;', placeholder: 'Add project...', data: { action: 'keydown->customer-contacts#handleTagInput input->customer-contacts#filterProjectSuggestions blur->customer-contacts#hideTagSuggestions' }}
+      .tag-suggestions.dropdown-menu{style: 'display: none; position: absolute; z-index: 1000;'}
   %td.text-center{style: 'padding: 0.5rem 0.75rem;'}
     .d-flex.gap-1.justify-content-center
-      = button_tag "💾", type: "button", class: "btn btn-success btn-sm", title: "Save", onclick: "saveContact(#{contact.id})"
       = link_to "❌", cancel_edit_customer_contact_path(contact, format: :turbo_stream),
         class: "btn btn-secondary btn-sm",
         title: "Cancel",

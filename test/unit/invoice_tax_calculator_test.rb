@@ -170,4 +170,46 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
     assert log.any? { |line| line.include?('Test Product') }
     assert log.any? { |line| line.include?('Qty 2.0 * 100.0 = 200.0') }
   end
+
+  test "validates successfully with mixed line types" do
+    # Create mixed lines: subheading, items, and text
+    @invoice.invoice_lines.create!(
+      type: 'subheading',
+      title: 'Phase 1: Setup',
+      position: 1
+    )
+
+    @invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Project Setup',
+      description: 'Initial setup work',
+      rate: 100.0,
+      quantity: 2.0,
+      sales_tax_product_class: @product_class,
+      position: 2
+    )
+
+    @invoice.invoice_lines.create!(
+      type: 'text',
+      title: 'Phase 1 completed successfully',
+      description: 'All deliverables approved',
+      position: 3
+    )
+
+    @invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Documentation',
+      description: 'Technical documentation',
+      rate: 75.0,
+      quantity: 1.0,
+      sales_tax_product_class: @product_class,
+      position: 4
+    )
+
+    result = @invoice.validate_lines_for_booking
+
+    assert result[:success], "Validation should succeed with mixed line types"
+    assert_empty result[:errors], "Should have no errors: #{result[:errors]}"
+    assert @invoice.has_items?, "Invoice should have items"
+  end
 end

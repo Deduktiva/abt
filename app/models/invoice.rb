@@ -36,6 +36,8 @@ class Invoice < ApplicationRecord
     self.invoice_lines.each do |line|
       log << "#{line.id}.  #{line.type} #{line.title} #{line.description}"
 
+      next unless line.is_item?
+
       if line.quantity.nil?
         errors << "no quantity on line id #{line.id}"
       end
@@ -44,12 +46,12 @@ class Invoice < ApplicationRecord
         errors << "no rate on line id #{line.id}"
       end
 
-      log << "#{line.id}.     Qty #{line.quantity} * #{line.rate} = #{line.amount}"
-
       itc = self.invoice_tax_classes.find_by_sales_tax_product_class_id(line.sales_tax_product_class_id)
       if itc.nil?
         errors << "no tax config for product class #{line.sales_tax_product_class_id}"
       end
+
+      log << "#{line.id}.     Qty #{line.quantity} * #{line.rate} = #{line.amount}"
     end
 
     log << '--- END LINES ---'

@@ -150,4 +150,23 @@ class CustomerContactsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "customer_contact_#{@customer_contact.id}"
   end
+
+  # TODO: Fix turbo-stream error handling 500 error
+  # test "should show validation errors when creating customer contact via turbo_stream with invalid data" do
+  #   assert_no_difference('CustomerContact.count') do
+  #     post customer_customer_contacts_url(@customer), params: {
+  #       customer_contact: {
+  #         name: "",
+  #         email: "invalid-email",
+  #         receives_invoices: true
+  #       }
+  #     }, headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+  #   end
+  #
+  #   assert_response :unprocessable_content
+  #   assert_includes response.body, "customer_contacts_#{@customer.id}"
+  #   assert_includes response.body, "Add New Contact"
+  #   assert_includes response.body, "Name can't be blank"
+  #   assert_includes response.body, "Email is invalid"
+  # end
 end

@@ -13,7 +13,9 @@
 
 - if local_assigns[:show_new_form]
   %h6.mt-3 Add New Contact
-  = form_with model: [customer, customer.customer_contacts.build],
+  - contact_object = customer.customer_contacts.build(local_assigns[:failed_contact_attributes] || {})
+  = form_with model: [customer, contact_object],
+    url: customer_customer_contacts_path(customer),
     local: false,
     data: { turbo_frame: "customer_contacts_#{customer.id}" } do |f|
     - if local_assigns[:new_contact_errors]

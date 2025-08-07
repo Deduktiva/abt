@@ -14,6 +14,19 @@ export default class extends Controller {
 
     // Get available projects from the DOM
     this.availableProjects = this.getAvailableProjects()
+
+    // Bind event handlers for proper cleanup
+    this.boundDocumentTypeSuggestionClick = this.handleDocumentTypeSuggestionClick.bind(this)
+    this.boundProjectSuggestionClick = this.handleProjectSuggestionClick.bind(this)
+  }
+
+  disconnect() {
+    // Clean up any event listeners that were added dynamically
+    const suggestions = this.element.querySelectorAll('.tag-suggestions .dropdown-item')
+    suggestions.forEach(item => {
+      item.removeEventListener('click', this.boundDocumentTypeSuggestionClick)
+      item.removeEventListener('click', this.boundProjectSuggestionClick)
+    })
   }
 
   getAvailableProjects() {
@@ -336,14 +349,9 @@ export default class extends Controller {
       item.type = 'button'
       item.className = 'dropdown-item'
       item.textContent = docType.label
-      item.addEventListener('click', (e) => {
-        e.preventDefault()
-        this.addDocumentTypeTag(container, docType.value)
-        const input = container.querySelector('.tag-input-field')
-        input.value = ''
-        this.hideSuggestions(container)
-        input.focus()
-      })
+      item.addEventListener('click', this.boundDocumentTypeSuggestionClick)
+      item.dataset.docTypeValue = docType.value
+      item.dataset.containerId = container.dataset.field || 'receives_flags'
       suggestions.appendChild(item)
     })
 
@@ -371,18 +379,8 @@ export default class extends Controller {
       item.type = 'button'
       item.className = 'dropdown-item'
       item.innerHTML = `<strong>${project.matchcode}</strong> - ${project.description}`
-      item.addEventListener('click', (e) => {
-        e.preventDefault()
-        console.log('Project suggestion clicked:', project)
-        const contactRow = container.closest('[data-contact-id]')
-        const contactId = contactRow.dataset.contactId
-        console.log('Contact ID:', contactId)
-        this.addProjectTagByObject(container, project, contactId)
-        const input = container.querySelector('.tag-input-field')
-        input.value = ''
-        this.hideSuggestions(container)
-        input.focus()
-      })
+      item.addEventListener('click', this.boundProjectSuggestionClick)
+      item.dataset.projectData = JSON.stringify(project)
       suggestions.appendChild(item)
     })
 
@@ -437,5 +435,35 @@ export default class extends Controller {
         alert('Error deleting contact')
       })
     }
+  }
+
+  handleDocumentTypeSuggestionClick(e) {
+    e.preventDefault()
+    const item = e.currentTarget
+    const docTypeValue = item.dataset.docTypeValue
+    const container = item.closest('.tag-input-container')
+
+    this.addDocumentTypeTag(container, docTypeValue)
+    const input = container.querySelector('.tag-input-field')
+    input.value = ''
+    this.hideSuggestions(container)
+    input.focus()
+  }
+
+  handleProjectSuggestionClick(e) {
+    e.preventDefault()
+    const item = e.currentTarget
+    const project = JSON.parse(item.dataset.projectData)
+    const container = item.closest('.tag-input-container')
+    const contactRow = container.closest('[data-contact-id]')
+    const contactId = contactRow.dataset.contactId
+
+    console.log('Project suggestion clicked:', project)
+    console.log('Contact ID:', contactId)
+    this.addProjectTagByObject(container, project, contactId)
+    const input = container.querySelector('.tag-input-field')
+    input.value = ''
+    this.hideSuggestions(container)
+    input.focus()
   }
 }

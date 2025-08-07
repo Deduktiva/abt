@@ -13,7 +13,9 @@
 
 - if local_assigns[:show_new_form]
   %h6.mt-3 Add New Contact
-  = form_with model: [customer, customer.customer_contacts.build], local: false do |f|
+  = form_with model: [customer, customer.customer_contacts.build],
+    local: false,
+    data: { turbo_frame: "customer_contacts_#{customer.id}" } do |f|
     - if local_assigns[:new_contact_errors]
       .alert.alert-danger.mb-3
         = local_assigns[:new_contact_errors].full_messages.join(", ")

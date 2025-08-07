@@ -5,6 +5,7 @@ class Customer < ApplicationRecord
   belongs_to :sales_tax_customer_class
   has_many :sales_tax_rates, :through => :sales_tax_customer_class
   has_many :invoices
+  has_many :customer_contacts, dependent: :destroy
 
   # Scopes for filtering
   scope :active, -> { where(active: true) }
@@ -25,6 +26,11 @@ class Customer < ApplicationRecord
 
   def can_be_deactivated?
     used_in_invoices?
+  end
+
+  # Helper method to check if customer has email contacts for invoices
+  def has_invoice_email?
+    invoice_email_auto_enabled || customer_contacts.receiving_invoices.any?
   end
 
   private

@@ -52,9 +52,17 @@
       .card-body
         .row.mb-2
           .col-sm-4
-            %strong Email:
+            %strong Email Contacts:
           .col-sm-8
-            = @customer.email
+            - if @customer.customer_contacts.any?
+              - @customer.customer_contacts.each do |contact|
+                .mb-1
+                  %strong= contact.name
+                  = contact.email
+                  - if contact.receives_invoices
+                    %span.badge.bg-primary.ms-2 Receives Invoices
+            - else
+              %em No email contacts
 
         .row.mb-2
           .col-sm-4

@@ -100,9 +100,14 @@ if Rails.env.development?
       Poland
     ADDRESS
     customer.vat_id = 'PL0123456789'
-    customer.email = 'accounting-goodeu@example.com'
     customer.notes = 'Long-term client, monthly invoicing'
     customer.sales_tax_customer_class = eu_class
+  end
+
+  # Create customer contact for good_company
+  good_company.customer_contacts.find_or_create_by(email: 'accounting-goodeu@example.com') do |contact|
+    contact.name = 'Accounting Department'
+    contact.receives_invoices = true
   end
 
   local_company = Customer.find_or_create_by(matchcode: 'LOCALNAT') do |customer|
@@ -113,9 +118,14 @@ if Rails.env.development?
       Netherlands
     ADDRESS
     customer.vat_id = 'NL123456789B01'
-    customer.email = 'accounting-localnat@example.com'
     customer.notes = 'Project-based work'
     customer.sales_tax_customer_class = national_class
+  end
+
+  # Create customer contact for local_company
+  local_company.customer_contacts.find_or_create_by(email: 'accounting-localnat@example.com') do |contact|
+    contact.name = 'Finance Team'
+    contact.receives_invoices = true
   end
 
   export_company = Customer.find_or_create_by(matchcode: 'USACORP') do |customer|
@@ -125,9 +135,14 @@ if Rails.env.development?
       New York, NY 10001
       United States
     ADDRESS
-    customer.email = 'ap-us@example.com'
     customer.notes = 'US-based client, quarterly invoicing'
     customer.sales_tax_customer_class = export_class
+  end
+
+  # Create customer contact for export_company
+  export_company.customer_contacts.find_or_create_by(email: 'ap-us@example.com') do |contact|
+    contact.name = 'Accounts Payable'
+    contact.receives_invoices = true
   end
 
   # Sample projects

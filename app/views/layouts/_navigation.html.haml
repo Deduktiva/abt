@@ -24,7 +24,7 @@
     %li.nav-item.dropdown{"data-controller" => "navbar"}
       %a.nav-link.dropdown-toggle{:href => "#", :role => "button", :"data-navbar-target" => "toggle", :"data-action" => "click->navbar#toggle"}
         Configuration
-      %ul.dropdown-menu{"data-navbar-target" => "menu"}
+      %ul.dropdown-menu.dropdown-menu-end{"data-navbar-target" => "menu"}
         %li
           = link_to('Issuer Company', issuer_company_path, :class => 'dropdown-item')
         %li

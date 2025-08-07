@@ -3,7 +3,6 @@ class CustomerContactsController < ApplicationController
   before_action :set_customer_contact, only: [:show, :edit, :update, :destroy, :cancel_edit]
 
   def new
-    @customer_contact = @customer.customer_contacts.build
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: turbo_stream.replace(
@@ -134,18 +133,18 @@ class CustomerContactsController < ApplicationController
         if @customer_contact.update(customer_contact_params)
           format.turbo_stream do
             render turbo_stream: turbo_stream.replace(
-              "customer_contacts_#{@customer_contact.customer.id}",
-              partial: "customers/customer_contacts_table",
-              locals: { customer: @customer_contact.customer, show_new_form: false }
+              "customer_contact_#{@customer_contact.id}",
+              partial: "customers/customer_contact_row",
+              locals: { contact: @customer_contact }
             )
           end
           format.json { render json: { success: true } }
         else
           format.turbo_stream do
             render turbo_stream: turbo_stream.replace(
-              "customer_contacts_#{@customer_contact.customer.id}",
-              partial: "customers/customer_contacts_table",
-              locals: { customer: @customer_contact.customer, show_new_form: false }
+              "customer_contact_#{@customer_contact.id}",
+              partial: "customers/customer_contact_edit_form",
+              locals: { contact: @customer_contact }
             )
           end
           format.json { render json: { success: false, errors: @customer_contact.errors.full_messages }, status: :unprocessable_content }

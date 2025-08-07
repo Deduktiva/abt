@@ -29,6 +29,6 @@
         %small.text-muted Projects added after saving
       .col-md-2
         = f.submit "Save", class: "btn btn-success"
-        = link_to "Cancel", customer_customer_contacts_cancel_new_path(customer, format: :turbo_stream),
+        = link_to "Cancel", cancel_new_customer_customer_contacts_path(customer, format: :turbo_stream),
           class: "btn btn-secondary ms-1",
           data: { turbo_frame: "customer_contacts_#{customer.id}" }

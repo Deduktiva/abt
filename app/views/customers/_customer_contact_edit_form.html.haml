@@ -1,20 +1,19 @@
 -# Customer contact edit form
-= form_with model: contact, local: false, data: { turbo_frame: "customer_contact_#{contact.id}" } do |f|
-  %tr{style: 'vertical-align: middle; background-color: #f8f9fa;'}
-    %td{style: 'padding: 0.5rem 0.75rem;'}
-      = f.text_field :name, class: "form-control form-control-sm", required: true
-    %td{style: 'padding: 0.5rem 0.75rem;'}
-      = f.email_field :email, class: "form-control form-control-sm", required: true
-    %td{style: 'padding: 0.5rem 0.75rem;'}
-      .form-check
-        = f.check_box :receives_invoices, class: "form-check-input"
-        = f.label :receives_invoices, "Invoices", class: "form-check-label"
-    %td{style: 'padding: 0.5rem 0.75rem;'}
-      %small.text-muted Project editing coming soon
-    %td.text-center{style: 'padding: 0.5rem 0.75rem;'}
-      .d-flex.gap-1.justify-content-center
-        = f.submit "💾", class: "btn btn-success btn-sm", title: "Save"
-        = link_to "❌", cancel_edit_customer_contact_path(contact, format: :turbo_stream),
-          class: "btn btn-secondary btn-sm",
-          title: "Cancel",
-          data: { turbo_frame: "customer_contact_#{contact.id}" }
+%tr{id: "customer_contact_#{contact.id}", style: 'vertical-align: middle; background-color: #f8f9fa;', data: { contact_id: contact.id }}
+  %td{style: 'padding: 0.5rem 0.75rem;'}
+    = text_field_tag "name", contact.name, class: "form-control form-control-sm", required: true
+  %td{style: 'padding: 0.5rem 0.75rem;'}
+    = email_field_tag "email", contact.email, class: "form-control form-control-sm", required: true
+  %td{style: 'padding: 0.5rem 0.75rem;'}
+    .form-check
+      = check_box_tag "receives_invoices", "1", contact.receives_invoices, class: "form-check-input"
+      = label_tag "receives_invoices", "Invoices", class: "form-check-label"
+  %td{style: 'padding: 0.5rem 0.75rem;'}
+    %small.text-muted Project editing coming soon
+  %td.text-center{style: 'padding: 0.5rem 0.75rem;'}
+    .d-flex.gap-1.justify-content-center
+      = button_tag "💾", type: "button", class: "btn btn-success btn-sm", title: "Save", onclick: "saveContact(#{contact.id})"
+      = link_to "❌", cancel_edit_customer_contact_path(contact, format: :turbo_stream),
+        class: "btn btn-secondary btn-sm",
+        title: "Cancel",
+        data: { turbo_prefetch: false }

@@ -98,9 +98,10 @@
         = turbo_frame_tag "customer_contacts_#{@customer.id}" do
           = render 'customer_contacts_table', customer: @customer, show_new_form: false
 
-        = link_to "Add Contact", new_customer_customer_contact_path(@customer, format: :turbo_stream),
+        = button_to "Add Contact", new_customer_customer_contact_path(@customer, format: :turbo_stream),
+          method: :get,
           class: "btn btn-success btn-sm",
-          data: { turbo_frame: "customer_contacts_#{@customer.id}" }
+          form: { data: { turbo_frame: "customer_contacts_#{@customer.id}" } }
 
 - if @customer.notes.present?
   .row.mt-4

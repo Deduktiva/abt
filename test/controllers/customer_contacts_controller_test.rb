@@ -108,4 +108,46 @@ class CustomerContactsControllerTest < ActionDispatch::IntegrationTest
     response_data = JSON.parse(response.body)
     assert response_data['success']
   end
+
+  test "should get new contact form via turbo_stream" do
+    get new_customer_customer_contact_path(@customer, format: :turbo_stream)
+    assert_response :success
+    assert_includes response.body, "customer_contacts_#{@customer.id}"
+    assert_includes response.body, "Add New Contact"
+  end
+
+  test "should cancel new contact form via turbo_stream" do
+    get cancel_new_customer_customer_contacts_path(@customer, format: :turbo_stream)
+    assert_response :success
+    assert_includes response.body, "customer_contacts_#{@customer.id}"
+    assert_not_includes response.body, "Add New Contact"
+  end
+
+  test "should create customer contact via turbo_stream" do
+    assert_difference('CustomerContact.count') do
+      post customer_customer_contacts_url(@customer), params: {
+        customer_contact: {
+          name: "New Contact",
+          email: "new@example.com",
+          receives_invoices: true
+        }
+      }, headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+    end
+
+    assert_response :success
+    assert_includes response.body, "customer_contacts_#{@customer.id}"
+    assert_not_includes response.body, "Add New Contact"
+  end
+
+  test "should get edit contact form via turbo_stream" do
+    get edit_customer_contact_path(@customer_contact, format: :turbo_stream)
+    assert_response :success
+    assert_includes response.body, "customer_contact_#{@customer_contact.id}"
+  end
+
+  test "should cancel edit contact form via turbo_stream" do
+    get cancel_edit_customer_contact_path(@customer_contact, format: :turbo_stream)
+    assert_response :success
+    assert_includes response.body, "customer_contact_#{@customer_contact.id}"
+  end
 end

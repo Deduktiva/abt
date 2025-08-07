@@ -126,7 +126,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: context.issue.number,
-                merge_method: 'squash'
+                merge_method: 'merge'
               });
             } catch (error) {
               await github.rest.issues.createComment({

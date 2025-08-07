@@ -82,6 +82,7 @@ class CustomerContactsController < ApplicationController
             locals: { customer: @customer, show_new_form: false }
           )
         end
+        format.html { redirect_to @customer }
         format.json { render json: { success: true, contact: @customer_contact } }
       else
         format.turbo_stream do
@@ -186,6 +187,7 @@ class CustomerContactsController < ApplicationController
             locals: { customer: customer, show_new_form: false }
           )
         end
+        format.html { redirect_to customer }
         format.json { render json: { success: true } }
       else
         format.turbo_stream do

@@ -36,6 +36,27 @@ body { padding-top: 60px; }
   }
 }
 
+// Fix project dropdown hover in dark mode
+.project-dropdown .dropdown-item {
+  &:hover,
+  &:focus {
+    background-color: var(--bs-dropdown-link-hover-bg);
+    color: var(--bs-dropdown-link-hover-color);
+  }
+
+  &.focus {
+    background-color: var(--bs-dropdown-link-hover-bg);
+    color: var(--bs-dropdown-link-hover-color);
+  }
+}
+
+// Ensure dropdown content respects theme
+.project-dropdown .dropdown-menu {
+  background-color: var(--bs-dropdown-bg);
+  border: var(--bs-dropdown-border-width) solid var(--bs-dropdown-border-color);
+  color: var(--bs-dropdown-color);
+}
+
 .footer {
   padding: 1.5rem 0;
   border-top: 1px solid var(--bs-border-color);
@@ -64,6 +85,7 @@ body { padding-top: 60px; }
 
 .invoice-lines table th {
   background-color: var(--bs-secondary-bg) !important;
+  color: var(--bs-secondary-color) !important;
   border-color: var(--bs-border-color);
   font-weight: 600;
   padding: 0.75rem 0.5rem;
@@ -72,4 +94,16 @@ body { padding-top: 60px; }
 .invoice-lines table td {
   padding: 0.5rem;
   vertical-align: top;
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  border-color: var(--bs-border-color);
+}
+
+.invoice-lines table tr:nth-child(even) td {
+  background-color: var(--bs-secondary-bg-subtle);
+}
+
+.invoice-lines table .table-secondary {
+  background-color: var(--bs-secondary-bg) !important;
+  color: var(--bs-secondary-color) !important;
 }

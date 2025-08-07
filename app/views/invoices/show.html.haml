@@ -71,7 +71,7 @@
 
   .invoice-lines.mb-2
     %table.table.table-bordered
-      %thead.table-light
+      %thead
         %tr
           %th{style: "width: 55%"} Description
           %th.text-end{style: "width: 10%"} Quantity
@@ -98,7 +98,7 @@
                 %strong= format_currency(line.amount || (line.quantity * line.rate))
           - when 'subheading'
             %tr
-              %td.fw-bold{colspan: 5, style: "background-color: #f8f9fa; padding: 12px 8px;"}
+              %td.fw-bold.table-secondary{colspan: 5, style: "padding: 12px 8px;"}
                 = line.title
           - when 'text', 'plain'
             %tr

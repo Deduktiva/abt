@@ -11,7 +11,8 @@
 
     &:hover,
     &.focus {
-      background-color: var(--bs-gray-100);
+      background-color: var(--bs-dropdown-link-hover-bg);
+      color: var(--bs-dropdown-link-hover-color);
     }
 
     &.focus {

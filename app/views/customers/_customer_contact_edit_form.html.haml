@@ -1,5 +1,10 @@
--# Customer contact edit form
-%tr{id: "customer_contact_#{contact.id}", style: 'vertical-align: middle; background-color: #f8f9fa;', data: { contact_id: contact.id }}
+-# Customer contact edit form with integrated error handling
+- if local_assigns[:contact_errors] && contact_errors.any?
+  %tr{id: "customer_contact_#{contact.id}_error"}
+    %td{colspan: 5, style: 'padding: 0.25rem 0.75rem;'}
+      .alert.alert-danger.mb-0{style: 'font-size: 0.875rem; padding: 0.25rem 0.5rem;'}
+        = contact_errors.full_messages.join(", ")
+%tr{id: "customer_contact_#{contact.id}", class: 'table-active', style: 'vertical-align: middle;', data: { contact_id: contact.id }}
   %td{style: 'padding: 0.5rem 0.75rem;'}
     = text_field_tag "name", contact.name, class: "form-control form-control-sm", required: true
   %td{style: 'padding: 0.5rem 0.75rem;'}

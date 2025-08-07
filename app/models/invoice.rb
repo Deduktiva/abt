@@ -5,8 +5,9 @@ class Invoice < ApplicationRecord
   scope :email_sent, -> { where.not(email_sent_at: nil) }
   scope :email_unsent, -> {
     joins(:customer)
+    .left_joins(customer: :customer_contacts)
     .where(email_sent_at: nil)
-    .where("customers.email IS NOT NULL AND customers.email != '' OR customers.invoice_email_auto_enabled = true")
+    .where("customers.invoice_email_auto_enabled = true OR (customer_contacts.receives_invoices = true AND customer_contacts.email IS NOT NULL AND customer_contacts.email != '')")
   }
   scope :published, -> { where(published: true) }
 

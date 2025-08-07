@@ -247,7 +247,7 @@ class InvoicesController < ApplicationController
     queued_count = 0
 
     invoices.each do |invoice|
-      if invoice.customer.email.present? || invoice.customer.invoice_email_auto_enabled
+      if invoice.customer.has_invoice_email?
         InvoiceEmailSenderJob.perform_later(invoice.id)
         queued_count += 1
       end

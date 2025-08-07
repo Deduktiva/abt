@@ -9,9 +9,9 @@ class InvoiceMailer < ApplicationMailer
     if @invoice.customer.invoice_email_auto_enabled
       subject = @invoice.customer.invoice_email_auto_subject_template.gsub('$CUST_ORDER$', @invoice.cust_order).gsub('$CUST_REF$', @invoice.cust_reference)
       to = @invoice.customer.invoice_email_auto_to
-    elsif @invoice.customer.email
+    elsif @invoice.customer.customer_contacts.receiving_invoices.any?
       subject = "#{@issuer.short_name} Invoice #{@invoice.document_number}"
-      to = @invoice.customer.email
+      to = @invoice.customer.customer_contacts.receiving_invoices.first.email
     else
       to = nil
     end

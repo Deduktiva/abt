@@ -28,6 +28,11 @@ class Customer < ApplicationRecord
     used_in_invoices?
   end
 
+  # Helper method to check if customer has email contacts for invoices
+  def has_invoice_email?
+    invoice_email_auto_enabled || customer_contacts.receiving_invoices.any?
+  end
+
   private
 
   def check_if_used

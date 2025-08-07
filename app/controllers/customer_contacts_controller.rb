@@ -85,7 +85,16 @@ class CustomerContactsController < ApplicationController
           render turbo_stream: turbo_stream.replace(
             "customer_contacts_#{@customer.id}",
             partial: "customers/customer_contacts_table",
-            locals: { customer: @customer, show_new_form: true, new_contact_errors: @customer_contact.errors }
+            locals: {
+              customer: @customer,
+              show_new_form: true,
+              new_contact_errors: @customer_contact.errors,
+              failed_contact_attributes: {
+                name: @customer_contact.name,
+                email: @customer_contact.email,
+                receives_invoices: @customer_contact.receives_invoices
+              }
+            }
           ), status: :unprocessable_content
         end
         format.json { render json: { success: false, errors: @customer_contact.errors.full_messages }, status: :unprocessable_content }

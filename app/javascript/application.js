@@ -20,6 +20,15 @@ window.saveContact = function(contactId) {
   formData.append('customer_contact[email]', email);
   formData.append('customer_contact[receives_invoices]', receives_invoices);
 
+  // Handle project IDs
+  const projectSelect = row.querySelector('select[name="project_ids[]"]');
+  if (projectSelect) {
+    const selectedOptions = Array.from(projectSelect.selectedOptions);
+    selectedOptions.forEach(option => {
+      formData.append('customer_contact[project_ids][]', option.value);
+    });
+  }
+
   fetch(`/customer_contacts/${contactId}`, {
     method: 'PATCH',
     headers: {

@@ -14,7 +14,13 @@
       = check_box_tag "receives_invoices", "1", contact.receives_invoices, class: "form-check-input"
       = label_tag "receives_invoices", "Invoices", class: "form-check-label"
   %td{style: 'padding: 0.5rem 0.75rem;'}
-    %small.text-muted Project editing coming soon
+    - customer_projects = Project.active.where(bill_to_customer: contact.customer)
+    - if customer_projects.any?
+      = select_tag :project_ids,
+        options_from_collection_for_select(customer_projects, :id, :display_name, contact.project_ids),
+        { multiple: true, class: "form-select form-select-sm", size: 2, name: "project_ids[]" }
+    - else
+      %small.text-muted No projects available
   %td.text-center{style: 'padding: 0.5rem 0.75rem;'}
     .d-flex.gap-1.justify-content-center
       = button_tag "💾", type: "button", class: "btn btn-success btn-sm", title: "Save", onclick: "saveContact(#{contact.id})"

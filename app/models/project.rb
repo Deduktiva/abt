@@ -1,7 +1,6 @@
 class Project < ApplicationRecord
   belongs_to :bill_to_customer, :class_name => 'Customer', :optional => true
   has_many :invoices
-  has_and_belongs_to_many :customer_contacts, join_table: :customer_contact_projects
 
   validates :matchcode, :presence => true
 

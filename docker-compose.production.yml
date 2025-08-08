@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+  abt-webapp:
+    image: ghcr.io/deduktiva/abt-webapp:latest
+    # For development/testing, uncomment below and comment above:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    container_name: abt_webapp
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      # Log persistence
+      - abt_logs:/var/www/abt/log
+      # Asset cache persistence (optional)
+      - abt_tmp:/var/www/abt/tmp
+    environment:
+      RAILS_ENV: production
+      RACK_ENV: production
+      # Database connection to host PostgreSQL
+      DATABASE_URL: "postgresql://abt_user:${ABT_DB_PASSWORD}@host.containers.internal:5432/abt_production"
+      # Redis connection for ActiveJob
+      REDIS_URL: "redis://abt-redis:6379/0"
+      # Mailgun configuration
+      MAILGUN_API_KEY: "${MAILGUN_API_KEY}"
+      MAILGUN_DOMAIN: "${MAILGUN_DOMAIN}"
+      # FOP configuration
+      FOP_COMMAND: "/usr/bin/fop"
+      # Application secrets
+      SECRET_KEY_BASE: "${SECRET_KEY_BASE}"
+      # ABT-specific settings
+      ISSUER_COMPANY_NAME: "${ISSUER_COMPANY_NAME}"
+      ISSUER_COMPANY_SHORT_NAME: "${ISSUER_COMPANY_SHORT_NAME}"
+    depends_on:
+      - abt-redis
+    networks:
+      - abt-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  abt-worker:
+    image: ghcr.io/deduktiva/abt-worker:latest
+    # For development/testing, uncomment below and comment above:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile.worker
+    container_name: abt_worker
+    restart: unless-stopped
+    volumes:
+      # Share logs with webapp
+      - abt_logs:/var/www/abt/log
+    environment:
+      RAILS_ENV: production
+      RACK_ENV: production
+      # Database connection to host PostgreSQL
+      DATABASE_URL: "postgresql://abt_user:${ABT_DB_PASSWORD}@host.containers.internal:5432/abt_production"
+      # Redis connection for ActiveJob
+      REDIS_URL: "redis://abt-redis:6379/0"
+      # Mailgun configuration
+      MAILGUN_API_KEY: "${MAILGUN_API_KEY}"
+      MAILGUN_DOMAIN: "${MAILGUN_DOMAIN}"
+      # FOP configuration
+      FOP_COMMAND: "/usr/bin/fop"
+      # Application secrets
+      SECRET_KEY_BASE: "${SECRET_KEY_BASE}"
+    depends_on:
+      - abt-redis
+    networks:
+      - abt-network
+
+  abt-redis:
+    image: redis:8-alpine
+    container_name: abt_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - abt_redis_data:/data
+    networks:
+      - abt-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  abt_logs:
+    driver: local
+  abt_tmp:
+    driver: local
+  abt_redis_data:
+    driver: local
+
+networks:
+  abt-network:
+    driver: bridge

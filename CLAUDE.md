@@ -152,6 +152,12 @@ For testing against PostgreSQL (matches production environment):
 - Avoid phrases like "let's", "we need to", "going forward", "best practices", "leverage", "stakeholders"
 - Be factual and precise rather than enthusiastic or salesy
 
+### Code Quality
+- When refactoring or fixing bugs, follow DRY principles but don't overdo it
+- Prefer clarity and maintainability over excessive abstraction
+
 ### System Administration
 - **NEVER run `sudo` commands**
 - If system packages need to be installed, explain what is needed and ask the user to install them
+
+- when refactoring or fixing bugs try to follow DRY principles, but dont overdo it

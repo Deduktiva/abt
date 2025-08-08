@@ -9,6 +9,10 @@ require 'capybara/minitest'
 Capybara.default_driver = :selenium_chrome_headless
 Capybara.javascript_driver = :selenium_chrome_headless
 
+# Configure better waiting behavior
+Capybara.default_max_wait_time = 10
+Capybara.ignore_hidden_elements = true
+
 # Automatically apply migrations to test database
 ActiveRecord::Migration.maintain_test_schema!
 

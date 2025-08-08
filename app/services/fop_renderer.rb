@@ -59,16 +59,37 @@ class FopRenderer
       Rails.logger.debug "Calling fop: #{fop_command}"
 
       fop_result = nil
+      exit_status = nil
       IO.popen(fop_command, mode="r", :err=>[:child, :out]) do |fop_io|
         fop_result = fop_io.read
+        fop_io.close
+        exit_status = $?.exitstatus
       end
+
       Rails.logger.debug "fop result: #{fop_result}"
+      Rails.logger.debug "fop exit status: #{exit_status}"
+
+      # Check FOP exit code first
+      if exit_status != 0
+        raise "fop failed with exit code #{exit_status}:\n#{fop_result}"
+      end
+
+      # In test environment, also output FOP errors to expose hidden failures
+      if Rails.env.test? && fop_result.include?("SEVERE")
+        puts "FOP ERROR OUTPUT: #{fop_result}"
+      end
 
       begin
         pdf_content = File.read(pdf_path)
         if pdf_content.empty?
           raise "fop generated empty PDF file:\n#{fop_result}"
         end
+
+        # Validate PDF has proper trailer
+        if !pdf_content.end_with?("%%EOF") && !pdf_content.end_with?("%%EOF\n")
+          raise "fop generated invalid PDF (missing %%EOF trailer, got #{pdf_content.length} bytes):\n#{fop_result}"
+        end
+
         return pdf_content
       rescue Errno::ENOENT
         raise "fop failed - no output file created:\n#{fop_result}"

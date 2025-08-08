@@ -6,7 +6,7 @@ class Invoice < ApplicationRecord
   scope :email_unsent, -> {
     joins(:customer)
     .where(email_sent_at: nil)
-    .where("customers.email IS NOT NULL AND customers.email != '' OR customers.invoice_email_auto_enabled = true")
+    .where("customers.invoice_email_auto_enabled = true OR EXISTS (SELECT 1 FROM customer_contacts WHERE customer_contacts.customer_id = customers.id AND customer_contacts.receives_invoices = true)")
   }
   scope :published, -> { where(published: true) }
 

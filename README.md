@@ -33,3 +33,21 @@ bundle install
 - PostgreSQL (production)
 - Web server
 
+### Pre-commit Hooks (Optional)
+For automatic whitespace cleanup and code quality checks:
+```bash
+# Install pre-commit
+# Debian/Ubuntu:
+sudo apt install pre-commit
+# macOS with Homebrew:
+brew install pre-commit
+# or with pip:
+pip install pre-commit
+
+# Install the hooks (run from repository root)
+pre-commit install
+
+# Optional: run on all existing files
+pre-commit run --all-files
+```
+

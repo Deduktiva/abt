@@ -20,4 +20,3 @@
   SSLCertificateFile      "/etc/apache2/ssl/abt.crt"
   SSLCertificateKeyFile   "/etc/apache2/ssl/abt.key"
 </VirtualHost>
-

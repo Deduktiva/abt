@@ -50,4 +50,3 @@ pre-commit install
 # Optional: run on all existing files
 pre-commit run --all-files
 ```
-

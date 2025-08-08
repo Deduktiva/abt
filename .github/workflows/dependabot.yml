@@ -13,7 +13,7 @@ jobs:
   dependabot:
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]'
-    
+
     steps:
     - name: Get Dependabot metadata
       id: metadata

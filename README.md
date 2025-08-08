@@ -16,6 +16,8 @@ Dependencies
 #### Debian/Ubuntu
 ```bash
 sudo apt-get install build-essential ruby-dev libyaml-dev
+# For system tests (Chrome dependencies)
+sudo apt-get install libatk1.0-0 libatk-bridge2.0-0 libdrm2 libgtk-3-0 libgbm1 libasound2
 ```
 
 #### macOS (Homebrew)

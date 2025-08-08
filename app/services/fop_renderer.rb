@@ -14,27 +14,26 @@ class FopRenderer
     # Resolve FOP binary path, can be relative
     fop_binary = resolve_fop_binary_path
 
-    Tempfile.create(['logo', '.pdf'], @rails_tmp) do |logo_file|
+    # Create dedicated temp directory with proper permissions
+    Dir.mktmpdir('abt-fop-', @rails_tmp) do |temp_dir|
+      File.chmod(0755, temp_dir)
+      
+      logo_path = nil
       if logo_data
-        logo_file.binmode
-        logo_file.write(logo_data)
-        logo_file.close
-
-        # Generate XML with actual logo path
-        xml_data = yield logo_file.path
-      else
-        xml_data = yield nil
+        logo_path = File.join(temp_dir, 'logo.pdf')
+        write_file_with_permissions(logo_path, logo_data, 0644, binary: true)
       end
 
-      Tempfile.create('abt-xml', @rails_tmp) do |xml_file|
-        xml_file.write(xml_data)
-        xml_file.flush
+      # Generate XML with logo path
+      xml_data = yield logo_path
 
-        Rails.logger.info "FopRenderer wrote XML to: #{xml_file.path}"
-        Rails.logger.debug File.read(xml_file.path)
+      xml_path = File.join(temp_dir, 'input.xml')
+      write_file_with_permissions(xml_path, xml_data, 0644)
 
-        execute_fop_command(fop_binary, xml_file.path, tpl_xsl)
-      end
+      Rails.logger.info "FopRenderer wrote XML to: #{xml_path}"
+      Rails.logger.debug File.read(xml_path)
+
+      execute_fop_command(fop_binary, xml_path, tpl_xsl, temp_dir)
     end
   end
 
@@ -48,16 +47,14 @@ class FopRenderer
     end
   end
 
-  def execute_fop_command(fop_binary, xml_path, xsl_path)
+  def execute_fop_command(fop_binary, xml_path, xsl_path, temp_dir)
     begin
-      pdffile = Tempfile.new('abt-pdf', @rails_tmp)
-      pdffile.close
+      pdf_path = File.join(temp_dir, 'output.pdf')
       
-      # Ensure FOP can access the output file and directory regardless of umask
-      File.chmod(0755, @rails_tmp) rescue nil  # Ensure temp dir is accessible
-      File.chmod(0666, pdffile.path)  # Make file writable by all processes
-
-      fop_command = build_fop_command(fop_binary, xml_path, xsl_path, pdffile.path)
+      # Create empty output file with correct permissions that FOP can write to
+      write_file_with_permissions(pdf_path, '', 0666)
+      
+      fop_command = build_fop_command(fop_binary, xml_path, xsl_path, pdf_path)
 
       Rails.logger.debug "Calling fop: #{fop_command}"
 
@@ -68,7 +65,7 @@ class FopRenderer
       Rails.logger.debug "fop result: #{fop_result}"
 
       begin
-        pdf_content = File.read(pdffile.path)
+        pdf_content = File.read(pdf_path)
         if pdf_content.empty?
           raise "fop generated empty PDF file:\n#{fop_result}"
         end
@@ -79,8 +76,6 @@ class FopRenderer
     rescue
       Rails.logger.error "fop failed: #{$!}"
       raise
-    ensure
-      pdffile.close! if pdffile
     end
   end
 
@@ -88,5 +83,16 @@ class FopRenderer
     "cd \"#{@template_path}\" && " +
     "\"#{fop_binary}\" " +
     "-xml \"#{xml_path}\" -xsl \"#{xsl_path}\" -pdf \"#{pdf_path}\" -c \"#{@fop_conf}\""
+  end
+
+  # Write file with explicit permissions to work around restrictive umask
+  # This ensures FOP can access the files regardless of process umask setting
+  def write_file_with_permissions(path, content, permissions, binary: false)
+    if binary
+      File.binwrite(path, content)
+    else
+      File.write(path, content)
+    end
+    File.chmod(permissions, path)
   end
 end

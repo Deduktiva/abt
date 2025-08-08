@@ -151,3 +151,7 @@ For testing against PostgreSQL (matches production environment):
 - Use imperative mood for instructions (e.g. "Run the test" not "We should run the test")
 - Avoid phrases like "let's", "we need to", "going forward", "best practices", "leverage", "stakeholders"
 - Be factual and precise rather than enthusiastic or salesy
+
+### System Administration
+- **NEVER run `sudo` commands**
+- If system packages need to be installed, explain what is needed and ask the user to install them

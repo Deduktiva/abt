@@ -118,6 +118,13 @@ For testing against PostgreSQL (matches production environment):
 - **NEVER use `assigns()` in tests** - it has been extracted to a gem in modern Rails. Use `assert_select` or other response testing methods instead
 - **Run UI tests headless by default before declaring frontend/UI tasks complete** when making frontend/UI changes
 
+### UI Testing Commands
+- Run all system tests: `HEADLESS=1 bundle exec rails test test/system/`
+- Run specific system test file: `HEADLESS=1 bundle exec rails test test/system/filename_test.rb`
+- Run specific test method: `HEADLESS=1 bundle exec rails test test/system/filename_test.rb -n test_method_name`
+- System tests use Capybara with Chrome headless driver configured in test_helper.rb
+- Screenshots saved to `tmp/capybara/` on test failures for debugging
+
 ### Multi-Region Compatibility
 - This app supports multiple regions - NEVER hardcode currency symbols like $ or USD
 - Use IssuerCompany.currency field for currency configuration (defaults to EUR)

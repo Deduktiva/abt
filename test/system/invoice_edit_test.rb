@@ -352,4 +352,56 @@ class InvoiceEditTest < ActionDispatch::SystemTestCase
     project_id = find('input[name="invoice[project_id]"]', visible: false).value
     assert_not_equal "", project_id
   end
+
+  test "reusable project indicator persists in selected display after customer change" do
+    invoice = invoices(:draft_invoice)
+    visit "/invoices/#{invoice.id}/edit"
+    assert_no_text "Loading...", wait: 10
+
+    # First select a customer to enable project dropdown
+    within('.customer-dropdown') do
+      find('[data-searchable-dropdown-target="select"]').click
+      assert_selector '.searchable-option', wait: 10
+      find('.searchable-option', text: 'A Good Company B.V.').click
+    end
+
+    # Select the reusable project
+    within('.project-dropdown') do
+      find('[data-searchable-dropdown-target="select"]').click
+      assert_selector '.searchable-option', wait: 10
+
+      # Select the reusable project
+      reusable_option = find('.searchable-option', text: 'Reusable project without customer')
+      reusable_option.click
+    end
+
+    # Verify the reusable project is selected and check if the selected display shows indicator
+    project_input = find('input[name="invoice[project_id]"]', visible: false)
+    assert_equal projects(:reusable_project).id.to_s, project_input.value
+
+    # Verify the selected display shows the reusable indicator initially
+    within('.project-dropdown .select-display') do
+      assert has_text?('♻️'), "Selected display should show reusable indicator initially"
+    end
+
+    # Change to a different customer - this should trigger an AJAX reload
+    within('.customer-dropdown') do
+      find('[data-searchable-dropdown-target="select"]').click
+      assert_selector '.searchable-option', wait: 10
+      find('.searchable-option', text: 'A Local Company, Inc.').click
+    end
+
+    # Wait for the project dropdown to react to customer change
+    sleep 0.2  # Brief pause for AJAX request
+
+    # Verify the selected display still shows the reusable indicator after customer change
+    within('.project-dropdown .select-display') do
+      assert has_text?('♻️'), "Selected display should still show reusable indicator after customer change"
+      assert has_text?('Reusable project without customer'), "Reusable project should still be selected"
+    end
+
+    # Verify the hidden input still has the correct value
+    final_project_id = find('input[name="invoice[project_id]"]', visible: false).value
+    assert_equal projects(:reusable_project).id.to_s, final_project_id, "Reusable project should remain selected"
+  end
 end

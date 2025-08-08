@@ -439,12 +439,17 @@ export default class extends Controller {
 
         if (selectedOption) {
           const name = selectedOption.querySelector('.fw-normal').textContent
-          const subtextElement = selectedOption.querySelector('.small span')
-          const subtext = subtextElement ? subtextElement.textContent.trim() : ''
+          const subtextElement = selectedOption.querySelector('.small')
+
+          let subtextHTML = ''
+          if (subtextElement) {
+            // Preserve the entire structure of the subtext, including any icons or additional elements
+            subtextHTML = subtextElement.innerHTML
+          }
 
           display.innerHTML = `
             <div class="fw-normal">${name}</div>
-            <div class="small text-muted">${subtext}</div>
+            <div class="small text-muted">${subtextHTML}</div>
           `
           this.markAsValid()
         } else {

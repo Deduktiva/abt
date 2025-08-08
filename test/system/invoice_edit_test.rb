@@ -26,9 +26,9 @@ class InvoiceEditTest < ActionDispatch::SystemTestCase
     # Ensure project field is populated (required for form submission)
     project_input = find('input[name="invoice[project_id]"]', visible: false)
     if project_input.value.blank?
-      find('[data-project-dropdown-target="select"]').click
-      assert_selector '.project-option', wait: 5
-      first('.project-option').click
+      find('[data-searchable-dropdown-target="select"]').click
+      assert_selector '.searchable-option', wait: 5
+      first('.searchable-option').click
       assert_not_equal "", find('input[name="invoice[project_id]"]', visible: false).value
     end
 
@@ -85,14 +85,12 @@ class InvoiceEditTest < ActionDispatch::SystemTestCase
     # Change customer (triggers AJAX project reload)
     select "A Good Company B.V.", from: "invoice_customer_id"
 
-    # Wait for project dropdown to reload via Stimulus
-    assert_text "Loading...", wait: 5
-    assert_no_text "Loading...", wait: 10
+    # Open the dropdown and wait for project options to load via Stimulus
+    find('[data-searchable-dropdown-target="select"]').click
 
-    # Select project from reloaded options
-    find('[data-project-dropdown-target="select"]').click
-    assert_selector '.project-option', wait: 5
-    first('.project-option').click
+    # Wait for project options to appear (indicates AJAX reload completed successfully)
+    assert_selector '.searchable-option', wait: 10
+    first('.searchable-option').click
 
     # Submit and verify
     click_button "Save"

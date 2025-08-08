@@ -1,0 +1,40 @@
+/ Reusable searchable dropdown component
+/ Parameters:
+/ - form: The form builder object
+/ - field_name: The name of the field (e.g., :project_id, :customer_id)
+/ - item_name: Display name for the item type (e.g., 'project', 'customer')
+/ - current_item: The currently selected item object
+/ - current_dependent_id: The ID of the dependent field (e.g., customer_id for projects)
+/ - dependent_field_target: Target name for the dependent field (e.g., 'customerField')
+/ - dependent_param: Parameter name for the dependent field (e.g., 'customer_id')
+/ - url: URL to fetch items from
+/ - dropdown_id: Unique ID for the dropdown
+/ - select_prompt: Custom prompt text for selection (optional)
+/ - dependent_select_prompt: Custom prompt when dependent not selected (optional)
+
+%div{ data: {
+    controller: 'searchable-dropdown',
+    searchable_dropdown_current_dependent_id_value: current_dependent_id,
+    searchable_dropdown_current_item_id_value: current_item&.id,
+    searchable_dropdown_url_value: url,
+    searchable_dropdown_dependent_param_value: dependent_param,
+    searchable_dropdown_item_name_value: item_name,
+    searchable_dropdown_item_id_param_value: field_name.to_s,
+    searchable_dropdown_select_prompt_value: select_prompt,
+    searchable_dropdown_dependent_select_prompt_value: dependent_select_prompt
+  } }
+  = form.hidden_field field_name
+  .dropdown{ class: "#{item_name}-dropdown" }
+    %button.btn.btn-outline-secondary.form-control.text-start.d-flex.justify-content-between.align-items-center{ type: 'button', data: { searchable_dropdown_target: 'select' } }
+      .select-display
+        - if current_item && current_item.id
+          .fw-normal= current_item.respond_to?(:display_name) ? current_item.display_name : current_item.name
+          .small.text-muted= current_item.respond_to?(:matchcode) ? current_item.matchcode : ''
+        - else
+          %span.text-muted= select_prompt || "Select #{item_name}..."
+      %span.text-muted ▼
+    .dropdown-menu{ id: dropdown_id, data: { searchable_dropdown_target: 'dropdown' } }
+      .p-2.border-bottom
+        %input.form-control.form-control-sm{ type: 'text', placeholder: "Search #{item_name.pluralize}...", data: { searchable_dropdown_target: 'search' } }
+      .dropdown-content{ style: 'max-height: 300px; overflow-y: auto;' }
+        .dropdown-item.text-muted Loading...

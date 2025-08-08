@@ -117,6 +117,7 @@ For testing against PostgreSQL (matches production environment):
 - Test database auto-migrates via `ActiveRecord::Migration.maintain_test_schema!` in test_helper.rb
 - **NEVER use `assigns()` in tests** - it has been extracted to a gem in modern Rails. Use `assert_select` or other response testing methods instead
 - **Run UI tests headless by default before declaring frontend/UI tasks complete** when making frontend/UI changes
+- **NEVER use `sleep` in system tests** - use Capybara's waiting methods instead (`assert_selector`, `assert_text`, `assert_no_text` with `wait:` option)
 
 ### Multi-Region Compatibility
 - This app supports multiple regions - NEVER hardcode currency symbols like $ or USD

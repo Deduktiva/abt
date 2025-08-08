@@ -52,6 +52,10 @@ class FopRenderer
     begin
       pdffile = Tempfile.new('abt-pdf', @rails_tmp)
       pdffile.close
+      
+      # Ensure FOP can access the output file and directory regardless of umask
+      File.chmod(0755, @rails_tmp) rescue nil  # Ensure temp dir is accessible
+      File.chmod(0666, pdffile.path)  # Make file writable by all processes
 
       fop_command = build_fop_command(fop_binary, xml_path, xsl_path, pdffile.path)
 
@@ -64,9 +68,13 @@ class FopRenderer
       Rails.logger.debug "fop result: #{fop_result}"
 
       begin
-        return File.read(pdffile.path)
+        pdf_content = File.read(pdffile.path)
+        if pdf_content.empty?
+          raise "fop generated empty PDF file:\n#{fop_result}"
+        end
+        return pdf_content
       rescue Errno::ENOENT
-        raise "fop failed:\n#{fop_result}"
+        raise "fop failed - no output file created:\n#{fop_result}"
       end
     rescue
       Rails.logger.error "fop failed: #{$!}"

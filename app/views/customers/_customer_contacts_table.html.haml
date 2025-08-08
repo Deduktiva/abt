@@ -15,30 +15,38 @@
   - if local_assigns[:show_new_form]
     %h6.mt-3 Add New Contact
     - contact_object = customer.customer_contacts.build(local_assigns[:failed_contact_attributes] || {})
-    = form_with model: [customer, contact_object],
-      url: customer_customer_contacts_path(customer),
-      local: false,
-      format: :turbo_stream do |f|
+    - customer_projects = Project.active.where(bill_to_customer: customer)
+    - available_projects_data = customer_projects.map { |p| { id: p.id, matchcode: p.matchcode, description: p.description, display_name: p.display_name } }.to_json
+    .row.g-2{data: { controller: 'customer-contacts', customer_id: customer.id, available_projects: available_projects_data, contact_id: 'new' }}
       - if local_assigns[:new_contact_errors]
-        .alert.alert-danger.mb-3
-          = local_assigns[:new_contact_errors].full_messages.join(", ")
-      .row.g-2
+        .col-12
+          .alert.alert-danger.mb-3
+            = local_assigns[:new_contact_errors].full_messages.join(", ")
+      = form_with model: [customer, contact_object],
+        url: customer_customer_contacts_path(customer),
+        local: false,
+        format: :turbo_stream do |f|
         .col-md-3
           = f.text_field :name, class: "form-control", placeholder: "Contact name", required: true
         .col-md-3
           = f.email_field :email, class: "form-control", placeholder: "email@example.com", required: true
         .col-md-2
-          .form-check
-            = f.check_box :receives_invoices, class: "form-check-input", checked: true
-            = f.label :receives_invoices, "Invoices", class: "form-check-label"
+          .tag-input-container{data: { field: 'receives_flags' }}
+            .tag-input.form-control{style: 'min-height: 38px; display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center;', data: { action: 'click->customer-contacts#focusTagInput' }}
+              - if local_assigns[:failed_contact_attributes] && local_assigns[:failed_contact_attributes][:receives_invoices] || !local_assigns[:failed_contact_attributes]
+                .badge.bg-primary{data: { tag: 'invoices' }, style: 'font-size: 0.75rem; padding: 0.25rem 0.5rem; display: flex; align-items: center; gap: 0.25rem;'}
+                  invoices
+                  %button.btn-close.btn-close-white{type: 'button', style: 'font-size: 0.6em; margin-left: 0.25rem;', data: { action: 'click->customer-contacts#removeTag' }}
+              %input.tag-input-field{type: 'text', style: 'border: none; outline: none; flex: 1; min-width: 80px;', placeholder: 'Document types...', data: { action: 'keydown->customer-contacts#handleTagInput input->customer-contacts#showTagSuggestions blur->customer-contacts#hideTagSuggestions' }}
+            .tag-suggestions.dropdown-menu{style: 'display: none; position: absolute; z-index: 1000;'}
+          = f.hidden_field :receives_invoices, value: true, id: 'new_contact_receives_invoices'
         .col-md-2
-          - customer_projects = Project.active.where(bill_to_customer: customer)
-          - if customer_projects.any?
-            = f.select :project_ids, options_from_collection_for_select(customer_projects, :id, :display_name, contact_object.project_ids),
-              { include_blank: "Select projects..." },
-              { multiple: true, class: "form-select form-select-sm", size: 3 }
-          - else
-            %small.text-muted No projects available
+          .tag-input-container{data: { field: 'projects' }}
+            .tag-input.form-control{style: 'min-height: 38px; display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center;', data: { action: 'click->customer-contacts#focusTagInput' }}
+              %input.tag-input-field{type: 'text', style: 'border: none; outline: none; flex: 1; min-width: 80px;', placeholder: 'Add projects...', data: { action: 'keydown->customer-contacts#handleTagInput input->customer-contacts#filterProjectSuggestions blur->customer-contacts#hideTagSuggestions' }}
+            .tag-suggestions.dropdown-menu{style: 'display: none; position: absolute; z-index: 1000;'}
+          - contact_object.project_ids.each do |project_id|
+            = f.hidden_field :project_ids, value: project_id, multiple: true
         .col-md-2
           = f.submit "Save", class: "btn btn-success"
           = link_to "Cancel", cancel_new_customer_customer_contacts_path(customer, format: :turbo_stream),

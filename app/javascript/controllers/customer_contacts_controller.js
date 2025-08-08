@@ -179,17 +179,22 @@ export default class extends Controller {
     const input = container.querySelector('.tag-input-field')
 
     const tagElement = document.createElement('div')
-    tagElement.className = 'badge bg-primary d-flex align-items-center gap-1'
+    tagElement.className = 'badge bg-primary d-flex align-items-center'
+    tagElement.style.cssText = 'font-size: 0.75rem; padding: 0.25rem 0.5rem; gap: 0.25rem;'
     tagElement.dataset.tag = documentType.value
     tagElement.innerHTML = `
       ${documentType.label}
-      <button type="button" class="btn-close btn-close-white ms-1" style="font-size: 0.6em;" data-action="click->customer-contacts#removeTag"></button>
+      <button type="button" class="btn-close btn-close-white" style="font-size: 0.6em; margin-left: 0.25rem;" data-action="click->customer-contacts#removeTag"></button>
     `
 
     tagInput.insertBefore(tagElement, input)
 
-    // Update the backend
-    this.updateDocumentTypeFlags(contactId, container)
+    // Update the backend or form fields
+    if (contactId === 'new') {
+      this.updateNewContactFormFields(container, 'receives_flags')
+    } else {
+      this.updateDocumentTypeFlags(contactId, container)
+    }
   }
 
   addProjectTag(container, searchValue) {
@@ -228,8 +233,12 @@ export default class extends Controller {
 
     tagInput.insertBefore(tagElement, input)
 
-    // Update the backend
-    this.updateProjectTags(contactId, container)
+    // Update the backend or form fields
+    if (contactId === 'new') {
+      this.updateNewContactFormFields(container, 'projects')
+    } else {
+      this.updateProjectTags(contactId, container)
+    }
   }
 
   removeTag(event) {
@@ -242,7 +251,9 @@ export default class extends Controller {
 
     tag.remove()
 
-    if (field === 'receives_flags') {
+    if (contactId === 'new') {
+      this.updateNewContactFormFields(container, field)
+    } else if (field === 'receives_flags') {
       this.updateDocumentTypeFlags(contactId, container)
     } else if (field === 'projects') {
       this.updateProjectTags(contactId, container)
@@ -465,5 +476,38 @@ export default class extends Controller {
     input.value = ''
     this.hideSuggestions(container)
     input.focus()
+  }
+
+  updateNewContactFormFields(container, field) {
+    // Update hidden form fields for new contact forms based on current tags
+    const form = container.closest('form')
+    if (!form) return
+
+    if (field === 'receives_flags') {
+      const tags = container.querySelectorAll('.badge[data-tag]')
+      const flagValues = Array.from(tags).map(tag => tag.dataset.tag)
+
+      // Update receives_invoices hidden field
+      const receivesInvoicesField = form.querySelector('#new_contact_receives_invoices')
+      if (receivesInvoicesField) {
+        receivesInvoicesField.value = flagValues.includes('invoices')
+      }
+    } else if (field === 'projects') {
+      const tags = container.querySelectorAll('.badge[data-tag]')
+      const projectIds = Array.from(tags).map(tag => tag.dataset.tag)
+
+      // Remove existing project_ids hidden fields
+      const existingProjectFields = form.querySelectorAll('input[name*="project_ids"]')
+      existingProjectFields.forEach(field => field.remove())
+
+      // Add new project_ids hidden fields
+      projectIds.forEach(projectId => {
+        const hiddenField = document.createElement('input')
+        hiddenField.type = 'hidden'
+        hiddenField.name = 'customer_contact[project_ids][]'
+        hiddenField.value = projectId
+        form.appendChild(hiddenField)
+      })
+    }
   }
 }

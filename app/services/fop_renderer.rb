@@ -17,7 +17,7 @@ class FopRenderer
     # Create dedicated temp directory with proper permissions
     Dir.mktmpdir('abt-fop-', @rails_tmp) do |temp_dir|
       File.chmod(0755, temp_dir)
-      
+
       logo_path = nil
       if logo_data
         logo_path = File.join(temp_dir, 'logo.pdf')
@@ -50,10 +50,10 @@ class FopRenderer
   def execute_fop_command(fop_binary, xml_path, xsl_path, temp_dir)
     begin
       pdf_path = File.join(temp_dir, 'output.pdf')
-      
+
       # Create empty output file with correct permissions that FOP can write to
       write_file_with_permissions(pdf_path, '', 0666)
-      
+
       fop_command = build_fop_command(fop_binary, xml_path, xsl_path, pdf_path)
 
       Rails.logger.debug "Calling fop: #{fop_command}"

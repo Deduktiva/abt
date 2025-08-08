@@ -5,7 +5,7 @@ class FopRendererTest < ActiveSupport::TestCase
     # Test with more permissive umask for temp files
     old_umask = File.umask(0022)
     renderer = FopRenderer.new
-    
+
     # Generate minimal XML content
     xml_content = <<~XML
       <?xml version="1.0" encoding="UTF-8"?>
@@ -22,15 +22,15 @@ class FopRendererTest < ActiveSupport::TestCase
         </fo:page-sequence>
       </fo:root>
     XML
-    
+
     # Test PDF generation without logo
     pdf_data = renderer.render_pdf_with_logo(nil, 'invoice.xsl') do |logo_path|
       xml_content
     end
-    
+
     # Verify PDF was generated
     assert_not_nil pdf_data
-    
+
     # FOP is working if we get a valid PDF header (even if content is minimal)
     assert pdf_data.start_with?('%PDF'), "Should be a valid PDF file"
     assert pdf_data.length > 10, "PDF should have at least PDF header (got #{pdf_data.length} bytes)"

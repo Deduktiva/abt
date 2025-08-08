@@ -37,3 +37,8 @@ gem 'haml-rails'
 gem 'simple_form'
 
 gem "mailgun-ruby", "~> 1.3.9"
+
+group :test do
+  gem 'capybara', '~> 3.40'
+  gem 'selenium-webdriver'
+end

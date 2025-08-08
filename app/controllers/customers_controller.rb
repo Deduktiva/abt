@@ -17,6 +17,7 @@ class CustomersController < ApplicationController
 
     respond_to do |format|
       format.html # index.html.erb
+      format.turbo_stream { render :filter_options }
       format.json { render json: @customers }
     end
   end

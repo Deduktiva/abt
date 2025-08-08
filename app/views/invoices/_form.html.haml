@@ -9,18 +9,51 @@
           %li= msg
 
   .form-inputs
-    %div{ data: { controller: 'project-dropdown', project_dropdown_current_customer_id_value: @invoice.customer_id, project_dropdown_current_project_id_value: @invoice.project_id } }
-      .row
-        .col-sm-4
-          .mb-3
-            %label.form-label Customer
-            = f.collection_select :customer_id, Customer.active.order(:name), :id, :name, { prompt: 'Select customer...' }, {class: 'form-select', data: { project_dropdown_target: 'customerField' }}
-        .col-sm-4
-          .mb-3
-            %label.form-label Project
+    .row
+      .col-sm-4
+        .mb-3
+          %label.form-label Customer
+          %div{ data: {
+              controller: 'searchable-dropdown',
+              searchable_dropdown_current_item_id_value: @invoice.customer_id,
+              searchable_dropdown_url_value: '/customers',
+              searchable_dropdown_item_name_value: 'customer',
+              searchable_dropdown_item_id_param_value: 'customer_id',
+              searchable_dropdown_select_prompt_value: 'Select customer...'
+            } }
+            = f.hidden_field :customer_id, id: 'invoice_customer_id'
+            .dropdown.customer-dropdown
+              %button.btn.btn-outline-secondary.form-control.text-start.d-flex.justify-content-between.align-items-center{ type: 'button', data: { searchable_dropdown_target: 'select' } }
+                .select-display
+                  - if @invoice.customer && @invoice.customer.id
+                    .fw-normal= @invoice.customer.name
+                    .small.text-muted= @invoice.customer.matchcode
+                  - else
+                    %span.text-muted Select customer...
+                %span.text-muted ▼
+              .dropdown-menu{ id: 'customer-dropdown-menu', data: { searchable_dropdown_target: 'dropdown' } }
+                .p-2.border-bottom
+                  %input.form-control.form-control-sm{ type: 'text', placeholder: 'Search customers...', data: { searchable_dropdown_target: 'search' } }
+                .dropdown-content{ style: 'max-height: 300px; overflow-y: auto;' }
+                  .dropdown-item.text-muted Loading...
+      .col-sm-4
+        .mb-3
+          %label.form-label Project
+          %div{ data: {
+              controller: 'searchable-dropdown',
+              searchable_dropdown_current_dependent_id_value: @invoice.customer_id,
+              searchable_dropdown_current_item_id_value: @invoice.project_id,
+              searchable_dropdown_url_value: '/projects',
+              searchable_dropdown_dependent_param_value: 'customer_id',
+              searchable_dropdown_item_name_value: 'project',
+              searchable_dropdown_item_id_param_value: 'project_id',
+              searchable_dropdown_select_prompt_value: 'Select project...',
+              searchable_dropdown_dependent_select_prompt_value: 'Select customer first...',
+              searchable_dropdown_dependent_field_selector_value: '#invoice_customer_id'
+            } }
             = f.hidden_field :project_id
             .dropdown.project-dropdown
-              %button.btn.btn-outline-secondary.form-control.text-start.d-flex.justify-content-between.align-items-center{ type: 'button', data: { project_dropdown_target: 'select' } }
+              %button.btn.btn-outline-secondary.form-control.text-start.d-flex.justify-content-between.align-items-center{ type: 'button', data: { searchable_dropdown_target: 'select' } }
                 .select-display
                   - if @invoice.project && @invoice.project.id
                     .fw-normal= @invoice.project.display_name
@@ -28,15 +61,15 @@
                   - else
                     %span.text-muted Select project...
                 %span.text-muted ▼
-              .dropdown-menu{ id: 'project-dropdown-menu', data: { project_dropdown_target: 'dropdown' } }
+              .dropdown-menu{ id: 'project-dropdown-menu', data: { searchable_dropdown_target: 'dropdown' } }
                 .p-2.border-bottom
-                  %input.form-control.form-control-sm{ type: 'text', placeholder: 'Search projects...', data: { project_dropdown_target: 'search' } }
-                .dropdown-content{ id: 'project-dropdown-content', style: 'max-height: 300px; overflow-y: auto;' }
+                  %input.form-control.form-control-sm{ type: 'text', placeholder: 'Search projects...', data: { searchable_dropdown_target: 'search' } }
+                .dropdown-content{ style: 'max-height: 300px; overflow-y: auto;' }
                   .dropdown-item.text-muted Loading...
-        .col-sm-4
-          .mb-3
-            %label.form-label Date
-            .form-control-plaintext (set at booking)
+      .col-sm-4
+        .mb-3
+          %label.form-label Date
+          .form-control-plaintext (set at booking)
 
     .row
       .col-sm-4

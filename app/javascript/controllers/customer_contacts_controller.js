@@ -29,6 +29,82 @@ export default class extends Controller {
     })
   }
 
+  saveContact(event) {
+    event.preventDefault()
+    const contactRow = event.target.closest('[data-contact-id]')
+    if (!contactRow) {
+      console.error('No contact row found for saveContact')
+      return
+    }
+
+    const contactId = contactRow.dataset.contactId
+
+    // Collect all field values
+    const nameField = contactRow.querySelector('[data-field="name"]')
+    const emailField = contactRow.querySelector('[data-field="email"]')
+
+    if (!nameField || !emailField) {
+      console.error('Could not find name or email fields')
+      return
+    }
+
+    const data = {
+      name: nameField.value,
+      email: emailField.value
+    }
+
+    console.log('Saving contact:', contactId, 'with data:', data)
+
+    fetch(`/customer_contacts/${contactId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+      },
+      body: JSON.stringify({
+        customer_contact: data
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Save response:', data)
+      if (data.success) {
+        // Success - make a turbo_stream request to cancel and return to read mode
+        const cancelUrl = `/customer_contacts/${contactId}/cancel_edit`
+
+        fetch(cancelUrl, {
+          method: 'GET',
+          headers: {
+            'Accept': 'text/vnd.turbo-stream.html',
+            'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+          }
+        })
+        .then(response => response.text())
+        .then(html => {
+          // Apply the turbo stream response
+          const tempDiv = document.createElement('div')
+          tempDiv.innerHTML = html
+          const turboStreamElements = tempDiv.querySelectorAll('turbo-stream')
+
+          turboStreamElements.forEach(element => {
+            Turbo.renderStreamMessage(element.outerHTML)
+          })
+        })
+        .catch(error => {
+          console.error('Error applying cancel turbo stream:', error)
+          // Fallback to page reload
+          window.location.reload()
+        })
+      } else {
+        alert('Error saving contact: ' + data.errors.join(', '))
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error)
+      alert('Error saving contact')
+    })
+  }
+
   getAvailableProjects() {
     const customerId = this.data.get("customerId") || this.element.dataset.customerId
     const projectsData = this.element.dataset.availableProjects
@@ -92,9 +168,16 @@ export default class extends Controller {
 
   updateField(event) {
     const contactRow = event.target.closest('[data-contact-id]')
+    if (!contactRow) {
+      console.error('No contact row found for updateField')
+      return
+    }
+
     const contactId = contactRow.dataset.contactId
     const field = event.target.dataset.field
     const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+
+    console.log('Updating field:', field, 'to value:', value, 'for contact:', contactId)
 
     const data = {}
     data[field] = value
@@ -111,6 +194,7 @@ export default class extends Controller {
     })
     .then(response => response.json())
     .then(data => {
+      console.log('Update response:', data)
       if (!data.success) {
         alert('Error updating contact: ' + data.errors.join(', '))
         // Revert the field value
@@ -306,7 +390,9 @@ export default class extends Controller {
 
   updateProjectTags(contactId, container) {
     const tags = container.querySelectorAll('.badge[data-tag]')
-    const projectIds = Array.from(tags).map(tag => tag.dataset.tag)
+    const projectIds = Array.from(tags).map(tag => parseInt(tag.dataset.tag, 10)).filter(id => !isNaN(id))
+
+    console.log('Updating project tags for contact:', contactId, 'with project IDs:', projectIds)
 
     fetch(`/customer_contacts/${contactId}`, {
       method: 'PATCH',
@@ -322,12 +408,13 @@ export default class extends Controller {
     })
     .then(response => response.json())
     .then(data => {
+      console.log('Project update response:', data)
       if (!data.success) {
         alert('Error updating contact projects: ' + data.errors.join(', '))
       }
     })
     .catch(error => {
-      console.error('Error:', error)
+      console.error('Error updating project tags:', error)
       alert('Error updating contact projects')
     })
   }

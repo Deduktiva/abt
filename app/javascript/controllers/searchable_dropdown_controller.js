@@ -10,15 +10,19 @@ export default class extends Controller {
     itemName: String,
     itemIdParam: String,
     selectPrompt: String,
-    dependentSelectPrompt: String
+    dependentSelectPrompt: String,
+    dependentFieldSelector: String
   }
 
   connect() {
     this.boundDocumentClickHandler = this.handleDocumentClick.bind(this)
     this.boundDependentChangedHandler = this.dependentChanged.bind(this)
 
-    // Only load items if we have a dependent selected
-    if (this.currentDependentIdValue) {
+    // If no dependent param is specified, this is a standalone dropdown
+    if (!this.dependentParamValue) {
+      this.loadItems()
+    } else if (this.currentDependentIdValue) {
+      // Only load items if we have a dependent selected
       this.loadItems()
     } else {
       this.showSelectDependentMessage()
@@ -36,6 +40,13 @@ export default class extends Controller {
       this.dependentFieldTarget.removeEventListener('blur', this.boundDependentChangedHandler)
       this.dependentFieldTarget.removeEventListener('change', this.boundDependentChangedHandler)
       this.dependentFieldTarget.removeEventListener('input', this.boundDependentChangedHandler)
+    } else if (this.dependentFieldSelectorValue) {
+      // Remove external field listeners
+      const externalField = document.querySelector(this.dependentFieldSelectorValue)
+      if (externalField) {
+        externalField.removeEventListener('change', this.boundDependentChangedHandler)
+        externalField.removeEventListener('input', this.boundDependentChangedHandler)
+      }
     }
   }
 
@@ -45,6 +56,13 @@ export default class extends Controller {
       this.dependentFieldTarget.addEventListener('blur', this.boundDependentChangedHandler)
       this.dependentFieldTarget.addEventListener('change', this.boundDependentChangedHandler)
       this.dependentFieldTarget.addEventListener('input', this.boundDependentChangedHandler)
+    } else if (this.dependentFieldSelectorValue) {
+      // Use document selector if no local target is available
+      const externalField = document.querySelector(this.dependentFieldSelectorValue)
+      if (externalField) {
+        externalField.addEventListener('change', this.boundDependentChangedHandler)
+        externalField.addEventListener('input', this.boundDependentChangedHandler)
+      }
     }
 
     // Setup search functionality
@@ -94,10 +112,10 @@ export default class extends Controller {
       }
 
       const params = new URLSearchParams()
-      if (this.currentDependentIdValue) {
+      if (this.dependentParamValue && this.currentDependentIdValue) {
         params.append(this.dependentParamValue, this.currentDependentIdValue)
+        params.append('include_reusable', 'true')
       }
-      params.append('include_reusable', 'true')
       params.append('filter', 'active')
 
       const url = `${this.urlValue}?${params}`
@@ -216,6 +234,14 @@ export default class extends Controller {
     const hiddenInput = this.element.querySelector(`input[name*="[${this.itemIdParamValue}]"]`)
     if (hiddenInput) {
       hiddenInput.value = item.id
+
+      // Dispatch change event to notify dependent dropdowns
+      const changeEvent = new Event('change', { bubbles: true })
+      hiddenInput.dispatchEvent(changeEvent)
+
+      // Also dispatch input event for broader compatibility
+      const inputEvent = new Event('input', { bubbles: true })
+      hiddenInput.dispatchEvent(inputEvent)
     }
 
     // Clear any validation errors
@@ -257,6 +283,14 @@ export default class extends Controller {
     const hiddenInput = this.element.querySelector(`input[name*="[${this.itemIdParamValue}]"]`)
     if (hiddenInput) {
       hiddenInput.value = ''
+
+      // Dispatch change event to notify dependent dropdowns
+      const changeEvent = new Event('change', { bubbles: true })
+      hiddenInput.dispatchEvent(changeEvent)
+
+      // Also dispatch input event for broader compatibility
+      const inputEvent = new Event('input', { bubbles: true })
+      hiddenInput.dispatchEvent(inputEvent)
     }
   }
 

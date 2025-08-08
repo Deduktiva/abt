@@ -350,7 +350,7 @@ if Rails.env.development?
     )
   end
 
-  # Booked invoice for current year (2025)
+  # Booked invoice for 2025
   unless Invoice.exists?(document_number: '20250001')
     current_year_invoice = Invoice.create!(
       customer: good_company,
@@ -360,7 +360,9 @@ if Rails.env.development?
       prelude: 'Web application development services - January 2025',
       date: Date.new(2025, 1, 15),
       published: false, # Create as unpublished first
-      document_number: '20250001'
+      document_number: '20250001',
+      token: 'hxrwlxsspur',
+      tax_note: 'Reverse Charge - VAT is payable by the customer',
     )
 
     current_year_invoice.invoice_lines.create!(
@@ -395,35 +397,16 @@ if Rails.env.development?
 
     # Properly initialize the invoice by running the booking process
     current_year_invoice.save! # Trigger before_save callbacks
-    current_year_invoice.due_date = current_year_invoice.date + current_year_invoice.customer.payment_terms_days.days
+    current_year_invoice.due_date = Date.new(2025, 2, 14)
 
-    # Calculate and set tax classes for the booked invoice
-    net_amount = (40.0 * 85.00) + (32.0 * 85.00) + (8.0 * 75.00)
-    current_year_invoice.invoice_tax_classes.create!(
-      sales_tax_product_class: standard_product,
-      name: standard_product.name,
-      indicator_code: standard_product.indicator_code,
-      rate: 0.0, # EU customer has 0% rate
-      net: net_amount,
-      value: 0.0,
-      total: net_amount
-    )
-
-    # Set invoice totals and generate token, then publish
-    current_year_invoice.sum_net = net_amount
-    current_year_invoice.sum_total = net_amount # EU customer, no tax
-    current_year_invoice.token = Rfc4648Base32.i_to_s((SecureRandom.random_number(100).to_s + (current_year_invoice.customer.id + 100000).to_s + current_year_invoice.document_number.to_s).to_i)
     current_year_invoice.published = true # Now publish the invoice
 
-    # Create a sample PDF attachment
-    sample_pdf_path = Rails.root.join('test', 'fixtures', 'files', 'example_logo.pdf')
-    if File.exist?(sample_pdf_path)
-      current_year_invoice.attachment = Attachment.new
-      current_year_invoice.attachment.set_data File.binread(sample_pdf_path), 'application/pdf'
-      current_year_invoice.attachment.filename = "#{issuer_company.short_name}-Invoice-#{current_year_invoice.document_number}.pdf"
-      current_year_invoice.attachment.title = "#{issuer_company.short_name} Invoice #{current_year_invoice.document_number}"
-      current_year_invoice.attachment.save!
-    end
+    pdf_path = Rails.root.join('db', 'seed_data', 'invoice_20250001.pdf')
+    current_year_invoice.attachment = Attachment.new
+    current_year_invoice.attachment.set_data File.binread(pdf_path), 'application/pdf'
+    current_year_invoice.attachment.filename = 'My_Example-Invoice-20250001.pdf'
+    current_year_invoice.attachment.title = 'My Example Invoice 20250001'
+    current_year_invoice.attachment.save!
 
     current_year_invoice.save!
   end

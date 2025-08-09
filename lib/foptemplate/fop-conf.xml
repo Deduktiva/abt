@@ -104,6 +104,116 @@
                     <font-triplet name="OpenSans" style="italic" weight="bold"/>
                 </font>
 
+                <font kerning="yes" embed-url="inter-41/Inter-Thin.otf">
+                    <font-triplet name="Inter" style="normal" weight="100"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/Inter-ThinItalic.otf">
+                    <font-triplet name="Inter" style="italic" weight="100"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/Inter-ExtraLight.otf">
+                    <font-triplet name="Inter" style="normal" weight="200"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/Inter-ExtraLightItalic.otf">
+                    <font-triplet name="Inter" style="italic" weight="200"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/Inter-Light.otf">
+                    <font-triplet name="Inter" style="normal" weight="300"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/Inter-LightItalic.otf">
+                    <font-triplet name="Inter" style="italic" weight="300"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/Inter-Regular.otf">
+                    <font-triplet name="Inter" style="normal" weight="400"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/Inter-Italic.otf">
+                    <font-triplet name="Inter" style="italic" weight="400"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/Inter-Medium.otf">
+                    <font-triplet name="Inter" style="normal" weight="500"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/Inter-MediumItalic.otf">
+                    <font-triplet name="Inter" style="italic" weight="500"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/Inter-SemiBold.otf">
+                    <font-triplet name="Inter" style="normal" weight="600"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/Inter-SemiBoldItalic.otf">
+                    <font-triplet name="Inter" style="italic" weight="600"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/Inter-Bold.otf">
+                    <font-triplet name="Inter" style="normal" weight="bold"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/Inter-BoldItalic.otf">
+                    <font-triplet name="Inter" style="italic" weight="bold"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/Inter-ExtraBold.otf">
+                    <font-triplet name="Inter" style="normal" weight="800"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/Inter-ExtraBoldItalic.otf">
+                    <font-triplet name="Inter" style="italic" weight="800"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/Inter-Black.otf">
+                    <font-triplet name="Inter" style="normal" weight="900"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/Inter-BlackItalic.otf">
+                    <font-triplet name="Inter" style="italic" weight="900"/>
+                </font>
+
+                <font kerning="yes" embed-url="inter-41/InterDisplay-Thin.otf">
+                    <font-triplet name="InterDisplay" style="normal" weight="100"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/InterDisplay-ThinItalic.otf">
+                    <font-triplet name="InterDisplay" style="italic" weight="100"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/InterDisplay-ExtraLight.otf">
+                    <font-triplet name="InterDisplay" style="normal" weight="200"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/InterDisplay-ExtraLightItalic.otf">
+                    <font-triplet name="InterDisplay" style="italic" weight="200"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/InterDisplay-Light.otf">
+                    <font-triplet name="InterDisplay" style="normal" weight="300"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/InterDisplay-LightItalic.otf">
+                    <font-triplet name="InterDisplay" style="italic" weight="300"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/InterDisplay-Regular.otf">
+                    <font-triplet name="InterDisplay" style="normal" weight="400"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/InterDisplay-Italic.otf">
+                    <font-triplet name="InterDisplay" style="italic" weight="400"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/InterDisplay-Medium.otf">
+                    <font-triplet name="InterDisplay" style="normal" weight="500"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/InterDisplay-MediumItalic.otf">
+                    <font-triplet name="InterDisplay" style="italic" weight="500"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/InterDisplay-SemiBold.otf">
+                    <font-triplet name="InterDisplay" style="normal" weight="600"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/InterDisplay-SemiBoldItalic.otf">
+                    <font-triplet name="InterDisplay" style="italic" weight="600"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/InterDisplay-Bold.otf">
+                    <font-triplet name="InterDisplay" style="normal" weight="bold"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/InterDisplay-BoldItalic.otf">
+                    <font-triplet name="InterDisplay" style="italic" weight="bold"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/InterDisplay-ExtraBold.otf">
+                    <font-triplet name="InterDisplay" style="normal" weight="800"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/InterDisplay-ExtraBoldItalic.otf">
+                    <font-triplet name="InterDisplay" style="italic" weight="800"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/InterDisplay-Black.otf">
+                    <font-triplet name="InterDisplay" style="normal" weight="900"/>
+                </font>
+                <font kerning="yes" embed-url="inter-41/InterDisplay-BlackItalic.otf">
+                    <font-triplet name="InterDisplay" style="italic" weight="900"/>
+                </font>
+
                 <font kerning="yes" embed-url="inconsolata/Inconsolata-Regular.ttf">
                     <font-triplet name="Inconsolata" style="normal" weight="400"/>
                 </font>

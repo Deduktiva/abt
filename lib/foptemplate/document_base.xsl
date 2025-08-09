@@ -7,6 +7,10 @@
     <xsl:strip-space elements="*" />
     <xsl:decimal-format name="european" decimal-separator=',' grouping-separator='.' />
 
+    <!-- Common definitions -->
+    <xsl:variable name="font-name-normal">Inter</xsl:variable>
+    <xsl:variable name="font-name-display">InterDisplay</xsl:variable>
+
     <!-- Common utility functions -->
     <xsl:function name="abt:strip-space">
         <xsl:param name="string" />
@@ -16,6 +20,11 @@
     <xsl:function name="abt:format-amount">
         <xsl:param name="value" />
         <xsl:value-of select="format-number($value, '###.##0,00', 'european')" />
+    </xsl:function>
+
+    <xsl:function name="abt:format-date">
+        <xsl:param name="value" />
+        <xsl:value-of select="format-date($value, '[D01] [MNn] [Y0001]')" />
     </xsl:function>
 
     <xsl:function name="abt:ifempty">
@@ -43,10 +52,10 @@
                                margin-left="2.25cm"
                                margin-top="1.5cm"
                                margin-right="1.5cm"
-                               margin-bottom="2cm"
+                               margin-bottom="1.5cm"
                                page-width="21cm"
                                page-height="29.7cm">
-            <fo:region-body region-name="body" margin-top="8.9cm" margin-bottom="0cm" />
+            <fo:region-body region-name="body" margin-top="8.5cm" margin-bottom="0.2cm" />
             <fo:region-before region-name="first-page-header" />
             <fo:region-after region-name="any-page-footer" />
         </fo:simple-page-master>
@@ -55,10 +64,10 @@
                                margin-left="2.25cm"
                                margin-top="0.75cm"
                                margin-right="1.5cm"
-                               margin-bottom="2cm"
+                               margin-bottom="1.5cm"
                                page-width="21cm"
                                page-height="29.7cm">
-            <fo:region-body region-name="body" margin-top="2cm" margin-bottom="3cm" />
+            <fo:region-body region-name="body" margin-top="2cm" margin-bottom="2cm" />
             <fo:region-before region-name="rest-page-header" />
             <fo:region-after region-name="any-page-footer" />
         </fo:simple-page-master>
@@ -86,7 +95,7 @@
 
         <fo:block-container height="0.5cm" width="12cm" top="3cm" left="0cm" position="absolute" font-size="6pt">
             <!-- inline sender -->
-            <fo:block xsl:use-attribute-sets="accent-color" font-weight="normal" font-family="sans-serif">
+            <fo:block xsl:use-attribute-sets="accent-color" font-family="{$font-name-display}" font-weight="normal">
                 Returns to: <xsl:value-of select="replace(abt:strip-space(/document/issuer/address), '\n', ', ')" />
             </fo:block>
         </fo:block-container>
@@ -102,31 +111,44 @@
         </fo:block-container>
     </xsl:template>
 
-    <!-- Component: company logo/name block -->
+    <!-- implementation detail: logo only -->
+    <xsl:template name="impl-company-logo">
+        <fo:block text-align="start" font-size="12pt" xsl:use-attribute-sets="accent-color">
+            <xsl:choose>
+                <xsl:when test="/document/logo-path">
+                    <fo:external-graphic src="{/document/logo-path}"
+                        content-width="{/document/logo-width}"
+                        content-height="{/document/logo-height}"
+                        scaling="uniform" />
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="/document/issuer/legal-name" />
+                </xsl:otherwise>
+            </xsl:choose>
+        </fo:block>
+    </xsl:template>
+
+    <!-- Component: company logo/name block with contact lines (typically on first page) -->
     <xsl:template name="company-header-block">
-        <fo:block-container height="1cm" width="6cm" top="0cm" left="0cm" position="absolute">
-            <fo:block text-align="start" font-size="12pt" xsl:use-attribute-sets="accent-color">
-                <xsl:choose>
-                    <xsl:when test="/document/logo-path">
-                        <fo:external-graphic src="{/document/logo-path}"
-                            content-width="{/document/logo-width}"
-                            content-height="{/document/logo-height}"
-                            scaling="uniform" />
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:value-of select="/document/issuer/legal-name" />
-                    </xsl:otherwise>
-                </xsl:choose>
-            </fo:block>
+        <fo:block-container height="1cm" width="6cm" top="0cm" left="0cm" position="absolute" line-height="120%">
+            <xsl:call-template name="impl-company-logo"/>
 
             <fo:block text-align="start" font-size="9pt" xsl:use-attribute-sets="accent-color">
                 <fo:block white-space-collapse="false">
                     <xsl:value-of select="abt:strip-space(/document/issuer/contact-line1)" />
                 </fo:block>
-                <fo:block>
+                <fo:block white-space-collapse="false">
                     <xsl:value-of select="abt:strip-space(/document/issuer/contact-line2)" />
                 </fo:block>
             </fo:block>
+        </fo:block-container>
+    </xsl:template>
+
+    <!-- Component: company logo/name block without contact lines -->
+    <xsl:template name="company-logo-block">
+        <!-- logo -->
+        <fo:block-container height="1cm" width="6cm" top="0cm" left="0cm" position="absolute">
+            <xsl:call-template name="impl-company-logo"/>
         </fo:block-container>
     </xsl:template>
 
@@ -151,7 +173,7 @@
                                 top="9.6cm" left="0.8cm"
                                 position="fixed"
                                 overflow="visible"
-                    color="black">
+                                color="#999999">
                 <fo:block>
                     <fo:leader leader-length.minimum="100%" leader-length.optimum="100%" leader-pattern="rule" rule-thickness="0.13mm"/>
                 </fo:block>
@@ -160,7 +182,8 @@
             <fo:block-container width="0.5cm"
                                 top="19.5cm" left="0.8cm"
                                 position="fixed"
-                                overflow="visible">
+                                overflow="visible"
+                                color="#999999">
                 <fo:block>
                     <fo:leader leader-length.minimum="100%" leader-length.optimum="100%" leader-pattern="rule" rule-thickness="0.13mm"/>
                 </fo:block>
@@ -170,7 +193,7 @@
 
     <!-- Component: Page X of Y text -->
     <xsl:template name="page-x-of-y-text">
-        <fo:block>
+        <fo:block font-family="{$font-name-display}" font-size="8pt">
             Page <fo:page-number/> of <fo:page-number-citation-last ref-id="document-sequence"/>
         </fo:block>
     </xsl:template>

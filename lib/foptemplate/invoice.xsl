@@ -58,7 +58,7 @@
         <fo:table-body keep-together.within-page="always">
         <fo:table-row>
             <fo:table-cell number-columns-spanned="5">
-                <fo:block padding-before="5mm" padding-after="5mm" text-align="start" font-weight="600">
+                <fo:block padding-before="8mm" padding-after="2mm" text-align="start" font-weight="600">
                     <xsl:value-of select="abt:strip-space(title)" />
                 </fo:block>
             </fo:table-cell>

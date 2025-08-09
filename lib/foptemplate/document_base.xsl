@@ -128,7 +128,7 @@
                 <fo:block white-space-collapse="false">
                     <xsl:value-of select="abt:strip-space(/document/issuer/contact-line1)" />
                 </fo:block>
-                <fo:block>
+                <fo:block white-space-collapse="false">
                     <xsl:value-of select="abt:strip-space(/document/issuer/contact-line2)" />
                 </fo:block>
             </fo:block>

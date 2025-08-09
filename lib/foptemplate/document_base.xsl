@@ -22,6 +22,11 @@
         <xsl:value-of select="format-number($value, '###.##0,00', 'european')" />
     </xsl:function>
 
+    <xsl:function name="abt:format-date">
+        <xsl:param name="value" />
+        <xsl:value-of select="format-date($value, '[D01] [MNn] [Y0001]')" />
+    </xsl:function>
+
     <xsl:function name="abt:ifempty">
         <xsl:param name="string" />
         <xsl:param name="empty" />

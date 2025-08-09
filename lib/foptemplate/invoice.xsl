@@ -165,7 +165,7 @@
                                         </fo:table-cell>
                                         <fo:table-cell>
                                             <fo:block>
-                                                <xsl:value-of select="/document/issue-date" />
+                                                <xsl:value-of select="abt:format-date(/document/issue-date)"/>
                                             </fo:block>
                                         </fo:table-cell>
                                     </fo:table-row>
@@ -357,7 +357,7 @@
                                     <xsl:value-of select="abt:format-amount(/document/sums/total)"/>
                                 </fo:inline>
                                 on
-                                <fo:inline font-weight="600"><xsl:value-of select="/document/due-date" /></fo:inline>.
+                                <fo:inline font-weight="600"><xsl:value-of select="abt:format-date(/document/due-date)" /></fo:inline>.
                             </fo:block>
                             <fo:block>
                                 <xsl:if test="/document/payment-url != ''">
@@ -365,7 +365,7 @@
                                     <fo:basic-link color="blue" external-destination="{/document/payment-url}"><xsl:value-of select="/document/payment-url" /></fo:basic-link>
                                 </xsl:if>
                             </fo:block>
-                            <fo:block><fo:inline font-weight="600">Wire transfer:</fo:inline></fo:block>
+                            <fo:block>Payment instructions for <fo:inline font-weight="600">Wire transfer:</fo:inline></fo:block>
                             <fo:block-container height="1.1cm">
                                 <fo:block-container left="0cm" top="0mm" width="7cm" position="absolute">
                                     <fo:block>Bank: <xsl:value-of select="/document/issuer/bankaccount/bank" /></fo:block>

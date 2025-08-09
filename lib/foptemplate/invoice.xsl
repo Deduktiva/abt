@@ -210,21 +210,7 @@
 
                 <fo:static-content flow-name="rest-page-header">
                     <!-- logo -->
-                    <fo:block-container height="1cm" width="6cm" top="0cm" position="absolute">
-                        <fo:block text-align="start" font-size="12pt" xsl:use-attribute-sets="accent-color">
-                            <xsl:choose>
-                                <xsl:when test="/document/logo-path">
-                                    <fo:external-graphic src="{/document/logo-path}"
-                                        content-width="{/document/logo-width}"
-                                        content-height="{/document/logo-height}"
-                                        scaling="uniform" />
-                                </xsl:when>
-                                <xsl:otherwise>
-                                    <xsl:value-of select="/document/issuer/legal-name" />
-                                </xsl:otherwise>
-                            </xsl:choose>
-                        </fo:block>
-                    </fo:block-container>
+                    <xsl:call-template name="company-logo-block"/>
 
                     <fo:block-container top="0cm" left="8.75cm" position="absolute">
                         <fo:block text-align="start">

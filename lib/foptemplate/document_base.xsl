@@ -102,22 +102,27 @@
         </fo:block-container>
     </xsl:template>
 
-    <!-- Component: company logo/name block -->
+    <!-- implementation detail: logo only -->
+    <xsl:template name="impl-company-logo">
+        <fo:block text-align="start" font-size="12pt" xsl:use-attribute-sets="accent-color">
+            <xsl:choose>
+                <xsl:when test="/document/logo-path">
+                    <fo:external-graphic src="{/document/logo-path}"
+                        content-width="{/document/logo-width}"
+                        content-height="{/document/logo-height}"
+                        scaling="uniform" />
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="/document/issuer/legal-name" />
+                </xsl:otherwise>
+            </xsl:choose>
+        </fo:block>
+    </xsl:template>
+
+    <!-- Component: company logo/name block with contact lines (typically on first page) -->
     <xsl:template name="company-header-block">
         <fo:block-container height="1cm" width="6cm" top="0cm" left="0cm" position="absolute">
-            <fo:block text-align="start" font-size="12pt" xsl:use-attribute-sets="accent-color">
-                <xsl:choose>
-                    <xsl:when test="/document/logo-path">
-                        <fo:external-graphic src="{/document/logo-path}"
-                            content-width="{/document/logo-width}"
-                            content-height="{/document/logo-height}"
-                            scaling="uniform" />
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:value-of select="/document/issuer/legal-name" />
-                    </xsl:otherwise>
-                </xsl:choose>
-            </fo:block>
+            <xsl:call-template name="impl-company-logo"/>
 
             <fo:block text-align="start" font-size="9pt" xsl:use-attribute-sets="accent-color">
                 <fo:block white-space-collapse="false">
@@ -127,6 +132,14 @@
                     <xsl:value-of select="abt:strip-space(/document/issuer/contact-line2)" />
                 </fo:block>
             </fo:block>
+        </fo:block-container>
+    </xsl:template>
+
+    <!-- Component: company logo/name block without contact lines -->
+    <xsl:template name="company-logo-block">
+        <!-- logo -->
+        <fo:block-container height="1cm" width="6cm" top="0cm" left="0cm" position="absolute">
+            <xsl:call-template name="impl-company-logo"/>
         </fo:block-container>
     </xsl:template>
 

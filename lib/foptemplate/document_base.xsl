@@ -7,6 +7,10 @@
     <xsl:strip-space elements="*" />
     <xsl:decimal-format name="european" decimal-separator=',' grouping-separator='.' />
 
+    <!-- Common definitions -->
+    <xsl:variable name="font-name-normal">Inter</xsl:variable>
+    <xsl:variable name="font-name-display">InterDisplay</xsl:variable>
+
     <!-- Common utility functions -->
     <xsl:function name="abt:strip-space">
         <xsl:param name="string" />
@@ -46,7 +50,7 @@
                                margin-bottom="2cm"
                                page-width="21cm"
                                page-height="29.7cm">
-            <fo:region-body region-name="body" margin-top="8.9cm" margin-bottom="0cm" />
+            <fo:region-body region-name="body" margin-top="8.5cm" margin-bottom="0cm" />
             <fo:region-before region-name="first-page-header" />
             <fo:region-after region-name="any-page-footer" />
         </fo:simple-page-master>
@@ -86,7 +90,7 @@
 
         <fo:block-container height="0.5cm" width="12cm" top="3cm" left="0cm" position="absolute" font-size="6pt">
             <!-- inline sender -->
-            <fo:block xsl:use-attribute-sets="accent-color" font-weight="normal" font-family="sans-serif">
+            <fo:block xsl:use-attribute-sets="accent-color" font-family="{$font-name-display}" font-weight="normal">
                 Returns to: <xsl:value-of select="replace(abt:strip-space(/document/issuer/address), '\n', ', ')" />
             </fo:block>
         </fo:block-container>
@@ -121,7 +125,7 @@
 
     <!-- Component: company logo/name block with contact lines (typically on first page) -->
     <xsl:template name="company-header-block">
-        <fo:block-container height="1cm" width="6cm" top="0cm" left="0cm" position="absolute">
+        <fo:block-container height="1cm" width="6cm" top="0cm" left="0cm" position="absolute" line-height="120%">
             <xsl:call-template name="impl-company-logo"/>
 
             <fo:block text-align="start" font-size="9pt" xsl:use-attribute-sets="accent-color">
@@ -184,7 +188,7 @@
 
     <!-- Component: Page X of Y text -->
     <xsl:template name="page-x-of-y-text">
-        <fo:block>
+        <fo:block font-family="{$font-name-display}" font-size="8pt">
             Page <fo:page-number/> of <fo:page-number-citation-last ref-id="document-sequence"/>
         </fo:block>
     </xsl:template>

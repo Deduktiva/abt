@@ -72,13 +72,15 @@
 
     <!-- Tax class templates -->
     <xsl:template match="/document/sums/tax-classes/tax-class">
-        <fo:table-row>
+        <fo:table-row
+                border-before-style="solid" border-before-width="0.13mm" border-before-color="black"
+                space-before="1mm">
             <fo:table-cell number-columns-spanned="3" padding-before="1mm" padding-after="1mm">
                 <fo:block text-align="start">
                     Tax Class
-                    <xsl:value-of select="@name" />:
+                    ‟<xsl:value-of select="@name" />″:
                     <xsl:value-of select="percentage" />%
-                    VAT of
+                    of
                     <xsl:value-of select="/document/currency" />
                     <xsl:text> </xsl:text>
                     <xsl:value-of select="abt:format-amount(sum)" />
@@ -94,22 +96,7 @@
     </xsl:template>
 
     <xsl:template match="/document/sums/tax-classes">
-        <fo:block-container
-                border-before-style="solid" border-before-width="0.13mm" border-before-color="black"
-                border-after-style="solid" border-after-width="0.13mm" border-after-color="black"
-                space-before="5mm"
-                >
-            <fo:table table-layout="fixed" width="100%" padding="0mm" margin="0mm">
-                <fo:table-column column-width="11cm"/>
-                <fo:table-column column-width="1cm"/>
-                <fo:table-column column-width="2cm"/>
-                <fo:table-column column-width="1cm"/>
-                <fo:table-column column-width="2.25cm"/>
-                <fo:table-body>
-                    <xsl:apply-templates />
-                </fo:table-body>
-            </fo:table>
-        </fo:block-container>
+        <xsl:apply-templates />
     </xsl:template>
 
     <!-- Invoice document -->
@@ -280,9 +267,19 @@
 
                     </fo:table>
 
-                    <!-- sum -->
-                    <fo:block-container space-before="5mm">
-                        <fo:table table-layout="fixed" width="100%" padding="0mm" margin="0mm">
+                    <!-- sum, tax classes, and total sum -->
+                    <fo:block-container keep-together.within-page="always" space-before="4mm">
+
+                        <xsl:if test="/document/tax-note != ''">
+                            <fo:block-container>
+                                <fo:block xsl:use-attribute-sets="accent-color">Tax Information</fo:block>
+                                <fo:block linefeed-treatment="preserve">
+                                    <xsl:value-of select="abt:strip-space(/document/tax-note)" />
+                                </fo:block>
+                            </fo:block-container>
+                        </xsl:if>
+
+                        <fo:table table-layout="fixed" width="100%" space-before="1mm" padding="0mm" margin="0mm">
                             <fo:table-column column-width="11cm"/>
                             <fo:table-column column-width="1cm"/>
                             <fo:table-column column-width="2cm"/>
@@ -290,6 +287,8 @@
                             <fo:table-column column-width="2.25cm"/>
 
                             <fo:table-body>
+
+                                <!-- sum (net) -->
                                 <fo:table-row>
                                     <fo:table-cell number-columns-spanned="3" padding-before="1mm" padding-after="1mm">
                                         <fo:block text-align="start" font-style="italic">Sum</fo:block>
@@ -300,39 +299,19 @@
                                         </fo:block>
                                     </fo:table-cell>
                                 </fo:table-row>
-                            </fo:table-body>
-                        </fo:table>
-                    </fo:block-container>
 
-                    <!-- tax data -->
-                    <xsl:apply-templates select="/document/sums/tax-classes" />
+                                <xsl:apply-templates select="/document/sums/tax-classes" />
 
-                    <xsl:if test="/document/tax-note != ''">
-                        <fo:block-container space-before="2mm" space-after="2mm">
-                            <fo:block xsl:use-attribute-sets="accent-color">Tax Information</fo:block>
-                            <fo:block linefeed-treatment="preserve">
-                                <xsl:value-of select="abt:strip-space(/document/tax-note)" />
-                            </fo:block>
-                        </fo:block-container>
-                    </xsl:if>
-
-                    <!-- total -->
-                    <fo:block-container
-                            border-before-style="solid" border-before-width="0.5mm" border-before-color="black"
-                            border-after-style="solid" border-after-width="0.5mm" border-after-color="black"
-                            space-before="2mm"
-                            >
-                        <fo:table table-layout="fixed" width="100%" padding="0mm" margin="0mm">
-                            <fo:table-column column-width="11.25cm"/>
-                            <fo:table-column column-width="1cm"/>
-                            <fo:table-column column-width="2cm"/>
-                            <fo:table-column column-width="1cm"/>
-                            <fo:table-column column-width="2cm"/>
-
-                            <fo:table-body>
-                                <fo:table-row>
+                                <!-- total -->
+                                <fo:table-row
+                                    border-before-style="solid" border-before-width="0.5mm" border-before-color="black"
+                                    space-before="1mm">
                                     <fo:table-cell number-columns-spanned="3" padding-before="1mm" padding-after="1mm">
-                                        <fo:block text-align="start" font-weight="600">Total including tax</fo:block>
+                                        <fo:block text-align="start">
+                                            <fo:inline font-weight="600">Total including tax </fo:inline>
+                                            <fo:inline font-weight="normal">due on </fo:inline>
+                                            <fo:inline font-weight="600"><xsl:value-of select="abt:format-date(/document/due-date)" /></fo:inline>
+                                        </fo:block>
                                     </fo:table-cell>
                                     <fo:table-cell number-columns-spanned="2" padding-before="1mm" padding-after="1mm">
                                         <fo:block text-align="end" font-weight="600">
@@ -346,34 +325,26 @@
                         </fo:table>
                     </fo:block-container>
 
+
                     <!-- end of document data -->
-                    <fo:block-container space-before.optimum="0.5cm" space-before.minimum="0.5cm" space-before.maximum="1cm" line-height="15pt" page-break-inside="avoid">
+                    <fo:block-container space-before.optimum="0.5cm" space-before.minimum="0.5cm" space-before.maximum="1cm" line-height="120%" page-break-inside="avoid">
                         <fo:block-container
                                 border-color="black" border-style="solid" border-width="0.13mm" padding="0.6mm">
-                            <fo:block>Full amount due
-                                <fo:inline font-weight="600">
-                                    <xsl:value-of select="/document/currency"/>
-                                    <xsl:text> </xsl:text>
-                                    <xsl:value-of select="abt:format-amount(/document/sums/total)"/>
-                                </fo:inline>
-                                on
-                                <fo:inline font-weight="600"><xsl:value-of select="abt:format-date(/document/due-date)" /></fo:inline>.
-                            </fo:block>
-                            <fo:block>
-                                <xsl:if test="/document/payment-url != ''">
+                            <xsl:if test="/document/payment-url != ''">
+                                <fo:block>
                                     <fo:inline font-weight="600">Online payment: </fo:inline>
                                     <fo:basic-link color="blue" external-destination="{/document/payment-url}"><xsl:value-of select="/document/payment-url" /></fo:basic-link>
-                                </xsl:if>
-                            </fo:block>
+                                </fo:block>
+                            </xsl:if>
                             <fo:block>Payment instructions for <fo:inline font-weight="600">Wire transfer:</fo:inline></fo:block>
                             <fo:block-container height="1.1cm">
                                 <fo:block-container left="0cm" top="0mm" width="7cm" position="absolute">
-                                    <fo:block>Bank: <xsl:value-of select="/document/issuer/bankaccount/bank" /></fo:block>
-                                    <fo:block>BIC: <xsl:value-of select="/document/issuer/bankaccount/bic" /></fo:block>
+                                    <fo:block><fo:inline font-family="{$font-name-display}">Bank: </fo:inline><xsl:value-of select="/document/issuer/bankaccount/bank" /></fo:block>
+                                    <fo:block><fo:inline font-family="{$font-name-display}">BIC: </fo:inline><xsl:value-of select="/document/issuer/bankaccount/bic" /></fo:block>
                                 </fo:block-container>
                                 <fo:block-container left="8.75cm" top="0mm" width="7cm" position="absolute">
-                                    <fo:block>Account Name: <xsl:value-of select="/document/issuer/legal-name" /></fo:block>
-                                    <fo:block>Account No: <xsl:value-of select="/document/issuer/bankaccount/number" /></fo:block>
+                                    <fo:block><fo:inline font-family="{$font-name-display}">Account Name: </fo:inline><xsl:value-of select="/document/issuer/legal-name" /></fo:block>
+                                    <fo:block><fo:inline font-family="{$font-name-display}">Account No: </fo:inline><xsl:value-of select="/document/issuer/bankaccount/number" /></fo:block>
                                 </fo:block-container>
                             </fo:block-container>
                             <fo:block>For transfer from outside the SEPA region, please ensure the full amount reaches our account.</fo:block>

@@ -52,10 +52,10 @@
                                margin-left="2.25cm"
                                margin-top="1.5cm"
                                margin-right="1.5cm"
-                               margin-bottom="2cm"
+                               margin-bottom="1.5cm"
                                page-width="21cm"
                                page-height="29.7cm">
-            <fo:region-body region-name="body" margin-top="8.5cm" margin-bottom="0cm" />
+            <fo:region-body region-name="body" margin-top="8.5cm" margin-bottom="0.2cm" />
             <fo:region-before region-name="first-page-header" />
             <fo:region-after region-name="any-page-footer" />
         </fo:simple-page-master>
@@ -64,10 +64,10 @@
                                margin-left="2.25cm"
                                margin-top="0.75cm"
                                margin-right="1.5cm"
-                               margin-bottom="2cm"
+                               margin-bottom="1.5cm"
                                page-width="21cm"
                                page-height="29.7cm">
-            <fo:region-body region-name="body" margin-top="2cm" margin-bottom="3cm" />
+            <fo:region-body region-name="body" margin-top="2cm" margin-bottom="2cm" />
             <fo:region-before region-name="rest-page-header" />
             <fo:region-after region-name="any-page-footer" />
         </fo:simple-page-master>

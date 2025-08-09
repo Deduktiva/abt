@@ -7,7 +7,7 @@
       .col-sm-2
         .mb-3
           %label.form-label Type
-          = f.select :type, options_for_select(@line_type_options, f.object.type), { prompt: 'Select type...' }, { class: 'form-select', data: { action: 'change->invoice-lines#typeChanged' } }
+          = f.select :type, options_for_select(@line_type_options, f.object.type), { prompt: 'Select type...' }, { class: 'form-select', data: { action: 'change->document-lines#typeChanged' } }
       .col-sm-6.col-md-8
         .mb-3
           %label.form-label Title
@@ -49,7 +49,7 @@
       .col-sm-4.col-md-3
         .mb-3
           %label.form-label Product class
-          = f.collection_select :sales_tax_product_class_id, SalesTaxProductClass.all, :id, :name, { prompt: 'Select tax class...' }, { class: 'form-select', data: { action: 'change->invoice-lines#fieldChanged' } }
+          = f.collection_select :sales_tax_product_class_id, SalesTaxProductClass.all, :id, :name, { prompt: 'Select tax class...' }, { class: 'form-select', data: { action: 'change->document-lines#fieldChanged' } }
       .col-sm-3
       .col-sm-2.text-end
         .mb-3

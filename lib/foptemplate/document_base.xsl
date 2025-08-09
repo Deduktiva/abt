@@ -37,7 +37,7 @@
         <xsl:attribute name="color"><xsl:value-of select="/document/accent-color" /></xsl:attribute>
     </xsl:attribute-set>
 
-    <!-- Reusable page master templates -->
+    <!-- Page master templates -->
     <xsl:template name="standard-page-masters">
         <fo:simple-page-master master-name="first"
                                margin-left="2.25cm"
@@ -63,7 +63,7 @@
             <fo:region-after region-name="any-page-footer" />
         </fo:simple-page-master>
 
-        <fo:page-sequence-master master-name="psmA">
+        <fo:page-sequence-master master-name="abt-document-master">
           <fo:repeatable-page-master-alternatives>
             <fo:conditional-page-master-reference master-reference="first"
               page-position="first" />
@@ -75,30 +75,34 @@
         </fo:page-sequence-master>
     </xsl:template>
 
-    <!-- Reusable address blocks -->
+    <!-- Component: sender address block -->
     <xsl:template name="sender-address-block">
         <fo:block-container height="3cm" width="12cm" top="0cm" left="0cm" position="absolute">
+            <!-- note: can't have linefeed before first line -->
             <fo:block linefeed-treatment="preserve">
                 <xsl:value-of select="abt:strip-space(/document/issuer/address)" />
             </fo:block>
         </fo:block-container>
 
         <fo:block-container height="0.5cm" width="12cm" top="3cm" left="0cm" position="absolute" font-size="6pt">
+            <!-- inline sender -->
             <fo:block xsl:use-attribute-sets="accent-color" font-weight="normal" font-family="sans-serif">
                 Returns to: <xsl:value-of select="replace(abt:strip-space(/document/issuer/address), '\n', ', ')" />
             </fo:block>
         </fo:block-container>
     </xsl:template>
 
+    <!-- Component: recipient address block -->
     <xsl:template name="recipient-address-block">
         <fo:block-container height="3cm" width="8.95cm" top="3.5cm" left="0cm" position="absolute">
+            <!-- note: can't have linefeed before first line -->
             <fo:block linefeed-treatment="preserve">
                 <xsl:value-of select="abt:strip-space(/document/recipient/address)" />
             </fo:block>
         </fo:block-container>
     </xsl:template>
 
-    <!-- Reusable company logo/name block -->
+    <!-- Component: company logo/name block -->
     <xsl:template name="company-header-block">
         <fo:block-container height="1cm" width="6cm" top="0cm" left="0cm" position="absolute">
             <fo:block text-align="start" font-size="12pt" xsl:use-attribute-sets="accent-color">
@@ -126,7 +130,7 @@
         </fo:block-container>
     </xsl:template>
 
-    <!-- Reusable info box template -->
+    <!-- Component: info box template -->
     <xsl:template name="info-box">
         <xsl:param name="label" />
         <xsl:param name="value" />
@@ -138,6 +142,37 @@
             <fo:block xsl:use-attribute-sets="accent-color"><xsl:value-of select="$label" /></fo:block>
             <fo:block><xsl:value-of select="$value" /></fo:block>
         </fo:block-container>
+    </xsl:template>
+
+    <!-- Component: folding marks -->
+    <xsl:template name="folding-marks">
+        <fo:block-container>
+            <fo:block-container width="0.5cm"
+                                top="9.6cm" left="0.8cm"
+                                position="fixed"
+                                overflow="visible"
+                    color="black">
+                <fo:block>
+                    <fo:leader leader-length.minimum="100%" leader-length.optimum="100%" leader-pattern="rule" rule-thickness="0.13mm"/>
+                </fo:block>
+            </fo:block-container>
+
+            <fo:block-container width="0.5cm"
+                                top="19.5cm" left="0.8cm"
+                                position="fixed"
+                                overflow="visible">
+                <fo:block>
+                    <fo:leader leader-length.minimum="100%" leader-length.optimum="100%" leader-pattern="rule" rule-thickness="0.13mm"/>
+                </fo:block>
+            </fo:block-container>
+        </fo:block-container>
+    </xsl:template>
+
+    <!-- Component: Page X of Y text -->
+    <xsl:template name="page-x-of-y-text">
+        <fo:block>
+            Page <fo:page-number/> of <fo:page-number-citation-last ref-id="document-sequence"/>
+        </fo:block>
     </xsl:template>
 
     <!-- Common PDF metadata template -->

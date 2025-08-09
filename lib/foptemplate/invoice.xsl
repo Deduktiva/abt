@@ -4,10 +4,9 @@
                 xmlns:fo="http://www.w3.org/1999/XSL/Format"
                 xmlns:abt="http://deduktiva.com/Namespace/ABT/XSLT">
 
-    <!-- Import base document template -->
     <xsl:import href="document_base.xsl"/>
 
-    <!-- Invoice-specific line item templates -->
+    <!-- Line item templates -->
     <xsl:template match="/document/items/item">
         <fo:table-body keep-together.within-page="always">
             <fo:table-row>
@@ -71,7 +70,7 @@
         <xsl:apply-templates />
     </xsl:template>
 
-    <!-- Invoice-specific tax class templates -->
+    <!-- Tax class templates -->
     <xsl:template match="/document/sums/tax-classes/tax-class">
         <fo:table-row>
             <fo:table-cell number-columns-spanned="3" padding-before="1mm" padding-after="1mm">
@@ -113,7 +112,7 @@
         </fo:block-container>
     </xsl:template>
 
-    <!-- Main invoice template -->
+    <!-- Invoice document -->
     <xsl:template match="/">
         <fo:root font-family="sans-serif">
             <fo:layout-master-set>
@@ -125,7 +124,7 @@
                 <xsl:with-param name="document-number" select="/document/number" />
             </xsl:call-template>
 
-            <fo:page-sequence master-reference="psmA" id="document-sequence" font-family="OpenSans" font-weight="200" font-size="11pt" line-height="12pt">
+            <fo:page-sequence master-reference="abt-document-master" id="document-sequence" font-family="OpenSans" font-weight="200" font-size="11pt" line-height="12pt">
                 <fo:static-content flow-name="first-page-header">
                     <!-- Address blocks -->
                     <xsl:call-template name="sender-address-block" />
@@ -142,7 +141,7 @@
                             </fo:block>
                         </fo:block-container>
 
-                        <!-- Invoice info boxes -->
+                        <!-- first and second rows of info boxes -->
                         <fo:block-container top="4.25cm" position="absolute">
                             <xsl:call-template name="info-box">
                                 <xsl:with-param name="label">Invoice No</xsl:with-param>
@@ -158,6 +157,7 @@
                                 <xsl:with-param name="left">4.375cm</xsl:with-param>
                             </xsl:call-template>
 
+                            <!-- 2nd row -->
                             <xsl:call-template name="info-box">
                                 <xsl:with-param name="label">Your Reference</xsl:with-param>
                                 <xsl:with-param name="value" select="/document/recipient/reference" />
@@ -177,27 +177,34 @@
                     <!-- full width line -->
                     <fo:block-container top="7.3cm" position="absolute">
                         <!--
-                        <fo:block-container position="absolute" width="4.1cm" top="0cm" left="0cm">
-                            <fo:block xsl:use-attribute-sets="accent-color">Account No</fo:block>
-                            <fo:block><xsl:value-of select="/document/recipient/account-no" /></fo:block>
-                        </fo:block-container>
+                        <xsl:call-template name="info-box">
+                            <xsl:with-param name="label">Account No</xsl:with-param>
+                            <xsl:with-param name="value" select="/document/recipient/account-no" />
+                            <xsl:with-param name="top">0cm</xsl:with-param>
+                            <xsl:with-param name="left">0cm</xsl:with-param>
+                        </xsl:call-template>
 
-                        <fo:block-container position="absolute" width="4.1cm" top="0cm" left="4.375cm">
-                            <fo:block xsl:use-attribute-sets="accent-color">Supplier No</fo:block>
-                            <fo:block><xsl:value-of select="/document/recipient/supplier-no" /></fo:block>
-                        </fo:block-container>
+                        <xsl:call-template name="info-box">
+                            <xsl:with-param name="label">Supplier No</xsl:with-param>
+                            <xsl:with-param name="value" select="/document/recipient/supplier-no" />
+                            <xsl:with-param name="top">0cm</xsl:with-param>
+                            <xsl:with-param name="left">4.375cm</xsl:with-param>
+                        </xsl:call-template>
                         -->
 
-                        <fo:block-container position="absolute" width="4.1cm" top="0cm" left="8.75cm">
-                            <fo:block xsl:use-attribute-sets="accent-color">Our VAT ID</fo:block>
-                            <fo:block><xsl:value-of select="/document/issuer/vat-id" /></fo:block>
-                        </fo:block-container>
+                        <xsl:call-template name="info-box">
+                            <xsl:with-param name="label">Our VAT ID</xsl:with-param>
+                            <xsl:with-param name="value" select="/document/issuer/vat-id" />
+                            <xsl:with-param name="top">0cm</xsl:with-param>
+                            <xsl:with-param name="left">8.75cm</xsl:with-param>
+                        </xsl:call-template>
 
-                        <fo:block-container position="absolute" width="4.1cm" top="0cm" left="13.125cm" text-align="start">
-                            <fo:block xsl:use-attribute-sets="accent-color">Your VAT ID</fo:block>
-                            <fo:block><xsl:value-of select="/document/recipient/vat-id" /></fo:block>
-                        </fo:block-container>
-
+                        <xsl:call-template name="info-box">
+                            <xsl:with-param name="label">Your VAT ID</xsl:with-param>
+                            <xsl:with-param name="value" select="/document/recipient/vat-id" />
+                            <xsl:with-param name="top">0cm</xsl:with-param>
+                            <xsl:with-param name="left">13.125cm</xsl:with-param>
+                        </xsl:call-template>
                     </fo:block-container>
                 </fo:static-content>
 
@@ -226,44 +233,19 @@
                     </fo:block-container>
 
                     <fo:block-container top="0cm" right="0cm" text-align="end" position="absolute">
-                        <fo:block>
-                            Page <fo:page-number/> of <fo:page-number-citation-last ref-id="document-sequence"/>
-                        </fo:block>
+                        <xsl:call-template name="page-x-of-y-text" />
                     </fo:block-container>
                 </fo:static-content>
 
                 <fo:static-content flow-name="any-page-footer">
-                    <fo:block-container>
-                        <!-- folding marks -->
-                        <fo:block-container width="0.5cm"
-                                            top="9.6cm" left="0.8cm"
-                                            position="fixed"
-                                            overflow="visible"
-                                color="black">
-                            <fo:block>
-                                <fo:leader leader-length.minimum="100%" leader-length.optimum="100%" leader-pattern="rule" rule-thickness="0.13mm"/>
-                            </fo:block>
-                        </fo:block-container>
-
-                        <fo:block-container width="0.5cm"
-                                            top="19.5cm" left="0.8cm"
-                                            position="fixed"
-                                            overflow="visible">
-                            <fo:block>
-                                <fo:leader leader-length.minimum="100%" leader-length.optimum="100%" leader-pattern="rule" rule-thickness="0.13mm"/>
-                            </fo:block>
-                        </fo:block-container>
-                    </fo:block-container>
-
+                    <xsl:call-template name="folding-marks" />
 
                     <fo:block-container text-align="end">
-                        <fo:block>
-                            Page <fo:page-number/> of <fo:page-number-citation-last ref-id="document-sequence"/>
-                        </fo:block>
+                        <xsl:call-template name="page-x-of-y-text" />
                     </fo:block-container>
                 </fo:static-content>
 
-                <!-- Main content -->
+                <!-- Actual invoice content -->
                 <fo:flow flow-name="body">
                     <xsl:if test="/document/prelude != ''">
                         <fo:block-container space-after="18pt">
@@ -304,9 +286,7 @@
                     </fo:table>
 
                     <!-- sum -->
-                    <fo:block-container
-                            space-before="5mm"
-                            >
+                    <fo:block-container space-before="5mm">
                         <fo:table table-layout="fixed" width="100%" padding="0mm" margin="0mm">
                             <fo:table-column column-width="11cm"/>
                             <fo:table-column column-width="1cm"/>

@@ -98,6 +98,14 @@ jobs:
       run: |
         bundle exec rails test --verbose
 
+    - name: Run UI tests
+      env:
+        RAILS_ENV: test
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/abt_test
+        RAILS_LOG_LEVEL: debug
+      run: |
+        HEADLESS=1 bundle exec rails test:system --verbose
+
   stimulus-memory-leak-check:
     name: Stimulus Memory Leak Check
     runs-on: ubuntu-latest

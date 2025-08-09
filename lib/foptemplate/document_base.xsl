@@ -164,7 +164,7 @@
                                 top="9.6cm" left="0.8cm"
                                 position="fixed"
                                 overflow="visible"
-                    color="black">
+                                color="#999999">
                 <fo:block>
                     <fo:leader leader-length.minimum="100%" leader-length.optimum="100%" leader-pattern="rule" rule-thickness="0.13mm"/>
                 </fo:block>
@@ -173,7 +173,8 @@
             <fo:block-container width="0.5cm"
                                 top="19.5cm" left="0.8cm"
                                 position="fixed"
-                                overflow="visible">
+                                overflow="visible"
+                                color="#999999">
                 <fo:block>
                     <fo:leader leader-length.minimum="100%" leader-length.optimum="100%" leader-pattern="rule" rule-thickness="0.13mm"/>
                 </fo:block>

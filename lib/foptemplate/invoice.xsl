@@ -209,7 +209,7 @@
                     <xsl:call-template name="company-logo-block"/>
 
                     <fo:block-container top="0cm" left="8.75cm" position="absolute">
-                        <fo:block text-align="start" font-family="{$font-name-display}" font-size="8pt">
+                        <fo:block text-align="start" font-weight="100" font-size="8pt">
                             Invoice <xsl:value-of select="/document/number" />
                         </fo:block>
                     </fo:block-container>

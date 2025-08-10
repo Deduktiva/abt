@@ -26,6 +26,8 @@ class InvoicesController < ApplicationController
     case @email_filter
     when 'unsent'
       @invoices = @invoices.email_unsent.published
+    when 'unpaid'
+      @invoices = @invoices.unpaid
     end
 
     # Get available years for pagination (years that have invoices)
@@ -256,6 +258,51 @@ class InvoicesController < ApplicationController
     respond_to do |format|
       format.html { redirect_to invoices_path, notice: "#{queued_count} emails queued for sending." }
       format.json { render json: { queued_count: queued_count }, status: :ok }
+    end
+  end
+
+  def mark_paid
+    @invoice = Invoice.find(params[:id])
+    return unless check_published
+
+    payment_method = params[:payment_method].presence
+    payment_reference = params[:payment_reference].presence
+    paid_at_param = params[:paid_at].presence
+    paid_at = paid_at_param ? Time.zone.parse(paid_at_param) : Time.current
+
+    begin
+      @invoice.mark_as_paid!(
+        payment_method: payment_method,
+        payment_reference: payment_reference,
+        paid_at: paid_at
+      )
+      respond_to do |format|
+        format.html { redirect_to @invoice, notice: 'Invoice marked as paid.' }
+        format.json { render json: @invoice, status: :ok }
+      end
+    rescue => e
+      respond_to do |format|
+        format.html { redirect_to @invoice, alert: "Failed to mark invoice as paid: #{e.message}" }
+        format.json { render json: { error: e.message }, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  def mark_unpaid
+    @invoice = Invoice.find(params[:id])
+    return unless check_published
+
+    begin
+      @invoice.mark_as_unpaid!
+      respond_to do |format|
+        format.html { redirect_to @invoice, notice: 'Invoice marked as unpaid.' }
+        format.json { render json: @invoice, status: :ok }
+      end
+    rescue => e
+      respond_to do |format|
+        format.html { redirect_to @invoice, alert: "Failed to mark invoice as unpaid: #{e.message}" }
+        format.json { render json: { error: e.message }, status: :unprocessable_entity }
+      end
     end
   end
 

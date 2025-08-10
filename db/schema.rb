@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_05_011102) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_10_171656) do
   create_table "attachments", force: :cascade do |t|
     t.string "title"
     t.string "filename"
@@ -102,6 +102,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_05_011102) do
     t.string "token"
     t.text "tax_note"
     t.datetime "email_sent_at"
+    t.datetime "paid_at"
+    t.string "payment_method"
+    t.string "payment_reference"
     t.index ["date"], name: "index_invoices_on_date"
     t.index ["document_number"], name: "index_invoices_on_document_number", unique: true
     t.index ["published", "date"], name: "index_invoices_on_published_and_date"

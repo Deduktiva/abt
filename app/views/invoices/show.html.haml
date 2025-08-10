@@ -62,6 +62,20 @@
                 %span.badge.bg-warning Unsent
               - else
                 %span.badge.bg-secondary No Email Address
+          .row.mb-2
+            .col-sm-4
+              %strong Payment Status:
+            .col-sm-8
+              - if @invoice.paid?
+                %span.badge.bg-success Paid #{format_datetime(@invoice.paid_at)}
+                - if @invoice.payment_method.present?
+                  %br
+                  %small.text-muted Method: #{@invoice.payment_method}
+                - if @invoice.payment_reference.present?
+                  %br
+                  %small.text-muted Reference: #{@invoice.payment_reference}
+              - else
+                %span.badge.bg-danger Unpaid
 
   - if @invoice.prelude.present?
     .document-prelude.mb-4
@@ -145,6 +159,10 @@
       - if @invoice.customer&.email.present? || (@invoice.customer&.invoice_email_auto_enabled && @invoice.customer&.invoice_email_auto_to.present?)
         %button.btn.btn-warning{"data-action" => "click->email-preview#open"}
           Send E-Mail
+      - if @invoice.paid?
+        = button_to 'Mark Unpaid', mark_unpaid_invoice_path(@invoice), method: :post, class: 'btn btn-outline-danger', data: { confirm: 'Are you sure you want to mark this invoice as unpaid?' }
+      - else
+        = button_to 'Mark Paid', mark_paid_invoice_path(@invoice), method: :post, class: 'btn btn-outline-success'
     - else
       = action_button 'Preview', preview_invoice_path(@invoice), :info, { target: '_blank', data: { turbo: false } }
     - unless @invoice.published

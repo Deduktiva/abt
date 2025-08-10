@@ -4,9 +4,10 @@
 .bulk-select-container{data: { controller: 'bulk-select' }}
   = form_with url: bulk_send_emails_invoices_path, method: :post, local: true, id: 'bulk-email-form' do |form|
     .btn-toolbar.mb-3{:role=>"toolbar", "aria-label"=>"List toolbar"}
-      .btn-group.btn-group-sm.me-2.email-filter{:role=>"group", "aria-label"=>"E-Mail status"}
+      .btn-group.btn-group-sm.me-2.email-filter{:role=>"group", "aria-label"=>"Invoice filters"}
         = link_to 'All', invoices_path(year: @selected_year, email_filter: 'all'), class: (@email_filter == 'all' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
         = link_to 'Unsent', invoices_path(year: @selected_year, email_filter: 'unsent'), class: (@email_filter == 'unsent' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+        = link_to 'Unpaid', invoices_path(year: @selected_year, email_filter: 'unpaid'), class: (@email_filter == 'unpaid' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
 
       - if @email_filter == 'unsent'
         = form.submit 'Send Selected Emails', class: 'btn btn-warning btn-sm me-2 align-self-start', disabled: true, data: { confirm: 'Are you sure you want to send emails for the selected invoices?', 'bulk-select-target': 'submitButton' }
@@ -28,6 +29,7 @@
         %th Cust Reference
         %th Cust Order No
         %th E-Mail
+        %th Payment
         %th{:width => "3%"}
 
       - @invoices.each do |invoice|
@@ -50,6 +52,11 @@
             - else
               %span.badge.bg-warning Unsent
           %td
+            - if invoice.paid?
+              %span.badge.bg-success Paid #{format_date(invoice.paid_at)}
+            - else
+              %span.badge.bg-danger Unpaid
+          %td
             - if invoice.published? and not invoice.attachment.nil?
               = link_to 'PDF', attachment_path(invoice.attachment), target: '_blank', data: { turbo: false }, class: 'btn btn-sm btn-outline-success py-0'
 
@@ -62,6 +69,7 @@
         %th Date
         %th Cust Reference
         %th Cust Order No
+        %th Payment
         %th{:width => "3%"}
 
       - @invoices.each do |invoice|
@@ -73,6 +81,14 @@
           %td= format_date(invoice.date)
           %td= invoice.cust_reference
           %td= invoice.cust_order
+          %td
+            - if invoice.published?
+              - if invoice.paid?
+                %span.badge.bg-success Paid #{format_date(invoice.paid_at)}
+              - else
+                %span.badge.bg-danger Unpaid
+            - else
+              %span.badge.bg-secondary Draft
           %td
             - if invoice.published? and not invoice.attachment.nil?
               = link_to 'PDF', attachment_path(invoice.attachment), target: '_blank', data: { turbo: false }, class: 'btn btn-sm btn-outline-success py-0'

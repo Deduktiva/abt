@@ -143,10 +143,12 @@ export default class extends Controller {
       } else {
         this.handleError(`Failed to load ${this.itemNameValue}s: ${response.statusText}`)
         this.restoreDisplayOrShowError()
+        this.isLoading = false
       }
     } catch (error) {
       this.handleError(`Error loading ${this.itemNameValue}s: ${error.message}`)
       this.restoreDisplayOrShowError()
+      this.isLoading = false
     }
   }
 
@@ -386,15 +388,17 @@ export default class extends Controller {
   }
 
   hasValidItemDisplay() {
+    // Check if we have a valid item ID and the display isn't showing placeholder text
+    if (!this.currentItemIdValue) return false
+
     const display = this.selectTarget.querySelector('.select-display')
     if (!display) return false
 
     const html = display.innerHTML
     return html &&
-           !html.includes('Loading...') &&
+           !this.isLoading &&
            !html.includes(this.selectPromptValue) &&
-           html.includes('fw-normal') &&
-           this.currentItemIdValue  // Must also have a valid item ID
+           html.includes('fw-normal')
   }
 
   restoreDisplayOrShowError() {
@@ -410,6 +414,7 @@ export default class extends Controller {
   }
 
   showLoading() {
+    this.isLoading = true
     const display = this.selectTarget.querySelector('.select-display')
     if (display) {
       display.innerHTML = '<span class="text-muted">Loading...</span>'
@@ -465,8 +470,9 @@ export default class extends Controller {
       }
     } else {
       const display = this.selectTarget.querySelector('.select-display')
-      if (display && display.innerHTML.includes('Loading')) {
+      if (display && this.isLoading) {
         display.innerHTML = `<span class="text-muted">${this.selectPromptValue}</span>`
+        this.isLoading = false
       }
     }
   }

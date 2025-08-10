@@ -22,6 +22,11 @@
         <xsl:value-of select="format-number($value, '###.##0,00', 'european')" />
     </xsl:function>
 
+    <xsl:function name="abt:format-number">
+        <xsl:param name="value" />
+        <xsl:value-of select="format-number($value, '###.##0,##', 'european')" />
+    </xsl:function>
+
     <xsl:function name="abt:format-date">
         <xsl:param name="value" />
         <xsl:value-of select="format-date($value, '[D01] [MNn] [Y0001]')" />
@@ -97,7 +102,7 @@
             <!-- inline sender -->
             <fo:block xsl:use-attribute-sets="accent-color" font-family="{$font-name-display}" font-weight="normal">
                 <xsl:choose>
-                    <xsl:when test="/document/language = 'de'">Rücksendung an:</xsl:when>
+                    <xsl:when test="/document/language = 'de'">Abs.:</xsl:when>
                     <xsl:otherwise>Returns to:</xsl:otherwise>
                 </xsl:choose>
                 <xsl:text> </xsl:text>
@@ -200,18 +205,9 @@
     <xsl:template name="page-x-of-y-text">
         <fo:block font-weight="100" font-size="8pt">
             <xsl:choose>
-                <xsl:when test="/document/language = 'de'">Seite</xsl:when>
-                <xsl:otherwise>Page</xsl:otherwise>
+                <xsl:when test="/document/language = 'de'">Seite <fo:page-number/> von <fo:page-number-citation-last ref-id="document-sequence"/></xsl:when>
+                <xsl:otherwise>Page <fo:page-number/> of <fo:page-number-citation-last ref-id="document-sequence"/></xsl:otherwise>
             </xsl:choose>
-            <xsl:text> </xsl:text>
-            <fo:page-number/>
-            <xsl:text> </xsl:text>
-            <xsl:choose>
-                <xsl:when test="/document/language = 'de'">von</xsl:when>
-                <xsl:otherwise>of</xsl:otherwise>
-            </xsl:choose>
-            <xsl:text> </xsl:text>
-            <fo:page-number-citation-last ref-id="document-sequence"/>
         </fo:block>
     </xsl:template>
 

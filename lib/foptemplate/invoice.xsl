@@ -83,8 +83,12 @@
                         <xsl:otherwise>Tax Class</xsl:otherwise>
                     </xsl:choose>
                     ‟<xsl:value-of select="@name" />″:
-                    <xsl:value-of select="percentage" />%
-                    of
+		    <xsl:value-of select="abt:format-number(percentage)" />%
+                    <xsl:choose>
+                        <xsl:when test="/document/language = 'de'">von</xsl:when>
+                        <xsl:otherwise>of</xsl:otherwise>
+                    </xsl:choose>
+                    <xsl:text> </xsl:text>
                     <xsl:value-of select="/document/currency" />
                     <xsl:text> </xsl:text>
                     <xsl:value-of select="abt:format-amount(sum)" />
@@ -192,7 +196,7 @@
                                         <fo:table-cell>
                                             <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">
                                                 <xsl:choose>
-                                                    <xsl:when test="/document/language = 'de'">Ihre Auftragsnummer:</xsl:when>
+                                                    <xsl:when test="/document/language = 'de'">Ihr Auftrag:</xsl:when>
                                                     <xsl:otherwise>Your Order No:</xsl:otherwise>
                                                 </xsl:choose>
                                             </fo:block>
@@ -313,7 +317,7 @@
                                 <fo:table-cell>
                                     <fo:block text-align="end">
                                         <xsl:choose>
-                                            <xsl:when test="/document/language = 'de'">MwSt</xsl:when>
+                                            <xsl:when test="/document/language = 'de'">St-K</xsl:when>
                                             <xsl:otherwise>Tax</xsl:otherwise>
                                         </xsl:choose>
                                     </fo:block>
@@ -321,7 +325,7 @@
                                 <fo:table-cell>
                                     <fo:block text-align="end">
                                         <xsl:choose>
-                                            <xsl:when test="/document/language = 'de'">Betrag</xsl:when>
+                                            <xsl:when test="/document/language = 'de'">Gesamt</xsl:when>
                                             <xsl:otherwise>Amount</xsl:otherwise>
                                         </xsl:choose>
                                     </fo:block>
@@ -457,10 +461,7 @@
                                     </fo:block>
                                     <fo:block>
                                         <fo:inline font-family="{$font-name-display}">
-                                            <xsl:choose>
-                                                <xsl:when test="/document/language = 'de'">BIC:</xsl:when>
-                                                <xsl:otherwise>BIC:</xsl:otherwise>
-                                            </xsl:choose>
+                                            BIC:
                                             <xsl:text> </xsl:text>
                                         </fo:inline>
                                         <xsl:value-of select="/document/issuer/bankaccount/bic" />
@@ -492,7 +493,7 @@
                             <fo:block>
                                 <xsl:choose>
                                     <xsl:when test="/document/language = 'de'">Bei Überweisungen von außerhalb des SEPA-Raums stellen Sie bitte sicher, dass der vollständige Betrag auf unserem Konto ankommt.</xsl:when>
-                                    <xsl:otherwise>For transfer from outside the SEPA region, please ensure the full amount reaches our account.</xsl:otherwise>
+                                    <xsl:otherwise>For transfers from outside the SEPA region, please ensure the full amount reaches our account.</xsl:otherwise>
                                 </xsl:choose>
                             </fo:block>
                         </fo:block-container>

@@ -1,4 +1,4 @@
-import SearchableDropdownController from "./searchable_dropdown_controller"
+import SearchableDropdownController from "controllers/searchable_dropdown_controller"
 
 export default class extends SearchableDropdownController {
   static values = {

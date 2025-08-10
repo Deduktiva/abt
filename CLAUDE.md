@@ -151,6 +151,7 @@ For testing against PostgreSQL (matches production environment):
 - When re-attaching listeners to dynamically created elements, remove existing listeners first to prevent duplicates
 - Document event listeners are particularly important to clean up to prevent memory leaks
 - **Run `npm run lint` after writing Stimulus controllers** to check for event listener memory leaks
+- **NEVER use relative imports** like `import Controller from "./other_controller"` - use importmap paths like `import Controller from "controllers/other_controller"` to ensure proper resolution in production
 
 ### Communication Style
 - Use direct, technical language in all communications

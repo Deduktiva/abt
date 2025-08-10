@@ -1,4 +1,4 @@
-import GenericEmailPreviewController from "./generic_email_preview_controller"
+import GenericEmailPreviewController from "controllers/generic_email_preview_controller"
 
 // Invoice-specific email preview controller that extends the generic one
 export default class extends GenericEmailPreviewController {

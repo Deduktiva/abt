@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_10_171656) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_10_173653) do
   create_table "attachments", force: :cascade do |t|
     t.string "title"
     t.string "filename"
@@ -136,6 +136,35 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_10_171656) do
     t.index ["active"], name: "index_issuer_companies_on_active", unique: true
   end
 
+  create_table "job_executions", force: :cascade do |t|
+    t.integer "periodic_job_id", null: false
+    t.datetime "started_at", null: false
+    t.datetime "finished_at"
+    t.string "status", default: "running", null: false
+    t.text "output"
+    t.text "error_message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["periodic_job_id", "started_at"], name: "index_job_executions_on_periodic_job_id_and_started_at"
+    t.index ["periodic_job_id"], name: "index_job_executions_on_periodic_job_id"
+    t.index ["status"], name: "index_job_executions_on_status"
+  end
+
+  create_table "periodic_jobs", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.string "class_name", null: false
+    t.boolean "enabled", default: true, null: false
+    t.string "schedule", null: false
+    t.datetime "last_run_at"
+    t.datetime "next_run_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["enabled"], name: "index_periodic_jobs_on_enabled"
+    t.index ["name"], name: "index_periodic_jobs_on_name", unique: true
+    t.index ["next_run_at"], name: "index_periodic_jobs_on_next_run_at"
+  end
+
   create_table "products", force: :cascade do |t|
     t.string "title"
     t.text "description"
@@ -177,4 +206,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_10_171656) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  add_foreign_key "job_executions", "periodic_jobs"
 end

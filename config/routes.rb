@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  resources :periodic_jobs, only: [:index, :show] do
+    member do
+      post :run
+    end
+  end
   resource :issuer_company, only: [:show, :edit, :update] do
     get :png_logo, on: :member
   end

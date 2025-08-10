@@ -1,0 +1,68 @@
+%h1.h2.mb-4 Periodic Jobs
+
+%p.text-muted Background jobs that run on a schedule to automate various tasks.
+
+%table.table.table-striped.table-sm
+  %thead
+    %tr
+      %th Name
+      %th Schedule
+      %th Status
+      %th Last Run
+      %th Next Run
+      %th Last Duration
+      %th{width: "15%"} Actions
+
+  %tbody
+    - @periodic_jobs.each do |job|
+      %tr{class: job.status == 'failed' ? 'table-danger' : (job.status == 'running' ? 'table-warning' : nil)}
+        %td
+          = link_to job.name, job, class: 'text-decoration-none fw-bold'
+          - if job.description.present?
+            %br
+            %small.text-muted= truncate(job.description, length: 80)
+        %td
+          %code= job.schedule
+        %td
+          - case job.status
+          - when 'disabled'
+            %span.badge.bg-secondary Disabled
+          - when 'never_run'
+            %span.badge.bg-info Never Run
+          - when 'running'
+            %span.badge.bg-warning Running
+          - when 'success'
+            %span.badge.bg-success Success
+          - when 'overdue'
+            %span.badge.bg-danger Overdue
+          - when 'failed'
+            %span.badge.bg-danger Failed
+          - else
+            %span.badge.bg-secondary Unknown
+        %td
+          - if job.last_execution
+            = format_datetime(job.last_execution.started_at)
+            - if job.last_execution.failed?
+              %br
+              %small.text-danger= truncate(job.last_execution.error_message, length: 40)
+          - else
+            %span.text-muted Never
+        %td
+          - if job.next_run_at
+            = format_datetime(job.next_run_at)
+            - if job.overdue?
+              %br
+              %small.text-danger Overdue
+          - else
+            %span.text-muted Not scheduled
+        %td
+          - if job.last_execution&.duration
+            = job.last_execution.duration_humanized
+          - else
+            %span.text-muted N/A
+        %td
+          = link_to 'View', job, class: 'btn btn-sm btn-outline-primary me-1'
+          - if job.enabled?
+            = button_to 'Run Now', run_periodic_job_path(job), method: :post, class: 'btn btn-sm btn-outline-success', data: { confirm: 'Are you sure you want to run this job now?' }
+          - else
+            %button.btn.btn-sm.btn-outline-secondary{disabled: true} Disabled

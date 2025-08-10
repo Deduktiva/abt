@@ -1,0 +1,110 @@
+.document-header.row.mb-4
+  .col-md-8
+    %h1.h2.mb-3
+      Periodic Job: #{@periodic_job.name}
+      - case @periodic_job.status
+      - when 'disabled'
+        %span.badge.bg-secondary.ms-2 Disabled
+      - when 'never_run'
+        %span.badge.bg-info.ms-2 Never Run
+      - when 'running'
+        %span.badge.bg-warning.ms-2 Running
+      - when 'success'
+        %span.badge.bg-success.ms-2 Success
+      - when 'overdue'
+        %span.badge.bg-danger.ms-2 Overdue
+      - when 'failed'
+        %span.badge.bg-danger.ms-2 Failed
+
+    - if @periodic_job.description.present?
+      %p.text-muted= simple_format(@periodic_job.description)
+
+  .col-md-4
+    .card
+      .card-body
+        %h6.card-title Job Configuration
+        .row.mb-2
+          .col-sm-5
+            %strong Schedule:
+          .col-sm-7
+            %code= @periodic_job.schedule
+        .row.mb-2
+          .col-sm-5
+            %strong Class:
+          .col-sm-7
+            %code= @periodic_job.class_name
+        .row.mb-2
+          .col-sm-5
+            %strong Enabled:
+          .col-sm-7
+            = @periodic_job.enabled? ? 'Yes' : 'No'
+        - if @periodic_job.next_run_at
+          .row.mb-2
+            .col-sm-5
+              %strong Next Run:
+            .col-sm-7
+              = format_datetime(@periodic_job.next_run_at)
+              - if @periodic_job.overdue?
+                %br
+                %small.text-danger Overdue
+        - if @periodic_job.last_run_at
+          .row
+            .col-sm-5
+              %strong Last Run:
+            .col-sm-7
+              = format_datetime(@periodic_job.last_run_at)
+
+.row.mb-4
+  .col-12
+    = action_buttons_wrapper do
+      = action_button 'Back', periodic_jobs_path, :secondary
+      - if @periodic_job.enabled?
+        = button_to 'Run Now', run_periodic_job_path(@periodic_job), method: :post, class: 'btn btn-success', data: { confirm: 'Are you sure you want to run this job now?' }
+      - else
+        %button.btn.btn-secondary{disabled: true} Job Disabled
+
+%h3 Recent Executions
+
+- if @recent_executions.any?
+  %table.table.table-striped.table-sm
+    %thead
+      %tr
+        %th Started At
+        %th Duration
+        %th Status
+        %th Output
+        %th Error
+
+    %tbody
+      - @recent_executions.each do |execution|
+        %tr{class: execution.failed? ? 'table-danger' : (execution.running? ? 'table-warning' : nil)}
+          %td= format_datetime(execution.started_at)
+          %td= execution.duration_humanized
+          %td
+            - case execution.status
+            - when 'running'
+              %span.badge.bg-warning Running
+            - when 'success'
+              %span.badge.bg-success Success
+            - when 'failed'
+              %span.badge.bg-danger Failed
+            - else
+              %span.badge.bg-secondary Unknown
+          %td
+            - if execution.output.present?
+              %details
+                %summary.btn.btn-sm.btn-outline-info Show Output
+                %pre.mt-2.p-2.bg-light.small= execution.output
+            - else
+              %span.text-muted No output
+          %td
+            - if execution.error_message.present?
+              %details
+                %summary.btn.btn-sm.btn-outline-danger Show Error
+                %pre.mt-2.p-2.bg-danger.text-white.small= execution.error_message
+            - else
+              %span.text-muted No errors
+- else
+  .alert.alert-info
+    %strong No executions yet.
+    This job has never been run.

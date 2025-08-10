@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-// Simple script to check for event listener leaks in Stimulus controllers
+// Linter for Stimulus controllers: checks for event listener leaks and import issues
 function checkFile(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   const errors = [];
@@ -18,6 +18,16 @@ function checkFile(filePath) {
   const hasDisconnectMethod = content.includes('disconnect()');
   const hasBoundReferences = content.match(/this\.bound\w+\s*=/);
   const hasInlineListeners = content.match(/addEventListener\([^,]+,\s*(?:\([^)]*\)\s*=&gt;|function\s*\()/);
+  const hasRelativeImports = content.match(/import\s+.*\s+from\s+["']\.\/.*["']/);
+
+  // Check for relative imports that will break in production
+  if (hasRelativeImports) {
+    errors.push({
+      file: filePath,
+      line: getLineNumber(content, 'import'),
+      message: 'Use importmap paths like "controllers/controller_name" instead of relative imports like "./controller_name" for production compatibility'
+    });
+  }
 
   if (hasEventListeners && !hasDisconnectMethod) {
     errors.push({
@@ -96,10 +106,10 @@ function main() {
   const errors = walkDirectory(jsDir);
 
   if (errors.length === 0) {
-    console.log('✓ No event listener memory leaks detected in Stimulus controllers');
+    console.log('✓ No issues detected in Stimulus controllers');
     process.exit(0);
   } else {
-    console.log('✗ Event listener memory leaks detected:');
+    console.log('✗ Issues detected in Stimulus controllers:');
     console.log();
 
     errors.forEach(error => {

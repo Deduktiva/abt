@@ -173,7 +173,7 @@
                                         </fo:table-cell>
                                         <fo:table-cell>
                                             <fo:block>
-                                                <xsl:value-of select="abt:format-date(/document/issue-date)"/>
+                                                <xsl:value-of select="abt:format-date(/document/issue-date, /document/language)"/>
                                             </fo:block>
                                         </fo:table-cell>
                                     </fo:table-row>
@@ -402,7 +402,9 @@
                                                 </xsl:choose>
                                                 <xsl:text> </xsl:text>
                                             </fo:inline>
-                                            <fo:inline font-weight="600"><xsl:value-of select="abt:format-date(/document/due-date)" /></fo:inline>
+                                            <fo:inline font-weight="600">
+                                                <xsl:value-of select="abt:format-date(/document/due-date, /document/language)"/>
+                                            </fo:inline>
                                         </fo:block>
                                     </fo:table-cell>
                                     <fo:table-cell number-columns-spanned="2" padding-before="1mm" padding-after="1mm">

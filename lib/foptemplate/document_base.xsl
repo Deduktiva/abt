@@ -29,7 +29,30 @@
 
     <xsl:function name="abt:format-date">
         <xsl:param name="value" />
-        <xsl:value-of select="format-date($value, '[D01] [MNn] [Y0001]')" />
+        <xsl:param name="language" />
+        <xsl:choose>
+            <xsl:when test="$language = 'de'">
+                <xsl:variable name="day" select="format-date($value, '[D1]')" />
+                <xsl:variable name="month-num" select="format-date($value, '[M1]')" />
+                <xsl:variable name="year" select="format-date($value, '[Y0001]')" />
+                <xsl:value-of select="concat($day, '. ',
+                    if ($month-num = '1') then 'Januar'
+                    else if ($month-num = '2') then 'Februar'
+                    else if ($month-num = '3') then 'März'
+                    else if ($month-num = '4') then 'April'
+                    else if ($month-num = '5') then 'Mai'
+                    else if ($month-num = '6') then 'Juni'
+                    else if ($month-num = '7') then 'Juli'
+                    else if ($month-num = '8') then 'August'
+                    else if ($month-num = '9') then 'September'
+                    else if ($month-num = '10') then 'Oktober'
+                    else if ($month-num = '11') then 'November'
+                    else 'Dezember', ' ', $year)" />
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="format-date($value, '[D01] [MNn] [Y0001]')" />
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:function>
 
     <xsl:function name="abt:ifempty">

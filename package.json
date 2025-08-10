@@ -4,7 +4,7 @@
   "description": "ABT Invoice Management System",
   "main": "app/javascript/application.js",
   "scripts": {
-    "lint": "node stimulus-memory-leak-checker.js"
+    "lint": "node stimulus-controller-linter.js"
   },
   "engines": {
     "node": ">=18.0.0"

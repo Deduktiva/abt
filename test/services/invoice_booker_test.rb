@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class InvoiceBookControllerTest < ActiveSupport::TestCase
+class InvoiceBookerTest < ActiveSupport::TestCase
   test "should use customer payment terms for due date calculation" do
     # Use existing customer and update payment terms
     customer = customers(:good_eu)

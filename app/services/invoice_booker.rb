@@ -1,4 +1,4 @@
-class InvoiceBookController
+class InvoiceBooker
   attr_reader :log, :failed
 
   def initialize(invoice, issuer)
@@ -66,7 +66,7 @@ class InvoiceBookController
       @invoice.save!
 
       # render as well
-      pdf = InvoiceRenderController.new(@invoice, @issuer).render
+      pdf = InvoiceRenderer.new(@invoice, @issuer).render
       @invoice.attachment = Attachment.new if @invoice.attachment.nil?
       @invoice.attachment.set_data pdf, 'application/pdf'
       @invoice.attachment.filename = "#{@issuer.short_name}-Invoice-#{@invoice.document_number}.pdf"

@@ -21,6 +21,14 @@ DocumentNumber.find_or_create_by(code: 'invoice') do |dn|
   dn.last_date = nil
 end
 
+# Document number configuration for delivery notes
+DocumentNumber.find_or_create_by(code: 'delivery_note') do |dn|
+  dn.format = '%{year}%<number>04d'
+  dn.sequence = 0
+  dn.last_number = nil
+  dn.last_date = nil
+end
+
 # Sales tax customer classes (required for the system to work)
 national_class = SalesTaxCustomerClass.find_or_create_by(name: 'National') do |stcc|
   stcc.invoice_note = ''
@@ -557,6 +565,156 @@ if Rails.env.development?
     dn.save!
   end
 
+  # Sample delivery notes
+  unless DeliveryNote.exists?(customer: good_company, project: webapp_project)
+    delivery_note = DeliveryNote.create!(
+      customer: good_company,
+      project: webapp_project,
+      cust_reference: 'PO-2025-001',
+      cust_order: 'ORDER-WEB-2025',
+      prelude: 'Delivery of completed web application components for Q1 2025 project',
+      date: 1.week.ago.to_date,
+      delivery_start_date: 2.weeks.ago.to_date,
+      delivery_end_date: 1.week.ago.to_date,
+      published: false
+    )
+
+    # Add delivery note lines
+    delivery_note.delivery_note_lines.create!(
+      type: 'subheading',
+      title: 'Frontend Components',
+      position: 1
+    )
+
+    delivery_note.delivery_note_lines.create!(
+      type: 'item',
+      title: 'User Dashboard',
+      description: 'Complete dashboard interface with analytics widgets and responsive design',
+      quantity: 1,
+      position: 2
+    )
+
+    delivery_note.delivery_note_lines.create!(
+      type: 'item',
+      title: 'Authentication System',
+      description: 'Login/logout functionality with password reset and multi-factor authentication',
+      quantity: 1,
+      position: 3
+    )
+
+    delivery_note.delivery_note_lines.create!(
+      type: 'text',
+      title: 'All frontend components tested and approved by client QA team.',
+      position: 4
+    )
+
+    delivery_note.delivery_note_lines.create!(
+      type: 'subheading',
+      title: 'Backend Services',
+      position: 5
+    )
+
+    delivery_note.delivery_note_lines.create!(
+      type: 'item',
+      title: 'REST API Endpoints',
+      description: 'Complete set of CRUD operations for user management and data processing',
+      quantity: 12,
+      position: 6
+    )
+
+    delivery_note.delivery_note_lines.create!(
+      type: 'item',
+      title: 'Database Schema',
+      description: 'Optimized database structure with proper indexing and relationships',
+      quantity: 1,
+      position: 7
+    )
+
+    delivery_note.delivery_note_lines.create!(
+      type: 'text',
+      title: 'All backend services deployed to staging environment and performance tested.',
+      position: 8
+    )
+
+    delivery_note.delivery_note_lines.create!(
+      type: 'subheading',
+      title: 'Documentation & Training',
+      position: 9
+    )
+
+    delivery_note.delivery_note_lines.create!(
+      type: 'item',
+      title: 'Technical Documentation',
+      description: 'Complete API documentation and deployment guides',
+      quantity: 1,
+      position: 10
+    )
+
+    delivery_note.delivery_note_lines.create!(
+      type: 'item',
+      title: 'User Training Session',
+      description: 'On-site training for administrative users and system operators',
+      quantity: 1,
+      position: 11
+    )
+  end
+
+  # Sample delivery note for German customer
+  unless DeliveryNote.exists?(customer: local_company, project: consulting_project)
+    delivery_note_de = DeliveryNote.create!(
+      customer: local_company,
+      project: consulting_project,
+      cust_reference: 'REF-CONSULTING-2025',
+      cust_order: 'ORDER-CONSULT-2025-001',
+      prelude: 'Lieferung der Beratungsleistungen und Implementierungskonzepte für das IT-Infrastruktur-Projekt',
+      date: 5.days.ago.to_date,
+      delivery_start_date: 2.weeks.ago.to_date,
+      delivery_end_date: 5.days.ago.to_date,
+      published: true,
+      document_number: 'LN20250001'
+    )
+
+    delivery_note_de.delivery_note_lines.create!(
+      type: 'item',
+      title: 'Infrastruktur-Analyse',
+      description: 'Vollständige Bewertung der bestehenden IT-Infrastruktur mit Empfehlungen',
+      quantity: 1,
+      position: 1
+    )
+
+    delivery_note_de.delivery_note_lines.create!(
+      type: 'item',
+      title: 'Sicherheitskonzept',
+      description: 'Detailliertes Sicherheitskonzept mit Implementierungsplan',
+      quantity: 1,
+      position: 2
+    )
+
+    delivery_note_de.delivery_note_lines.create!(
+      type: 'item',
+      title: 'Migrationsstrategie',
+      description: 'Schritt-für-Schritt-Plan für die Migration zur neuen Infrastruktur',
+      quantity: 1,
+      position: 3
+    )
+
+    delivery_note_de.delivery_note_lines.create!(
+      type: 'text',
+      title: 'Alle Lieferungen wurden termingerecht und entsprechend den Spezifikationen erbracht.',
+      position: 4
+    )
+  end
+
+  # Update document number sequence for delivery notes
+  dn_delivery = DocumentNumber.find_by_code('delivery_note')
+  if dn_delivery && dn_delivery.last_date.nil?
+    # Initialize the sequence with the seeded delivery note numbers
+    dn_delivery.last_date = 5.days.ago.to_date
+    dn_delivery.sequence = 1 # Next number after LN20250001 would be LN20250002
+    dn_delivery.last_number = 'LN20250001'
+    dn_delivery.save!
+  end
+
   puts "✅ Development sample data created"
   puts ""
   puts "📊 Sample Data Summary:"
@@ -564,11 +722,12 @@ if Rails.env.development?
   puts "  Projects: #{Project.count}"
   puts "  Products: #{Product.count}"
   puts "  Invoices: #{Invoice.count}"
+  puts "  Delivery Notes: #{DeliveryNote.count}"
   puts "  Tax Classes: #{SalesTaxCustomerClass.count} customer, #{SalesTaxProductClass.count} product"
   puts "  Tax Rates: #{SalesTaxRate.count}"
   puts ""
   puts "🚀 You can now:"
   puts "  - Browse customers at /customers"
-  puts "  - Create new invoices"
+  puts "  - Create new invoices and delivery notes"
   puts "  - Test PDF generation with sample data"
 end

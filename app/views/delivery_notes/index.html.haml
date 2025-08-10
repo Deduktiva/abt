@@ -1,0 +1,76 @@
+= page_header_with_new_button('Listing delivery notes', new_delivery_note_path)
+
+
+.bulk-select-container{data: { controller: 'bulk-select' }}
+  = form_with url: bulk_send_emails_delivery_notes_path, method: :post, local: true, id: 'bulk-email-form' do |form|
+    .btn-toolbar.mb-3{:role=>"toolbar", "aria-label"=>"List toolbar"}
+      .btn-group.btn-group-sm.me-2.email-filter{:role=>"group", "aria-label"=>"E-Mail status"}
+        = link_to 'All', delivery_notes_path(year: @selected_year, email_filter: 'all'), class: (@email_filter == 'all' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+        = link_to 'Unsent', delivery_notes_path(year: @selected_year, email_filter: 'unsent'), class: (@email_filter == 'unsent' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+
+      - if @email_filter == 'unsent'
+        = form.submit 'Send Selected Emails', class: 'btn btn-warning btn-sm me-2 align-self-start', disabled: true, data: { confirm: 'Are you sure you want to send emails for the selected delivery notes?', 'bulk-select-target': 'submitButton' }
+
+      - if @available_years.any?
+        .btn-group.btn-group-sm.ms-auto.year-pagination{:role=>"group", "aria-label"=>"Year navigation"}
+          - @available_years.each do |year|
+            = link_to year, delivery_notes_path(year: year, email_filter: @email_filter), class: (@selected_year == year ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+
+  - if @email_filter == 'unsent' && @delivery_notes.any?
+    %table.table.table-striped.table-sm
+      %tr
+        %th
+          %input#select-all{type: 'checkbox', 'data-action': 'change->bulk-select#toggleAll', 'data-bulk-select-target': 'selectAll'}
+        %th Document#
+        %th Customer
+        %th Project
+        %th Date
+        %th Cust Reference
+        %th Cust Order No
+        %th E-Mail
+        %th{:width => "3%"}
+
+      - @delivery_notes.each do |delivery_note|
+        %tr
+          %td
+            = check_box_tag 'delivery_note_ids[]', delivery_note.id, false,
+              form: 'bulk-email-form',
+              'data-action': 'change->bulk-select#updateButton',
+              'data-bulk-select-target': 'checkbox',
+              class: 'delivery_note-checkbox'
+          %td= link_to(delivery_note.document_number, delivery_note)
+          %td= delivery_note.customer.name
+          %td= delivery_note.project && delivery_note.project.display_name
+          %td= format_date(delivery_note.date)
+          %td= delivery_note.cust_reference
+          %td= delivery_note.cust_order
+          %td
+            - if delivery_note.email_sent_at
+              %span.badge.bg-success Sent #{format_date(delivery_note.email_sent_at)}
+            - else
+              %span.badge.bg-warning Unsent
+          %td
+
+  - else
+    %table.table.table-striped.table-sm
+      %tr
+        %th Document#
+        %th Customer
+        %th Project
+        %th Date
+        %th Cust Reference
+        %th Cust Order No
+        %th{:width => "3%"}
+
+      - @delivery_notes.each do |delivery_note|
+        %tr
+          %td
+            = link_to(delivery_note.document_number || "Draft \##{delivery_note.id}", delivery_note)
+          %td= delivery_note.customer.name
+          %td= delivery_note.project && delivery_note.project.display_name
+          %td= format_date(delivery_note.date)
+          %td= delivery_note.cust_reference
+          %td= delivery_note.cust_order
+          %td
+            - unless delivery_note.published?
+              = list_action_link('Edit', edit_delivery_note_path(delivery_note), :edit)

@@ -18,6 +18,23 @@ Rails.application.routes.draw do
       post 'bulk_send_emails'
     end
   end
+  resources :delivery_notes do
+    member do
+      get 'preview'
+      get 'preview_email'
+      get 'publish'
+      post 'publish'
+      post 'send_email'
+      get 'pdf'
+      post 'unpublish'
+      post 'upload_acceptance'
+      post 'delete_acceptance'
+      post 'convert_to_invoice'
+    end
+    collection do
+      post 'bulk_send_emails'
+    end
+  end
   resources :products
   resources :projects
   resources :sales_tax_customer_classes

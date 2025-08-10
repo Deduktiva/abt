@@ -1,0 +1,31 @@
+.card.mb-3{data: {line_index: f.index}}
+  .card-body
+    = f.hidden_field :id
+    = f.hidden_field :position
+
+    .row
+      .col-2
+        .mb-3
+          %label.form-label Type
+          = f.select :type, options_for_select(@line_type_options, f.object.type), { prompt: 'Select type...' }, { class: 'form-select', data: { action: 'change->delivery-note-lines#typeChanged' } }
+      .col-6
+        .mb-3
+          %label.form-label Title
+          = f.text_field :title, class: 'form-control', data: { action: 'input->delivery-note-lines#fieldChanged' }, required: true
+      .col-2
+        %div{data: {line_type_target: 'itemOnly'}}
+          .mb-3
+            %label.form-label Quantity
+            = f.number_field :quantity, step: 0.01, class: 'form-control', data: { action: 'input->delivery-note-lines#fieldChanged' }, placeholder: '0'
+      .col-2.text-end
+        %label.form-label &nbsp;
+        %div
+          %button.btn.btn-sm.btn-secondary{type: 'button', data: {action: 'click->delivery-note-lines#moveLineUp'}} ▲
+          %button.btn.btn-sm.btn-secondary{type: 'button', data: {action: 'click->delivery-note-lines#moveLineDown'}} ▼
+          %button.btn.btn-sm.btn-danger{type: 'button', data: {action: 'click->delivery-note-lines#removeLine'}} 🗑
+
+    .row.mt-2{data: {line_type_target: 'notSubheading'}}
+      .col-sm-12
+        .mb-3
+          %label.form-label Description
+          = f.text_area :description, class: 'form-control', data: { action: 'input->delivery-note-lines#fieldChanged' }

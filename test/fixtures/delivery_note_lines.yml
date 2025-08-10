@@ -1,0 +1,28 @@
+item_line:
+  delivery_note: published_delivery_note
+  position: 1
+  type: item
+  title: "Test Item"
+  description: "A test item for delivery"
+  quantity: 2.0
+
+text_line:
+  delivery_note: published_delivery_note
+  position: 2
+  type: text
+  title: "Additional Information"
+  description: "Some additional text content"
+
+subheading_line:
+  delivery_note: draft_delivery_note
+  position: 1
+  type: subheading
+  title: "Section Header"
+  description: "A section divider"
+
+plain_line:
+  delivery_note: draft_delivery_note
+  position: 2
+  type: plain
+  title: "Plain text line"
+  description: "Just plain text"

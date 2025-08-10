@@ -1,0 +1,130 @@
+%div{data: {controller: 'delivery-notes-form'}}
+  = form_for(@delivery_note) do |f|
+    - if @delivery_note.errors.any?
+      .alert.alert-danger
+        %h4
+          = pluralize(@delivery_note.errors.count, 'error')
+          prohibited saving:
+        %ul
+          - @delivery_note.errors.full_messages.each do |msg|
+            %li= msg
+
+    .form-inputs
+      .row
+        .col-sm-4
+          .mb-3
+            %label.form-label Customer
+            %div{ data: {
+                controller: 'searchable-dropdown',
+                searchable_dropdown_current_item_id_value: @delivery_note.customer_id,
+                searchable_dropdown_url_value: '/customers',
+                searchable_dropdown_item_name_value: 'customer',
+                searchable_dropdown_item_id_param_value: 'customer_id',
+                searchable_dropdown_select_prompt_value: 'Select customer...'
+              } }
+              = f.hidden_field :customer_id, id: 'delivery_note_customer_id'
+              .dropdown.customer-dropdown
+                %button.btn.btn-outline-secondary.form-control.text-start.d-flex.justify-content-between.align-items-center{ type: 'button', data: { searchable_dropdown_target: 'select' } }
+                  .select-display
+                    - if @delivery_note.customer && @delivery_note.customer.id
+                      .fw-normal= @delivery_note.customer.name
+                      .small.text-muted= @delivery_note.customer.matchcode
+                    - else
+                      %span.text-muted Select customer...
+                  %span.text-muted ▼
+                .dropdown-menu{ id: 'customer-dropdown-menu', data: { searchable_dropdown_target: 'dropdown' } }
+                  .p-2.border-bottom
+                    %input.form-control.form-control-sm{ type: 'text', placeholder: 'Search customers...', data: { searchable_dropdown_target: 'search' } }
+                  .dropdown-content{ style: 'max-height: 300px; overflow-y: auto;' }
+                    .dropdown-item.text-muted Loading...
+        .col-sm-4
+          .mb-3
+            %label.form-label Project
+            %div{ data: {
+                controller: 'searchable-dropdown',
+                searchable_dropdown_current_dependent_id_value: @delivery_note.customer_id,
+                searchable_dropdown_current_item_id_value: @delivery_note.project_id,
+                searchable_dropdown_url_value: '/projects',
+                searchable_dropdown_dependent_param_value: 'customer_id',
+                searchable_dropdown_item_name_value: 'project',
+                searchable_dropdown_item_id_param_value: 'project_id',
+                searchable_dropdown_select_prompt_value: 'Select project...',
+                searchable_dropdown_dependent_select_prompt_value: 'Select customer first...',
+                searchable_dropdown_dependent_field_selector_value: '#delivery_note_customer_id'
+              } }
+              = f.hidden_field :project_id
+              .dropdown.project-dropdown
+                %button.btn.btn-outline-secondary.form-control.text-start.d-flex.justify-content-between.align-items-center{ type: 'button', data: { searchable_dropdown_target: 'select' } }
+                  .select-display
+                    - if @delivery_note.project && @delivery_note.project.id
+                      .fw-normal= @delivery_note.project.display_name
+                      .small.text-muted= @delivery_note.project.matchcode
+                    - else
+                      %span.text-muted Select project...
+                  %span.text-muted ▼
+                .dropdown-menu{ id: 'project-dropdown-menu', data: { searchable_dropdown_target: 'dropdown' } }
+                  .p-2.border-bottom
+                    %input.form-control.form-control-sm{ type: 'text', placeholder: 'Search projects...', data: { searchable_dropdown_target: 'search' } }
+                  .dropdown-content{ style: 'max-height: 300px; overflow-y: auto;' }
+                    .dropdown-item.text-muted Loading...
+        .col-sm-4.order-sm-3
+          .mb-3
+            %label.form-label Delivery Start Date
+            = f.date_field :delivery_start_date, class: 'form-control', required: true
+          .d-sm-none
+            .mb-3
+              %label.form-label Delivery End Date
+              .input-group
+                = f.date_field :delivery_end_date, class: 'form-control'
+                %button.btn.btn-outline-secondary{type: 'button', onclick: 'this.previousElementSibling.value = ""', title: 'Clear date'}
+                  ×
+              .form-text.text-muted Leave empty if same as start date
+
+      .row
+        .col-sm-4.order-sm-1
+          .mb-3
+            %label.form-label Customer reference
+            = f.text_field :cust_reference, class: 'form-control'
+        .col-sm-4.order-sm-2
+          .mb-3
+            %label.form-label Customer Order No
+            = f.text_field :cust_order, class: 'form-control'
+        .col-sm-4.order-sm-3.d-none.d-sm-block
+          .mb-3
+            %label.form-label Delivery End Date
+            .input-group
+              = f.date_field :delivery_end_date, class: 'form-control'
+              %button.btn.btn-outline-secondary{type: 'button', onclick: 'this.previousElementSibling.value = ""', title: 'Clear date'}
+                ×
+            .form-text.text-muted Leave empty if same as start date
+
+      .row
+        .col-sm-12
+          .mb-3
+            %label.form-label Prelude
+            = f.text_area :prelude, class: 'form-control', rows: 2, placeholder: 'Thank you for your business...', data: { action: 'input->delivery-notes-form#fieldChanged' }
+
+    - unless @delivery_note.id.nil?
+      %div{data: {controller: 'delivery-note-lines'}}
+        / Lines container
+        %div{data: {delivery_note_lines_target: 'container'}}
+          = f.fields_for :delivery_note_lines do |line_form|
+            = render 'delivery_note_line_fields', f: line_form, line: line_form.object
+
+        / Template for new lines
+        %template{data: {delivery_note_lines_target: 'template'}}
+          - new_line = @delivery_note.delivery_note_lines.build(type: "item", quantity: 1)
+          = f.fields_for :delivery_note_lines, new_line, child_index: 'NEW_RECORD' do |line_form|
+            = render 'delivery_note_line_fields', f: line_form, line: new_line
+
+        %br
+        = action_buttons_wrapper do
+          = f.submit 'Save', class: 'btn btn-primary'
+          %button.btn.btn-info{type: 'button', data: {action: 'click->delivery-note-lines#addLine'}}
+            + Add Line
+          = cancel_button(@delivery_note)
+    - else
+      %br
+      = action_buttons_wrapper do
+        = f.submit 'Save', class: 'btn btn-primary'
+        = cancel_button(@delivery_note)

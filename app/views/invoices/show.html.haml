@@ -22,6 +22,25 @@
           .col-sm-8
             = @invoice.customer_name || @invoice.customer.name
 
+        - if @invoice.published?
+          .row.mb-2
+            .col-sm-4
+              %strong Email Status:
+            .col-sm-8
+              - if @invoice.email_sent_at
+                %span.badge.bg-success Sent #{format_datetime(@invoice.email_sent_at)}
+              - elsif @invoice.customer.email.present? || @invoice.customer.invoice_email_auto_enabled
+                %span.badge.bg-warning Unsent
+              - else
+                %span.badge.bg-secondary No Email Address
+
+        - if @invoice.delivery_note
+          .row.mb-2
+            .col-sm-4
+              %strong Source:
+            .col-sm-8
+              = link_to "Delivery Note #{@invoice.delivery_note.document_number || "##{@invoice.delivery_note.id}"}", @invoice.delivery_note
+
     .col-md-6
       .document-details.mt-md-5
         - if @invoice.project_id.present?
@@ -51,17 +70,6 @@
               %strong Token:
             .col-sm-8
               .small.text-muted= @invoice.token
-        - if @invoice.published?
-          .row.mb-2
-            .col-sm-4
-              %strong Email Status:
-            .col-sm-8
-              - if @invoice.email_sent_at
-                %span.badge.bg-success Sent #{format_datetime(@invoice.email_sent_at)}
-              - elsif @invoice.customer.email.present? || @invoice.customer.invoice_email_auto_enabled
-                %span.badge.bg-warning Unsent
-              - else
-                %span.badge.bg-secondary No Email Address
 
   - if @invoice.prelude.present?
     .document-prelude.mb-4

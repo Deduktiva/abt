@@ -1,0 +1,178 @@
+%div
+  .document-header.row.mb-2
+    .col-md-6
+      %h1.h2.mb-3
+        Delivery Note
+        = @delivery_note.document_number || "Draft \##{@delivery_note.id}"
+        - if not @delivery_note.published?
+          %span.badge.bg-warning.ms-2 Draft
+        - else
+          %span.badge.bg-success.ms-2 Booked
+
+      .document-details
+        - if @delivery_note.date
+          .row.mb-2
+            .col-sm-4
+              %strong Date:
+            .col-sm-8
+              = format_date(@delivery_note.date)
+        .row.mb-2
+          .col-sm-4
+            %strong Customer:
+          .col-sm-8
+            = @delivery_note.customer.name
+        - if @delivery_note.published?
+          .row.mb-2
+            .col-sm-4
+              %strong Email Status:
+            .col-sm-8
+              - if @delivery_note.email_sent_at
+                %span.badge.bg-success Sent #{format_datetime(@delivery_note.email_sent_at)}
+              - elsif @delivery_note.customer.email.present?
+                %span.badge.bg-warning Unsent
+              - else
+                %span.badge.bg-secondary No Email Address
+        - if @delivery_note.invoice
+          .row.mb-2
+            .col-sm-4
+              %strong Invoice:
+            .col-sm-8
+              = link_to "Invoice #{@delivery_note.invoice.document_number || "##{@delivery_note.invoice.id}"}", @delivery_note.invoice
+              - if @delivery_note.invoice.published?
+                %span.badge.bg-success.ms-2 Booked
+              - else
+                %span.badge.bg-warning.ms-2 Draft
+
+    .col-md-6
+      .document-details.mt-md-5
+        - if @delivery_note.project_id.present?
+          .row.mb-2
+            .col-sm-4
+              %strong Project:
+            .col-sm-8
+              - if @delivery_note.project
+                = @delivery_note.project.display_name
+              - else
+                %em (Project ##{@delivery_note.project_id} - not found)
+        - if @delivery_note.cust_reference.present?
+          .row.mb-2
+            .col-sm-4
+              %strong Reference:
+            .col-sm-8
+              = @delivery_note.cust_reference
+        - if @delivery_note.cust_order.present?
+          .row.mb-2
+            .col-sm-4
+              %strong Order No:
+            .col-sm-8
+              = @delivery_note.cust_order
+        - if @delivery_note.delivery_timeframe.present?
+          .row.mb-2
+            .col-sm-4
+              %strong Delivery Period:
+            .col-sm-8
+              = @delivery_note.delivery_timeframe
+
+
+  - if @delivery_note.published?
+    .acceptance-document.mb-4
+      .card
+        .card-header.d-flex.justify-content-between.align-items-center
+          %h5.mb-0 Acceptance Document
+        .card-body
+          - if @delivery_note.acceptance_attachment
+            .mb-3
+              .d-flex.align-items-center
+                %i.fas.fa-file-pdf.text-danger.me-2
+                = link_to @delivery_note.acceptance_attachment.filename, @delivery_note.acceptance_attachment, class: 'me-auto', target: '_blank'
+                %small.text-muted.ms-2
+                  = "Uploaded #{format_datetime(@delivery_note.acceptance_attachment.created_at)}"
+            .d-flex.gap-2
+              = form_with url: upload_acceptance_delivery_note_path(@delivery_note), method: :post, multipart: true, local: true, class: 'd-flex align-items-center' do |form|
+                .me-2
+                  = form.file_field :acceptance_pdf, accept: 'application/pdf', class: 'form-control form-control-sm', style: 'width: 250px;'
+                = form.submit 'Replace', class: 'btn btn-warning btn-sm'
+              = button_to 'Delete', delete_acceptance_delivery_note_path(@delivery_note), method: :post, class: 'btn btn-outline-danger btn-sm', confirm: 'Are you sure you want to delete the acceptance document?'
+          - else
+            = form_with url: upload_acceptance_delivery_note_path(@delivery_note), method: :post, multipart: true, local: true, class: 'd-flex align-items-center' do |form|
+              .me-3
+                = form.file_field :acceptance_pdf, accept: 'application/pdf', class: 'form-control', style: 'width: auto;'
+              = form.submit 'Upload PDF', class: 'btn btn-primary btn-sm'
+            %small.text-muted.d-block.mt-2
+              Upload the signed acceptance document (PDF only)
+
+  - if @delivery_note.prelude.present?
+    .document-prelude.mb-4
+      .card
+        .card-body
+          = simple_format(@delivery_note.prelude)
+
+  .document-lines.mb-2
+    %table.table.table-bordered
+      %thead
+        %tr
+          %th.text-end{style: "width: 10%"} Quantity
+          %th Description
+      %tbody
+        - @delivery_note.delivery_note_lines.each do |line|
+          - case line.type
+          - when 'item'
+            %tr
+              %td.text-end
+                = number_with_precision(line.quantity, precision: 2, strip_insignificant_zeros: true)
+              %td
+                %strong= line.title
+                - if line.description.present?
+                  %br
+                  %small.text-muted= simple_format(line.description, {}, wrapper_tag: 'span')
+                =#line.delivery_time
+          - when 'subheading'
+            %tr
+              %td.fw-bold.table-secondary{colspan: 5, style: "padding: 12px 8px;"}
+                = line.title
+          - when 'text', 'plain'
+            %tr
+              %td{colspan: 5, style: "padding: 8px;"}
+                - if line.title.present?
+                  %div= line.title
+                - if line.description.present?
+                  %div.text-muted{style: "margin-left: 20px;"}
+                    - if line.type == 'plain'
+                      %pre.mb-0{style: "font-family: monospace; white-space: pre-wrap;"}= line.description
+                    - else
+                      = simple_format(line.description)
+
+.email-delivery_note-preview-wrapper{"data-controller" => "delivery-note-email-preview", "data-delivery-note-email-preview-delivery-note-id-value" => @delivery_note.id}
+  = action_buttons_wrapper do
+    = action_button 'Back', delivery_notes_path, :secondary
+    - unless @delivery_note.published
+      = action_button 'Edit', edit_delivery_note_path(@delivery_note), :primary
+    - if @delivery_note.published?
+      = action_button 'PDF', pdf_delivery_note_path(@delivery_note), :success, { target: '_blank', data: { turbo: false } }
+      - if @delivery_note.customer&.email.present?
+        %button.btn.btn-warning{"data-action" => "click->delivery-note-email-preview#open"}
+          Send E-Mail
+      - unless @delivery_note.invoice
+        = button_to 'Convert to Invoice', convert_to_invoice_delivery_note_path(@delivery_note), method: :post, class: 'btn btn-info', confirm: 'Create an invoice draft from this delivery note?'
+      = button_to 'Unpublish', unpublish_delivery_note_path(@delivery_note), method: :post, class: 'btn btn-outline-secondary', confirm: 'Are you sure you want to revert this delivery note to draft status?'
+    - else
+      = action_button 'Preview', preview_delivery_note_path(@delivery_note), :info, { target: '_blank', data: { turbo: false } }
+      = button_to 'Publish', publish_delivery_note_path(@delivery_note), method: :post, class: 'btn btn-warning'
+      = destroy_link(@delivery_note, "Are you sure you want to delete delivery note \"#{@delivery_note.document_number || "##{@delivery_note.id}"}\"?")
+
+  // Email Preview Modal
+  .modal.d-none{"data-delivery-note-email-preview-target" => "modal", "data-action" => "click->delivery-note-email-preview#closeOnBackdrop keydown@window->delivery-note-email-preview#closeOnEscape", "style" => "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1050; display: flex; align-items: center; justify-content: center;"}
+    .modal-dialog.modal-lg{"style" => "max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto;"}
+      .modal-content
+        .modal-header.d-flex.justify-content-between.align-items-center
+          %h5.modal-title.mb-0
+            Preview - Delivery Note #{@delivery_note.document_number}
+          .d-flex.align-items-center
+            %button.btn.btn-success.btn-sm.me-2{"data-action" => "click->delivery-note-email-preview#sendEmail"}
+              Send E-Mail
+            %button.btn-close{"type" => "button", "data-action" => "click->delivery-note-email-preview#close", "aria-label" => "Close"}
+        .modal-body{"data-delivery-note-email-preview-target" => "content"}
+          .text-center
+            .spinner-border{"role" => "status"}
+              %span.visually-hidden Loading...
+            %p Loading email preview...

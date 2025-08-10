@@ -25,3 +25,10 @@ invoice:
   sequence: 0
   last_number: nil
   last_date: nil
+
+delivery_note:
+  code: delivery_note
+  format: '%{year}%<number>04d'
+  sequence: 0
+  last_number: nil
+  last_date: nil

@@ -24,7 +24,7 @@
     searchable_dropdown_dependent_select_prompt_value: dependent_select_prompt
   } }
   = form.hidden_field field_name
-  .dropdown{ class: "#{item_name}-dropdown" }
+  .dropdown.searchable-dropdown{ class: "#{item_name}-dropdown" }
     %button.btn.btn-outline-secondary.form-control.text-start.d-flex.justify-content-between.align-items-center{ type: 'button', data: { searchable_dropdown_target: 'select' } }
       .select-display
         - if current_item && current_item.id

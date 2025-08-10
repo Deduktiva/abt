@@ -22,7 +22,7 @@
               searchable_dropdown_select_prompt_value: 'Select customer...'
             } }
             = f.hidden_field :customer_id, id: 'invoice_customer_id'
-            .dropdown.customer-dropdown
+            .dropdown.searchable-dropdown.customer-dropdown
               %button.btn.btn-outline-secondary.form-control.text-start.d-flex.justify-content-between.align-items-center{ type: 'button', data: { searchable_dropdown_target: 'select' } }
                 .select-display
                   - if @invoice.customer && @invoice.customer.id
@@ -52,7 +52,7 @@
               searchable_dropdown_dependent_field_selector_value: '#invoice_customer_id'
             } }
             = f.hidden_field :project_id
-            .dropdown.project-dropdown
+            .dropdown.searchable-dropdown.project-dropdown
               %button.btn.btn-outline-secondary.form-control.text-start.d-flex.justify-content-between.align-items-center{ type: 'button', data: { searchable_dropdown_target: 'select' } }
                 .select-display
                   - if @invoice.project && @invoice.project.id

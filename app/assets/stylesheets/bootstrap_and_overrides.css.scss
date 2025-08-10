@@ -36,8 +36,8 @@ body { padding-top: 60px; }
   }
 }
 
-// Fix project dropdown hover in dark mode
-.project-dropdown .dropdown-item {
+// Fix searchable dropdown hover in dark mode
+.searchable-dropdown .dropdown-item {
   &:hover,
   &:focus {
     background-color: var(--bs-dropdown-link-hover-bg);
@@ -51,7 +51,7 @@ body { padding-top: 60px; }
 }
 
 // Ensure dropdown content respects theme
-.project-dropdown .dropdown-menu {
+.searchable-dropdown .dropdown-menu {
   background-color: var(--bs-dropdown-bg);
   border: var(--bs-dropdown-border-width) solid var(--bs-dropdown-border-color);
   color: var(--bs-dropdown-color);

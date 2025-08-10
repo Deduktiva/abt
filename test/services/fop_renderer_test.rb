@@ -30,7 +30,7 @@ class FopRendererTest < ActiveSupport::TestCase
     XML
 
     # Test PDF generation with simple XSL transformation (uses lib/foptemplate/simple_test.xsl)
-    pdf_data = renderer.render_pdf_with_logo(nil, 'simple_test.xsl') do |logo_path|
+    pdf_data = renderer.render_pdf_with_logo('simple_test.xsl') do |logo_path|
       xml_content
     end
 
@@ -75,7 +75,7 @@ class FopRendererTest < ActiveSupport::TestCase
 
     # Test that FOP properly detects and reports the error (uses lib/foptemplate/simple_test_invalid.xsl)
     error = assert_raises(RuntimeError) do
-      renderer.render_pdf_with_logo(nil, 'simple_test_invalid.xsl') do |logo_path|
+      renderer.render_pdf_with_logo('simple_test_invalid.xsl') do |logo_path|
         invalid_xml_content
       end
     end

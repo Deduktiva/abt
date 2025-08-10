@@ -5,23 +5,23 @@ class InvoiceRenderer
   def initialize(invoice, issuer)
     @invoice = invoice
     @issuer = issuer
-    @fop_renderer = FopRenderer.new
   end
 
-  def emit_xml(xml, logo_file_path)
+  def emit_xml(logo_file_path)
+    xml = Builder::XmlMarkup.new(:indent => 2)
     xml.instruct! :xml, :encoding => 'UTF-8', :version => '1.0'
 
-    xml.document :class => 'invoice' do |xml_invoice|
-      xml_invoice.tag! 'accent-color', @issuer.document_accent_color
-      xml_invoice.tag! 'footer', @issuer.invoice_footer
+    xml.document :class => 'invoice' do |xml_root|
+      xml_root.tag! 'accent-color', @issuer.document_accent_color
+      xml_root.tag! 'footer', @issuer.invoice_footer
 
       # Add logo information if available
       if logo_file_path
-        xml_invoice.tag! 'logo-path', logo_file_path
-        xml_invoice.tag! 'logo-width', @issuer.pdf_logo_width
-        xml_invoice.tag! 'logo-height', @issuer.pdf_logo_height
+        xml_root.tag! 'logo-path', logo_file_path
+        xml_root.tag! 'logo-width', @issuer.pdf_logo_width
+        xml_root.tag! 'logo-height', @issuer.pdf_logo_height
       end
-      xml_invoice.issuer do |xml_issuer|
+      xml_root.issuer do |xml_issuer|
         xml_issuer.address @issuer.legal_name + "\n" + @issuer.address
         xml_issuer.tag! 'short-name', @issuer.short_name
         xml_issuer.tag! 'legal-name', @issuer.legal_name
@@ -35,7 +35,7 @@ class InvoiceRenderer
         end
       end
 
-      xml_invoice.recipient do |xml_recipient|
+      xml_root.recipient do |xml_recipient|
         xml_recipient.tag! 'order-no', @invoice.cust_order
         xml_recipient.reference @invoice.cust_reference
 
@@ -45,12 +45,12 @@ class InvoiceRenderer
         xml_recipient.tag! 'supplier-no', @invoice.customer_supplier_number
       end
 
-      xml_invoice.currency 'EUR'
-      xml_invoice.prelude @invoice.prelude
-      xml_invoice.tag! 'tax-note', @invoice.tax_note
-      xml_invoice.number @invoice.document_number
-      xml_invoice.tag! 'issue-date', @invoice.date
-      xml_invoice.tag! 'due-date', @invoice.due_date
+      xml_root.currency 'EUR'
+      xml_root.prelude @invoice.prelude
+      xml_root.tag! 'tax-note', @invoice.tax_note
+      xml_root.number @invoice.document_number
+      xml_root.tag! 'issue-date', @invoice.date
+      xml_root.tag! 'due-date', @invoice.due_date
       if @invoice.published
         if @invoice.token.nil?
           payment_url = ''
@@ -61,9 +61,9 @@ class InvoiceRenderer
         payment_url = Settings.payments.public_url.gsub('%token%', 'NOT-YET-ASSIGNED')
       end
 
-      xml_invoice.tag! 'payment-url', payment_url
+      xml_root.tag! 'payment-url', payment_url
 
-      xml_invoice.items do |xml_items|
+      xml_root.items do |xml_items|
         @invoice.invoice_lines.each do |line|
           if line.type == 'text'
             xml_items.text do |xml_item|
@@ -95,7 +95,7 @@ class InvoiceRenderer
       Rails.logger.debug @invoice.invoice_tax_classes.inspect
       Rails.logger.debug "len: #{@invoice.invoice_tax_classes.length}"
 
-      xml_invoice.sums do |xml_sums|
+      xml_root.sums do |xml_sums|
         xml_sums.tag! 'tax-classes' do |xml_tax_classes|
           @invoice.invoice_tax_classes.all.each do |tax_class|
             xml_tax_classes.tag! 'tax-class', {:name => tax_class.name, 'indicator-code' => tax_class.indicator_code} do |xml_tax_class|
@@ -110,23 +110,14 @@ class InvoiceRenderer
       end
 
     end
+
+    xml.target!
   end
 
   def render
-    Rails.logger.info "InvoiceRenderer#render"
-
     logo_data = @issuer.pdf_logo.present? ? @issuer.pdf_logo : nil
-    @fop_renderer.render_pdf_with_logo(logo_data) do |logo_file_path|
-      generate_xml_string(logo_file_path)
+    FopRenderer.new.render_pdf_with_logo('invoice.xsl', logo_data) do |logo_file_path|
+      emit_xml(logo_file_path)
     end
-  end
-
-  private
-
-  def generate_xml_string(logo_file_path)
-    xml_string = ""
-    xml = Builder::XmlMarkup.new(:target => xml_string, :indent => 2)
-    emit_xml(xml, logo_file_path)
-    xml_string
   end
 end

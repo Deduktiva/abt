@@ -143,10 +143,12 @@ export default class extends Controller {
       } else {
         this.handleError(`Failed to load ${this.itemNameValue}s: ${response.statusText}`)
         this.restoreDisplayOrShowError()
+        this.isLoading = false
       }
     } catch (error) {
       this.handleError(`Error loading ${this.itemNameValue}s: ${error.message}`)
       this.restoreDisplayOrShowError()
+      this.isLoading = false
     }
   }
 
@@ -277,7 +279,7 @@ export default class extends Controller {
   clearSelection() {
     const display = this.selectTarget.querySelector('.select-display')
     if (display) {
-      display.innerHTML = `<span class="text-muted">${this.selectPromptValue || `Select ${this.itemNameValue}...`}</span>`
+      display.innerHTML = `<span class="text-muted">${this.selectPromptValue}</span>`
     }
 
     const hiddenInput = this.element.querySelector(`input[name*="[${this.itemIdParamValue}]"]`)
@@ -386,15 +388,17 @@ export default class extends Controller {
   }
 
   hasValidItemDisplay() {
+    // Check if we have a valid item ID and the display isn't showing placeholder text
+    if (!this.currentItemIdValue) return false
+
     const display = this.selectTarget.querySelector('.select-display')
     if (!display) return false
 
     const html = display.innerHTML
     return html &&
-           !html.includes('Loading...') &&
-           !html.includes(`Select ${this.itemNameValue}...`) &&
-           html.includes('fw-normal') &&
-           this.currentItemIdValue  // Must also have a valid item ID
+           !this.isLoading &&
+           !html.includes(this.selectPromptValue) &&
+           html.includes('fw-normal')
   }
 
   restoreDisplayOrShowError() {
@@ -410,6 +414,7 @@ export default class extends Controller {
   }
 
   showLoading() {
+    this.isLoading = true
     const display = this.selectTarget.querySelector('.select-display')
     if (display) {
       display.innerHTML = '<span class="text-muted">Loading...</span>'
@@ -419,13 +424,12 @@ export default class extends Controller {
   showSelectDependentMessage() {
     const display = this.selectTarget.querySelector('.select-display')
     if (display) {
-      display.innerHTML = `<span class="text-muted">${this.dependentSelectPromptValue || `Select ${this.dependentParamValue} first...`}</span>`
+      display.innerHTML = `<span class="text-muted">${this.dependentSelectPromptValue}</span>`
     }
 
-    // Also update the dropdown content
     const dropdownContent = this.dropdownTarget.querySelector('.dropdown-content')
     if (dropdownContent) {
-      dropdownContent.innerHTML = `<div class="dropdown-item text-muted">Select a ${this.dependentParamValue} first</div>`
+      dropdownContent.innerHTML = `<div class="dropdown-item text-muted">${this.dependentSelectPromptValue}</div>`
     }
   }
 
@@ -466,8 +470,9 @@ export default class extends Controller {
       }
     } else {
       const display = this.selectTarget.querySelector('.select-display')
-      if (display && display.innerHTML.includes('Loading')) {
-        display.innerHTML = `<span class="text-muted">${this.selectPromptValue || `Select ${this.itemNameValue}...`}</span>`
+      if (display && this.isLoading) {
+        display.innerHTML = `<span class="text-muted">${this.selectPromptValue}</span>`
+        this.isLoading = false
       }
     }
   }

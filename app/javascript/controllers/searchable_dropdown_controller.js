@@ -392,7 +392,7 @@ export default class extends Controller {
     const html = display.innerHTML
     return html &&
            !html.includes('Loading...') &&
-           !html.includes(`Select ${this.itemNameValue}...`) &&
+           !html.includes(this.selectPromptValue || `Select ${this.itemNameValue}...`) &&
            html.includes('fw-normal') &&
            this.currentItemIdValue  // Must also have a valid item ID
   }

@@ -46,6 +46,7 @@ class InvoiceRenderer
       end
 
       xml_root.currency 'EUR'
+      xml_root.language @invoice.customer.language.iso_code
       xml_root.prelude @invoice.prelude
       xml_root.tag! 'tax-note', @invoice.tax_note
       xml_root.number @invoice.document_number

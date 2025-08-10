@@ -6,6 +6,7 @@
 
     <xsl:import href="document_base.xsl"/>
 
+
     <!-- Line item templates -->
     <xsl:template match="/document/items/item">
         <fo:table-body keep-together.within-page="always">
@@ -77,7 +78,10 @@
                 space-before="1mm">
             <fo:table-cell number-columns-spanned="3" padding-before="1mm" padding-after="1mm">
                 <fo:block text-align="start">
-                    Tax Class
+                    <xsl:choose>
+                        <xsl:when test="/document/language = 'de'">Steuerklasse</xsl:when>
+                        <xsl:otherwise>Tax Class</xsl:otherwise>
+                    </xsl:choose>
                     ‟<xsl:value-of select="@name" />″:
                     <xsl:value-of select="percentage" />%
                     of
@@ -124,7 +128,10 @@
                         <!-- Document type header -->
                         <fo:block-container height="1cm" width="8cm" top="3.25cm" position="absolute">
                             <fo:block text-align="start" font-family="{$font-name-display}" font-size="28pt" font-weight="700">
-                                Invoice
+                                <xsl:choose>
+                                    <xsl:when test="/document/language = 'de'">Rechnung</xsl:when>
+                                    <xsl:otherwise>Invoice</xsl:otherwise>
+                                </xsl:choose>
                             </fo:block>
                         </fo:block-container>
 
@@ -138,7 +145,12 @@
                                 <fo:table-body>
                                     <fo:table-row line-height="130%">
                                         <fo:table-cell>
-                                            <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">Document No:</fo:block>
+                                            <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">
+                                                <xsl:choose>
+                                                    <xsl:when test="/document/language = 'de'">Belegnummer:</xsl:when>
+                                                    <xsl:otherwise>Document No:</xsl:otherwise>
+                                                </xsl:choose>
+                                            </fo:block>
                                         </fo:table-cell>
                                         <fo:table-cell>
                                             <fo:block>
@@ -148,7 +160,12 @@
                                     </fo:table-row>
                                     <fo:table-row line-height="130%">
                                         <fo:table-cell>
-                                            <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">Document Date:</fo:block>
+                                            <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">
+                                                <xsl:choose>
+                                                    <xsl:when test="/document/language = 'de'">Belegdatum:</xsl:when>
+                                                    <xsl:otherwise>Document Date:</xsl:otherwise>
+                                                </xsl:choose>
+                                            </fo:block>
                                         </fo:table-cell>
                                         <fo:table-cell>
                                             <fo:block>
@@ -158,7 +175,12 @@
                                     </fo:table-row>
                                     <fo:table-row line-height="130%">
                                         <fo:table-cell>
-                                            <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">Your Reference:</fo:block>
+                                            <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">
+                                                <xsl:choose>
+                                                    <xsl:when test="/document/language = 'de'">Ihr Zeichen:</xsl:when>
+                                                    <xsl:otherwise>Your Reference:</xsl:otherwise>
+                                                </xsl:choose>
+                                            </fo:block>
                                         </fo:table-cell>
                                         <fo:table-cell>
                                             <fo:block>
@@ -168,7 +190,12 @@
                                     </fo:table-row>
                                     <fo:table-row line-height="130%">
                                         <fo:table-cell>
-                                            <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">Your Order No:</fo:block>
+                                            <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">
+                                                <xsl:choose>
+                                                    <xsl:when test="/document/language = 'de'">Ihre Auftragsnummer:</xsl:when>
+                                                    <xsl:otherwise>Your Order No:</xsl:otherwise>
+                                                </xsl:choose>
+                                            </fo:block>
                                         </fo:table-cell>
                                         <fo:table-cell>
                                             <fo:block>
@@ -178,7 +205,12 @@
                                     </fo:table-row>
                                     <fo:table-row line-height="130%">
                                         <fo:table-cell>
-                                            <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">Your VAT ID:</fo:block>
+                                            <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">
+                                                <xsl:choose>
+                                                    <xsl:when test="/document/language = 'de'">Ihre USt-IdNr.:</xsl:when>
+                                                    <xsl:otherwise>Your VAT ID:</xsl:otherwise>
+                                                </xsl:choose>
+                                            </fo:block>
                                         </fo:table-cell>
                                         <fo:table-cell>
                                             <fo:block>
@@ -188,7 +220,12 @@
                                     </fo:table-row>
                                     <fo:table-row line-height="130%">
                                         <fo:table-cell>
-                                            <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">Our VAT ID:</fo:block>
+                                            <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">
+                                                <xsl:choose>
+                                                    <xsl:when test="/document/language = 'de'">Unsere USt-IdNr.:</xsl:when>
+                                                    <xsl:otherwise>Our VAT ID:</xsl:otherwise>
+                                                </xsl:choose>
+                                            </fo:block>
                                         </fo:table-cell>
                                         <fo:table-cell>
                                             <fo:block>
@@ -210,7 +247,11 @@
 
                     <fo:block-container top="0cm" left="8.75cm" position="absolute">
                         <fo:block text-align="start" font-weight="100" font-size="8pt">
-                            Invoice <xsl:value-of select="/document/number" />
+                            <xsl:choose>
+                                <xsl:when test="/document/language = 'de'">Rechnung</xsl:when>
+                                <xsl:otherwise>Invoice</xsl:otherwise>
+                            </xsl:choose>
+                            <xsl:text> </xsl:text><xsl:value-of select="/document/number" />
                         </fo:block>
                     </fo:block-container>
 
@@ -246,19 +287,44 @@
                         <fo:table-header>
                             <fo:table-row xsl:use-attribute-sets="accent-color">
                                 <fo:table-cell>
-                                    <fo:block text-align="start">Description</fo:block>
+                                    <fo:block text-align="start">
+                                        <xsl:choose>
+                                            <xsl:when test="/document/language = 'de'">Beschreibung</xsl:when>
+                                            <xsl:otherwise>Description</xsl:otherwise>
+                                        </xsl:choose>
+                                    </fo:block>
                                 </fo:table-cell>
                                 <fo:table-cell>
-                                    <fo:block text-align="end">Qty</fo:block>
+                                    <fo:block text-align="end">
+                                        <xsl:choose>
+                                            <xsl:when test="/document/language = 'de'">Menge</xsl:when>
+                                            <xsl:otherwise>Qty</xsl:otherwise>
+                                        </xsl:choose>
+                                    </fo:block>
                                 </fo:table-cell>
                                 <fo:table-cell>
-                                    <fo:block text-align="end">Rate</fo:block>
+                                    <fo:block text-align="end">
+                                        <xsl:choose>
+                                            <xsl:when test="/document/language = 'de'">Preis</xsl:when>
+                                            <xsl:otherwise>Rate</xsl:otherwise>
+                                        </xsl:choose>
+                                    </fo:block>
                                 </fo:table-cell>
                                 <fo:table-cell>
-                                    <fo:block text-align="end">Tax</fo:block>
+                                    <fo:block text-align="end">
+                                        <xsl:choose>
+                                            <xsl:when test="/document/language = 'de'">MwSt</xsl:when>
+                                            <xsl:otherwise>Tax</xsl:otherwise>
+                                        </xsl:choose>
+                                    </fo:block>
                                 </fo:table-cell>
                                 <fo:table-cell>
-                                    <fo:block text-align="end">Amount</fo:block>
+                                    <fo:block text-align="end">
+                                        <xsl:choose>
+                                            <xsl:when test="/document/language = 'de'">Betrag</xsl:when>
+                                            <xsl:otherwise>Amount</xsl:otherwise>
+                                        </xsl:choose>
+                                    </fo:block>
                                 </fo:table-cell>
                             </fo:table-row>
                         </fo:table-header>
@@ -272,7 +338,12 @@
 
                         <xsl:if test="/document/tax-note != ''">
                             <fo:block-container>
-                                <fo:block xsl:use-attribute-sets="accent-color">Tax Information</fo:block>
+                                <fo:block xsl:use-attribute-sets="accent-color">
+                                    <xsl:choose>
+                                        <xsl:when test="/document/language = 'de'">Steuerinformation</xsl:when>
+                                        <xsl:otherwise>Tax Information</xsl:otherwise>
+                                    </xsl:choose>
+                                </fo:block>
                                 <fo:block linefeed-treatment="preserve">
                                     <xsl:value-of select="abt:strip-space(/document/tax-note)" />
                                 </fo:block>
@@ -291,7 +362,12 @@
                                 <!-- sum (net) -->
                                 <fo:table-row>
                                     <fo:table-cell number-columns-spanned="3" padding-before="1mm" padding-after="1mm">
-                                        <fo:block text-align="start" font-style="italic">Sum</fo:block>
+                                        <fo:block text-align="start" font-style="italic">
+                                            <xsl:choose>
+                                                <xsl:when test="/document/language = 'de'">Summe</xsl:when>
+                                                <xsl:otherwise>Sum</xsl:otherwise>
+                                            </xsl:choose>
+                                        </fo:block>
                                     </fo:table-cell>
                                     <fo:table-cell number-columns-spanned="2" padding-before="1mm" padding-after="1mm">
                                         <fo:block text-align="end" font-style="italic">
@@ -308,8 +384,20 @@
                                     space-before="1mm">
                                     <fo:table-cell number-columns-spanned="3" padding-before="1mm" padding-after="1mm">
                                         <fo:block text-align="start">
-                                            <fo:inline font-weight="600">Total including tax </fo:inline>
-                                            <fo:inline font-weight="normal">due on </fo:inline>
+                                            <fo:inline font-weight="600">
+                                                <xsl:choose>
+                                                    <xsl:when test="/document/language = 'de'">Gesamtsumme inkl. Steuer</xsl:when>
+                                                    <xsl:otherwise>Total including tax</xsl:otherwise>
+                                                </xsl:choose>
+                                                <xsl:text> </xsl:text>
+                                            </fo:inline>
+                                            <fo:inline font-weight="normal">
+                                                <xsl:choose>
+                                                    <xsl:when test="/document/language = 'de'">fällig am</xsl:when>
+                                                    <xsl:otherwise>due on</xsl:otherwise>
+                                                </xsl:choose>
+                                                <xsl:text> </xsl:text>
+                                            </fo:inline>
                                             <fo:inline font-weight="600"><xsl:value-of select="abt:format-date(/document/due-date)" /></fo:inline>
                                         </fo:block>
                                     </fo:table-cell>
@@ -332,22 +420,81 @@
                                 border-color="black" border-style="solid" border-width="0.13mm" padding="0.6mm">
                             <xsl:if test="/document/payment-url != ''">
                                 <fo:block>
-                                    <fo:inline font-weight="600">Online payment: </fo:inline>
+                                    <fo:inline font-weight="600">
+                                        <xsl:choose>
+                                            <xsl:when test="/document/language = 'de'">Online-Zahlung:</xsl:when>
+                                            <xsl:otherwise>Online payment:</xsl:otherwise>
+                                        </xsl:choose>
+                                        <xsl:text> </xsl:text>
+                                    </fo:inline>
                                     <fo:basic-link color="blue" external-destination="{/document/payment-url}"><xsl:value-of select="/document/payment-url" /></fo:basic-link>
                                 </fo:block>
                             </xsl:if>
-                            <fo:block>Payment instructions for <fo:inline font-weight="600">Wire transfer:</fo:inline></fo:block>
+                            <fo:block>
+                                <xsl:choose>
+                                    <xsl:when test="/document/language = 'de'">Zahlungsanweisungen für</xsl:when>
+                                    <xsl:otherwise>Payment instructions for</xsl:otherwise>
+                                </xsl:choose>
+                                <xsl:text> </xsl:text>
+                                <fo:inline font-weight="600">
+                                    <xsl:choose>
+                                        <xsl:when test="/document/language = 'de'">Überweisung:</xsl:when>
+                                        <xsl:otherwise>Wire transfer:</xsl:otherwise>
+                                    </xsl:choose>
+                                </fo:inline>
+                            </fo:block>
                             <fo:block-container height="1.1cm">
                                 <fo:block-container left="0cm" top="0mm" width="7cm" position="absolute">
-                                    <fo:block><fo:inline font-family="{$font-name-display}">Bank: </fo:inline><xsl:value-of select="/document/issuer/bankaccount/bank" /></fo:block>
-                                    <fo:block><fo:inline font-family="{$font-name-display}">BIC: </fo:inline><xsl:value-of select="/document/issuer/bankaccount/bic" /></fo:block>
+                                    <fo:block>
+                                        <fo:inline font-family="{$font-name-display}">
+                                            <xsl:choose>
+                                                <xsl:when test="/document/language = 'de'">Bank:</xsl:when>
+                                                <xsl:otherwise>Bank:</xsl:otherwise>
+                                            </xsl:choose>
+                                            <xsl:text> </xsl:text>
+                                        </fo:inline>
+                                        <xsl:value-of select="/document/issuer/bankaccount/bank" />
+                                    </fo:block>
+                                    <fo:block>
+                                        <fo:inline font-family="{$font-name-display}">
+                                            <xsl:choose>
+                                                <xsl:when test="/document/language = 'de'">BIC:</xsl:when>
+                                                <xsl:otherwise>BIC:</xsl:otherwise>
+                                            </xsl:choose>
+                                            <xsl:text> </xsl:text>
+                                        </fo:inline>
+                                        <xsl:value-of select="/document/issuer/bankaccount/bic" />
+                                    </fo:block>
                                 </fo:block-container>
                                 <fo:block-container left="8.75cm" top="0mm" width="7cm" position="absolute">
-                                    <fo:block><fo:inline font-family="{$font-name-display}">Account Name: </fo:inline><xsl:value-of select="/document/issuer/legal-name" /></fo:block>
-                                    <fo:block><fo:inline font-family="{$font-name-display}">Account No: </fo:inline><xsl:value-of select="/document/issuer/bankaccount/number" /></fo:block>
+                                    <fo:block>
+                                        <fo:inline font-family="{$font-name-display}">
+                                            <xsl:choose>
+                                                <xsl:when test="/document/language = 'de'">Kontoinhaber:</xsl:when>
+                                                <xsl:otherwise>Account Name:</xsl:otherwise>
+                                            </xsl:choose>
+                                            <xsl:text> </xsl:text>
+                                        </fo:inline>
+                                        <xsl:value-of select="/document/issuer/legal-name" />
+                                    </fo:block>
+                                    <fo:block>
+                                        <fo:inline font-family="{$font-name-display}">
+                                            <xsl:choose>
+                                                <xsl:when test="/document/language = 'de'">Kontonummer:</xsl:when>
+                                                <xsl:otherwise>Account No:</xsl:otherwise>
+                                            </xsl:choose>
+                                            <xsl:text> </xsl:text>
+                                        </fo:inline>
+                                        <xsl:value-of select="/document/issuer/bankaccount/number" />
+                                    </fo:block>
                                 </fo:block-container>
                             </fo:block-container>
-                            <fo:block>For transfer from outside the SEPA region, please ensure the full amount reaches our account.</fo:block>
+                            <fo:block>
+                                <xsl:choose>
+                                    <xsl:when test="/document/language = 'de'">Bei Überweisungen von außerhalb des SEPA-Raums stellen Sie bitte sicher, dass der vollständige Betrag auf unserem Konto ankommt.</xsl:when>
+                                    <xsl:otherwise>For transfer from outside the SEPA region, please ensure the full amount reaches our account.</xsl:otherwise>
+                                </xsl:choose>
+                            </fo:block>
                         </fo:block-container>
 
                         <fo:block space-before.optimum="0.5cm" space-before.minimum="0.5cm" space-before.maximum="1cm" text-align="justify" font-size="8pt" line-height="10pt">

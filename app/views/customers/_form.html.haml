@@ -35,6 +35,10 @@
       = f.label :sales_tax_customer_class_id, class: 'col-lg-2 col-md-3 col-form-label', label: "Sales Tax Class"
       .col-sm-5
         = f.collection_select :sales_tax_customer_class_id, SalesTaxCustomerClass.all, :id, :name, { prompt: 'Select tax class...' }, {:class => 'form-select', :required => true}
+    .row.mb-3
+      = f.label :language_id, class: 'col-lg-2 col-md-3 col-form-label', label: "Language"
+      .col-sm-5
+        = f.collection_select :language_id, Language.all, :id, :title, { prompt: 'Select language...' }, {:class => 'form-select', :required => true}
     %hr
     .row.mb-3
       = f.label :email, 'E-Mail', class: 'col-lg-2 col-md-3 col-form-label'

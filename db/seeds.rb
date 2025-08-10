@@ -4,6 +4,15 @@
 # Essential data needed for all environments
 puts "🌱 Creating essential data..."
 
+# Languages (required for customer language selection)
+english = Language.find_or_create_by(iso_code: 'en') do |lang|
+  lang.title = 'English'
+end
+
+german = Language.find_or_create_by(iso_code: 'de') do |lang|
+  lang.title = 'German'
+end
+
 # Document number configuration for invoices
 DocumentNumber.find_or_create_by(code: 'invoice') do |dn|
   dn.format = '%{year}%<number>04d'
@@ -103,6 +112,7 @@ if Rails.env.development?
     customer.email = 'accounting-goodeu@example.com'
     customer.notes = 'Long-term client, monthly invoicing'
     customer.sales_tax_customer_class = eu_class
+    customer.language = english
   end
 
   local_company = Customer.find_or_create_by(matchcode: 'LOCALNAT') do |customer|
@@ -116,6 +126,7 @@ if Rails.env.development?
     customer.email = 'accounting-localnat@example.com'
     customer.notes = 'Project-based work'
     customer.sales_tax_customer_class = national_class
+    customer.language = german
   end
 
   export_company = Customer.find_or_create_by(matchcode: 'USACORP') do |customer|
@@ -128,6 +139,7 @@ if Rails.env.development?
     customer.email = 'ap-us@example.com'
     customer.notes = 'US-based client, quarterly invoicing'
     customer.sales_tax_customer_class = export_class
+    customer.language = english
   end
 
   # Sample projects

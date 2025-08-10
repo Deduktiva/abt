@@ -277,7 +277,7 @@ export default class extends Controller {
   clearSelection() {
     const display = this.selectTarget.querySelector('.select-display')
     if (display) {
-      display.innerHTML = `<span class="text-muted">${this.selectPromptValue || `Select ${this.itemNameValue}...`}</span>`
+      display.innerHTML = `<span class="text-muted">${this.selectPromptValue}</span>`
     }
 
     const hiddenInput = this.element.querySelector(`input[name*="[${this.itemIdParamValue}]"]`)
@@ -392,7 +392,7 @@ export default class extends Controller {
     const html = display.innerHTML
     return html &&
            !html.includes('Loading...') &&
-           !html.includes(this.selectPromptValue || `Select ${this.itemNameValue}...`) &&
+           !html.includes(this.selectPromptValue) &&
            html.includes('fw-normal') &&
            this.currentItemIdValue  // Must also have a valid item ID
   }
@@ -419,13 +419,12 @@ export default class extends Controller {
   showSelectDependentMessage() {
     const display = this.selectTarget.querySelector('.select-display')
     if (display) {
-      display.innerHTML = `<span class="text-muted">${this.dependentSelectPromptValue || `Select ${this.dependentParamValue} first...`}</span>`
+      display.innerHTML = `<span class="text-muted">${this.dependentSelectPromptValue}</span>`
     }
 
-    // Also update the dropdown content
     const dropdownContent = this.dropdownTarget.querySelector('.dropdown-content')
     if (dropdownContent) {
-      dropdownContent.innerHTML = `<div class="dropdown-item text-muted">${this.dependentSelectPromptValue || `Select ${this.dependentParamValue} first`}</div>`
+      dropdownContent.innerHTML = `<div class="dropdown-item text-muted">${this.dependentSelectPromptValue}</div>`
     }
   }
 
@@ -467,7 +466,7 @@ export default class extends Controller {
     } else {
       const display = this.selectTarget.querySelector('.select-display')
       if (display && display.innerHTML.includes('Loading')) {
-        display.innerHTML = `<span class="text-muted">${this.selectPromptValue || `Select ${this.itemNameValue}...`}</span>`
+        display.innerHTML = `<span class="text-muted">${this.selectPromptValue}</span>`
       }
     }
   }

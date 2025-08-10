@@ -425,7 +425,7 @@ export default class extends Controller {
     // Also update the dropdown content
     const dropdownContent = this.dropdownTarget.querySelector('.dropdown-content')
     if (dropdownContent) {
-      dropdownContent.innerHTML = `<div class="dropdown-item text-muted">Select a ${this.dependentParamValue} first</div>`
+      dropdownContent.innerHTML = `<div class="dropdown-item text-muted">${this.dependentSelectPromptValue || `Select ${this.dependentParamValue} first`}</div>`
     }
   }
 

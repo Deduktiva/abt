@@ -193,7 +193,7 @@
 
     <!-- Component: Page X of Y text -->
     <xsl:template name="page-x-of-y-text">
-        <fo:block font-family="{$font-name-display}" font-size="8pt">
+        <fo:block font-weight="100" font-size="8pt">
             Page <fo:page-number/> of <fo:page-number-citation-last ref-id="document-sequence"/>
         </fo:block>
     </xsl:template>

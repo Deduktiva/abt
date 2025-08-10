@@ -96,7 +96,12 @@
         <fo:block-container height="0.5cm" width="12cm" top="3cm" left="0cm" position="absolute" font-size="6pt">
             <!-- inline sender -->
             <fo:block xsl:use-attribute-sets="accent-color" font-family="{$font-name-display}" font-weight="normal">
-                Returns to: <xsl:value-of select="replace(abt:strip-space(/document/issuer/address), '\n', ', ')" />
+                <xsl:choose>
+                    <xsl:when test="/document/language = 'de'">Rücksendung an:</xsl:when>
+                    <xsl:otherwise>Returns to:</xsl:otherwise>
+                </xsl:choose>
+                <xsl:text> </xsl:text>
+                <xsl:value-of select="replace(abt:strip-space(/document/issuer/address), '\n', ', ')" />
             </fo:block>
         </fo:block-container>
     </xsl:template>
@@ -194,7 +199,19 @@
     <!-- Component: Page X of Y text -->
     <xsl:template name="page-x-of-y-text">
         <fo:block font-weight="100" font-size="8pt">
-            Page <fo:page-number/> of <fo:page-number-citation-last ref-id="document-sequence"/>
+            <xsl:choose>
+                <xsl:when test="/document/language = 'de'">Seite</xsl:when>
+                <xsl:otherwise>Page</xsl:otherwise>
+            </xsl:choose>
+            <xsl:text> </xsl:text>
+            <fo:page-number/>
+            <xsl:text> </xsl:text>
+            <xsl:choose>
+                <xsl:when test="/document/language = 'de'">von</xsl:when>
+                <xsl:otherwise>of</xsl:otherwise>
+            </xsl:choose>
+            <xsl:text> </xsl:text>
+            <fo:page-number-citation-last ref-id="document-sequence"/>
         </fo:block>
     </xsl:template>
 

@@ -8,7 +8,7 @@ class FopRenderer
     @fop_conf = @template_path.join('fop-conf.xml')
   end
 
-  def render_pdf_with_logo(logo_data = nil, xsl_template = 'invoice.xsl')
+  def render_pdf_with_logo(xsl_template, logo_data = nil)
     tpl_xsl = @template_path.join(xsl_template)
 
     # Resolve FOP binary path, can be relative
@@ -24,7 +24,7 @@ class FopRenderer
         write_file_with_permissions(logo_path, logo_data, 0644, binary: true)
       end
 
-      # Generate XML with logo path
+      # Call block to emit XML
       xml_data = yield logo_path
 
       xml_path = File.join(temp_dir, 'input.xml')

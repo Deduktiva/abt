@@ -5,10 +5,10 @@ class InvoiceRenderer
   def initialize(invoice, issuer)
     @invoice = invoice
     @issuer = issuer
-    @fop_renderer = FopRenderer.new
   end
 
-  def emit_xml(xml, logo_file_path)
+  def emit_xml(logo_file_path)
+    xml = Builder::XmlMarkup.new(:indent => 2)
     xml.instruct! :xml, :encoding => 'UTF-8', :version => '1.0'
 
     xml.document :class => 'invoice' do |xml_root|
@@ -110,23 +110,14 @@ class InvoiceRenderer
       end
 
     end
+
+    xml.target!
   end
 
   def render
-    Rails.logger.info "InvoiceRenderer#render"
-
     logo_data = @issuer.pdf_logo.present? ? @issuer.pdf_logo : nil
-    @fop_renderer.render_pdf_with_logo(logo_data) do |logo_file_path|
-      generate_xml_string(logo_file_path)
+    FopRenderer.new.render_pdf_with_logo('invoice.xsl', logo_data) do |logo_file_path|
+      emit_xml(logo_file_path)
     end
-  end
-
-  private
-
-  def generate_xml_string(logo_file_path)
-    xml_string = ""
-    xml = Builder::XmlMarkup.new(:target => xml_string, :indent => 2)
-    emit_xml(xml, logo_file_path)
-    xml_string
   end
 end

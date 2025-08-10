@@ -141,7 +141,7 @@ class InvoicesController < ApplicationController
       action = want_save ? 'Booking' : 'TEST-Booking'
 
       issuer = IssuerCompany.get_the_issuer!
-      @booker = InvoiceBookController.new @invoice, issuer
+      @booker = InvoiceBooker.new @invoice, issuer
 
       @booked = @booker.book want_save
       @booking_log = @booker.log
@@ -190,14 +190,14 @@ class InvoicesController < ApplicationController
     return unless check_unpublished
 
     issuer = IssuerCompany.get_the_issuer!
-    @booker = InvoiceBookController.new @invoice, issuer
+    @booker = InvoiceBooker.new @invoice, issuer
 
     ActiveRecord::Base.transaction(requires_new: true) do
       @invoice.document_number = 'DRAFT'
       @booked = @booker.book false
-      Rails.logger.debug "InvoiceBookController#book returned with #{@booked}"
-      @pdf = InvoiceRenderController.new(@invoice, issuer).render if @booked
-      Rails.logger.debug "InvoiceRenderController#render returned"
+      Rails.logger.debug "InvoiceBooker#book returned with #{@booked}"
+      @pdf = InvoiceRenderer.new(@invoice, issuer).render if @booked
+      Rails.logger.debug "InvoiceRenderer#render returned"
       raise ActiveRecord::Rollback, 'preview only'
     end
 

@@ -13,7 +13,7 @@ This is "ABT", a Rails 8 application for invoice management. Features modern Boo
 - `bundle exec rails db:migrate` - Run database migrations
 - `bundle exec rails db:seed` - Load seed data
 
-### Development 
+### Development
 - `bundle exec rails server` - Start the development server
 - `bundle exec rails console` - Open Rails console (use for testing helpers and models)
 - `bundle exec rails test` - Run the test suite (NEVER use `rails test` - it doesn't handle migrations properly)
@@ -41,15 +41,15 @@ For testing against PostgreSQL (matches production environment):
 - **Project** (`app/models/project.rb`) - Project tracking
 
 ### Tax System
-- **SalesTaxCustomerClass** - Customer tax classification  
+- **SalesTaxCustomerClass** - Customer tax classification
 - **SalesTaxProductClass** - Product tax classification
 - **SalesTaxRate** - Tax rates by customer/product class combination
 - **InvoiceTaxClass** - Applied tax calculations per invoice
 
 ### Invoice Processing Pipeline
 1. **InvoicesController** - Standard CRUD + special actions (preview, book, bulk email)
-2. **InvoiceBookController** - Business logic for "booking" invoices (calculating taxes, assigning document numbers, publishing)
-3. **InvoiceRenderController** - PDF generation using Apache FOP with XML/XSL transformation
+2. **InvoiceBooker** - Business logic for "booking" invoices (calculating taxes, assigning document numbers, publishing)
+3. **InvoiceRenderer** - PDF generation using Apache FOP with XML/XSL transformation
 4. **Email System** - Automated email sending with tracking and bulk operations
 
 ### PDF Generation
@@ -88,7 +88,7 @@ For testing against PostgreSQL (matches production environment):
 
 ## Key Files for Modifications
 - Invoice business logic: `app/controllers/invoice_book_controller.rb`
-- PDF template: `lib/foptemplate/invoice.xsl` 
+- PDF template: `lib/foptemplate/invoice.xsl`
 - Invoice model: `app/models/invoice.rb`
 - Main invoice controller: `app/controllers/invoices_controller.rb`
 - UI helpers: `app/helpers/application_helper.rb`

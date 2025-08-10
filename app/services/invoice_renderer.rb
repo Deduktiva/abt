@@ -1,6 +1,6 @@
 require 'builder'
 
-class InvoiceRenderController < ApplicationController
+class InvoiceRenderer
 
   def initialize(invoice, issuer)
     @invoice = invoice
@@ -113,7 +113,7 @@ class InvoiceRenderController < ApplicationController
   end
 
   def render
-    Rails.logger.info "InvoiceRenderController#render"
+    Rails.logger.info "InvoiceRenderer#render"
 
     logo_data = @issuer.pdf_logo.present? ? @issuer.pdf_logo : nil
     @fop_renderer.render_pdf_with_logo(logo_data) do |logo_file_path|

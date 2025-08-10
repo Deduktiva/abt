@@ -5,9 +5,13 @@ class AddLanguageToCustomers < ActiveRecord::Migration[8.0]
     # Set default language (English) for existing customers
     reversible do |dir|
       dir.up do
-        # Ensure English language exists
+        # Ensure English and German languages exist
         english = Language.find_or_create_by(iso_code: 'en') do |lang|
           lang.title = 'English'
+        end
+
+        Language.find_or_create_by(iso_code: 'de') do |lang|
+          lang.title = 'German'
         end
 
         # Update all existing customers to have English as default

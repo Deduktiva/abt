@@ -235,13 +235,57 @@ if Rails.env.development?
   end
 
   unless Invoice.exists?(customer: local_company, project: consulting_project)
-    Invoice.create!(
+    license_invoice = Invoice.create!(
       customer: local_company,
       project: consulting_project,
-      cust_reference: 'REF-CONSULT-2025',
-      prelude: 'Technical consulting services for infrastructure upgrade',
+      cust_reference: 'REF-LICENSE-2025',
+      prelude: 'Software license keys delivery for enterprise deployment',
       date: 3.days.ago.to_date,
       published: false
+    )
+
+    # Add license key data as plaintext item
+    license_keys = <<~LICENSE_KEYS.strip
+      Enterprise License Keys - Version 2025.1
+
+      Primary License: ABX9-7YT2-KL45-MN89-QW12-ER34
+      Secondary License: CD56-FG78-HI90-JK12-LM34-NP56
+      Development License: QR78-ST90-UV12-WX34-YZ56-AB78
+      Testing License: EF90-GH12-IJ34-KL56-MN78-OP90
+      Staging License: QR12-ST34-UV56-WX78-YZ90-AB12
+      Production License: CD34-EF56-GH78-IJ90-KL12-MN34
+      Backup License: OP56-QR78-ST90-UV12-WX34-YZ56
+
+      Valid until: December 31, 2025
+      Max concurrent users: 500
+      Deployment environments: Production, Staging, Development, Testing
+    LICENSE_KEYS
+
+    license_invoice.invoice_lines.create!(
+      type: 'plain',
+      title: 'Enterprise License Keys',
+      description: license_keys,
+      position: 1
+    )
+
+    license_invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Enterprise Software License',
+      description: 'Annual enterprise license with full feature access',
+      quantity: 1.0,
+      rate: 15000.00,
+      sales_tax_product_class: standard_product,
+      position: 2
+    )
+
+    license_invoice.invoice_lines.create!(
+      type: 'item',
+      title: 'Support & Maintenance',
+      description: 'Premium support and maintenance package',
+      quantity: 1.0,
+      rate: 3000.00,
+      sales_tax_product_class: standard_product,
+      position: 3
     )
   end
 

@@ -1,0 +1,46 @@
+draft_item:
+  invoice: draft_invoice
+  type: "item"
+  title: "Sample Item"
+  description: "A sample item for testing"
+  quantity: 1.0
+  rate: 50.00
+  position: 1
+
+license_keys:
+  invoice: license_invoice
+  type: "plain"
+  title: "Enterprise License Keys"
+  description: |
+    Enterprise License Keys - Version 2025.1
+
+    Primary License: ABX9-7YT2-KL45-MN89-QW12-ER34
+    Secondary License: CD56-FG78-HI90-JK12-LM34-NP56
+    Development License: QR78-ST90-UV12-WX34-YZ56-AB78
+    Testing License: EF90-GH12-IJ34-KL56-MN78-OP90
+    Staging License: QR12-ST34-UV56-WX78-YZ90-AB12
+    Production License: CD34-EF56-GH78-IJ90-KL12-MN34
+    Backup License: OP56-QR78-ST90-UV12-WX34-YZ56
+
+    Valid until: December 31, 2025
+    Max concurrent users: 500
+    Deployment environments: Production, Staging, Development, Testing
+  position: 1
+
+license_item:
+  invoice: license_invoice
+  type: "item"
+  title: "Enterprise Software License"
+  description: "Annual enterprise license with full feature access"
+  quantity: 1.0
+  rate: 15000.00
+  position: 2
+
+support_item:
+  invoice: license_invoice
+  type: "item"
+  title: "Support & Maintenance"
+  description: "Premium support and maintenance package"
+  quantity: 1.0
+  rate: 3000.00
+  position: 3

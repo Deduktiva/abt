@@ -49,3 +49,15 @@ draft_invoice:
   cust_order: "DRAFT-ORDER"
   sum_net: 50.00
   sum_total: 60.50
+
+license_invoice:
+  customer: good_national
+  project: one
+  document_number: null
+  published: false
+  date: <%= Date.current %>
+  cust_reference: "LICENSE-REF"
+  cust_order: "LICENSE-ORDER"
+  prelude: "Software license keys delivery for enterprise deployment with a very long prelude that should span multiple lines to test the auto-resize functionality.\n\nIt contains several paragraphs of text to demonstrate the auto-resize functionality.\n\nThe textarea should automatically adjust its height to fit all this content."
+  sum_net: 18000.00
+  sum_total: 21600.00

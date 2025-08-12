@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_05_011102) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_10_173512) do
   create_table "attachments", force: :cascade do |t|
     t.string "title"
     t.string "filename"
@@ -36,6 +36,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_05_011102) do
     t.string "invoice_email_auto_subject_template", default: "", null: false
     t.boolean "invoice_email_auto_enabled", default: false, null: false
     t.boolean "active", default: true, null: false
+    t.integer "language_id", null: false
+    t.index ["language_id"], name: "index_customers_on_language_id"
     t.index ["name"], name: "index_customers_on_name"
   end
 
@@ -133,6 +135,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_05_011102) do
     t.index ["active"], name: "index_issuer_companies_on_active", unique: true
   end
 
+  create_table "languages", force: :cascade do |t|
+    t.string "iso_code", limit: 2, null: false
+    t.string "title", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["iso_code"], name: "index_languages_on_iso_code", unique: true
+  end
+
   create_table "products", force: :cascade do |t|
     t.string "title"
     t.text "description"
@@ -174,4 +184,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_05_011102) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  add_foreign_key "customers", "languages"
 end

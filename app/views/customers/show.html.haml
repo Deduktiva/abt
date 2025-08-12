@@ -45,6 +45,12 @@
           .col-sm-8
             = @customer.sales_tax_customer_class&.name
 
+        .row.mb-2
+          .col-sm-4
+            %strong Language:
+          .col-sm-8
+            = @customer.language&.title
+
   .col-md-6
     .card
       .card-header

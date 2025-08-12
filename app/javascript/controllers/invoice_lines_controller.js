@@ -1,11 +1,19 @@
 import { Controller } from "@hotwired/stimulus"
+import { AutoResizeTextareaMixin } from "../mixins/auto_resize_textarea_mixin"
 
 export default class extends Controller {
   static targets = ["container", "total"]
 
+  // Include auto-resize textarea mixin methods
+  initializeAutoResizeTextareas = AutoResizeTextareaMixin.initializeAutoResizeTextareas
+  autoResizeTextarea = AutoResizeTextareaMixin.autoResizeTextarea
+  cleanupAutoResizeTextareas = AutoResizeTextareaMixin.cleanupAutoResizeTextareas
+  handleTextareaFieldChanged = AutoResizeTextareaMixin.handleTextareaFieldChanged
+
   connect() {
     this.initializeFieldVisibility()
     this.updateTotal()
+    this.initializeAutoResizeTextareas()
   }
 
   initializeFieldVisibility() {
@@ -49,6 +57,7 @@ export default class extends Controller {
     }
 
     this.toggleProductDropdownForLine(newLine)
+    this.initializeAutoResizeTextareas(newLine)
 
     this.updateTotal()
   }
@@ -136,6 +145,10 @@ export default class extends Controller {
   fieldChanged(event) {
     // Remove error styling when user starts typing
     this.clearFieldError(event.target)
+
+    // Auto-resize textarea if needed
+    this.handleTextareaFieldChanged(event)
+
     this.updateTotal()
   }
 
@@ -265,6 +278,10 @@ export default class extends Controller {
       default:
         return currency + ' ' + formatted
     }
+  }
+
+  disconnect() {
+    this.cleanupAutoResizeTextareas()
   }
 
 }

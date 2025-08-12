@@ -1,122 +1,123 @@
-= form_for(@invoice) do |f|
-  - if @invoice.errors.any?
-    .alert.alert-danger
-      %h4
-        = pluralize(@invoice.errors.count, 'error')
-        prohibited saving:
-      %ul
-        - @invoice.errors.full_messages.each do |msg|
-          %li= msg
+%div{data: {controller: 'invoice-form'}}
+  = form_for(@invoice) do |f|
+    - if @invoice.errors.any?
+      .alert.alert-danger
+        %h4
+          = pluralize(@invoice.errors.count, 'error')
+          prohibited saving:
+        %ul
+          - @invoice.errors.full_messages.each do |msg|
+            %li= msg
 
-  .form-inputs
-    .row
-      .col-sm-4
-        .mb-3
-          %label.form-label Customer
-          %div{ data: {
-              controller: 'searchable-dropdown',
-              searchable_dropdown_current_item_id_value: @invoice.customer_id,
-              searchable_dropdown_url_value: customers_path,
-              searchable_dropdown_item_name_value: 'customer',
-              searchable_dropdown_item_id_param_value: 'customer_id',
-              searchable_dropdown_select_prompt_value: 'Select customer...'
-            } }
-            = f.hidden_field :customer_id, id: 'invoice_customer_id'
-            .dropdown.searchable-dropdown.customer-dropdown
-              %button.btn.btn-outline-secondary.form-control.text-start.d-flex.justify-content-between.align-items-center{ type: 'button', data: { searchable_dropdown_target: 'select' } }
-                .select-display
-                  - if @invoice.customer && @invoice.customer.id
-                    .fw-normal= @invoice.customer.name
-                    .small.text-muted= @invoice.customer.matchcode
-                  - else
-                    %span.text-muted Select customer...
-                %span.text-muted ▼
-              .dropdown-menu{ id: 'customer-dropdown-menu', data: { searchable_dropdown_target: 'dropdown' } }
-                .p-2.border-bottom
-                  %input.form-control.form-control-sm{ type: 'text', placeholder: 'Search customers...', data: { searchable_dropdown_target: 'search' } }
-                .dropdown-content{ style: 'max-height: 300px; overflow-y: auto;' }
-                  .dropdown-item.text-muted Loading...
-      .col-sm-4
-        .mb-3
-          %label.form-label Project
-          %div{ data: {
-              controller: 'searchable-dropdown',
-              searchable_dropdown_current_dependent_id_value: @invoice.customer_id,
-              searchable_dropdown_current_item_id_value: @invoice.project_id,
-              searchable_dropdown_url_value: projects_path,
-              searchable_dropdown_dependent_param_value: 'customer_id',
-              searchable_dropdown_item_name_value: 'project',
-              searchable_dropdown_item_id_param_value: 'project_id',
-              searchable_dropdown_select_prompt_value: 'Select project...',
-              searchable_dropdown_dependent_select_prompt_value: 'Select customer first...',
-              searchable_dropdown_dependent_field_selector_value: '#invoice_customer_id'
-            } }
-            = f.hidden_field :project_id
-            .dropdown.searchable-dropdown.project-dropdown
-              %button.btn.btn-outline-secondary.form-control.text-start.d-flex.justify-content-between.align-items-center{ type: 'button', data: { searchable_dropdown_target: 'select' } }
-                .select-display
-                  - if @invoice.project && @invoice.project.id
-                    .fw-normal= @invoice.project.display_name
-                    .small.text-muted= @invoice.project.matchcode
-                  - else
-                    %span.text-muted Select project...
-                %span.text-muted ▼
-              .dropdown-menu{ id: 'project-dropdown-menu', data: { searchable_dropdown_target: 'dropdown' } }
-                .p-2.border-bottom
-                  %input.form-control.form-control-sm{ type: 'text', placeholder: 'Search projects...', data: { searchable_dropdown_target: 'search' } }
-                .dropdown-content{ style: 'max-height: 300px; overflow-y: auto;' }
-                  .dropdown-item.text-muted Loading...
-      .col-sm-4
-        .mb-3
-          %label.form-label Date
-          .form-control-plaintext (set at booking)
+    .form-inputs
+      .row
+        .col-sm-4
+          .mb-3
+            %label.form-label Customer
+            %div{ data: {
+                controller: 'searchable-dropdown',
+                searchable_dropdown_current_item_id_value: @invoice.customer_id,
+                searchable_dropdown_url_value: customers_path,
+                searchable_dropdown_item_name_value: 'customer',
+                searchable_dropdown_item_id_param_value: 'customer_id',
+                searchable_dropdown_select_prompt_value: 'Select customer...'
+              } }
+              = f.hidden_field :customer_id, id: 'invoice_customer_id'
+              .dropdown.searchable-dropdown.customer-dropdown
+                %button.btn.btn-outline-secondary.form-control.text-start.d-flex.justify-content-between.align-items-center{ type: 'button', data: { searchable_dropdown_target: 'select' } }
+                  .select-display
+                    - if @invoice.customer && @invoice.customer.id
+                      .fw-normal= @invoice.customer.name
+                      .small.text-muted= @invoice.customer.matchcode
+                    - else
+                      %span.text-muted Select customer...
+                  %span.text-muted ▼
+                .dropdown-menu{ id: 'customer-dropdown-menu', data: { searchable_dropdown_target: 'dropdown' } }
+                  .p-2.border-bottom
+                    %input.form-control.form-control-sm{ type: 'text', placeholder: 'Search customers...', data: { searchable_dropdown_target: 'search' } }
+                  .dropdown-content{ style: 'max-height: 300px; overflow-y: auto;' }
+                    .dropdown-item.text-muted Loading...
+        .col-sm-4
+          .mb-3
+            %label.form-label Project
+            %div{ data: {
+                controller: 'searchable-dropdown',
+                searchable_dropdown_current_dependent_id_value: @invoice.customer_id,
+                searchable_dropdown_current_item_id_value: @invoice.project_id,
+                searchable_dropdown_url_value: projects_path,
+                searchable_dropdown_dependent_param_value: 'customer_id',
+                searchable_dropdown_item_name_value: 'project',
+                searchable_dropdown_item_id_param_value: 'project_id',
+                searchable_dropdown_select_prompt_value: 'Select project...',
+                searchable_dropdown_dependent_select_prompt_value: 'Select customer first...',
+                searchable_dropdown_dependent_field_selector_value: '#invoice_customer_id'
+              } }
+              = f.hidden_field :project_id
+              .dropdown.searchable-dropdown.project-dropdown
+                %button.btn.btn-outline-secondary.form-control.text-start.d-flex.justify-content-between.align-items-center{ type: 'button', data: { searchable_dropdown_target: 'select' } }
+                  .select-display
+                    - if @invoice.project && @invoice.project.id
+                      .fw-normal= @invoice.project.display_name
+                      .small.text-muted= @invoice.project.matchcode
+                    - else
+                      %span.text-muted Select project...
+                  %span.text-muted ▼
+                .dropdown-menu{ id: 'project-dropdown-menu', data: { searchable_dropdown_target: 'dropdown' } }
+                  .p-2.border-bottom
+                    %input.form-control.form-control-sm{ type: 'text', placeholder: 'Search projects...', data: { searchable_dropdown_target: 'search' } }
+                  .dropdown-content{ style: 'max-height: 300px; overflow-y: auto;' }
+                    .dropdown-item.text-muted Loading...
+        .col-sm-4
+          .mb-3
+            %label.form-label Date
+            .form-control-plaintext (set at booking)
 
-    .row
-      .col-sm-4
-        .mb-3
-          %label.form-label Customer reference
-          = f.text_field :cust_reference, class: 'form-control'
-      .col-sm-4
-        .mb-3
-          %label.form-label Customer Order No
-          = f.text_field :cust_order, class: 'form-control'
+      .row
+        .col-sm-4
+          .mb-3
+            %label.form-label Customer reference
+            = f.text_field :cust_reference, class: 'form-control'
+        .col-sm-4
+          .mb-3
+            %label.form-label Customer Order No
+            = f.text_field :cust_order, class: 'form-control'
 
-    .row
-      .col-sm-12
-        .mb-3
-          %label.form-label Prelude
-          = f.text_area :prelude, class: 'form-control', rows: 2, placeholder: 'Thank you for your business...'
+      .row
+        .col-sm-12
+          .mb-3
+            %label.form-label Prelude
+            = f.text_area :prelude, class: 'form-control', rows: 2, placeholder: 'Thank you for your business...', data: { action: 'input->invoice-form#fieldChanged' }
 
-    - unless @invoice.id.nil?
-      %div{data: {controller: 'invoice-lines'}}
-        / Lines container
-        %div{data: {invoice_lines_target: 'container'}}
-          = f.fields_for :invoice_lines do |line_form|
-            = render 'invoice_line_fields', f: line_form, line: line_form.object
+      - unless @invoice.id.nil?
+        %div{data: {controller: 'invoice-lines'}}
+          / Lines container
+          %div{data: {invoice_lines_target: 'container'}}
+            = f.fields_for :invoice_lines do |line_form|
+              = render 'invoice_line_fields', f: line_form, line: line_form.object
 
-        / Template for new lines
-        %template{data: {invoice_lines_target: 'template'}}
-          - new_line = @invoice.invoice_lines.build(type: "item", amount: 0, rate: 0, quantity: 1)
-          = f.fields_for :invoice_lines, new_line, child_index: 'NEW_RECORD' do |line_form|
-            = render 'invoice_line_fields', f: line_form, line: new_line
+          / Template for new lines
+          %template{data: {invoice_lines_target: 'template'}}
+            - new_line = @invoice.invoice_lines.build(type: "item", amount: 0, rate: 0, quantity: 1)
+            = f.fields_for :invoice_lines, new_line, child_index: 'NEW_RECORD' do |line_form|
+              = render 'invoice_line_fields', f: line_form, line: new_line
 
-        .card.mb-3
-          .card-body
-            .row
-              .col-sm-10.text-end
-                Total Net
-              .col-sm-2.text-end
-                %span{data: {invoice_lines_target: 'total'}}
-                  = format_currency(0)
+          .card.mb-3
+            .card-body
+              .row
+                .col-sm-10.text-end
+                  Total Net
+                .col-sm-2.text-end
+                  %span{data: {invoice_lines_target: 'total'}}
+                    = format_currency(0)
 
+          %br
+          = action_buttons_wrapper do
+            = f.submit 'Save', class: 'btn btn-primary'
+            %button.btn.btn-info{type: 'button', data: {action: 'click->invoice-lines#addLine'}}
+              + Add Line
+            = cancel_button(@invoice)
+      - else
         %br
         = action_buttons_wrapper do
           = f.submit 'Save', class: 'btn btn-primary'
-          %button.btn.btn-info{type: 'button', data: {action: 'click->invoice-lines#addLine'}}
-            + Add Line
           = cancel_button(@invoice)
-    - else
-      %br
-      = action_buttons_wrapper do
-        = f.submit 'Save', class: 'btn btn-primary'
-        = cancel_button(@invoice)

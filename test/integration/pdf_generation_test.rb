@@ -101,4 +101,5 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
     assert_equal "50.0mm", issuer_company.pdf_logo_width
     assert_equal "15.0mm", issuer_company.pdf_logo_height
   end
+
 end

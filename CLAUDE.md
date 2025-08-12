@@ -165,6 +165,14 @@ For testing against PostgreSQL (matches production environment):
 - When refactoring or fixing bugs, follow DRY principles but don't overdo it
 - Prefer clarity and maintainability over excessive abstraction
 
+### Git Commit Message Style
+- Use concise, direct subject lines (e.g. "Auto-resize textareas")
+- Brief functional description in body (one sentence explaining main functionality)
+- Key implementation details as short, factual bullet points
+- Include practical context when relevant (demo content, examples)
+- Maintain Claude Code attribution footer
+- Avoid verbose technical explanations or excessive detail in commit messages
+
 ### System Administration
 - **NEVER run `sudo` commands**
 - If system packages need to be installed, explain what is needed and ask the user to install them

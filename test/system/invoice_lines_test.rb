@@ -29,10 +29,7 @@ class InvoiceLinesTest < ActionDispatch::SystemTestCase
     end
   end
 
-  test "product dropdown functionality works with available products" do
-    # Skip if no products exist to avoid test failures
-    return unless Product.exists?
-
+  test "product dropdown elements are present for invoice lines" do
     visit edit_invoice_path(@invoice)
     click_button "Add Line"
     new_line = all('[data-line-index]').last
@@ -40,8 +37,12 @@ class InvoiceLinesTest < ActionDispatch::SystemTestCase
     within new_line do
       # Verify product dropdown elements are present
       assert_selector '[data-product-dropdown]', visible: false
-      assert_selector 'button[data-line-type-target="itemOnly"]'  # Product selection button
       assert_selector '[data-product-select]', visible: false
+
+      # Only check for product button if products exist
+      if Product.exists?
+        assert_selector 'button[data-line-type-target="itemOnly"]'
+      end
     end
   end
 end

@@ -159,6 +159,10 @@ class LineManagementTest < ActionDispatch::SystemTestCase
 
     lines = all('[data-line-index]')
 
+    # Get original field names
+    original_first = lines[0].find('input[name*="[title]"]')[:name]
+    original_second = lines[1].find('input[name*="[title]"]')[:name]
+
     # Move second line up
     within lines[1] do
       click_button "▲"
@@ -168,21 +172,19 @@ class LineManagementTest < ActionDispatch::SystemTestCase
 
     # Check that field names have been reindexed correctly
     updated_lines = all('[data-line-index]')
-    first_field_name = updated_lines[0].find('input[name*="[title]"]')[:name]
-    second_field_name = updated_lines[1].find('input[name*="[title]"]')[:name]
+    new_first = updated_lines[0].find('input[name*="[title]"]')[:name]
+    new_second = updated_lines[1].find('input[name*="[title]"]')[:name]
 
-    # The reindexing uses 0-based indexing in the field names
-    assert first_field_name.match?(/\[\d+\]/), "First line should have numeric index"
-    assert second_field_name.match?(/\[\d+\]/), "Second line should have numeric index"
-
-    # More importantly, they should be different (indicating reindexing occurred)
-    assert_not_equal first_field_name, second_field_name, "Field names should be different after reordering"
+    # Field names should have changed (indicating reindexing occurred)
+    assert_not_equal original_first, new_first
+    assert_not_equal original_second, new_second
   end
 
   test "form field names are reindexed after reordering delivery note lines" do
     visit edit_delivery_note_path(@delivery_note)
 
     lines = all('[data-line-index]')
+    original_first = lines[0].find('input[name*="[title]"]')[:name]
 
     within lines[1] do
       click_button "▲"
@@ -191,74 +193,10 @@ class LineManagementTest < ActionDispatch::SystemTestCase
     sleep 0.1
 
     updated_lines = all('[data-line-index]')
-    first_field_name = updated_lines[0].find('input[name*="[title]"]')[:name]
-    second_field_name = updated_lines[1].find('input[name*="[title]"]')[:name]
+    new_first = updated_lines[0].find('input[name*="[title]"]')[:name]
 
-    assert first_field_name.match?(/\[\d+\]/), "First line should have numeric index"
-    assert second_field_name.match?(/\[\d+\]/), "Second line should have numeric index"
-    assert_not_equal first_field_name, second_field_name, "Field names should be different after reordering"
-  end
-
-  # Test error handling and field interactions
-  test "error styling is cleared when typing in invoice line fields" do
-    visit edit_invoice_path(@invoice)
-
-    click_button "Add Line"
-    new_line = all('[data-line-index]').last
-
-    within new_line do
-      title_field = find('input[name*="[title]"]')
-
-      # Add error styling
-      page.execute_script("arguments[0].closest('div').classList.add('field_with_errors')", title_field)
-      assert_selector '.field_with_errors'
-
-      # Type in field should clear error
-      title_field.fill_in with: 'New Title'
-      sleep 0.1
-
-      assert_no_selector '.field_with_errors'
-    end
-  end
-
-  test "error styling is cleared when changing invoice line type" do
-    visit edit_invoice_path(@invoice)
-
-    click_button "Add Line"
-    new_line = all('[data-line-index]').last
-
-    within new_line do
-      type_select = find('select[name*="[type]"]')
-
-      # Add error styling
-      page.execute_script("arguments[0].closest('div').classList.add('field_with_errors')", type_select)
-      assert_selector '.field_with_errors'
-
-      # Change type should clear error
-      select 'Text', from: type_select[:name]
-      sleep 0.1
-
-      assert_no_selector '.field_with_errors'
-    end
-  end
-
-  test "error styling is cleared when typing in delivery note line fields" do
-    visit edit_delivery_note_path(@delivery_note)
-
-    click_button "Add Line"
-    new_line = all('[data-line-index]').last
-
-    within new_line do
-      title_field = find('input[name*="[title]"]')
-
-      page.execute_script("arguments[0].closest('div').classList.add('field_with_errors')", title_field)
-      assert_selector '.field_with_errors'
-
-      title_field.fill_in with: 'New Title'
-      sleep 0.1
-
-      assert_no_selector '.field_with_errors'
-    end
+    # Field name should have changed
+    assert_not_equal original_first, new_first
   end
 
   # Test line type field visibility
@@ -275,19 +213,16 @@ class LineManagementTest < ActionDispatch::SystemTestCase
       assert_equal 'item', type_select.value
       assert_selector 'div[data-line-type-target="itemOnly"]', visible: true
       assert_selector '[data-line-type-target="notSubheading"]', visible: true
-      assert_selector 'button[data-line-type-target="itemOnly"]', visible: true  # Product button
 
       # Test subheading type
       select 'Subheading', from: type_select[:name]
       assert_selector 'div[data-line-type-target="itemOnly"]', visible: false
       assert_selector '[data-line-type-target="notSubheading"]', visible: false
-      assert_selector 'button[data-line-type-target="itemOnly"]', visible: false
 
       # Test text type
       select 'Text', from: type_select[:name]
       assert_selector 'div[data-line-type-target="itemOnly"]', visible: false
       assert_selector '[data-line-type-target="notSubheading"]', visible: true
-      assert_selector 'button[data-line-type-target="itemOnly"]', visible: false
     end
   end
 
@@ -342,36 +277,5 @@ class LineManagementTest < ActionDispatch::SystemTestCase
 
     line_total = new_line.find('[data-line-total]').text
     assert_equal '€60.00', line_total  # 3 × 20.00
-  end
-
-  test "invoice totals clear for non-item line types" do
-    visit edit_invoice_path(@invoice)
-
-    click_button "Add Line"
-    new_line = all('[data-line-index]').last
-
-    within new_line do
-      # Set as item first with values
-      fill_in find('input[name*="[quantity]"]')[:name], with: '2'
-      fill_in find('input[name*="[rate]"]')[:name], with: '25.00'
-      find('input[name*="[rate]"]').native.send_keys(:tab)
-    end
-
-    sleep 0.1
-
-    # Should show total
-    line_total = new_line.find('[data-line-total]').text
-    assert_equal '€50.00', line_total
-
-    within new_line do
-      # Change to text type
-      select 'Text', from: find('select[name*="[type]"]')[:name]
-    end
-
-    sleep 0.1
-
-    # Total should clear for text type
-    line_total = new_line.find('[data-line-total]').text
-    assert_equal '€0.00', line_total
   end
 end

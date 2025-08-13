@@ -17,7 +17,7 @@
             %div{ data: {
                 controller: 'searchable-dropdown',
                 searchable_dropdown_current_item_id_value: @delivery_note.customer_id,
-                searchable_dropdown_url_value: '/customers',
+                searchable_dropdown_url_value: customers_path,
                 searchable_dropdown_item_name_value: 'customer',
                 searchable_dropdown_item_id_param_value: 'customer_id',
                 searchable_dropdown_select_prompt_value: 'Select customer...'
@@ -44,7 +44,7 @@
                 controller: 'searchable-dropdown',
                 searchable_dropdown_current_dependent_id_value: @delivery_note.customer_id,
                 searchable_dropdown_current_item_id_value: @delivery_note.project_id,
-                searchable_dropdown_url_value: '/projects',
+                searchable_dropdown_url_value: projects_path,
                 searchable_dropdown_dependent_param_value: 'customer_id',
                 searchable_dropdown_item_name_value: 'project',
                 searchable_dropdown_item_id_param_value: 'project_id',

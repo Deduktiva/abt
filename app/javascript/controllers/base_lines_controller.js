@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import { AutoResizeTextareaMixin } from "../mixins/auto_resize_textarea_mixin"
+import { AutoResizeTextareaMixin } from "mixins/auto_resize_textarea_mixin"
 
 export default class extends Controller {
   static targets = ["container"]

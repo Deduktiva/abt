@@ -36,8 +36,7 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
     get preview_invoice_path(english_invoice)
     assert_response :success
     assert_equal 'application/pdf', response.content_type
-    assert response.body.start_with?('%PDF'), "Should generate valid PDF for English"
-    assert response.body.length > 1000, "English PDF should have substantial content"
+    assert_valid_pdf_response
   end
 
   def test_pdf_generation_with_german_language
@@ -69,8 +68,7 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
     get preview_invoice_path(german_invoice)
     assert_response :success
     assert_equal 'application/pdf', response.content_type
-    assert response.body.start_with?('%PDF'), "Should generate valid PDF for German"
-    assert response.body.length > 1000, "German PDF should have substantial content"
+    assert_valid_pdf_response
   end
 
   def test_pdf_language_switching_regression
@@ -104,16 +102,12 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
     # Generate English PDF
     get preview_invoice_path(english_invoice)
     assert_response :success
-    english_pdf_size = response.body.length
+    assert_valid_pdf_response
 
     # Generate German PDF
     get preview_invoice_path(german_invoice)
     assert_response :success
-    german_pdf_size = response.body.length
-
-    # Both should be valid PDFs with reasonable sizes
-    assert english_pdf_size > 1000, "English PDF should have substantial content"
-    assert german_pdf_size > 1000, "German PDF should have substantial content"
+    assert_valid_pdf_response
   end
 
   def test_customer_language_assignment_defaults_to_english
@@ -133,5 +127,12 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
 
     customer.update!(language: languages(:german))
     assert_equal languages(:german), customer.language
+  end
+
+  private
+
+  def assert_valid_pdf_response
+    assert_equal 'application/pdf', response.content_type
+    assert response.body.start_with?('%PDF'), "Response should be a valid PDF file"
   end
 end

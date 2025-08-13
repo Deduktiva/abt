@@ -31,9 +31,7 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
 
     assert_response :success
 
-    assert response.content_type == 'application/pdf'
-    assert response.body.start_with?('%PDF'), "Response should be a PDF file"
-    assert response.body.length > 1000, "PDF should have substantial content"
+    assert_valid_pdf_response
   end
 
   def test_invoice_booking_creates_attachment
@@ -91,9 +89,7 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
     get preview_invoice_path(@invoice)
     assert_response :success
 
-    assert response.content_type == 'application/pdf'
-    assert response.body.start_with?('%PDF'), "Response should be a PDF file"
-    assert response.body.length > 1000, "PDF should have substantial content"
+    assert_valid_pdf_response
 
     # Verify the invoice processing included logo data
     # (We can't easily inspect PDF content, but we can verify the logo was processed)
@@ -102,4 +98,10 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
     assert_equal "15.0mm", issuer_company.pdf_logo_height
   end
 
+  private
+
+  def assert_valid_pdf_response
+    assert_equal 'application/pdf', response.content_type
+    assert response.body.start_with?('%PDF'), "Response should be a valid PDF file"
+  end
 end

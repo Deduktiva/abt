@@ -12,6 +12,7 @@ class InvoiceRenderer
     xml.instruct! :xml, :encoding => 'UTF-8', :version => '1.0'
 
     xml.document :class => 'invoice' do |xml_root|
+      xml_root.language @invoice.customer.language.iso_code
       xml_root.tag! 'accent-color', @issuer.document_accent_color
       xml_root.tag! 'footer', @issuer.invoice_footer
 
@@ -46,7 +47,6 @@ class InvoiceRenderer
       end
 
       xml_root.currency 'EUR'
-      xml_root.language @invoice.customer.language.iso_code
       xml_root.prelude @invoice.prelude
       xml_root.tag! 'tax-note', @invoice.tax_note
       xml_root.number @invoice.document_number

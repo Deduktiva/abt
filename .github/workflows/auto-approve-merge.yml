@@ -30,13 +30,20 @@ jobs:
             return {
               head_sha: pr.head.sha,
               mergeable: pr.mergeable,
-              draft: pr.draft
+              draft: pr.draft,
+              state: pr.state
             };
 
       - name: Check if PR is ready
         if: fromJSON(steps.pr.outputs.result).draft == true
         run: |
           echo "PR is still a draft, skipping auto-merge"
+          exit 1
+
+      - name: Check if PR is closed
+        if: fromJSON(steps.pr.outputs.result).state == 'closed'
+        run: |
+          echo "PR is closed, aborting auto-merge"
           exit 1
 
       - name: Wait for CI to complete

@@ -146,13 +146,7 @@ class InvoicesController < ApplicationController
       @booked = @booker.book want_save
       @booking_log = @booker.log
 
-      if @booked
-        flash[:notice] = "#{action} succeeded."
-      else
-        flash[:error] = "#{action} failed."
-      end
-
-      # Store simplified booking result in flash
+      # Store booking result in flash (no redundant notice/error flash)
       if @booked
         flash[:booking_success] = true
         flash[:booking_summary] = "#{action} succeeded. #{@booking_log.length} log entries."

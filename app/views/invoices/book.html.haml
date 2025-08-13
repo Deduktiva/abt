@@ -17,6 +17,16 @@ published:
       %strong Errors:
       = @booking_errors
 
+  - if @booked
+    %details
+      %summary View detailed booking log
+      %pre
+        - session_key = "booking_log_#{@invoice.id}"
+        - if session[session_key].present?
+          = session[session_key].join("\n")
+        - else
+          Booking log not available (may have been cleared due to session size limits)
+
 - if @booked and !@invoice.published?
   = button_to 'Book!', book_invoice_path(@invoice, :save => true), class: 'btn btn-warning me-2'
 

@@ -150,12 +150,16 @@ class InvoicesController < ApplicationController
       if @booked
         flash[:booking_success] = true
         flash[:booking_summary] = "#{action} succeeded. #{@booking_log.length} log entries."
+        # Store full log in session (more space than flash cookies)
+        session["booking_log_#{@invoice.id}"] = @booking_log
       else
         flash[:booking_success] = false
         flash[:booking_summary] = "#{action} failed. Errors: #{@booking_log.select { |line| line.start_with?('E:') }.length}"
         # Store only error messages in flash for debugging
         errors = @booking_log.select { |line| line.start_with?('E:') }
         flash[:booking_errors] = errors.join('; ') if errors.any?
+        # Store full log in session for failed bookings too
+        session["booking_log_#{@invoice.id}"] = @booking_log
       end
 
       respond_to do |format|

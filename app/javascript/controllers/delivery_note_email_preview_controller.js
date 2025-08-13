@@ -4,14 +4,12 @@ import GenericEmailPreviewController from "controllers/generic_email_preview_con
 export default class extends GenericEmailPreviewController {
   static values = {
     ...GenericEmailPreviewController.values,
-    deliveryNoteId: Number
+    deliveryNoteId: Number,
+    previewUrl: String,
+    sendUrl: String
   }
 
   connect() {
     super.connect()
-
-    // Set the URLs based on delivery note ID
-    this.previewUrlValue = `/delivery_notes/${this.deliveryNoteIdValue}/preview_email`
-    this.sendUrlValue = `/delivery_notes/${this.deliveryNoteIdValue}/send_email`
   }
 }

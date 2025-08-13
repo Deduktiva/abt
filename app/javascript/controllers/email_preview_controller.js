@@ -4,14 +4,12 @@ import GenericEmailPreviewController from "controllers/generic_email_preview_con
 export default class extends GenericEmailPreviewController {
   static values = {
     ...GenericEmailPreviewController.values,
-    invoiceId: Number
+    invoiceId: Number,
+    previewUrl: String,
+    sendUrl: String
   }
 
   connect() {
     super.connect()
-
-    // Set the URLs based on invoice ID
-    this.previewUrlValue = `/invoices/${this.invoiceIdValue}/preview_email`
-    this.sendUrlValue = `/invoices/${this.invoiceIdValue}/send_email`
   }
 }

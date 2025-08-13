@@ -143,7 +143,7 @@
               %td.text-end
                 %strong= format_currency(@invoice.sum_total)
 
-.email-preview-wrapper{"data-controller" => "email-preview", "data-email-preview-invoice-id-value" => @invoice.id}
+.email-preview-wrapper{"data-controller" => "email-preview", "data-email-preview-invoice-id-value" => @invoice.id, "data-email-preview-preview-url-value" => preview_email_invoice_path(@invoice), "data-email-preview-send-url-value" => send_email_invoice_path(@invoice)}
   = action_buttons_wrapper do
     = action_button 'Back', invoices_path, :secondary
     - unless @invoice.published

@@ -25,7 +25,7 @@ export default class extends Controller {
   }
 
   addLine() {
-    const template = document.querySelector(`[data-${this.getLineType()}-target="template"]`)
+    const template = document.querySelector(`[data-${this.getLineType().replace('_', '-')}-target="template"]`)
     if (!template) return
 
     const newContent = template.content.cloneNode(true)

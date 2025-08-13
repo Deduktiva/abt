@@ -1,33 +1,32 @@
-- content_for :title, "Delivery Notes #{@delivery_notes.map(&:document_number).join(', ')}"
+- content_for :title, t('mailers.delivery_note.bulk_subject', issuer_name: @issuer.short_name, document_numbers: @delivery_notes.map(&:document_number).join(', '))
 
 .greeting
-  Dear #{@customer.name},
+  = t('mailers.delivery_note.greeting', customer_name: @customer.name)
 
 .main-message
-  We've attached #{@delivery_notes.count} delivery notes for the services provided. Please review the details and confirm receipt by signing and returning each delivery note.
+  = t('mailers.delivery_note.bulk_main_message', count: @delivery_notes.count)
 
 .document-list
-  %h5 Delivery Notes:
+  %h5= t('mailers.delivery_note.bulk_document_list_title')
   - @delivery_notes.each do |delivery_note|
     .document-highlight.mb-3
       .document-number
-        Delivery Note #{delivery_note.document_number}
+        = t('mailers.delivery_note.document_number', document_number: delivery_note.document_number)
       - if delivery_note.cust_order.present?
         .document-detail
-          Order: #{delivery_note.cust_order}
+          #{t('mailers.delivery_note.order_label')} #{delivery_note.cust_order}
       - if delivery_note.cust_reference.present?
         .document-detail
-          Reference: #{delivery_note.cust_reference}
+          #{t('mailers.delivery_note.reference_label')} #{delivery_note.cust_reference}
       - if delivery_note.delivery_timeframe.present?
         .document-detail
-          Delivery Period: #{delivery_note.delivery_timeframe}
+          #{t('mailers.delivery_note.delivery_period_label')} #{delivery_note.delivery_timeframe}
 
 .instructions
-  %strong Next Steps:
+  %strong= t('mailers.delivery_note.next_steps_title')
   %ol
-    %li Please review each delivery note and verify all details are correct
-    %li Sign each delivery note to confirm acceptance of the delivered services
-    %li Return the signed delivery notes to us via email
+    - t('mailers.delivery_note.bulk_next_steps').each do |step|
+      %li= step
 
 .closing
-  Thank you for your business. We appreciate your continued partnership.
+  = t('mailers.delivery_note.closing')

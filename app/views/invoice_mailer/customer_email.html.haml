@@ -1,22 +1,22 @@
-- content_for :title, "Invoice #{@invoice.document_number}"
+- content_for :title, t('mailers.invoice.document_number', document_number: @invoice.document_number)
 
 .greeting
-  Dear #{@invoice.customer.name},
+  = t('mailers.invoice.greeting', customer_name: @invoice.customer.name)
 
 .main-message
-  We've attached your invoice for the services provided. Please review the details and let us know if you have any questions.
+  = t('mailers.invoice.main_message')
 
 .document-highlight
   .document-number
-    Invoice #{@invoice.document_number}
+    = t('mailers.invoice.document_number', document_number: @invoice.document_number)
   - if @invoice.cust_order.present?
     .document-detail
-      Order: #{@invoice.cust_order}
+      #{t('mailers.invoice.order_label')} #{@invoice.cust_order}
   - if @invoice.cust_reference.present?
     .document-detail
-      Reference: #{@invoice.cust_reference}
+      #{t('mailers.invoice.reference_label')} #{@invoice.cust_reference}
   .due-date
-    Due date: #{@invoice.due_date}
+    #{t('mailers.invoice.due_date_label')} #{@invoice.due_date}
 
 .closing
-  Thank you for your business. We appreciate your continued partnership.
+  = t('mailers.invoice.closing')

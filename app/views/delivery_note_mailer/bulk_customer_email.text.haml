@@ -1,21 +1,20 @@
-Dear #{@customer.name},
+#{t('mailers.delivery_note.greeting', customer_name: @customer.name)}
 \
-We've attached #{@delivery_notes.count} delivery notes for the services provided. Please review the details and confirm receipt by signing and returning each delivery note.
+#{t('mailers.delivery_note.bulk_main_message', count: @delivery_notes.count)}
 \
-Delivery Notes:
+#{t('mailers.delivery_note.bulk_document_list_title')}
 - @delivery_notes.each do |delivery_note|
   \
-  Delivery Note #{delivery_note.document_number}
+  #{t('mailers.delivery_note.document_number', document_number: delivery_note.document_number)}
   - if delivery_note.cust_order.present?
-    Order: #{delivery_note.cust_order}
+    #{t('mailers.delivery_note.order_label')} #{delivery_note.cust_order}
   - if delivery_note.cust_reference.present?
-    Reference: #{delivery_note.cust_reference}
+    #{t('mailers.delivery_note.reference_label')} #{delivery_note.cust_reference}
   - if delivery_note.delivery_timeframe.present?
-    Delivery Period: #{delivery_note.delivery_timeframe}
+    #{t('mailers.delivery_note.delivery_period_label')} #{delivery_note.delivery_timeframe}
 \
-Next Steps:
-1. Please review each delivery note and verify all details are correct
-2. Sign each delivery note to confirm acceptance of the delivered services
-3. Return the signed delivery notes to us via email
+#{t('mailers.delivery_note.next_steps_title')}
+- t('mailers.delivery_note.bulk_next_steps').each_with_index do |step, index|
+  #{index + 1}. #{step}
 \
-Thank you for your business. We appreciate your continued partnership.
+#{t('mailers.delivery_note.closing')}

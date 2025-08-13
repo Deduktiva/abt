@@ -178,4 +178,9 @@ For testing against PostgreSQL (matches production environment):
 - **NEVER run `sudo` commands**
 - If system packages need to be installed, explain what is needed and ask the user to install them
 
+### Git and Version Control
+- **NEVER check in screenshots or temporary image files**
+- Screenshots are typically for debugging or demonstration purposes only
+- Use `.gitignore` to exclude temporary files and screenshots from commits
+
 - when refactoring or fixing bugs try to follow DRY principles, but dont overdo it

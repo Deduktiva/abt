@@ -41,6 +41,44 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_10_173512) do
     t.index ["name"], name: "index_customers_on_name"
   end
 
+  create_table "delivery_note_lines", force: :cascade do |t|
+    t.integer "delivery_note_id", null: false
+    t.integer "position"
+    t.text "type"
+    t.text "title"
+    t.text "description"
+    t.float "quantity"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["delivery_note_id"], name: "index_delivery_note_lines_on_delivery_note_id"
+    t.index ["position"], name: "index_delivery_note_lines_on_position"
+  end
+
+  create_table "delivery_notes", force: :cascade do |t|
+    t.string "document_number"
+    t.boolean "published"
+    t.integer "customer_id", null: false
+    t.integer "project_id", null: false
+    t.integer "acceptance_attachment_id"
+    t.date "date"
+    t.string "cust_reference"
+    t.string "cust_order"
+    t.text "prelude"
+    t.datetime "email_sent_at"
+    t.integer "invoice_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.date "delivery_start_date"
+    t.date "delivery_end_date"
+    t.index ["acceptance_attachment_id"], name: "index_delivery_notes_on_acceptance_attachment_id"
+    t.index ["customer_id"], name: "index_delivery_notes_on_customer_id"
+    t.index ["date"], name: "index_delivery_notes_on_date"
+    t.index ["document_number"], name: "index_delivery_notes_on_document_number", unique: true
+    t.index ["invoice_id"], name: "index_delivery_notes_on_invoice_id"
+    t.index ["project_id"], name: "index_delivery_notes_on_project_id"
+    t.index ["published"], name: "index_delivery_notes_on_published"
+  end
+
   create_table "document_numbers", force: :cascade do |t|
     t.string "code"
     t.string "format"
@@ -186,4 +224,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_10_173512) do
   end
 
   add_foreign_key "customers", "languages"
+  add_foreign_key "delivery_note_lines", "delivery_notes"
+  add_foreign_key "delivery_notes", "attachments", column: "acceptance_attachment_id"
+  add_foreign_key "delivery_notes", "customers"
+  add_foreign_key "delivery_notes", "invoices"
+  add_foreign_key "delivery_notes", "projects"
 end

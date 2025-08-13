@@ -16,6 +16,8 @@ class Invoice < ApplicationRecord
   belongs_to :project
   belongs_to :attachment, :optional => true
 
+  has_one :delivery_note
+
   has_many :invoice_lines, -> { order(:position, :id) }, :after_add => :line_addedremoved, :after_remove => :line_addedremoved
   accepts_nested_attributes_for :invoice_lines, allow_destroy: true, reject_if: :all_blank
 

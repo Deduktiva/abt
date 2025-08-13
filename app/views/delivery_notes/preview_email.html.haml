@@ -1,0 +1,63 @@
+.row
+  .col-md-12
+    .card
+      .card-header.d-flex.justify-content-between.align-items-center
+        %h6.mb-0 Email Details
+        .btn-group{"role" => "group", "aria-label" => "Email format"}
+          %button.btn.btn-sm.btn-outline-primary.active{"data-format" => "html"}
+            HTML
+          - if @email_body_text
+            %button.btn.btn-sm.btn-outline-primary{"data-format" => "text"}
+              Text
+      .card-body
+        .row.mb-2
+          .col-sm-2
+            %strong To:
+          .col-sm-10
+            = @email_to || %i{No recipient configured}
+
+        .row.mb-2
+          .col-sm-2
+            %strong From:
+          .col-sm-10
+            = @email_from || %i{No sender configured}
+
+        - if @email_bcc.present?
+          .row.mb-2
+            .col-sm-2
+              %strong BCC:
+            .col-sm-10
+              = @email_bcc
+
+        .row.mb-2
+          .col-sm-2
+            %strong Subject:
+          .col-sm-10
+            = @email_subject || %i{No subject}
+
+        - if @attachments&.any?
+          .row.mb-2
+            .col-sm-2
+              %strong Files:
+            .col-sm-10
+              - @attachments.each do |attachment|
+                .d-flex.align-items-center.mb-1
+                  %span.me-1 📎
+                  %span= attachment[:filename]
+                  %small.text-muted.ms-2
+                    (#{number_to_human_size(attachment[:size])})
+
+    .card.mt-4
+      .card-header
+        Email Content
+      .card-body.email-preview-content{"data-format-content" => "html"}
+        - if @email_body_html.present?
+          %iframe{"src" => preview_email_raw_delivery_note_path(@delivery_note), "style" => "width: 100%; height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"}
+        - else
+          %p.text-muted
+            %i No HTML content available
+
+      - if @email_body_text
+        .card-body.email-preview-content.d-none{"data-format-content" => "text"}
+          %pre.mb-0{style: "white-space: pre-wrap; font-family: monospace;"}
+            = @email_body_text

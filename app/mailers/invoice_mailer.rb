@@ -1,6 +1,7 @@
 class InvoiceMailer < ApplicationMailer
   def customer_email
     @invoice = params[:invoice]
+    @issuer = IssuerCompany.get_the_issuer!
     attachments[@invoice.attachment.filename] = {
       mime_type: @invoice.attachment.content_type,
       content: @invoice.attachment.data

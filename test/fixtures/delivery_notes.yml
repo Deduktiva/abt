@@ -1,0 +1,23 @@
+published_delivery_note:
+  customer: good_eu
+  project: one
+  document_number: "DN-2025-001"
+  published: true
+  date: <%= Date.current %>
+  cust_reference: "REF-12345"
+  cust_order: "ORDER-67890"
+  prelude: "Delivery note for your order."
+  delivery_start_date: <%= Date.new(2025, 4, 1) %>
+  delivery_end_date: <%= Date.new(2025, 8, 31) %>
+
+draft_delivery_note:
+  customer: good_national
+  project: two
+  document_number: null
+  published: false
+  date: <%= Date.current %>
+  cust_reference: "DRAFT-REF"
+  cust_order: "DRAFT-ORDER"
+  prelude: "Draft delivery note."
+  delivery_start_date: <%= Date.current %>
+  delivery_end_date: <%= Date.current %>

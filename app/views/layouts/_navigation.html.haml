@@ -8,6 +8,8 @@
     %li.nav-item
       = link_to('Projects', projects_path, :class => 'nav-link')
     %li.nav-item
+      = link_to('Deliveries', delivery_notes_path, :class => 'nav-link')
+    %li.nav-item
       = link_to('Invoices', invoices_path, :class => 'nav-link')
   %ul.navbar-nav
     %li.nav-item.dropdown{"data-controller" => "error-notification", "data-error-notification-max-errors-value" => "5", :style => "display: none;", "data-error-notification-target" => "icon"}

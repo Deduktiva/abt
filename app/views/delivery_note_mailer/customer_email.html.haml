@@ -1,0 +1,30 @@
+- content_for :title, "Delivery Note #{@delivery_note.document_number}"
+
+.greeting
+  Dear #{@delivery_note.customer.name},
+
+.main-message
+  We've attached your delivery note for the services provided. Please review the details and confirm receipt by signing and returning the delivery note.
+
+.document-highlight
+  .document-number
+    Delivery Note #{@delivery_note.document_number}
+  - if @delivery_note.cust_order.present?
+    .document-detail
+      Order: #{@delivery_note.cust_order}
+  - if @delivery_note.cust_reference.present?
+    .document-detail
+      Reference: #{@delivery_note.cust_reference}
+  - if @delivery_note.delivery_timeframe.present?
+    .document-detail
+      Delivery Period: #{@delivery_note.delivery_timeframe}
+
+.instructions
+  %strong Next Steps:
+  %ol
+    %li Please review the delivery note and verify all details are correct
+    %li Sign the delivery note to confirm acceptance of the delivered services
+    %li Return the signed delivery note to us via email
+
+.closing
+  Thank you for your business. We appreciate your continued partnership.

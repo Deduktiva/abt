@@ -30,4 +30,35 @@
 # available at https://guides.rubyonrails.org/i18n.html.
 
 en:
-  hello: "Hello world"
+  mailers:
+    invoice:
+      subject: "%{issuer_name} Invoice %{document_number}"
+      greeting: "Dear %{customer_name},"
+      main_message: "We've attached your invoice for the services provided. Please review the details and let us know if you have any questions."
+      document_number: "Invoice %{document_number}"
+      order_label: "Order:"
+      reference_label: "Reference:"
+      due_date_label: "Due date:"
+      closing: "Thank you for your business. We appreciate your continued partnership."
+
+    delivery_note:
+      subject: "%{issuer_name} Delivery Note %{document_number}"
+      bulk_subject: "%{issuer_name} Delivery Notes %{document_numbers}"
+      greeting: "Dear %{customer_name},"
+      main_message: "We've attached your delivery note for the services provided. Please review the details and confirm receipt by signing and returning the delivery note."
+      bulk_main_message: "We've attached %{count} delivery notes for the services provided. Please review the details and confirm receipt by signing and returning each delivery note."
+      bulk_document_list_title: "Delivery Notes:"
+      bulk_next_steps:
+        - "Please review each delivery note and verify all details are correct"
+        - "Sign each delivery note to confirm acceptance of the delivered services"
+        - "Return the signed delivery notes to us via email"
+      document_number: "Delivery Note %{document_number}"
+      order_label: "Order:"
+      reference_label: "Reference:"
+      delivery_period_label: "Delivery Period:"
+      next_steps_title: "Next Steps:"
+      next_steps:
+        - "Please review the delivery note and verify all details are correct"
+        - "Sign the delivery note to confirm acceptance of the delivered services"
+        - "Return the signed delivery note to us via email"
+      closing: "Thank you for your business. We appreciate your continued partnership."

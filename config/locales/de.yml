@@ -1,0 +1,33 @@
+de:
+  mailers:
+    invoice:
+      subject: "%{issuer_name} Rechnung %{document_number}"
+      greeting: "Sehr geehrte Damen und Herren,"
+      main_message: "Anbei finden Sie die Rechnung für unsere erbrachten Leistungen. Bei Fragen dazu wenden Sie sich gerne an uns."
+      document_number: "Rechnung %{document_number}"
+      order_label: "Bestellung:"
+      reference_label: "Referenz:"
+      due_date_label: "Fälligkeitsdatum:"
+      closing: "Vielen Dank für Ihr Vertrauen. Wir freuen uns auf die weitere Zusammenarbeit."
+
+    delivery_note:
+      subject: "%{issuer_name} Lieferschein %{document_number}"
+      bulk_subject: "%{issuer_name} Lieferscheine %{document_numbers}"
+      greeting: "Sehr geehrte Damen und Herren,"
+      main_message: "Anbei finden Sie den Lieferschein für unsere erbrachten Leistungen. Bitte prüfen Sie die Lieferung und bestätigen Sie den Erhalt durch Unterzeichnung und Rücksendung des Lieferscheins."
+      bulk_main_message: "Wir haben %{count} Lieferscheine für unsere erbrachten Leistungen beigefügt. Bitte prüfen Sie die Lieferung und bestätigen Sie den Erhalt durch Unterzeichnung und Rücksendung jedes Lieferscheins."
+      bulk_document_list_title: "Lieferscheine:"
+      bulk_next_steps:
+        - "Abnahme der gelieferten Leistungen"
+        - "Bestätitung der Leistungserbringung"
+        - "Rücksendung der unterfertigten Lieferscheine per E-Mail"
+      document_number: "Lieferschein %{document_number}"
+      order_label: "Bestellung:"
+      reference_label: "Referenz:"
+      delivery_period_label: "Lieferzeitraum:"
+      next_steps_title: "Nächste Schritte:"
+      next_steps:
+        - "Abnahme der gelieferten Leistungen"
+        - "Bestätitung der Leistungserbringung"
+        - "Rücksendung des unterfertigten Lieferscheins per E-Mail"
+      closing: "Vielen Dank für Ihr Vertrauen. Wir freuen uns auf die weitere Zusammenarbeit."

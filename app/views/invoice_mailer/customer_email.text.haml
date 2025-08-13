@@ -1,12 +1,12 @@
-Dear #{@invoice.customer.name},
+#{t('mailers.invoice.greeting', customer_name: @invoice.customer.name)}
 \
-We've attached your invoice for the services provided. Please review the details and let us know if you have any questions.
+#{t('mailers.invoice.main_message')}
 \
-Invoice #{@invoice.document_number}
+#{t('mailers.invoice.document_number', document_number: @invoice.document_number)}
 - if @invoice.cust_order.present?
-  Order: #{@invoice.cust_order}
+  #{t('mailers.invoice.order_label')} #{@invoice.cust_order}
 - if @invoice.cust_reference.present?
-  Reference: #{@invoice.cust_reference}
-Due date: #{@invoice.due_date}
+  #{t('mailers.invoice.reference_label')} #{@invoice.cust_reference}
+#{t('mailers.invoice.due_date_label')} #{@invoice.due_date}
 \
-Thank you for your business. We appreciate your continued partnership.
+#{t('mailers.invoice.closing')}

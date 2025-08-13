@@ -142,7 +142,7 @@
                     - else
                       = simple_format(line.description)
 
-.email-delivery_note-preview-wrapper{"data-controller" => "delivery-note-email-preview", "data-delivery-note-email-preview-delivery-note-id-value" => @delivery_note.id}
+.email-delivery_note-preview-wrapper{"data-controller" => "delivery-note-email-preview", "data-delivery-note-email-preview-delivery-note-id-value" => @delivery_note.id, "data-delivery-note-email-preview-preview-url-value" => preview_email_delivery_note_path(@delivery_note), "data-delivery-note-email-preview-send-url-value" => send_email_delivery_note_path(@delivery_note)}
   = action_buttons_wrapper do
     = action_button 'Back', delivery_notes_path, :secondary
     - unless @delivery_note.published

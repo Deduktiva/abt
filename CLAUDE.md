@@ -152,6 +152,7 @@ For testing against PostgreSQL (matches production environment):
 - Document event listeners are particularly important to clean up to prevent memory leaks
 - **Run `npm run lint` after writing Stimulus controllers** to check for event listener memory leaks
 - **NEVER use relative imports** like `import Controller from "./other_controller"` - use importmap paths like `import Controller from "controllers/other_controller"` to ensure proper resolution in production
+- **NEVER hardcode absolute URL paths** in JavaScript - use Rails URL helpers passed via data attributes to ensure proper subdirectory deployment compatibility
 
 ### Communication Style
 - Use direct, technical language in all communications

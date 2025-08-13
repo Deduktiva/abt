@@ -1,4 +1,5 @@
 - flash.each do |name, msg|
+  - next if name.to_s.start_with?('booking_')  # Skip booking-specific flash messages
   - if msg.is_a?(String)
     %div{:class => "alert alert-#{name == 'notice' ? "success" : "danger"} alert-dismissible fade show"}
       %button.btn-close{"data-bs-dismiss" => "alert", :type => "button", "aria-label" => "Close"}

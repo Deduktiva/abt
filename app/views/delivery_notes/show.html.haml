@@ -88,16 +88,16 @@
                 %small.text-muted.ms-2
                   = "Uploaded #{format_datetime(@delivery_note.acceptance_attachment.created_at)}"
             .d-flex.gap-2
-              = form_with url: upload_acceptance_delivery_note_path(@delivery_note), method: :post, multipart: true, local: true, class: 'd-flex align-items-center' do |form|
+              = form_with url: upload_acceptance_delivery_note_path(@delivery_note), method: :post, multipart: true, local: true, class: 'd-flex align-items-center', data: { controller: 'file-upload-validation' } do |form|
                 .me-2
-                  = form.file_field :acceptance_pdf, accept: 'application/pdf', class: 'form-control form-control-sm', style: 'width: 250px;'
-                = form.submit 'Replace', class: 'btn btn-warning btn-sm'
+                  = form.file_field :acceptance_pdf, accept: 'application/pdf', class: 'form-control form-control-sm', style: 'width: 250px;', data: { file_upload_validation_target: 'fileInput' }
+                = form.submit 'Replace', class: 'btn btn-warning btn-sm', data: { file_upload_validation_target: 'submitButton' }
               = button_to 'Delete', delete_acceptance_delivery_note_path(@delivery_note), method: :post, class: 'btn btn-outline-danger btn-sm', confirm: 'Are you sure you want to delete the acceptance document?'
           - else
-            = form_with url: upload_acceptance_delivery_note_path(@delivery_note), method: :post, multipart: true, local: true, class: 'd-flex align-items-center' do |form|
+            = form_with url: upload_acceptance_delivery_note_path(@delivery_note), method: :post, multipart: true, local: true, class: 'd-flex align-items-center', data: { controller: 'file-upload-validation' } do |form|
               .me-3
-                = form.file_field :acceptance_pdf, accept: 'application/pdf', class: 'form-control', style: 'width: auto;'
-              = form.submit 'Upload PDF', class: 'btn btn-primary btn-sm'
+                = form.file_field :acceptance_pdf, accept: 'application/pdf', class: 'form-control', style: 'width: auto;', data: { file_upload_validation_target: 'fileInput' }
+              = form.submit 'Upload PDF', class: 'btn btn-primary btn-sm', data: { file_upload_validation_target: 'submitButton' }
             %small.text-muted.d-block.mt-2
               Upload the signed acceptance document (PDF only)
 

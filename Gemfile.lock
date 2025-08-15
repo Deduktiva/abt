@@ -98,6 +98,9 @@ GEM
       ostruct
     connection_pool (2.5.3)
     crass (1.0.6)
+    cuprite (0.17)
+      capybara (~> 3.0)
+      ferrum (~> 0.17.0)
     date (3.4.1)
     debug (1.11.0)
       irb (~> 1.10)
@@ -115,6 +118,12 @@ GEM
       multipart-post (~> 2.0)
     faraday-net_http (3.4.1)
       net-http (>= 0.5.0)
+    ferrum (0.17.1)
+      addressable (~> 2.5)
+      base64 (~> 0.2)
+      concurrent-ruby (~> 1.1)
+      webrick (~> 1.7)
+      websocket-driver (~> 0.7)
     ffi (1.17.2-aarch64-linux-gnu)
     ffi (1.17.2-aarch64-linux-musl)
     ffi (1.17.2-arm-linux-gnu)
@@ -269,8 +278,6 @@ GEM
     regexp_parser (2.11.0)
     reline (0.6.2)
       io-console (~> 0.5)
-    rexml (3.4.1)
-    rubyzip (2.4.1)
     sass-rails (6.0.0)
       sassc-rails (~> 2.1, >= 2.1.1)
     sassc (2.4.0)
@@ -282,12 +289,6 @@ GEM
       sprockets-rails
       tilt
     securerandom (0.4.1)
-    selenium-webdriver (4.34.0)
-      base64 (~> 0.2)
-      logger (~> 1.4)
-      rexml (~> 3.2, >= 3.2.5)
-      rubyzip (>= 1.2.2, < 3.0)
-      websocket (~> 1.0)
     simple_form (5.3.1)
       actionpack (>= 5.2)
       activemodel (>= 5.2)
@@ -336,7 +337,7 @@ GEM
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
-    websocket (1.2.11)
+    webrick (1.9.1)
     websocket-driver (0.8.0)
       base64
       websocket-extensions (>= 0.1.0)
@@ -363,6 +364,7 @@ DEPENDENCIES
   bootstrap (~> 5.3)
   capybara (~> 3.40)
   config
+  cuprite
   debug (>= 1.0.0)
   haml-rails
   importmap-rails
@@ -373,7 +375,6 @@ DEPENDENCIES
   puma (~> 6.0)
   rails (~> 8.0.2)
   sass-rails (>= 6)
-  selenium-webdriver
   simple_form
   solid_cache
   spring

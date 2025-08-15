@@ -5,9 +5,7 @@ require 'rails/test_help'
 # System testing with Capybara
 require 'capybara/rails'
 require 'capybara/minitest'
-
-Capybara.default_driver = :selenium_chrome_headless
-Capybara.javascript_driver = :selenium_chrome_headless
+require 'capybara/cuprite'
 
 # Configure better waiting behavior
 Capybara.default_max_wait_time = 10

@@ -1,6 +1,6 @@
-require "test_helper"
+require "application_system_test_case"
 
-class DeliveryNoteLinesTest < ActionDispatch::SystemTestCase
+class DeliveryNoteLinesTest < ApplicationSystemTestCase
   setup do
     @delivery_note = delivery_notes(:draft_delivery_note)
   end

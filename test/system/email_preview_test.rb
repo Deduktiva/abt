@@ -1,6 +1,6 @@
-require "test_helper"
+require "application_system_test_case"
 
-class EmailPreviewTest < ActionDispatch::SystemTestCase
+class EmailPreviewTest < ApplicationSystemTestCase
   setup do
     @invoice = invoices(:published_invoice)
     @delivery_note = delivery_notes(:published_delivery_note)

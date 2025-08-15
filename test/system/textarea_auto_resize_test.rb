@@ -1,6 +1,6 @@
-require "test_helper"
+require "application_system_test_case"
 
-class TextareaAutoResizeTest < ActionDispatch::SystemTestCase
+class TextareaAutoResizeTest < ApplicationSystemTestCase
   test "plaintext invoice line textarea auto-resizes on page load" do
     # Use the fixture invoice with license keys
     license_invoice = invoices(:license_invoice)

@@ -185,3 +185,7 @@ For testing against PostgreSQL (matches production environment):
 - Use `.gitignore` to exclude temporary files and screenshots from commits
 
 - when refactoring or fixing bugs try to follow DRY principles, but dont overdo it
+
+### Development Commands
+- **ALWAYS run `pre-commit run --all-files` before committing** to ensure code formatting and linting
+- **Use `pkill -f puma` to kill running `rails server`** when needed to stop development server

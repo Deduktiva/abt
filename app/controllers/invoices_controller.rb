@@ -133,33 +133,25 @@ class InvoicesController < ApplicationController
 
   def book
     @invoice = Invoice.find(params[:id])
+    cache_key = "booking_log_#{@invoice.id}"
 
     if request.post?
       return unless check_unpublished
-      # Process the booking
+
       want_save = (params[:save] == 'true')
       action = want_save ? 'Booking' : 'TEST-Booking'
 
       issuer = IssuerCompany.get_the_issuer!
-      @booker = InvoiceBooker.new @invoice, issuer
+      booker = InvoiceBooker.new @invoice, issuer
 
-      @booked = @booker.book want_save
-      @booking_log = @booker.log
+      @booked = booker.book want_save
+      Rails.cache.write(cache_key, booker.log, expires_in: 1.hour)
 
-      # Store booking result in flash (no redundant notice/error flash)
+      flash[:booking_success] = @booked
       if @booked
-        flash[:booking_success] = true
-        flash[:booking_summary] = "#{action} succeeded. #{@booking_log.length} log entries."
-        # Store full log in session (more space than flash cookies)
-        session["booking_log_#{@invoice.id}"] = @booking_log
+        flash[:notice] = "#{action} succeeded."
       else
-        flash[:booking_success] = false
-        flash[:booking_summary] = "#{action} failed. Errors: #{@booking_log.select { |line| line.start_with?('E:') }.length}"
-        # Store only error messages in flash for debugging
-        errors = @booking_log.select { |line| line.start_with?('E:') }
-        flash[:booking_errors] = errors.join('; ') if errors.any?
-        # Store full log in session for failed bookings too
-        session["booking_log_#{@invoice.id}"] = @booking_log
+        flash[:error] = "#{action} failed. Errors: #{booker.log.select { |line| line.start_with?('E:') }.length}"
       end
 
       respond_to do |format|
@@ -168,13 +160,13 @@ class InvoicesController < ApplicationController
     else
       # Show the booking results from flash data
       @booked = flash[:booking_success]
-      @booking_summary = flash[:booking_summary]
-      @booking_errors = flash[:booking_errors]
 
       # If no flash data (e.g., direct access), redirect to invoice
       if @booked.nil?
         redirect_to @invoice and return
       end
+
+      @booking_log = Rails.cache.read(cache_key)
 
       respond_to do |format|
         format.html

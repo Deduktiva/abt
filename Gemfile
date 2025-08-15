@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rails', '~> 8.0.2'
 gem 'puma', '~> 6.0'
+gem 'solid_cache'
 
 group :dev do
   gem 'sqlite3', '~> 2.7'

@@ -406,12 +406,91 @@ class InvoicesControllerTest < ActionController::TestCase
 
     # Verify flash data was set instead of session data to avoid cookie overflow
     assert flash[:booking_success].present?, "Flash should contain booking success status"
-    assert flash[:booking_summary].present?, "Flash should contain booking summary"
-    assert flash[:booking_summary].include?('succeeded'), "Flash summary should indicate success"
+    assert flash[:notice].present?, "Flash should contain booking notice"
+    assert flash[:notice].include?('succeeded'), "Flash notice should indicate success"
 
     # Test the GET request to the booking results page
     get :book, params: { id: invoice.id }
     assert_response :success
+
+    # Verify booking log is accessible and contains expected information
+    cache_key = "booking_log_#{invoice.id}"
+    booking_log = Rails.cache.read(cache_key)
+    assert booking_log.present?, "Should have booking log from cache"
+    assert booking_log.is_a?(Array), "Booking log should be an array"
+    assert booking_log.length > 0, "Booking log should contain entries"
+  end
+
+  test "should handle booking multiple invoices without cookie overflow" do
+    invoices = []
+
+    # Create 3 invoices with substantial invoice lines each
+    3.times do |invoice_num|
+      invoice = Invoice.create!(
+        customer: customers(:good_eu),
+        project: projects(:test_project),
+        cust_reference: "MULTI_INVOICE_#{invoice_num + 1}"
+      )
+
+      # Add multiple lines to each invoice to create substantial booking logs
+      10.times do |line_num|
+        invoice.invoice_lines.create!(
+          type: 'item',
+          title: "Invoice #{invoice_num + 1} Item #{line_num + 1}",
+          description: "Detailed description for invoice #{invoice_num + 1}, item #{line_num + 1} with enough text to make the booking log substantial",
+          rate: 100.0 + line_num,
+          quantity: 5.0,
+          sales_tax_product_class: sales_tax_product_classes(:standard),
+          position: line_num + 1
+        )
+      end
+
+      invoices << invoice
+    end
+
+    # Book each invoice in sequence, simulating rapid successive bookings
+    invoices.each_with_index do |invoice, index|
+      post :book, params: { id: invoice.id, save: false }
+
+      assert_redirected_to book_invoice_path(invoice), "Invoice #{index + 1} booking should redirect"
+
+      # Verify booking succeeded
+      assert flash[:booking_success].present?, "Invoice #{index + 1} booking should succeed"
+      assert flash[:notice].present?, "Invoice #{index + 1} should have booking notice"
+
+      # Make a GET request to the booking result page
+      get :book, params: { id: invoice.id }
+      assert_response :success, "Should be able to view booking results for invoice #{index + 1}"
+
+      # Check that booking log is available in cache storage
+      cache_key = "booking_log_#{invoice.id}"
+      booking_log = Rails.cache.read(cache_key)
+
+      assert booking_log.present?, "Booking log should be available in cache for invoice #{index + 1}"
+      assert booking_log.is_a?(Array), "Booking log should be an array"
+      assert booking_log.length > 0, "Booking log should contain entries"
+    end
+
+    # Verify all booking logs are still accessible after multiple bookings
+    invoices.each_with_index do |invoice, index|
+      cache_key = "booking_log_#{invoice.id}"
+      booking_log = Rails.cache.read(cache_key)
+      assert booking_log.present?, "Booking log should still be available in cache for invoice #{index + 1} after all bookings"
+    end
+  end
+
+  test "should redirect to invoice page when accessing GET book page without flash data" do
+    invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "NO_FLASH_TEST"
+    )
+
+    # Direct GET request without prior POST booking
+    get :book, params: { id: invoice.id }
+
+    # Should redirect to the invoice show page since there's no flash data
+    assert_redirected_to invoice_path(invoice)
   end
 
 end

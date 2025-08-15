@@ -73,6 +73,7 @@ jobs:
 
     - name: Create test configuration
       run: |
+        ./bin/setup
         mkdir -p config/settings
         cat > config/settings/test.yml << 'EOF'
         fop:

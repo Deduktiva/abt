@@ -21,10 +21,12 @@ Rails.application.configure do
     'Cache-Control' => "public, max-age=#{1.hour.to_i}"
   }
 
-  # Show full error reports and disable caching.
+  # Show full error reports and disable ActionController caching.
   config.consider_all_requests_local       = true
   config.action_controller.perform_caching = false
-  config.cache_store = :null_store
+
+  # Enable Solid Cache unconditionally so Rails.cache can be used by our own code.
+  config.cache_store = :solid_cache_store
 
   # Raise exceptions instead of rendering exception templates.
   config.action_dispatch.show_exceptions = false

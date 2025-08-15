@@ -99,6 +99,9 @@ GEM
     connection_pool (2.5.3)
     crass (1.0.6)
     date (3.4.1)
+    debug (1.11.0)
+      irb (~> 1.10)
+      reline (>= 0.3.8)
     deep_merge (1.2.2)
     drb (2.2.3)
     erb (5.0.2)
@@ -356,10 +359,11 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
-  bootsnap (>= 1.4.2)
+  bootsnap (>= 1.18.0)
   bootstrap (~> 5.3)
   capybara (~> 3.40)
   config
+  debug (>= 1.0.0)
   haml-rails
   importmap-rails
   jbuilder (~> 2.14)

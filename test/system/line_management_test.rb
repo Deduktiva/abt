@@ -1,6 +1,6 @@
-require "test_helper"
+require "application_system_test_case"
 
-class LineManagementTest < ActionDispatch::SystemTestCase
+class LineManagementTest < ApplicationSystemTestCase
   setup do
     @invoice = invoices(:draft_invoice)
     @delivery_note = delivery_notes(:draft_delivery_note)

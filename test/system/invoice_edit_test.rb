@@ -1,6 +1,6 @@
-require "test_helper"
+require "application_system_test_case"
 
-class InvoiceEditTest < ActionDispatch::SystemTestCase
+class InvoiceEditTest < ApplicationSystemTestCase
   test "can access invoice edit page from index" do
     visit "/invoices"
 

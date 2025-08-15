@@ -1,6 +1,6 @@
-require "test_helper"
+require "application_system_test_case"
 
-class DeliveryNoteAcceptanceUploadTest < ActionDispatch::SystemTestCase
+class DeliveryNoteAcceptanceUploadTest < ApplicationSystemTestCase
   setup do
     @published_delivery_note = delivery_notes(:published_delivery_note)
   end

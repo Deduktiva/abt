@@ -1,6 +1,6 @@
-require "test_helper"
+require "application_system_test_case"
 
-class InvoiceLinesTest < ActionDispatch::SystemTestCase
+class InvoiceLinesTest < ApplicationSystemTestCase
   setup do
     @invoice = invoices(:draft_invoice)
   end

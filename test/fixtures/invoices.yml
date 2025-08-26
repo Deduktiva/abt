@@ -41,7 +41,7 @@ no_email_invoice:
 
 draft_invoice:
   customer: good_national
-  project: one
+  project: two
   document_number: null
   published: false
   date: <%= Date.current %>

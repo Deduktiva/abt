@@ -149,9 +149,9 @@ class InvoiceEditTest < ApplicationSystemTestCase
   end
 
   test "customer dropdown search functionality works" do
-    skip "Search functionality clearing works differently in Cuprite vs Selenium"
     invoice = invoices(:draft_invoice)
     visit "/invoices/#{invoice.id}/edit"
+    assert_no_text "Loading...", wait: 10
 
     within('.customer-dropdown') do
       find('[data-searchable-dropdown-target="select"]').click
@@ -165,8 +165,15 @@ class InvoiceEditTest < ApplicationSystemTestCase
       assert_selector '.searchable-option', text: 'A Good Company B.V.'
       assert_no_selector '.searchable-option', text: 'A Local Company, Inc.'
 
-      # Clear search and verify all options return
-      search_input.fill_in(with: '')
+      # Clear search using multiple methods for headless compatibility
+      # Method 1: Select all and delete
+      search_input.send_keys([:control, 'a'])
+      search_input.send_keys(:backspace)
+
+      # Method 2: Clear via JavaScript if above doesn't work
+      page.execute_script("arguments[0].value = ''; arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", search_input.native)
+
+      # Verify all options return after clearing
       assert_selector '.searchable-option', text: 'A Good Company B.V.', wait: 5
       assert_selector '.searchable-option', text: 'A Local Company, Inc.', wait: 5
     end

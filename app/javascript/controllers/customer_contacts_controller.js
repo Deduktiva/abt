@@ -30,7 +30,6 @@ export default class extends Controller {
   }
 
   saveContact(event) {
-    event.preventDefault()
     const contactRow = event.target.closest('[data-contact-id]')
     if (!contactRow) {
       console.error('No contact row found for saveContact')
@@ -38,6 +37,15 @@ export default class extends Controller {
     }
 
     const contactId = contactRow.dataset.contactId
+
+    // For new contacts, let Rails handle the form submission normally
+    if (contactId === 'new') {
+      console.log('New contact - letting Rails handle form submission')
+      return // Don't prevent default, let form submit naturally
+    }
+
+    // Only prevent default for existing contacts (AJAX updates)
+    event.preventDefault()
 
     // Collect all field values
     const nameField = contactRow.querySelector('[data-field="name"]')
@@ -48,60 +56,100 @@ export default class extends Controller {
       return
     }
 
-    const data = {
-      name: nameField.value,
-      email: emailField.value
+    console.log('Saving contact with values:', nameField.value, emailField.value)
+
+    // Validate field values before sending
+    const nameValue = nameField.value.trim()
+    const emailValue = emailField.value.trim()
+
+    if (!nameValue) {
+      alert('Name cannot be empty')
+      return
     }
 
-    console.log('Saving contact:', contactId, 'with data:', data)
+    if (!emailValue) {
+      alert('Email cannot be empty')
+      return
+    }
+
+    // Basic email validation on client side
+    if (!emailValue.includes('@') || !emailValue.includes('.')) {
+      alert('Please enter a valid email address')
+      return
+    }
+
+    // Create data object with the field values
+    const data = {
+      name: nameValue,
+      email: emailValue
+    }
+
+    // Try sending as form data instead of JSON to avoid potential parsing issues
+    const formData = new FormData()
+    formData.append('customer_contact[name]', data.name)
+    formData.append('customer_contact[email]', data.email)
+
+    console.log('Making direct PATCH request to save contact:', contactId)
+    console.log('Request data:', data)
+    console.log('CSRF token:', document.querySelector('[name="csrf-token"]').content)
 
     fetch(`/customer_contacts/${contactId}`, {
       method: 'PATCH',
       headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        'X-Requested-With': 'XMLHttpRequest'
       },
-      body: JSON.stringify({
-        customer_contact: data
-      })
+      body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-      console.log('Save response:', data)
-      if (data.success) {
-        // Success - make a turbo_stream request to cancel and return to read mode
-        const cancelUrl = `/customer_contacts/${contactId}/cancel_edit`
+    .then(response => {
+      console.log('Save response status:', response.status)
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
 
-        fetch(cancelUrl, {
-          method: 'GET',
-          headers: {
-            'Accept': 'text/vnd.turbo-stream.html',
-            'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
-          }
-        })
-        .then(response => response.text())
-        .then(html => {
-          // Apply the turbo stream response
-          const tempDiv = document.createElement('div')
-          tempDiv.innerHTML = html
-          const turboStreamElements = tempDiv.querySelectorAll('turbo-stream')
-
-          turboStreamElements.forEach(element => {
-            Turbo.renderStreamMessage(element.outerHTML)
-          })
-        })
-        .catch(error => {
-          console.error('Error applying cancel turbo stream:', error)
-          // Fallback to page reload
-          window.location.reload()
-        })
+      // Try to parse as JSON, but handle non-JSON responses
+      const contentType = response.headers.get('content-type')
+      if (contentType && contentType.includes('application/json')) {
+        return response.json()
       } else {
-        alert('Error saving contact: ' + data.errors.join(', '))
+        return response.text().then(text => ({ success: true, message: text }))
+      }
+    })
+    .then(responseData => {
+      console.log('Save response data:', responseData)
+      if (responseData.success) {
+        console.log('✅ Contact saved successfully')
+        // Show success in the UI by briefly highlighting the save button
+        event.target.style.backgroundColor = '#28a745'
+        setTimeout(() => {
+          event.target.style.backgroundColor = ''
+        }, 500)
+
+        // After successful save, automatically return to read-only mode
+        setTimeout(() => {
+          const cancelLink = contactRow.querySelector('a[href*="cancel_edit"]')
+          if (cancelLink) {
+            console.log('Triggering cancel to return to read-only mode')
+            cancelLink.click()
+          } else {
+            console.error('Cancel link not found, staying in edit mode')
+          }
+        }, 600)
+      } else {
+        console.error('❌ Save failed:', responseData.errors)
+        const errorMessages = responseData.errors || ['Unknown error']
+        console.error('Detailed errors:', errorMessages)
+        alert('Error saving contact:\n' + errorMessages.join('\n'))
       }
     })
     .catch(error => {
-      console.error('Error:', error)
-      alert('Error saving contact')
+      console.error('❌ Save request failed:', error)
+      // Show error in the UI by briefly highlighting the save button red
+      event.target.style.backgroundColor = '#dc3545'
+      setTimeout(() => {
+        event.target.style.backgroundColor = ''
+      }, 1000)
+      alert('Error saving contact: ' + error.message)
     })
   }
 
@@ -167,6 +215,7 @@ export default class extends Controller {
   }
 
   updateField(event) {
+    console.log('updateField called with event:', event)
     const contactRow = event.target.closest('[data-contact-id]')
     if (!contactRow) {
       console.error('No contact row found for updateField')
@@ -178,6 +227,11 @@ export default class extends Controller {
     const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
 
     console.log('Updating field:', field, 'to value:', value, 'for contact:', contactId)
+
+    // Store original value for potential reversion
+    if (!event.target.dataset.originalValue) {
+      event.target.dataset.originalValue = event.target.defaultValue
+    }
 
     const data = {}
     data[field] = value
@@ -201,7 +255,9 @@ export default class extends Controller {
         if (event.target.type === 'checkbox') {
           event.target.checked = !event.target.checked
         } else {
-          event.target.value = event.target.defaultValue
+          const originalValue = event.target.dataset.originalValue || event.target.defaultValue
+          console.log('Reverting field to original value:', originalValue)
+          event.target.value = originalValue
         }
       }
     })

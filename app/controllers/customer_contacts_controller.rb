@@ -1,6 +1,6 @@
 class CustomerContactsController < ApplicationController
   before_action :set_customer, only: [:new, :create, :cancel_new]
-  before_action :set_customer_contact, only: [:show, :edit, :update, :destroy, :cancel_edit]
+  before_action :set_customer_contact, only: [:edit, :update, :destroy, :cancel_edit]
 
   def new
     respond_to do |format|

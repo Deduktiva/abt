@@ -1,0 +1,22 @@
+-# Customer contacts table with add form wrapped in div
+%div{id: "customer_contacts_#{customer.id}"}
+  %table.table.table-striped.table-sm
+    %thead
+      %tr
+        %th{style: 'width: 20%; padding: 0.75rem; font-weight: 600;'} Name
+        %th{style: 'width: 25%; padding: 0.75rem; font-weight: 600;'} Email
+        %th{style: 'width: 20%; padding: 0.75rem; font-weight: 600;'} Document Types
+        %th{style: 'width: 25%; padding: 0.75rem; font-weight: 600;'} Projects
+        %th.text-center{style: 'width: 10%; padding: 0.75rem; font-weight: 600;'} Actions
+    %tbody
+      - customer.customer_contacts.each do |contact|
+        = render 'customers/customer_contact_row', contact: contact
+
+      - if local_assigns[:show_new_form]
+        - new_contact = customer.customer_contacts.build(local_assigns[:failed_contact_attributes] || {})
+        - if local_assigns[:new_contact_errors]
+          %tr
+            %td{colspan: 5}
+              .alert.alert-danger.mb-0
+                = local_assigns[:new_contact_errors].full_messages.join(", ")
+        = render 'customers/customer_contact_new_form', contact: new_contact, customer: customer

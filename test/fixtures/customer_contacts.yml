@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+good_eu_contact:
+  customer: good_eu
+  name: John Doe
+  email: john@good-company.co.uk
+  receives_invoices: true
+
+good_national_accounting:
+  customer: good_national
+  name: Accounting Department
+  email: accounting@local-company.com
+  receives_invoices: true
+
+anna:
+  customer: good_eu
+  name: Anna Kowalski
+  email: anna.kowalski@goodeu.pl
+  receives_invoices: true

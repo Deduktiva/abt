@@ -6,9 +6,10 @@ class DeliveryNote < ApplicationRecord
 
   scope :email_sent, -> { where.not(email_sent_at: nil) }
   scope :email_unsent, -> {
-    joins(:customer)
+    joins(customer: :customer_contacts)
     .where(email_sent_at: nil)
-    .where("customers.email IS NOT NULL AND customers.email != ''")
+    .where(customer_contacts: { receives_invoices: true })
+    .distinct
   }
   scope :published, -> { where(published: true) }
 

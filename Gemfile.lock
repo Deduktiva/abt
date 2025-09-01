@@ -168,16 +168,12 @@ GEM
       net-imap
       net-pop
       net-smtp
-    mailgun-ruby (1.3.9)
+    mailgun-ruby (1.3.10)
       faraday (~> 2.1)
       faraday-multipart (~> 1.1.0)
-      mime-types
+      mini_mime
     marcel (1.0.4)
     matrix (0.4.3)
-    mime-types (3.7.0)
-      logger
-      mime-types-data (~> 3.2025, >= 3.2025.0507)
-    mime-types-data (3.2025.0729)
     mini_mime (1.1.5)
     minitest (5.25.5)
     msgpack (1.8.0)
@@ -359,7 +355,7 @@ DEPENDENCIES
   haml-rails
   importmap-rails
   jbuilder
-  mailgun-ruby (~> 1.3.9)
+  mailgun-ruby (~> 1.3.10)
   pg (~> 1.6)
   puma (>= 6.0)
   rails (~> 8.0.2, >= 8.0.2.1)

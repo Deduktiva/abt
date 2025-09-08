@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Get PR details
         id: pr
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const { data: pr } = await github.rest.pulls.get({
@@ -47,7 +47,7 @@ jobs:
           exit 1
 
       - name: Wait for CI to complete
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const head_sha = '${{ fromJSON(steps.pr.outputs.result).head_sha }}';
@@ -113,7 +113,7 @@ jobs:
             }
 
       - name: Approve PR
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             await github.rest.pulls.createReview({
@@ -125,7 +125,7 @@ jobs:
             });
 
       - name: Auto-merge PR
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             try {
@@ -146,7 +146,7 @@ jobs:
             }
 
       - name: Delete source branch
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             try {

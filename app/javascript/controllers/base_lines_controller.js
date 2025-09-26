@@ -61,7 +61,7 @@ export default class extends Controller {
 
   removeLine(event) {
     const line = event.target.closest('[data-line-index]')
-    if (line && this.containerTarget.children.length > 1) {
+    if (line) {
       // Check if this is a persisted record (has an ID field)
       const idField = line.querySelector('input[name*="[id]"]')
 

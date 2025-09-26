@@ -278,4 +278,51 @@ class LineManagementTest < ApplicationSystemTestCase
     line_total = new_line.find('[data-line-total]').text
     assert_equal '€60.00', line_total  # 3 × 20.00
   end
+
+  # Test removing the last line
+  test "can remove the last line from invoice and delivery note" do
+    # Test with invoice: Add one line, then remove it
+    visit edit_invoice_path(@invoice)
+
+    # Remove existing lines to get down to single line scenario
+    initial_count = all('[data-line-index]').count
+    all('[data-line-index]')[1..-1].each do |line|
+      within line do
+        click_button "🗑"
+      end
+    end
+
+    # Should have one line left
+    assert_selector '[data-line-index]', count: 1
+
+    # Remove the last line - should work now
+    within first('[data-line-index]') do
+      click_button "🗑"
+    end
+
+    # Persisted line should be hidden but marked for destruction
+    hidden_line = first('[data-line-index]', visible: false)
+    destroy_field = hidden_line.find('input[name*="[_destroy]"]', visible: false)
+    assert_equal '1', destroy_field.value
+
+    # Test with delivery note: similar scenario
+    visit edit_delivery_note_path(@delivery_note)
+
+    # Remove all but one line
+    all('[data-line-index]')[1..-1].each do |line|
+      within line do
+        click_button "🗑"
+      end
+    end
+
+    # Remove the last line - should work now
+    within first('[data-line-index]') do
+      click_button "🗑"
+    end
+
+    # Should be marked for destruction
+    hidden_line = first('[data-line-index]', visible: false)
+    destroy_field = hidden_line.find('input[name*="[_destroy]"]', visible: false)
+    assert_equal '1', destroy_field.value
+  end
 end

@@ -41,10 +41,6 @@
         = f.collection_select :language_id, Language.all, :id, :title, { prompt: 'Select language...' }, {:class => 'form-select', :required => true}
     %hr
     .row.mb-3
-      = f.label :email, 'E-Mail', class: 'col-lg-2 col-md-3 col-form-label'
-      .col-lg-5
-        = f.text_field :email, :class => 'form-control'
-    .row.mb-3
       = f.label :invoice_email_auto_enabled, 'Auto. Invoice E-Mail', class: 'col-lg-2 col-md-3 col-form-label'
       .col-lg-1.col-md-2.col-sm-2
         .form-check

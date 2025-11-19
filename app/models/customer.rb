@@ -9,6 +9,7 @@ class Customer < ApplicationRecord
   belongs_to :language
   has_many :sales_tax_rates, :through => :sales_tax_customer_class
   has_many :invoices
+  has_many :customer_contacts, dependent: :destroy
 
   # Scopes for filtering
   scope :active, -> { where(active: true) }

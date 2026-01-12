@@ -288,7 +288,7 @@ GEM
       sprockets-rails
       tilt
     securerandom (0.4.1)
-    simple_form (5.4.0)
+    simple_form (5.4.1)
       actionpack (>= 7.0)
       activemodel (>= 7.0)
     solid_cache (1.0.10)

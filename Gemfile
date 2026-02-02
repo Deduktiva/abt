@@ -52,4 +52,4 @@ gem 'bootstrap', '~> 5.3'
 gem 'haml-rails'
 gem 'simple_form'
 
-gem "mailgun-ruby", "~> 1.4.1"
+gem "mailgun-ruby", "~> 1.4.2"

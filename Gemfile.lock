@@ -171,7 +171,7 @@ GEM
       net-imap
       net-pop
       net-smtp
-    mailgun-ruby (1.4.1)
+    mailgun-ruby (1.4.2)
       faraday (~> 2.1)
       faraday-multipart (< 2)
       mini_mime
@@ -364,7 +364,7 @@ DEPENDENCIES
   haml-rails
   importmap-rails
   jbuilder
-  mailgun-ruby (~> 1.4.1)
+  mailgun-ruby (~> 1.4.2)
   pg (~> 1.6)
   puma (>= 6.0)
   rails (~> 8.1.2)

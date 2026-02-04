@@ -5,3 +5,4 @@ import "controllers"
 // Enable Turbo Streams
 import { Turbo } from "@hotwired/turbo-rails"
 Turbo.config.drive.progressBarDelay = 100
+

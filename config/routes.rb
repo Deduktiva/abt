@@ -5,7 +5,14 @@ Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
   resources :attachments
-  resources :customers
+  resources :customers do
+    resources :customer_contacts, only: [:new, :create] do
+      get :cancel_new, on: :collection
+    end
+  end
+  resources :customer_contacts, only: [:edit, :update, :destroy] do
+    get :cancel_edit, on: :member
+  end
   resources :invoices do
     member do
       get 'preview'

@@ -356,7 +356,7 @@ class DeliveryNotesController < ApplicationController
     queued_count = 0
 
     grouped_by_customer.each do |customer, customer_delivery_notes|
-      if customer.email.present?
+      if customer.customer_contacts.where(receives_invoices: true).any?
         if customer_delivery_notes.length == 1
           # Single delivery note - use existing individual email
           DeliveryNoteEmailSenderJob.perform_later(customer_delivery_notes.first.id)

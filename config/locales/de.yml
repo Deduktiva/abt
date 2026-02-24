@@ -19,7 +19,7 @@ de:
       bulk_document_list_title: "Lieferscheine:"
       bulk_next_steps:
         - "Abnahme der gelieferten Leistungen"
-        - "Bestätitung der Leistungserbringung"
+        - "Bestätigung der Leistungserbringung"
         - "Rücksendung der unterfertigten Lieferscheine per E-Mail"
       document_number: "Lieferschein %{document_number}"
       order_label: "Bestellung:"
@@ -28,6 +28,6 @@ de:
       next_steps_title: "Nächste Schritte:"
       next_steps:
         - "Abnahme der gelieferten Leistungen"
-        - "Bestätitung der Leistungserbringung"
+        - "Bestätigung der Leistungserbringung"
         - "Rücksendung des unterfertigten Lieferscheins per E-Mail"
       closing: "Vielen Dank für Ihr Vertrauen. Wir freuen uns auf die weitere Zusammenarbeit."

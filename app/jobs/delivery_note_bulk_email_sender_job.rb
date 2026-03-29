@@ -6,7 +6,7 @@ class DeliveryNoteBulkEmailSenderJob < ApplicationJob
 
     # All delivery notes should belong to the same customer
     customer = delivery_notes.first.customer
-    return unless customer.email.present?
+    return unless customer.customer_contacts.where(receives_invoices: true).any?
 
     # Send the bulk email
     DeliveryNoteMailer.with(delivery_notes: delivery_notes).bulk_customer_email.deliver_now

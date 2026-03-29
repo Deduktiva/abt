@@ -28,7 +28,7 @@
             .col-sm-8
               - if @delivery_note.email_sent_at
                 %span.badge.bg-success Sent #{format_datetime(@delivery_note.email_sent_at)}
-              - elsif @delivery_note.customer.email.present?
+              - elsif @delivery_note.customer.customer_contacts.where(receives_invoices: true).any?
                 %span.badge.bg-warning Unsent
               - else
                 %span.badge.bg-secondary No Email Address
@@ -149,7 +149,7 @@
       = action_button 'Edit', edit_delivery_note_path(@delivery_note), :primary
     - if @delivery_note.published?
       = action_button 'PDF', pdf_delivery_note_path(@delivery_note), :success, { target: '_blank', data: { turbo: false } }
-      - if @delivery_note.customer&.email.present?
+      - if @delivery_note.customer&.customer_contacts&.where(receives_invoices: true)&.any?
         %button.btn.btn-warning{"data-action" => "click->delivery-note-email-preview#open"}
           Send E-Mail
       - unless @delivery_note.invoice

@@ -7,7 +7,6 @@ good_eu:
     European Union
   vat_id: EU99999999
   notes: MyText
-  email: customer@good-company.co.uk
   sales_tax_customer_class: eu
   language: english
   active: true
@@ -21,7 +20,6 @@ good_national:
     NATIONAL COUNTRY
   vat_id: NAT9999999
   notes:
-  email: billing@local-company.com
   sales_tax_customer_class: national
   language: german
   active: true
@@ -34,7 +32,6 @@ auto_email_customer:
     12345 Email City
     EMAIL COUNTRY
   vat_id: AUTO123456
-  email: customer@autoemail.com
   invoice_email_auto_enabled: true
   invoice_email_auto_to: billing@autoemail.com
   invoice_email_auto_subject_template: "Invoice $CUST_ORDER$ - Ref: $CUST_REF$"

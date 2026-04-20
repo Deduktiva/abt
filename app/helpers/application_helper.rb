@@ -61,6 +61,13 @@ module ApplicationHelper
     link_to(text, path, options.merge(class: css_classes))
   end
 
+  def available_projects_for_customer(customer)
+    Project.where(
+      "bill_to_customer_id = ? OR bill_to_customer_id IS NULL",
+      customer.id
+    ).order(:matchcode)
+  end
+
   def destroy_link(resource, confirm_text = nil)
     confirm_text ||= "Are you sure you want to delete this #{resource.class.name.downcase}?"
 

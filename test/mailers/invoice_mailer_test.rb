@@ -11,6 +11,7 @@ class InvoiceMailerTest < ActionMailer::TestCase
 
     assert_not_nil mail
     assert_equal ["customer@good-company.co.uk"], mail.to
+    assert_nil mail.cc
     assert_equal ["from@example.com"], mail.from  # from issuer fixture
     assert_equal ["bcc@example.com"], mail.bcc    # from issuer fixture
     assert_equal "My Example Invoice INV-2024-001", mail.subject
@@ -22,12 +23,13 @@ class InvoiceMailerTest < ActionMailer::TestCase
     assert_equal "application/pdf", attachment.content_type
   end
 
-  test "customer_email with auto email configuration" do
+  test "customer_email with auto email configuration ccs the regular customer email" do
     invoice = invoices(:auto_email_invoice)
     mail = InvoiceMailer.with(invoice: invoice).customer_email
 
     assert_not_nil mail
     assert_equal ["billing@autoemail.com"], mail.to
+    assert_equal ["customer@autoemail.com"], mail.cc
     assert_equal ["from@example.com"], mail.from
     assert_equal ["bcc@example.com"], mail.bcc
     assert_equal "Invoice AUTO-ORDER-111 - Ref: AUTO-REF-999", mail.subject
@@ -36,6 +38,28 @@ class InvoiceMailerTest < ActionMailer::TestCase
     assert_equal 1, mail.attachments.size
     attachment = mail.attachments.first
     assert_equal "auto_invoice.pdf", attachment.filename
+  end
+
+  test "customer_email with auto email but no regular customer email omits cc" do
+    customer = customers(:auto_email_customer)
+    customer.update!(email: nil)
+    invoice = invoices(:auto_email_invoice)
+
+    mail = InvoiceMailer.with(invoice: invoice).customer_email
+
+    assert_equal ["billing@autoemail.com"], mail.to
+    assert_nil mail.cc
+  end
+
+  test "customer_email with auto email matching regular customer email omits cc" do
+    customer = customers(:auto_email_customer)
+    customer.update!(email: customer.invoice_email_auto_to)
+    invoice = invoices(:auto_email_invoice)
+
+    mail = InvoiceMailer.with(invoice: invoice).customer_email
+
+    assert_equal ["billing@autoemail.com"], mail.to
+    assert_nil mail.cc
   end
 
   test "customer_email with customer without email returns NullMail" do

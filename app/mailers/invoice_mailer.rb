@@ -9,9 +9,11 @@ class InvoiceMailer < ApplicationMailer
 
     # Set locale based on customer language
     I18n.with_locale(@invoice.customer.language.iso_code) do
+      cc = nil
       if @invoice.customer.invoice_email_auto_enabled
         subject = @invoice.customer.invoice_email_auto_subject_template.gsub('$CUST_ORDER$', @invoice.cust_order).gsub('$CUST_REF$', @invoice.cust_reference)
         to = @invoice.customer.invoice_email_auto_to
+        cc = @invoice.customer.email if @invoice.customer.email.present? && @invoice.customer.email != to
       elsif @invoice.customer.email
         subject = I18n.t('mailers.invoice.subject', issuer_name: @issuer.short_name, document_number: @invoice.document_number)
         to = @invoice.customer.email
@@ -22,6 +24,7 @@ class InvoiceMailer < ApplicationMailer
       unless to.nil?
         mail(
           to: to,
+          cc: cc,
           from: "\"#{@issuer.short_name}\" <#{@issuer.document_email_from}>",
           bcc: @issuer.document_email_auto_bcc,
           subject: subject

@@ -225,6 +225,17 @@ export default class extends Controller {
                 </div>
               </div>
 
+              ${data.cc ? `
+                <div class="row mb-2">
+                  <div class="col-sm-2">
+                    <strong>CC:</strong>
+                  </div>
+                  <div class="col-sm-10">
+                    ${data.cc}
+                  </div>
+                </div>
+              ` : ''}
+
               ${data.bcc ? `
                 <div class="row mb-2">
                   <div class="col-sm-2">

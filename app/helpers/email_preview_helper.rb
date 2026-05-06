@@ -10,6 +10,7 @@ module EmailPreviewHelper
       attachments: extract_attachments_info(mail)
     }
 
+    data[:cc] = mail.cc&.join(', ') if mail.cc&.any?
     data[:bcc] = mail.bcc&.join(', ') if mail.bcc&.any?
     data
   end

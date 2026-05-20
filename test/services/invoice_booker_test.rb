@@ -39,4 +39,60 @@ class InvoiceBookerTest < ActiveSupport::TestCase
     # Should get default of 30 days
     assert_equal 30, new_customer.payment_terms_days
   end
+
+  test "draft invoice copies payment_terms_days from customer on save" do
+    customer = customers(:good_eu)
+    customer.update!(payment_terms_days: 60)
+
+    invoice = Invoice.create!(
+      customer: customer,
+      project: projects(:test_project),
+      cust_reference: "SNAPSHOT-1"
+    )
+
+    assert_equal 60, invoice.payment_terms_days
+  end
+
+  test "published invoice keeps its payment_terms_days when customer's value later changes" do
+    customer = customers(:good_eu)
+    customer.update!(payment_terms_days: 30)
+
+    invoice = Invoice.create!(
+      customer: customer,
+      project: projects(:test_project),
+      cust_reference: "SNAPSHOT-2",
+      date: Date.new(2024, 6, 1),
+    )
+
+    # Lock in the snapshot the same way a booked invoice does
+    invoice.update!(published: true)
+
+    assert_equal 30, invoice.payment_terms_days
+
+    # Customer's terms change later - invoice snapshot must not move
+    customer.update!(payment_terms_days: 90)
+    invoice.reload
+
+    assert_equal 30, invoice.payment_terms_days
+  end
+
+  test "booker derives due_date from invoice's persisted payment_terms_days" do
+    customer = customers(:good_eu)
+    customer.update!(payment_terms_days: 21)
+
+    invoice = Invoice.create!(
+      customer: customer,
+      project: projects(:test_project),
+      cust_reference: "SNAPSHOT-3",
+      date: Date.new(2024, 6, 1),
+    )
+
+    # On a draft, the snapshot tracks the customer value
+    assert_equal 21, invoice.payment_terms_days
+
+    booker = InvoiceBooker.new(invoice, issuer_companies(:one))
+    booker.book(false)
+
+    assert_equal Date.new(2024, 6, 22), invoice.due_date
+  end
 end

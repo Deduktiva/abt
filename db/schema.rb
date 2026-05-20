@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_08_10_173512) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_20_204232) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -134,6 +134,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_08_10_173512) do
     t.string "document_number"
     t.date "due_date"
     t.datetime "email_sent_at"
+    t.integer "payment_terms_days", default: 30, null: false
     t.text "prelude"
     t.integer "project_id"
     t.boolean "published"

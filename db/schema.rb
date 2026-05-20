@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_20_204232) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_20_212540) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -134,6 +134,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_204232) do
     t.string "document_number"
     t.date "due_date"
     t.datetime "email_sent_at"
+    t.date "paid_at"
     t.integer "payment_terms_days", default: 30, null: false
     t.text "prelude"
     t.integer "project_id"
@@ -145,6 +146,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_204232) do
     t.datetime "updated_at", null: false
     t.index ["date"], name: "index_invoices_on_date"
     t.index ["document_number"], name: "index_invoices_on_document_number", unique: true
+    t.index ["paid_at"], name: "index_invoices_on_paid_at"
     t.index ["published", "date"], name: "index_invoices_on_published_and_date"
     t.index ["published"], name: "index_invoices_on_published"
   end

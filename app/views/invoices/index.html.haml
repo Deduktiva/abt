@@ -62,6 +62,7 @@
         %th Date
         %th Cust Reference
         %th Cust Order No
+        %th Payment
         %th{:width => "3%"}
 
       - @invoices.each do |invoice|
@@ -73,6 +74,12 @@
           %td= format_date(invoice.date)
           %td= invoice.cust_reference
           %td= invoice.cust_order
+          %td
+            - if invoice.published?
+              - if invoice.paid?
+                %span.badge.bg-success Paid #{format_date(invoice.paid_at)}
+              - else
+                %span.badge.bg-warning Unpaid
           %td
             - if invoice.published? and not invoice.attachment.nil?
               = link_to 'PDF', attachment_path(invoice.attachment), target: '_blank', data: { turbo: false }, class: 'btn btn-sm btn-outline-success py-0'

@@ -224,6 +224,34 @@ class InvoicesController < ApplicationController
     end
   end
 
+  def mark_paid
+    @invoice = Invoice.find(params[:id])
+    return unless check_published
+
+    paid_date = params[:paid_at].presence
+    @invoice.paid_at = paid_date ? Date.parse(paid_date) : Date.current
+    @invoice.save!
+
+    respond_to do |format|
+      format.html { redirect_to @invoice, notice: "Invoice marked as paid on #{helpers.format_date(@invoice.paid_at)}." }
+      format.json { render json: @invoice, status: :ok, location: @invoice }
+    end
+  rescue ArgumentError
+    redirect_to @invoice, alert: 'Invalid date.'
+  end
+
+  def mark_unpaid
+    @invoice = Invoice.find(params[:id])
+    return unless check_published
+
+    @invoice.update!(paid_at: nil)
+
+    respond_to do |format|
+      format.html { redirect_to @invoice, notice: 'Invoice marked as unpaid.' }
+      format.json { render json: @invoice, status: :ok, location: @invoice }
+    end
+  end
+
   def bulk_send_emails
     invoice_ids = params[:invoice_ids] || []
     invoice_ids = invoice_ids.reject(&:blank?)

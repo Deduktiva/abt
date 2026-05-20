@@ -13,6 +13,8 @@ Rails.application.routes.draw do
       get 'book'
       post 'book'
       post 'send_email'
+      post 'mark_paid'
+      post 'mark_unpaid'
     end
     collection do
       post 'bulk_send_emails'

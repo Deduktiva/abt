@@ -9,6 +9,8 @@ class Invoice < ApplicationRecord
     .where("customers.email IS NOT NULL AND customers.email != '' OR customers.invoice_email_auto_enabled = true")
   }
   scope :published, -> { where(published: true) }
+  scope :paid, -> { where.not(paid_at: nil) }
+  scope :unpaid, -> { where(paid_at: nil) }
 
   after_initialize :set_defaults
 
@@ -28,6 +30,10 @@ class Invoice < ApplicationRecord
 
   def has_items?
     self.invoice_lines.any? { |line| line.is_item? }
+  end
+
+  def paid?
+    self.paid_at.present?
   end
 
   def validate_lines_for_booking

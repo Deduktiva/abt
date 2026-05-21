@@ -58,3 +58,7 @@ gem 'simple_form'
 gem "mailgun-ruby", "~> 1.4.3"
 
 gem "image_processing", "~> 1.2"
+
+gem "omniauth",                       "~> 2.1"
+gem "omniauth-github",                "~> 2.0"
+gem "omniauth-rails_csrf_protection", "~> 1.0"

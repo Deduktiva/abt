@@ -2,6 +2,7 @@ require 'test_helper'
 
 class CustomersControllerTest < ActionDispatch::IntegrationTest
   def setup
+    super
     @customer = customers(:good_eu)
   end
 

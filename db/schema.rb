@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_20_212540) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_21_120400) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -18,6 +18,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_212540) do
     t.string "filename"
     t.string "title"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "audit_events", force: :cascade do |t|
+    t.integer "actor_user_id"
+    t.datetime "created_at", null: false
+    t.string "event_type", null: false
+    t.string "ip"
+    t.json "metadata", default: {}, null: false
+    t.integer "subject_user_id"
+    t.string "user_agent"
+    t.index ["actor_user_id"], name: "index_audit_events_on_actor_user_id"
+    t.index ["created_at"], name: "index_audit_events_on_created_at"
+    t.index ["event_type", "created_at"], name: "index_audit_events_on_event_type_and_created_at"
+    t.index ["subject_user_id", "created_at"], name: "index_audit_events_on_subject_user_id_and_created_at"
+    t.index ["subject_user_id"], name: "index_audit_events_on_subject_user_id"
   end
 
   create_table "customers", force: :cascade do |t|
@@ -226,10 +241,74 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_212540) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "user_identities", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "email"
+    t.string "nickname"
+    t.string "provider", null: false
+    t.json "raw_info"
+    t.string "uid", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["provider", "uid"], name: "index_user_identities_on_provider_and_uid", unique: true
+    t.index ["user_id"], name: "index_user_identities_on_user_id"
+  end
+
+  create_table "user_invites", force: :cascade do |t|
+    t.datetime "consumed_at"
+    t.integer "consumed_by_user_id"
+    t.datetime "created_at", null: false
+    t.integer "created_by_user_id"
+    t.datetime "expires_at", null: false
+    t.string "note"
+    t.string "token", null: false
+    t.datetime "updated_at", null: false
+    t.index ["consumed_by_user_id"], name: "index_user_invites_on_consumed_by_user_id"
+    t.index ["created_by_user_id"], name: "index_user_invites_on_created_by_user_id"
+    t.index ["expires_at"], name: "index_user_invites_on_expires_at"
+    t.index ["token"], name: "index_user_invites_on_token", unique: true
+  end
+
+  create_table "user_sessions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "ip"
+    t.datetime "last_seen_at", null: false
+    t.datetime "terminated_at"
+    t.string "terminated_reason"
+    t.string "token_digest", null: false
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.integer "user_id", null: false
+    t.index ["token_digest"], name: "index_user_sessions_on_token_digest", unique: true
+    t.index ["user_id", "terminated_at"], name: "index_user_sessions_on_user_id_and_terminated_at"
+    t.index ["user_id"], name: "index_user_sessions_on_user_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.datetime "blocked_at"
+    t.integer "blocked_by_user_id"
+    t.string "blocked_reason"
+    t.datetime "created_at", null: false
+    t.string "full_name", null: false
+    t.datetime "last_seen_at"
+    t.datetime "updated_at", null: false
+    t.string "username", null: false
+    t.index ["blocked_at"], name: "index_users_on_blocked_at"
+    t.index ["blocked_by_user_id"], name: "index_users_on_blocked_by_user_id"
+    t.index ["username"], name: "index_users_on_username", unique: true
+  end
+
+  add_foreign_key "audit_events", "users", column: "actor_user_id"
+  add_foreign_key "audit_events", "users", column: "subject_user_id"
   add_foreign_key "customers", "languages"
   add_foreign_key "delivery_note_lines", "delivery_notes"
   add_foreign_key "delivery_notes", "attachments", column: "acceptance_attachment_id"
   add_foreign_key "delivery_notes", "customers"
   add_foreign_key "delivery_notes", "invoices"
   add_foreign_key "delivery_notes", "projects"
+  add_foreign_key "user_identities", "users"
+  add_foreign_key "user_invites", "users", column: "consumed_by_user_id"
+  add_foreign_key "user_invites", "users", column: "created_by_user_id"
+  add_foreign_key "user_sessions", "users"
+  add_foreign_key "users", "users", column: "blocked_by_user_id"
 end

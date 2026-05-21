@@ -1,0 +1,13 @@
+alice_browser_one:
+  user: alice
+  token_digest: <%= UserSession.digest("alice-browser-one") %>
+  user_agent: "TestBrowser/1.0"
+  ip: "127.0.0.1"
+  last_seen_at: <%= 1.minute.ago.to_formatted_s(:db) %>
+
+alice_browser_two:
+  user: alice
+  token_digest: <%= UserSession.digest("alice-browser-two") %>
+  user_agent: "TestBrowser/2.0"
+  ip: "127.0.0.1"
+  last_seen_at: <%= 10.minutes.ago.to_formatted_s(:db) %>

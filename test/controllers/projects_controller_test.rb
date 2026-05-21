@@ -2,6 +2,7 @@ require 'test_helper'
 
 class ProjectsControllerTest < ActionDispatch::IntegrationTest
   def setup
+    super
     @project = projects(:one)
     @customer = customers(:good_eu)
   end

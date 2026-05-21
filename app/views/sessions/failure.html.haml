@@ -1,0 +1,10 @@
+= page_header('Sign-in failed')
+
+.alert.alert-danger
+  Authentication failed.
+  - if @message.present?
+    %div.small.mt-1
+      Reason:
+      %code= @message
+
+= link_to 'Back to sign in', login_path, class: 'btn btn-secondary'

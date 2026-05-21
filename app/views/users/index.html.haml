@@ -1,0 +1,20 @@
+= page_header('Users')
+
+%table.table.table-striped.table-sm
+  %tr
+    %th Username
+    %th Full name
+    %th Status
+    %th Last seen
+    %th
+  - @users.each do |user|
+    %tr
+      %td= link_to user.username, user_path(user)
+      %td= user.full_name
+      %td
+        - if user.blocked?
+          %span.badge.bg-danger Blocked
+        - else
+          %span.badge.bg-success Active
+      %td= format_datetime(user.last_seen_at)
+      %td= list_action_link('Show', user_path(user), :show)

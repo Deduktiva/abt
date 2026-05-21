@@ -1,0 +1,7 @@
+alice_login:
+  subject_user: alice
+  actor_user: alice
+  event_type: login
+  metadata: { "provider": "github" }
+  ip: "127.0.0.1"
+  created_at: <%= 1.hour.ago.to_formatted_s(:db) %>

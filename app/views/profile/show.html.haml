@@ -1,0 +1,39 @@
+= page_header('My profile')
+
+%dl.row
+  %dt.col-sm-3 Username
+  %dd.col-sm-9= @user.username
+  %dt.col-sm-3 Full name
+  %dd.col-sm-9= @user.full_name
+  %dt.col-sm-3 Member since
+  %dd.col-sm-9= format_datetime(@user.created_at)
+
+= action_buttons_wrapper do
+  = action_button('My sessions', profile_sessions_path, :primary)
+  = button_to 'Disable my account', profile_block_path, method: :post, class: 'btn btn-danger', data: { turbo_confirm: 'This will block your account and terminate all sessions. Continue?' }
+
+%h3.mt-4 Linked accounts
+%table.table.table-sm
+  %tr
+    %th Provider
+    %th Nickname
+    %th Email
+    %th Linked
+  - @identities.each do |i|
+    %tr
+      %td= i.provider
+      %td= i.nickname
+      %td= i.email
+      %td= format_datetime(i.created_at)
+
+%h3.mt-4 Recent activity
+%table.table.table-sm
+  %tr
+    %th When
+    %th Event
+    %th IP
+  - @recent_events.each do |e|
+    %tr
+      %td= format_datetime(e.created_at)
+      %td= e.event_type
+      %td= e.ip

@@ -1,0 +1,77 @@
+= page_header("User: #{@user.username}")
+
+.row
+  .col-md-6
+    %dl.row
+      %dt.col-sm-4 Username
+      %dd.col-sm-8= @user.username
+      %dt.col-sm-4 Full name
+      %dd.col-sm-8= @user.full_name
+      %dt.col-sm-4 Status
+      %dd.col-sm-8
+        - if @user.blocked?
+          %span.badge.bg-danger Blocked
+          - if @user.blocked_reason.present?
+            %div.text-muted.small="Reason: #{@user.blocked_reason}"
+          - if @user.blocked_by_user
+            %div.text-muted.small="By: #{@user.blocked_by_user.username}"
+        - else
+          %span.badge.bg-success Active
+      %dt.col-sm-4 Created
+      %dd.col-sm-8= format_datetime(@user.created_at)
+      %dt.col-sm-4 Last seen
+      %dd.col-sm-8= format_datetime(@user.last_seen_at)
+
+= action_buttons_wrapper do
+  - if @user == current_user
+    = action_button('Back', users_path, :secondary)
+  - elsif @user.blocked?
+    = button_to 'Unblock', unblock_user_path(@user), method: :post, class: 'btn btn-warning', data: { turbo_confirm: "Unblock #{@user.username}?" }
+    = action_button('Back', users_path, :secondary)
+  - else
+    = button_to 'Block', block_user_path(@user), method: :post, class: 'btn btn-danger', data: { turbo_confirm: "Block #{@user.username}? All their sessions will be terminated." }
+    = action_button('Back', users_path, :secondary)
+
+%h3.mt-4 Linked identities
+%table.table.table-sm
+  %tr
+    %th Provider
+    %th UID
+    %th Nickname
+    %th Email
+    %th Added
+  - @identities.each do |i|
+    %tr
+      %td= i.provider
+      %td= i.uid
+      %td= i.nickname
+      %td= i.email
+      %td= format_datetime(i.created_at)
+
+%h3.mt-4 Active sessions
+%table.table.table-sm
+  %tr
+    %th User agent
+    %th IP
+    %th Created
+    %th Last seen
+  - @active_sessions.each do |s|
+    %tr
+      %td= s.user_agent
+      %td= s.ip
+      %td= format_datetime(s.created_at)
+      %td= format_datetime(s.last_seen_at)
+
+%h3.mt-4 Recent activity
+%table.table.table-sm
+  %tr
+    %th When
+    %th Event
+    %th Actor
+    %th Details
+  - @recent_events.each do |e|
+    %tr
+      %td= format_datetime(e.created_at)
+      %td= e.event_type
+      %td= e.actor_user&.username || '-'
+      %td= e.metadata.to_json

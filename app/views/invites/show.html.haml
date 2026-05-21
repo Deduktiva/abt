@@ -1,0 +1,43 @@
+= page_header('Accept invite')
+
+- unless @invite.consumable?
+  .alert.alert-warning
+    - if @invite.consumed?
+      This invite link has already been used.
+    - else
+      This invite link has expired.
+  = link_to 'Back to sign in', login_path, class: 'btn btn-secondary'
+
+- if @invite.consumable?
+  - if @pending_auth.blank?
+    .card
+      .card-body
+        %p
+          You've been invited to join. Continue by signing in with GitHub — we'll then ask you to pick a username.
+        = button_to "Continue with GitHub", "/auth/github", method: :post, class: "btn btn-primary"
+
+  - else
+    .card
+      .card-body
+        %h4 Choose your username
+        %p.text-muted
+          Linked to GitHub:
+          %strong= @pending_auth["nickname"]
+          - if @pending_auth["email"].present?
+            = "(#{@pending_auth['email']})"
+
+        - if @errors.present?
+          .alert.alert-danger
+            %ul.mb-0
+              - @errors.each do |msg|
+                %li= msg
+
+        = form_with url: invite_accept_path(@invite.token), method: :post, local: true do |f|
+          .mb-3
+            = f.label :username, class: 'form-label'
+            = f.text_field :username, value: (@username || @pending_auth["nickname"].to_s.downcase), class: 'form-control', required: true, pattern: '[a-z0-9_-]{3,32}'
+            .form-text Lowercase letters, digits, underscore or hyphen. 3-32 characters.
+          .mb-3
+            = f.label :full_name, class: 'form-label'
+            = f.text_field :full_name, value: (@full_name || @pending_auth["name"]), class: 'form-control', required: true
+          = f.submit 'Create account', class: 'btn btn-primary'

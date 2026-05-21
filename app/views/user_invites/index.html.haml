@@ -1,0 +1,43 @@
+= page_header('Invites')
+
+.card.mb-4
+  .card-body
+    %h5 Create new invite
+    = form_with model: @new_invite, url: user_invites_path, local: true do |f|
+      .mb-3
+        = f.label :note, class: 'form-label'
+        = f.text_field :note, class: 'form-control', placeholder: 'Who is this for? (optional)'
+      = f.submit 'Create invite', class: 'btn btn-primary'
+
+%table.table.table-striped.table-sm{"data-controller" => "copy-link"}
+  %tr
+    %th Created
+    %th Note
+    %th Created by
+    %th Expires
+    %th Status
+    %th Link
+    %th
+  - @invites.each do |invite|
+    %tr
+      %td= format_datetime(invite.created_at)
+      %td= invite.note
+      %td= invite.created_by_user&.username || '-'
+      %td= format_datetime(invite.expires_at)
+      %td
+        - if invite.consumed?
+          %span.badge.bg-secondary Consumed by #{invite.consumed_by_user&.username}
+        - elsif invite.expired?
+          %span.badge.bg-warning Expired
+        - else
+          %span.badge.bg-success Pending
+      %td
+        - if invite.consumable?
+          .input-group.input-group-sm
+            %input.form-control.font-monospace{type: 'text', readonly: true, value: invite_url(invite.token), "data-copy-link-target" => "input"}
+            %button.btn.btn-outline-secondary{type: 'button', "data-action" => "click->copy-link#copy"} Copy
+        - else
+          %span.text-muted -
+      %td
+        - unless invite.consumed?
+          = button_to '🗑', user_invite_path(invite), method: :delete, class: 'btn btn-sm btn-outline-danger py-0', data: { turbo_confirm: 'Revoke this invite?' }

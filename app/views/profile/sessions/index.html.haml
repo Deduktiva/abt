@@ -1,0 +1,24 @@
+= page_header('My sessions')
+
+%p.text-muted Active sessions across browsers and devices. Terminating your current session signs you out.
+
+%table.table.table-striped.table-sm
+  %tr
+    %th User agent
+    %th IP
+    %th Created
+    %th Last seen
+    %th
+  - @sessions.each do |s|
+    %tr
+      %td
+        = s.user_agent
+        - if s.id == @current_session_id
+          %span.badge.bg-info.ms-1 current
+      %td= s.ip
+      %td= format_datetime(s.created_at)
+      %td= format_datetime(s.last_seen_at)
+      %td
+        = button_to 'Terminate', profile_session_path(s), method: :delete, class: 'btn btn-sm btn-outline-danger py-0', data: { turbo_confirm: (s.id == @current_session_id ? 'Terminate this (current) session and sign out?' : 'Terminate this session?') }
+
+= link_to 'Back to profile', profile_path, class: 'btn btn-secondary'

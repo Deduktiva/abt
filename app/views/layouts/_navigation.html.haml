@@ -39,17 +39,25 @@
           %hr.dropdown-divider
         %li
           = link_to('Background Jobs', jobs_status_path, :class => 'dropdown-item')
-
--#  - if user_signed_in?
--#    %li
--#      = link_to('Logout', destroy_user_session_path, :method=>'delete')
--#  - else
--#    %li
--#      = link_to('Login', new_user_session_path)
--#  - if user_signed_in?
--#    %li
--#      = link_to('Edit account', edit_user_registration_path)
--#  - else
--#    %li
--#      = link_to('Sign up', new_user_registration_path)
--#
+        - if logged_in?
+          %li
+            %hr.dropdown-divider
+          %li
+            = link_to('Users', users_path, :class => 'dropdown-item')
+          %li
+            = link_to('Invites', user_invites_path, :class => 'dropdown-item')
+          %li
+            = link_to('Audit log', audit_events_path, :class => 'dropdown-item')
+    - if logged_in?
+      %li.nav-item.dropdown{"data-controller" => "navbar"}
+        %a.nav-link.dropdown-toggle{:href => "#", :role => "button", :"data-navbar-target" => "toggle", :"data-action" => "click->navbar#toggle"}
+          = current_user.username
+        %ul.dropdown-menu.dropdown-menu-end{"data-navbar-target" => "menu"}
+          %li
+            = link_to('My profile', profile_path, :class => 'dropdown-item')
+          %li
+            = link_to('My sessions', profile_sessions_path, :class => 'dropdown-item')
+          %li
+            %hr.dropdown-divider
+          %li
+            = button_to('Logout', logout_path, method: :delete, class: 'dropdown-item', form: { class: 'd-inline' })

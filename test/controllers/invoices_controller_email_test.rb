@@ -4,6 +4,7 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
   include ActiveJob::TestHelper
 
   def setup
+    super
     ActionMailer::Base.deliveries.clear
     clear_enqueued_jobs
   end

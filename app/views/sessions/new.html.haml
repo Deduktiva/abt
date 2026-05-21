@@ -1,0 +1,10 @@
+= page_header('Sign in')
+
+.card
+  .card-body
+    %p Sign in with your linked account to continue.
+    = button_to "Continue with GitHub", "/auth/github", method: :post, class: "btn btn-primary"
+
+    %hr
+    %p.text-muted.small
+      Don't have an account yet? Ask an existing user to send you an invite link.

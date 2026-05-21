@@ -45,5 +45,29 @@ Rails.application.routes.draw do
 
   resource :jobs_status, only: [:show], controller: 'jobs_status'
 
+  get    "/login"                   => "sessions#new",      as: :login
+  delete "/logout"                  => "sessions#destroy",  as: :logout
+  get    "/auth/:provider/callback" => "sessions#callback"
+  get    "/auth/failure"            => "sessions#failure", as: :auth_failure
+
+  get    "/invites/:token"        => "invites#show",   as: :invite
+  post   "/invites/:token/accept" => "invites#accept", as: :invite_accept
+
+  resources :users, only: [:index, :show] do
+    member do
+      post :block
+      post :unblock
+    end
+  end
+  resources :user_invites, only: [:index, :create, :destroy]
+  resources :audit_events, only: [:index]
+
+  get  "/profile"       => "profile#show",  as: :profile
+  post "/profile/block" => "profile#block", as: :profile_block
+
+  scope path: "/profile", as: :profile do
+    resources :sessions, only: [:index, :destroy], controller: "profile/sessions"
+  end
+
   root to: "home#index"
 end

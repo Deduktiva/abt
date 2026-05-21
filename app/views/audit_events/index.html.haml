@@ -1,0 +1,37 @@
+= page_header('Audit log')
+
+= form_with url: audit_events_path, method: :get, local: true, class: 'row g-2 mb-3' do
+  .col-auto
+    = select_tag :user_id, options_from_collection_for_select(@users, :id, :username, params[:user_id]), include_blank: 'All users', class: 'form-select form-select-sm'
+  .col-auto
+    = select_tag :event_type, options_for_select([['All events', '']] + @event_types.map { |t| [t, t] }, params[:event_type]), class: 'form-select form-select-sm'
+  .col-auto
+    = submit_tag 'Filter', class: 'btn btn-sm btn-primary'
+  .col-auto
+    = link_to 'Clear', audit_events_path, class: 'btn btn-sm btn-outline-secondary'
+
+%table.table.table-striped.table-sm
+  %tr
+    %th When
+    %th Event
+    %th Subject
+    %th Actor
+    %th IP
+    %th Details
+  - @events.each do |e|
+    %tr
+      %td= format_datetime(e.created_at)
+      %td= e.event_type
+      %td
+        - if e.subject_user
+          = link_to e.subject_user.username, user_path(e.subject_user)
+        - else
+          \-
+      %td
+        - if e.actor_user
+          = link_to e.actor_user.username, user_path(e.actor_user)
+        - else
+          \-
+      %td= e.ip
+      %td
+        %code= e.metadata.to_json

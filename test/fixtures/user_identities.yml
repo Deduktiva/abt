@@ -1,0 +1,23 @@
+alice_github:
+  user: alice
+  provider: github
+  uid: "1001"
+  nickname: alice
+  email: alice@example.com
+  raw_info: {}
+
+bob_github:
+  user: bob
+  provider: github
+  uid: "1002"
+  nickname: bob
+  email: bob@example.com
+  raw_info: {}
+
+charlie_github:
+  user: blocked_charlie
+  provider: github
+  uid: "1003"
+  nickname: charlie
+  email: charlie@example.com
+  raw_info: {}

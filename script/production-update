@@ -157,6 +157,26 @@ restart_apache() {
     fi
 }
 
+# Function to restart the Solid Queue jobs worker
+restart_jobs_worker() {
+    print_status "Restarting Solid Queue jobs worker..."
+
+    if ! command -v systemctl >/dev/null 2>&1; then
+        print_warning "systemctl not available; please restart the jobs worker manually."
+        return 0
+    fi
+
+    if systemctl --user cat abt-jobs.service >/dev/null 2>&1; then
+        if systemctl --user restart abt-jobs.service; then
+            print_success "Solid Queue jobs worker restarted."
+        else
+            print_warning "systemctl --user restart abt-jobs.service failed; please restart manually."
+        fi
+    else
+        print_warning "abt-jobs.service is not installed; see script/production-update.md for setup."
+    fi
+}
+
 # Main deployment function
 main() {
     echo "========================================"
@@ -172,6 +192,7 @@ main() {
     precompile_assets
     migrate_database
     restart_apache
+    restart_jobs_worker
 
     echo
     print_success "Production deployment completed successfully!"
@@ -182,6 +203,7 @@ main() {
     echo "  ✓ Precompiled assets for production"
     echo "  ✓ Ran database migrations"
     echo "  ✓ Triggered application restart"
+    echo "  ✓ Restarted Solid Queue jobs worker"
     echo
     print_status "The application should now be running the latest version."
 }

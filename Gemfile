@@ -15,8 +15,9 @@ gem "stimulus-rails"
 gem "jbuilder"
 
 
-# Use database-backed adapter
+# Use database-backed adapters
 gem "solid_cache"
+gem "solid_queue"
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false

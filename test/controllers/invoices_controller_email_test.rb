@@ -141,13 +141,13 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
 
   test "index filters invoices by email status" do
     # Test unsent filter
-    get invoices_path(email_filter: 'unsent')
+    get invoices_path(filter: 'unsent')
     assert_response :success
-    assert_select '.email-filter .active', text: 'Unsent'
+    assert_select '.invoice-filter .active', text: 'Unsent'
   end
 
   test "unsent filter shows bulk send form" do
-    get invoices_path(email_filter: 'unsent')
+    get invoices_path(filter: 'unsent')
     assert_response :success
     assert_select 'form#bulk-email-form'
     assert_select 'input[type="submit"][value="Send Selected Emails"]'

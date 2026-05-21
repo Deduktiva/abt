@@ -7,7 +7,7 @@ class InvoicesController < ApplicationController
   def index
     # Get the selected year from params, default to current year
     @selected_year = params[:year]&.to_i || Date.current.year
-    @email_filter = params[:email_filter] || 'all'
+    @filter = params[:filter] || 'all'
 
     # Filter invoices by selected year, including draft invoices (date = nil) for current year
     year_start = Date.new(@selected_year, 1, 1)
@@ -23,9 +23,11 @@ class InvoicesController < ApplicationController
                         .reorder(Arel.sql('document_number DESC NULLS FIRST'))
     end
 
-    case @email_filter
+    case @filter
     when 'unsent'
       @invoices = @invoices.email_unsent.published
+    when 'unpaid'
+      @invoices = @invoices.unpaid.published
     end
 
     # Get available years for pagination (years that have invoices)
@@ -220,6 +222,34 @@ class InvoicesController < ApplicationController
 
     respond_to do |format|
       format.html { redirect_to @invoice, notice: 'E-Mail queued for sending.' }
+      format.json { render json: @invoice, status: :ok, location: @invoice }
+    end
+  end
+
+  def mark_paid
+    @invoice = Invoice.find(params[:id])
+    return unless check_published
+
+    paid_date = params[:paid_at].presence
+    @invoice.paid_at = paid_date ? Date.parse(paid_date) : Date.current
+    @invoice.save!
+
+    respond_to do |format|
+      format.html { redirect_to @invoice, notice: "Invoice marked as paid on #{helpers.format_date(@invoice.paid_at)}." }
+      format.json { render json: @invoice, status: :ok, location: @invoice }
+    end
+  rescue ArgumentError
+    redirect_to @invoice, alert: 'Invalid date.'
+  end
+
+  def mark_unpaid
+    @invoice = Invoice.find(params[:id])
+    return unless check_published
+
+    @invoice.update!(paid_at: nil)
+
+    respond_to do |format|
+      format.html { redirect_to @invoice, notice: 'Invoice marked as unpaid.' }
       format.json { render json: @invoice, status: :ok, location: @invoice }
     end
   end

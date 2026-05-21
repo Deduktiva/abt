@@ -4,19 +4,20 @@
 .bulk-select-container{data: { controller: 'bulk-select' }}
   = form_with url: bulk_send_emails_invoices_path, method: :post, local: true, id: 'bulk-email-form' do |form|
     .btn-toolbar.mb-3{:role=>"toolbar", "aria-label"=>"List toolbar"}
-      .btn-group.btn-group-sm.me-2.email-filter{:role=>"group", "aria-label"=>"E-Mail status"}
-        = link_to 'All', invoices_path(year: @selected_year, email_filter: 'all'), class: (@email_filter == 'all' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
-        = link_to 'Unsent', invoices_path(year: @selected_year, email_filter: 'unsent'), class: (@email_filter == 'unsent' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+      .btn-group.btn-group-sm.me-2.invoice-filter{:role=>"group", "aria-label"=>"Filter"}
+        = link_to 'All', invoices_path(year: @selected_year, filter: 'all'), class: (@filter == 'all' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+        = link_to 'Unsent', invoices_path(year: @selected_year, filter: 'unsent'), class: (@filter == 'unsent' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+        = link_to 'Unpaid', invoices_path(year: @selected_year, filter: 'unpaid'), class: (@filter == 'unpaid' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
 
-      - if @email_filter == 'unsent'
+      - if @filter == 'unsent'
         = form.submit 'Send Selected Emails', class: 'btn btn-warning btn-sm me-2 align-self-start', disabled: true, data: { confirm: 'Are you sure you want to send emails for the selected invoices?', 'bulk-select-target': 'submitButton' }
 
       - if @available_years.any?
         .btn-group.btn-group-sm.ms-auto.year-pagination{:role=>"group", "aria-label"=>"Year navigation"}
           - @available_years.each do |year|
-            = link_to year, invoices_path(year: year, email_filter: @email_filter), class: (@selected_year == year ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+            = link_to year, invoices_path(year: year, filter: @filter), class: (@selected_year == year ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
 
-  - if @email_filter == 'unsent' && @invoices.any?
+  - if @filter == 'unsent' && @invoices.any?
     %table.table.table-striped.table-sm
       %tr
         %th
@@ -62,6 +63,7 @@
         %th Date
         %th Cust Reference
         %th Cust Order No
+        %th Payment
         %th{:width => "3%"}
 
       - @invoices.each do |invoice|
@@ -73,6 +75,12 @@
           %td= format_date(invoice.date)
           %td= invoice.cust_reference
           %td= invoice.cust_order
+          %td
+            - if invoice.published?
+              - if invoice.paid?
+                %span.badge.bg-success Paid #{format_date(invoice.paid_at)}
+              - else
+                %span.badge.bg-warning Unpaid
           %td
             - if invoice.published? and not invoice.attachment.nil?
               = link_to 'PDF', attachment_path(invoice.attachment), target: '_blank', data: { turbo: false }, class: 'btn btn-sm btn-outline-success py-0'

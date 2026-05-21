@@ -52,6 +52,7 @@ class InvoiceRenderer
       xml_root.number @invoice.document_number
       xml_root.tag! 'issue-date', @invoice.date
       xml_root.tag! 'due-date', @invoice.due_date
+      xml_root.tag! 'payment-terms-days', @invoice.payment_terms_days
       if @invoice.published
         if @invoice.token.nil?
           payment_url = ''

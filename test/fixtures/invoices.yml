@@ -6,6 +6,7 @@ published_invoice:
   published: true
   date: <%= Date.current %>
   due_date: <%= 30.days.from_now.to_date %>
+  payment_terms_days: 30
   cust_reference: "REF-12345"
   cust_order: "ORDER-67890"
   prelude: "Thank you for your business."
@@ -20,6 +21,7 @@ auto_email_invoice:
   published: true
   date: <%= Date.current %>
   due_date: <%= 45.days.from_now.to_date %>
+  payment_terms_days: 45
   cust_reference: "AUTO-REF-999"
   cust_order: "AUTO-ORDER-111"
   prelude: "Automated invoice processing."
@@ -34,6 +36,7 @@ no_email_invoice:
   published: true
   date: <%= Date.current %>
   due_date: <%= 14.days.from_now.to_date %>
+  payment_terms_days: 14
   cust_reference: "NOEMAIL-REF"
   cust_order: "NOEMAIL-ORDER"
   sum_net: 75.00

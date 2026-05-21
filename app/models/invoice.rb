@@ -128,6 +128,7 @@ private
     self.customer_vat_id = self.customer.vat_id
     self.customer.sales_tax_customer_class.reload
     self.tax_note = self.customer.sales_tax_customer_class.invoice_note
+    self.payment_terms_days = self.customer.payment_terms_days
   end
 
   def line_addedremoved(changed_item)

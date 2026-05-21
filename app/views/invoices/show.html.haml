@@ -21,6 +21,18 @@
             %strong Customer:
           .col-sm-8
             = @invoice.customer_name || @invoice.customer.name
+        .row.mb-2
+          .col-sm-4
+            %strong Payment Terms:
+          .col-sm-8
+            = @invoice.payment_terms_days
+            days net
+        - if @invoice.due_date
+          .row.mb-2
+            .col-sm-4
+              %strong Due Date:
+            .col-sm-8
+              = format_date(@invoice.due_date)
 
         - if @invoice.published?
           .row.mb-2

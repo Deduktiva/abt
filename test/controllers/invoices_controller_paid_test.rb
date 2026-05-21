@@ -104,4 +104,27 @@ class InvoicesControllerPaidTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select 'strong', text: 'Payment Status:', count: 0
   end
+
+  test "index unpaid filter shows only unpaid published invoices" do
+    unpaid = invoices(:published_invoice)
+    unpaid.update!(paid_at: nil)
+    paid = invoices(:auto_email_invoice)
+    paid.update!(paid_at: Date.current)
+    draft = invoices(:draft_invoice)
+
+    get invoices_path(filter: 'unpaid', year: Date.current.year)
+
+    assert_response :success
+    assert_select '.invoice-filter .active', text: 'Unpaid'
+    assert_select 'a', text: unpaid.document_number
+    assert_select 'a', text: paid.document_number, count: 0
+    assert_select 'a', text: "Draft ##{draft.id}", count: 0
+  end
+
+  test "index has Unpaid filter button" do
+    get invoices_path
+
+    assert_response :success
+    assert_select '.invoice-filter a', text: 'Unpaid'
+  end
 end

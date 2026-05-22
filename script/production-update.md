@@ -114,6 +114,14 @@ The worker connects to the dedicated `queue` database defined in `config/databas
    systemctl --user enable --now abt-jobs.service
    ```
 
+### Running manually
+
+If you need to run the worker by hand (e.g. for a one-off test before systemd is set up), always pass `RAILS_ENV=production`. Without it `bin/jobs` boots in development mode and Bundler tries to load gems that production deployments don't install:
+
+```bash
+RAILS_ENV=production bin/jobs
+```
+
 ### Verifying the worker
 
 ```bash

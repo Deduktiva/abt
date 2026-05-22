@@ -1,8 +1,18 @@
 require "test_helper"
 
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
-  driven_by :cuprite, using: :chrome, screen_size: [1400, 1400], options: {
+  cuprite_options = {
     js_errors: true,
     headless: ENV['HEADLESS'] != '0'  # Default to headless unless explicitly disabled
   }
+
+  # Allow pointing at a non-standard Chromium binary (e.g. the Playwright build
+  # in /opt/pw-browsers in our sandbox) and add --no-sandbox when running as
+  # root, which Chrome refuses by default.
+  cuprite_options[:browser_path] = ENV['BROWSER_PATH'] if ENV['BROWSER_PATH'].present?
+  if Process.uid.zero? || ENV['CHROME_NO_SANDBOX'] == '1'
+    cuprite_options[:browser_options] = { 'no-sandbox' => nil }
+  end
+
+  driven_by :cuprite, using: :chrome, screen_size: [1400, 1400], options: cuprite_options
 end

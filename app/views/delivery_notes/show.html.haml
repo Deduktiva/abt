@@ -90,13 +90,13 @@
             .d-flex.gap-2
               = form_with url: upload_acceptance_delivery_note_path(@delivery_note), method: :post, multipart: true, local: true, class: 'd-flex align-items-center', data: { controller: 'file-upload-validation' } do |form|
                 .me-2
-                  = form.file_field :acceptance_pdf, accept: 'application/pdf', class: 'form-control form-control-sm', style: 'width: 250px;', data: { file_upload_validation_target: 'fileInput' }
+                  = form.file_field :acceptance_pdf, accept: 'application/pdf', class: 'form-control form-control-sm w-fixed-250', data: { file_upload_validation_target: 'fileInput' }
                 = form.submit 'Replace', class: 'btn btn-warning btn-sm', data: { file_upload_validation_target: 'submitButton' }
               = button_to 'Delete', delete_acceptance_delivery_note_path(@delivery_note), method: :post, class: 'btn btn-outline-danger btn-sm', confirm: 'Are you sure you want to delete the acceptance document?'
           - else
             = form_with url: upload_acceptance_delivery_note_path(@delivery_note), method: :post, multipart: true, local: true, class: 'd-flex align-items-center', data: { controller: 'file-upload-validation' } do |form|
               .me-3
-                = form.file_field :acceptance_pdf, accept: 'application/pdf', class: 'form-control', style: 'width: auto;', data: { file_upload_validation_target: 'fileInput' }
+                = form.file_field :acceptance_pdf, accept: 'application/pdf', class: 'form-control w-auto', data: { file_upload_validation_target: 'fileInput' }
               = form.submit 'Upload PDF', class: 'btn btn-primary btn-sm', data: { file_upload_validation_target: 'submitButton' }
             %small.text-muted.d-block.mt-2
               Upload the signed acceptance document (PDF only)
@@ -108,10 +108,10 @@
           = simple_format(@delivery_note.prelude)
 
   .document-lines.mb-2
-    %table.table.table-bordered
+    %table.table.table-bordered.document-lines-table
       %thead
         %tr
-          %th.text-end{style: "width: 10%"} Quantity
+          %th.text-end.col-quantity Quantity
           %th Description
       %tbody
         - @delivery_note.delivery_note_lines.each do |line|
@@ -128,17 +128,17 @@
                 =#line.delivery_time
           - when 'subheading'
             %tr
-              %td.fw-bold.table-secondary{colspan: 5, style: "padding: 12px 8px;"}
+              %td.fw-bold.table-secondary.document-section-row{colspan: 5}
                 = line.title
           - when 'text', 'plain'
             %tr
-              %td{colspan: 5, style: "padding: 8px;"}
+              %td.document-text-row{colspan: 5}
                 - if line.title.present?
                   %div= line.title
                 - if line.description.present?
-                  %div.text-muted{style: "margin-left: 20px;"}
+                  %div.text-muted.document-line-comment
                     - if line.type == 'plain'
-                      %pre.mb-0{style: "font-family: monospace; white-space: pre-wrap;"}= line.description
+                      %pre.mb-0.font-monospace.text-pre-wrap= line.description
                     - else
                       = simple_format(line.description)
 
@@ -161,8 +161,8 @@
       = destroy_link(@delivery_note, "Are you sure you want to delete delivery note \"#{@delivery_note.document_number || "##{@delivery_note.id}"}\"?")
 
   // Email Preview Modal
-  .modal.d-none{"data-delivery-note-email-preview-target" => "modal", "data-action" => "click->delivery-note-email-preview#closeOnBackdrop keydown@window->delivery-note-email-preview#closeOnEscape", "style" => "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1050; display: flex; align-items: center; justify-content: center;"}
-    .modal-dialog.modal-lg{"style" => "max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto;"}
+  .modal.d-none.email-preview-modal{"data-delivery-note-email-preview-target" => "modal", "data-action" => "click->delivery-note-email-preview#closeOnBackdrop keydown@window->delivery-note-email-preview#closeOnEscape"}
+    .modal-dialog.modal-lg.email-preview-modal-dialog
       .modal-content
         .modal-header.d-flex.justify-content-between.align-items-center
           %h5.modal-title.mb-0

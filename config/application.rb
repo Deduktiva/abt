@@ -16,6 +16,10 @@ module Abt
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
 
+    # Modern Permissions-Policy header (Rails 8 still emits Feature-Policy).
+    require_relative "../app/middleware/permissions_policy_header"
+    config.middleware.use PermissionsPolicyHeader
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files

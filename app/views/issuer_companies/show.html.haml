@@ -78,13 +78,13 @@
           .col-sm-4
             %strong Contact Line 1:
           .col-sm-8
-            %span{style: "white-space: pre-wrap"}= @issuer_company.document_contact_line1
+            %span.text-pre-wrap= @issuer_company.document_contact_line1
 
         .row.mb-2
           .col-sm-4
             %strong Contact Line 2:
           .col-sm-8
-            %span{style: "white-space: pre-wrap"}= @issuer_company.document_contact_line2
+            %span.text-pre-wrap= @issuer_company.document_contact_line2
 
         .row.mb-2
           .col-sm-4
@@ -103,7 +103,8 @@
             %strong Accent Color:
           .col-sm-8
             - if @issuer_company.document_accent_color.present?
-              %span.badge{style: "background-color: #{@issuer_company.document_accent_color}"}
+              = tag.style ":root { --issuer-accent-color: #{@issuer_company.document_accent_color}; }".html_safe, nonce: true
+              %span.badge.badge-issuer-accent
                 = @issuer_company.document_accent_color
             - else
               %em Not set

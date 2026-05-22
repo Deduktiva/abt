@@ -161,12 +161,12 @@ export default class extends Controller {
       this.listTarget.innerHTML = this.errors.map(error => `
         <li class="dropdown-item-text small py-2 px-3" data-error-id="${error.id}">
           <div class="d-flex justify-content-between align-items-start">
-            <div class="flex-grow-1 me-2" style="min-width: 0;">
-              <div class="fw-bold text-danger text-wrap" style="word-break: break-word;">${error.message}</div>
+            <div class="flex-grow-1 me-2 error-notification-error-text">
+              <div class="fw-bold text-danger text-wrap error-notification-error-message">${error.message}</div>
               <div class="text-muted small">${this.formatTimestamp(error.timestamp)}</div>
             </div>
-            <button type="button" class="btn btn-sm btn-outline-secondary flex-shrink-0"
-                    data-action="click->error-notification#clearError" style="min-width: 24px;">×</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary flex-shrink-0 error-notification-clear-button"
+                    data-action="click->error-notification#clearError">×</button>
           </div>
         </li>
       `).join('')

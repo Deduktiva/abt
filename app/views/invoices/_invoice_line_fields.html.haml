@@ -20,7 +20,7 @@
           %button.btn.btn-sm.btn-secondary{type: 'button', data: {action: 'click->invoice-lines#moveLineDown'}} ▼
           %button.btn.btn-sm.btn-danger{type: 'button', data: {action: 'click->invoice-lines#removeLine'}} 🗑
 
-    .row.mt-2{data: {product_dropdown: true}, style: 'display: none;'}
+    .row.mt-2.d-none{data: {product_dropdown: true}}
       .col-sm-11
         .input-group.mb-3
           %select.form-select{data: {product_select: true}}

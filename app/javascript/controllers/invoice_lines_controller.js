@@ -63,7 +63,7 @@ export default class extends BaseLinesController {
 
       // Hide the dropdown
       const dropdown = line.querySelector('[data-product-dropdown]')
-      dropdown.style.display = 'none'
+      dropdown.classList.add('d-none')
 
       // Update totals
       this.updateTotal()

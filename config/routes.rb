@@ -43,5 +43,7 @@ Rails.application.routes.draw do
   resources :sales_tax_product_classes
   resources :sales_tax_rates
 
+  resource :jobs_status, only: [:show], controller: 'jobs_status'
+
   root to: "home#index"
 end

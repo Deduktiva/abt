@@ -79,11 +79,13 @@ The worker connects to the dedicated `queue` database defined in `config/databas
 
 ### One-time setup (per host, as the application user)
 
-1. **Enable user lingering** so user-level systemd services keep running after logout. This must be done once by an administrator with `sudo` access (the `production-update` script does not call `sudo`):
+1. **Enable user lingering** so user-level systemd services keep running after logout *and* so `/run/user/<uid>` exists for non-login shells (deploys, cron). The `production-update` script relies on this to find the user systemd bus — without it, `systemctl --user` from the deploy shell will fail with "Failed to connect to bus" and the script will warn that the unit cannot be reached. Run this once as an administrator with `sudo`:
 
    ```bash
    sudo loginctl enable-linger <app-user>
    ```
+
+   Verify with `loginctl show-user <app-user> | grep Linger=yes` and confirm `/run/user/$(id -u <app-user>)/bus` exists.
 
 2. **Create the systemd user unit** at `~/.config/systemd/user/abt-jobs.service`:
 

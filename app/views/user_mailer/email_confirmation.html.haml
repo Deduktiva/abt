@@ -1,0 +1,9 @@
+.greeting Hello #{@user.full_name},
+.main-message
+  Please confirm this email address (#{@email.address}) belongs to your ABT account by clicking the link below.
+.main-message
+  = link_to 'Confirm email address', @confirmation_url
+.main-message
+  This link expires on #{l(@expires_at, format: '%Y-%m-%d %H:%M %Z')}.
+.main-message
+  If you did not request this, you can ignore this email.

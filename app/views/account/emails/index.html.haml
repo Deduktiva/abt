@@ -1,0 +1,40 @@
+- content_for :title, 'My emails'
+
+= page_header('My emails')
+
+%table.table.table-striped.table-sm
+  %thead
+    %tr
+      %th Address
+      %th Status
+      %th Added
+      %th
+  %tbody
+    - @emails.each do |email|
+      %tr
+        %td= email.address
+        %td
+          - if email.confirmed?
+            %span.badge.bg-success Confirmed
+          - else
+            %span.badge.bg-warning Pending
+        %td= format_datetime(email.created_at)
+        %td
+          - if email.confirmed? && current_user.confirmed_emails.count <= 1
+            %span.text-muted.small Only confirmed — add another to remove
+          - else
+            = button_to 'Remove', account_email_path(email), method: :delete,
+                data: { turbo_confirm: "Remove email #{email.address}?" },
+                class: 'btn btn-sm btn-outline-danger'
+
+%h2 Add new email
+= form_with url: account_emails_path, method: :post, scope: :user_email, local: true do |f|
+  .row.g-2
+    .col-md-6
+      = f.email_field :address, class: 'form-control', placeholder: 'new@example.com', required: true
+    .col-md-2
+      = f.submit 'Add', class: 'btn btn-primary'
+  .form-text You'll receive a confirmation link at this address.
+
+.mt-4
+  = link_to 'Back to account', account_profile_path, class: 'btn btn-secondary'

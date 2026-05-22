@@ -1,0 +1,75 @@
+- content_for :title, 'My account'
+
+= page_header('My account')
+
+.row
+  .col-md-6
+    .card.mb-3
+      .card-header Profile
+      .card-body
+        %dl.row.mb-0
+          %dt.col-sm-4 Username
+          %dd.col-sm-8= @user.username
+          %dt.col-sm-4 Full name
+          %dd.col-sm-8= @user.full_name
+          %dt.col-sm-4 Member since
+          %dd.col-sm-8= format_datetime(@user.created_at)
+    .card.mb-3
+      .card-header
+        .d-flex.justify-content-between.align-items-center
+          %span Emails
+          = link_to 'Manage', account_emails_path, class: 'btn btn-sm btn-outline-primary'
+      %ul.list-group.list-group-flush
+        - @emails.each do |email|
+          %li.list-group-item
+            = email.address
+            - if email.confirmed?
+              %span.badge.bg-success.ms-2 Confirmed
+            - else
+              %span.badge.bg-warning.ms-2 Pending
+    .card.mb-3
+      .card-header
+        .d-flex.justify-content-between.align-items-center
+          %span Passkeys
+          = link_to 'Manage', account_credentials_path, class: 'btn btn-sm btn-outline-primary'
+      %ul.list-group.list-group-flush
+        - @credentials.each do |cred|
+          %li.list-group-item
+            = cred.nickname
+            %span.text-muted.ms-2.small
+              - if cred.last_used_at
+                Last used #{format_datetime(cred.last_used_at)}
+              - else
+                Never used
+  .col-md-6
+    .card.mb-3
+      .card-header
+        .d-flex.justify-content-between.align-items-center
+          %span Active sessions
+          = link_to 'Manage', account_sessions_path, class: 'btn btn-sm btn-outline-primary'
+      %ul.list-group.list-group-flush
+        - @sessions.each do |s|
+          %li.list-group-item
+            %div
+              %code.small= s.ip_address
+              - if current_user_session && current_user_session.id == s.id
+                %span.badge.bg-info.ms-2 This session
+            .small.text-muted= s.user_agent.to_s.truncate(80)
+            .small.text-muted Last seen: #{format_datetime(s.last_seen_at)}
+    .card.mb-3
+      .card-header
+        .d-flex.justify-content-between.align-items-center
+          %span Recent activity
+          = link_to 'View all', account_audit_events_path, class: 'btn btn-sm btn-outline-primary'
+      %ul.list-group.list-group-flush
+        - @audit_events.each do |event|
+          %li.list-group-item
+            %code= event.action
+            %span.text-muted.ms-2.small= format_datetime(event.created_at)
+    .card.border-danger
+      .card-header.bg-danger.text-white Danger zone
+      .card-body
+        %p Self-block disables your account, terminates all your sessions, and prevents you from signing in. An administrator can re-enable your account.
+        = button_to 'Block my account', account_block_path, method: :post,
+            data: { turbo_confirm: 'Are you sure? This will sign you out and block your account.' },
+            class: 'btn btn-danger'

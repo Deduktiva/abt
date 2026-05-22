@@ -1,0 +1,22 @@
+pending_signup:
+  token_digest: <%= Digest::SHA256.hexdigest('pending-signup-token') %>
+  purpose: signup
+  expires_at: <%= 12.hours.from_now %>
+  created_at: <%= 1.hour.ago %>
+  updated_at: <%= 1.hour.ago %>
+
+expired_signup:
+  token_digest: <%= Digest::SHA256.hexdigest('expired-signup-token') %>
+  purpose: signup
+  expires_at: <%= 1.hour.ago %>
+  created_at: <%= 26.hours.ago %>
+  updated_at: <%= 26.hours.ago %>
+
+used_signup:
+  token_digest: <%= Digest::SHA256.hexdigest('used-signup-token') %>
+  purpose: signup
+  expires_at: <%= 12.hours.from_now %>
+  used_at: <%= 2.hours.ago %>
+  used_by_user: alice
+  created_at: <%= 6.hours.ago %>
+  updated_at: <%= 2.hours.ago %>

@@ -1,0 +1,102 @@
+- content_for :title, "User #{@user.username}"
+
+.d-flex.justify-content-between.align-items-center.mb-3
+  %h1.page-header.mb-0= @user.username
+  - if @user.blocked?
+    %span.badge.bg-danger.fs-6 Blocked
+  - else
+    %span.badge.bg-success.fs-6 Active
+
+.row
+  .col-md-6
+    .card.mb-3
+      .card-header Profile
+      .card-body
+        %dl.row.mb-0
+          %dt.col-sm-4 Username
+          %dd.col-sm-8= @user.username
+          %dt.col-sm-4 Full name
+          %dd.col-sm-8= @user.full_name
+          %dt.col-sm-4 Created
+          %dd.col-sm-8= format_datetime(@user.created_at)
+          - if @user.blocked?
+            %dt.col-sm-4 Blocked at
+            %dd.col-sm-8= format_datetime(@user.blocked_at)
+            %dt.col-sm-4 Reason
+            %dd.col-sm-8= @user.blocked_reason
+            %dt.col-sm-4 Blocked by
+            %dd.col-sm-8= @user.blocked_by_user&.username || '—'
+
+    .card.mb-3
+      .card-header Emails
+      %ul.list-group.list-group-flush
+        - @emails.each do |email|
+          %li.list-group-item
+            .d-flex.justify-content-between.align-items-center
+              %div
+                = email.address
+                - if email.confirmed?
+                  %span.badge.bg-success.ms-2 Confirmed
+                - else
+                  %span.badge.bg-warning.ms-2 Pending
+              %div.btn-group
+                = button_to 'Replace…', '#', class: 'btn btn-sm btn-outline-secondary', form: { class: 'd-inline', "data-toggle-form" => "email-#{email.id}" }, type: 'button', onclick: "document.getElementById('replace-email-#{email.id}').classList.toggle('d-none'); return false;"
+                - if !(email.confirmed? && @user.confirmed_emails.count <= 1)
+                  = button_to 'Remove', user_email_path(user_id: @user, id: email), method: :delete,
+                      data: { turbo_confirm: "Remove email #{email.address}?" },
+                      class: 'btn btn-sm btn-outline-danger'
+            .mt-2.d-none{id: "replace-email-#{email.id}"}
+              = form_with url: user_email_path(user_id: @user, id: email), method: :put, scope: :user_email, local: true do |f|
+                .input-group.input-group-sm
+                  = f.email_field :address, class: 'form-control', placeholder: 'replacement@example.com', required: true
+                  = f.submit 'Replace', class: 'btn btn-primary'
+      .card-body
+        = form_with url: user_emails_path(@user), method: :post, scope: :user_email, local: true do |f|
+          .input-group.input-group-sm
+            = f.email_field :address, class: 'form-control', placeholder: 'add@example.com', required: true
+            = f.submit 'Add email', class: 'btn btn-outline-primary'
+        .form-text Admin-added emails are confirmed immediately (no email verification needed).
+
+  .col-md-6
+    .card.mb-3
+      .card-header Passkeys
+      %ul.list-group.list-group-flush
+        - @credentials.each do |cred|
+          %li.list-group-item
+            = cred.nickname
+            %span.text-muted.ms-2.small
+              - if cred.last_used_at
+                Last used #{format_datetime(cred.last_used_at)}
+              - else
+                Never used
+        - if @credentials.empty?
+          %li.list-group-item.text-muted No passkeys
+
+    .card.mb-3
+      .card-header Active sessions
+      %ul.list-group.list-group-flush
+        - @sessions.each do |s|
+          %li.list-group-item
+            %code.small= s.ip_address
+            .small.text-muted= s.user_agent.to_s.truncate(80)
+            .small.text-muted Last seen: #{format_datetime(s.last_seen_at)}
+        - if @sessions.empty?
+          %li.list-group-item.text-muted No active sessions
+
+= action_buttons_wrapper do
+  - if @user.blocked?
+    = button_to 'Unblock', unblock_user_path(@user), method: :post,
+        data: { turbo_confirm: "Unblock #{@user.username}?" },
+        class: 'btn btn-success'
+    = button_to 'Reset passkeys', reset_passkeys_user_path(@user), method: :post,
+        data: { turbo_confirm: "Delete all of #{@user.username}'s passkeys and email them an invite to register a new one?" },
+        class: 'btn btn-warning'
+  - elsif @user.id != current_user.id
+    = form_with url: block_user_path(@user), method: :post, local: true, class: 'd-inline' do |f|
+      .input-group.input-group-sm{style: 'width: 400px; display: inline-flex;'}
+        = f.text_field :reason, class: 'form-control', placeholder: 'Reason (required)', required: true
+        = f.submit 'Block', class: 'btn btn-danger',
+            data: { turbo_confirm: "Block #{@user.username}? All sessions will be terminated." }
+
+  = action_button('View audit log', audit_user_path(@user), :secondary)
+  = action_button('Back to list', users_path, :secondary)

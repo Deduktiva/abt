@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_20_212540) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_22_140006) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -226,10 +226,109 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_212540) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "user_audit_events", force: :cascade do |t|
+    t.string "action", null: false
+    t.integer "actor_user_id"
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.text "metadata"
+    t.string "user_agent"
+    t.integer "user_id"
+    t.index ["action"], name: "index_user_audit_events_on_action"
+    t.index ["actor_user_id", "created_at"], name: "index_user_audit_events_on_actor_user_id_and_created_at"
+    t.index ["actor_user_id"], name: "index_user_audit_events_on_actor_user_id"
+    t.index ["user_id", "created_at"], name: "index_user_audit_events_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_user_audit_events_on_user_id"
+  end
+
+  create_table "user_credentials", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "external_id", null: false
+    t.datetime "last_used_at"
+    t.string "nickname", null: false
+    t.text "public_key", null: false
+    t.integer "sign_count", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["external_id"], name: "index_user_credentials_on_external_id", unique: true
+    t.index ["user_id"], name: "index_user_credentials_on_user_id"
+  end
+
+  create_table "user_emails", force: :cascade do |t|
+    t.string "address", null: false
+    t.datetime "confirmation_expires_at"
+    t.string "confirmation_token_digest"
+    t.datetime "confirmed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["address"], name: "index_user_emails_on_address", unique: true
+    t.index ["confirmation_token_digest"], name: "index_user_emails_on_confirmation_token_digest", unique: true, where: "confirmation_token_digest IS NOT NULL"
+    t.index ["user_id"], name: "index_user_emails_on_user_id"
+  end
+
+  create_table "user_invites", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "created_by_user_id"
+    t.datetime "expires_at", null: false
+    t.string "purpose", null: false
+    t.integer "target_user_id"
+    t.string "token_digest", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "used_at"
+    t.integer "used_by_user_id"
+    t.index ["created_by_user_id"], name: "index_user_invites_on_created_by_user_id"
+    t.index ["expires_at"], name: "index_user_invites_on_expires_at"
+    t.index ["target_user_id"], name: "index_user_invites_on_target_user_id"
+    t.index ["token_digest"], name: "index_user_invites_on_token_digest", unique: true
+    t.index ["used_by_user_id"], name: "index_user_invites_on_used_by_user_id"
+  end
+
+  create_table "user_sessions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.datetime "last_seen_at", null: false
+    t.datetime "terminated_at"
+    t.integer "terminated_by_user_id"
+    t.string "termination_reason"
+    t.string "token_digest", null: false
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.integer "user_id", null: false
+    t.index ["terminated_by_user_id"], name: "index_user_sessions_on_terminated_by_user_id"
+    t.index ["token_digest"], name: "index_user_sessions_on_token_digest", unique: true
+    t.index ["user_id", "terminated_at"], name: "index_user_sessions_on_user_id_and_terminated_at"
+    t.index ["user_id"], name: "index_user_sessions_on_user_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.datetime "blocked_at"
+    t.integer "blocked_by_user_id"
+    t.string "blocked_reason"
+    t.datetime "created_at", null: false
+    t.string "full_name", null: false
+    t.datetime "updated_at", null: false
+    t.string "username", null: false
+    t.string "webauthn_id", null: false
+    t.index ["blocked_at"], name: "index_users_on_blocked_at"
+    t.index ["blocked_by_user_id"], name: "index_users_on_blocked_by_user_id"
+    t.index ["username"], name: "index_users_on_username", unique: true
+  end
+
   add_foreign_key "customers", "languages"
   add_foreign_key "delivery_note_lines", "delivery_notes"
   add_foreign_key "delivery_notes", "attachments", column: "acceptance_attachment_id"
   add_foreign_key "delivery_notes", "customers"
   add_foreign_key "delivery_notes", "invoices"
   add_foreign_key "delivery_notes", "projects"
+  add_foreign_key "user_audit_events", "users", column: "actor_user_id", on_delete: :nullify
+  add_foreign_key "user_audit_events", "users", on_delete: :nullify
+  add_foreign_key "user_credentials", "users"
+  add_foreign_key "user_emails", "users"
+  add_foreign_key "user_invites", "users", column: "created_by_user_id"
+  add_foreign_key "user_invites", "users", column: "target_user_id"
+  add_foreign_key "user_invites", "users", column: "used_by_user_id"
+  add_foreign_key "user_sessions", "users"
+  add_foreign_key "user_sessions", "users", column: "terminated_by_user_id"
+  add_foreign_key "users", "users", column: "blocked_by_user_id"
 end

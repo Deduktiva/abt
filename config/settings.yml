@@ -1,3 +1,12 @@
+app:
+  host: 'localhost:3000'
+  protocol: 'http'
+
 payments:
 #  public_url: 'https://pay.deduktiva.com/p/%token%'
   public_url: ''
+
+webauthn:
+  rp_name: 'ABT'
+  rp_id: 'localhost'
+  origin: 'http://localhost:3000'

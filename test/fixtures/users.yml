@@ -1,0 +1,22 @@
+alice:
+  username: alice
+  full_name: Alice Example
+  webauthn_id: alice-webauthn-id
+  created_at: <%= 1.week.ago %>
+  updated_at: <%= 1.week.ago %>
+
+bob:
+  username: bob
+  full_name: Bob Example
+  webauthn_id: bob-webauthn-id
+  created_at: <%= 3.days.ago %>
+  updated_at: <%= 3.days.ago %>
+
+blocked_carol:
+  username: carol
+  full_name: Carol Example
+  webauthn_id: carol-webauthn-id
+  blocked_at: <%= 1.day.ago %>
+  blocked_reason: testing
+  created_at: <%= 5.days.ago %>
+  updated_at: <%= 1.day.ago %>

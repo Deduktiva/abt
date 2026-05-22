@@ -23,3 +23,36 @@ class ActiveSupport::TestCase
 
   # Add more helper methods to be used by all tests here...
 end
+
+module TestAuthHelpers
+  extend ActiveSupport::Concern
+
+  class_methods do
+    def skip_default_signin!
+      self._skip_default_signin = true
+    end
+  end
+
+  included do
+    class_attribute :_skip_default_signin, default: false
+
+    setup do
+      sign_in_as(users(:alice)) unless self.class._skip_default_signin
+    end
+  end
+
+  def sign_in_as(user, request_obj = nil)
+    request_obj ||= Struct.new(:remote_ip, :user_agent).new('127.0.0.1', 'test')
+    session_record, plaintext = UserSession.create_for!(user: user, request: request_obj)
+    cookies[ApplicationController::SESSION_COOKIE] = plaintext
+    session_record
+  end
+end
+
+class ActionDispatch::IntegrationTest
+  include TestAuthHelpers
+end
+
+class ActionController::TestCase
+  include TestAuthHelpers
+end

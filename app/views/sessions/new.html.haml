@@ -1,0 +1,20 @@
+- content_for :title, 'Sign in'
+
+.row.justify-content-center
+  .col-md-6
+    = page_header('Sign in')
+    %p Use your passkey to sign in.
+
+    .card{"data-controller" => "passkey",
+          "data-passkey-options-url-value" => options_session_path,
+          "data-passkey-verify-url-value" => verify_session_path,
+          "data-passkey-csrf-token-value" => form_authenticity_token}
+      .card-body
+        .alert.alert-danger.d-none{"data-passkey-target" => "error"}
+        = form_with url: '#', method: :post, local: true do |f|
+          .mb-3
+            = f.label :username, class: 'form-label'
+            = f.text_field :username, class: 'form-control', autocomplete: 'username', "data-passkey-target" => "username", required: true
+          .d-grid
+            %button.btn.btn-primary{type: 'button', "data-action" => "click->passkey#authenticate"}
+              Sign in with passkey

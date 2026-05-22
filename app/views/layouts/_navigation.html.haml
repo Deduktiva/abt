@@ -1,55 +1,56 @@
 = link_to "ABT", root_path, :class => 'navbar-brand'
-%button.navbar-toggler{:type => "button", :"data-navbar-target" => "toggle", :"data-action" => "click->navbar#toggle"}
-  %span.navbar-toggler-icon
-.collapse.navbar-collapse{"data-navbar-target" => "menu"}
-  %ul.navbar-nav.me-auto
-    %li.nav-item
-      = link_to('Customers', customers_path, :class => 'nav-link')
-    %li.nav-item
-      = link_to('Projects', projects_path, :class => 'nav-link')
-    %li.nav-item
-      = link_to('Deliveries', delivery_notes_path, :class => 'nav-link')
-    %li.nav-item
-      = link_to('Invoices', invoices_path, :class => 'nav-link')
-  %ul.navbar-nav
-    %li.nav-item.dropdown{"data-controller" => "error-notification", "data-error-notification-max-errors-value" => "5", :style => "display: none;", "data-error-notification-target" => "icon"}
-      %a.nav-link{:href => "#", :role => "button", :"data-action" => "click->error-notification#toggle"}
-        %span.badge.rounded-pill.bg-danger{"data-error-notification-target" => "badge"}
-      %ul.dropdown-menu.dropdown-menu-end{"data-error-notification-target" => "dropdown", "data-action" => "click->error-notification#preventClose", :style => "width: 280px; max-height: 300px; overflow-y: auto; z-index: 1050; right: 0; left: auto;"}
-        %li.dropdown-header.px-3.py-2
-          .d-flex.justify-content-between.align-items-center
-            %span.fw-bold Recent Errors
-            %button.btn.btn-sm.btn-outline-danger{"data-action" => "click->error-notification#clearAll", :type => "button", :style => "font-size: 0.75rem;"} Clear All
-        %li
-          %hr.dropdown-divider
-        %ul.list-unstyled.mb-0{"data-error-notification-target" => "list"}
-    %li.nav-item.dropdown{"data-controller" => "navbar"}
-      %a.nav-link.dropdown-toggle{:href => "#", :role => "button", :"data-navbar-target" => "toggle", :"data-action" => "click->navbar#toggle"}
-        Configuration
-      %ul.dropdown-menu.dropdown-menu-end{"data-navbar-target" => "menu"}
-        %li
-          = link_to('Issuer Company', issuer_company_path, :class => 'dropdown-item')
-        %li
-          %hr.dropdown-divider
-        %li
-          = link_to('Product Catalog', products_path, :class => 'dropdown-item')
-        %li
-          = link_to('Sales Tax', sales_tax_rates_path, :class => 'dropdown-item')
-        %li
-          %hr.dropdown-divider
-        %li
-          = link_to('Background Jobs', jobs_status_path, :class => 'dropdown-item')
-
--#  - if user_signed_in?
--#    %li
--#      = link_to('Logout', destroy_user_session_path, :method=>'delete')
--#  - else
--#    %li
--#      = link_to('Login', new_user_session_path)
--#  - if user_signed_in?
--#    %li
--#      = link_to('Edit account', edit_user_registration_path)
--#  - else
--#    %li
--#      = link_to('Sign up', new_user_registration_path)
--#
+- if Current.user
+  %button.navbar-toggler{:type => "button", :"data-navbar-target" => "toggle", :"data-action" => "click->navbar#toggle"}
+    %span.navbar-toggler-icon
+  .collapse.navbar-collapse{"data-navbar-target" => "menu"}
+    %ul.navbar-nav.me-auto
+      %li.nav-item
+        = link_to('Customers', customers_path, :class => 'nav-link')
+      %li.nav-item
+        = link_to('Projects', projects_path, :class => 'nav-link')
+      %li.nav-item
+        = link_to('Deliveries', delivery_notes_path, :class => 'nav-link')
+      %li.nav-item
+        = link_to('Invoices', invoices_path, :class => 'nav-link')
+    %ul.navbar-nav
+      %li.nav-item.dropdown{"data-controller" => "error-notification", "data-error-notification-max-errors-value" => "5", :style => "display: none;", "data-error-notification-target" => "icon"}
+        %a.nav-link{:href => "#", :role => "button", :"data-action" => "click->error-notification#toggle"}
+          %span.badge.rounded-pill.bg-danger{"data-error-notification-target" => "badge"}
+        %ul.dropdown-menu.dropdown-menu-end{"data-error-notification-target" => "dropdown", "data-action" => "click->error-notification#preventClose", :style => "width: 280px; max-height: 300px; overflow-y: auto; z-index: 1050; right: 0; left: auto;"}
+          %li.dropdown-header.px-3.py-2
+            .d-flex.justify-content-between.align-items-center
+              %span.fw-bold Recent Errors
+              %button.btn.btn-sm.btn-outline-danger{"data-action" => "click->error-notification#clearAll", :type => "button", :style => "font-size: 0.75rem;"} Clear All
+          %li
+            %hr.dropdown-divider
+          %ul.list-unstyled.mb-0{"data-error-notification-target" => "list"}
+      %li.nav-item.dropdown{"data-controller" => "navbar"}
+        %a.nav-link.dropdown-toggle{:href => "#", :role => "button", :"data-navbar-target" => "toggle", :"data-action" => "click->navbar#toggle"}
+          Configuration
+        %ul.dropdown-menu.dropdown-menu-end{"data-navbar-target" => "menu"}
+          %li
+            = link_to('Issuer Company', issuer_company_path, :class => 'dropdown-item')
+          %li
+            %hr.dropdown-divider
+          %li
+            = link_to('Product Catalog', products_path, :class => 'dropdown-item')
+          %li
+            = link_to('Sales Tax', sales_tax_rates_path, :class => 'dropdown-item')
+          %li
+            %hr.dropdown-divider
+          %li
+            = link_to('Users', users_path, :class => 'dropdown-item')
+          %li
+            %hr.dropdown-divider
+          %li
+            = link_to('Background Jobs', jobs_status_path, :class => 'dropdown-item')
+      %li.nav-item.dropdown{"data-controller" => "navbar"}
+        %a.nav-link.dropdown-toggle{:href => "#", :role => "button", :"data-navbar-target" => "toggle", :"data-action" => "click->navbar#toggle"}
+          = Current.user.username
+        %ul.dropdown-menu.dropdown-menu-end{"data-navbar-target" => "menu"}
+          %li
+            = link_to('My account', account_profile_path, :class => 'dropdown-item')
+          %li
+            %hr.dropdown-divider
+          %li
+            = button_to('Sign out', session_path, method: :delete, class: 'dropdown-item', form_class: 'd-inline')

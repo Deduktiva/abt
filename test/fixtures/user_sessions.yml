@@ -1,0 +1,12 @@
+# Fixture sessions are inert placeholders — tests that need real session
+# auth should call sign_in_as(user) which creates a fresh session with a
+# matching cookie.
+
+alice_active:
+  user: alice
+  token_digest: <%= Digest::SHA256.hexdigest('alice-active-token') %>
+  ip_address: 10.0.0.1
+  user_agent: TestClient
+  last_seen_at: <%= 10.minutes.ago %>
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 10.minutes.ago %>

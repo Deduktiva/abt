@@ -4,7 +4,6 @@ class DeliveryNotesController < ApplicationController
   include EmailPreviewHelper
   include ApplicationHelper
   # GET /delivery_notes
-  # GET /delivery_notes.json
   def index
     # Get the selected year from params, default to current year
     @selected_year = params[:year]&.to_i || Date.current.year
@@ -44,34 +43,17 @@ class DeliveryNotesController < ApplicationController
                              .order(Arel.sql("#{year_sql} DESC"))
                              .pluck(Arel.sql(year_sql))
                              .map(&:to_i)
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.json { render json: @delivery_notes }
-    end
   end
 
   # GET /delivery_notes/1
-  # GET /delivery_notes/1.json
   def show
     @delivery_note = DeliveryNote.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.json { render json: @delivery_note }
-    end
   end
 
   # GET /delivery_notes/new
-  # GET /delivery_notes/new.json
   def new
     @delivery_note = DeliveryNote.new
     set_form_options
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.json { render json: @delivery_note }
-    end
   end
 
   # GET /delivery_notes/1/edit
@@ -83,44 +65,30 @@ class DeliveryNotesController < ApplicationController
   end
 
   # POST /delivery_notes
-  # POST /delivery_notes.json
   def create
     @delivery_note = DeliveryNote.new(delivery_note_params)
 
-    respond_to do |format|
-      if @delivery_note.save
-        format.html { redirect_to @delivery_note, notice: 'Delivery Note was successfully created.' }
-        format.json { render json: @delivery_note, status: :created, location: @delivery_note }
-      else
-        format.html { render :new, status: :unprocessable_content }
-        format.json { render json: @delivery_note.errors, status: :unprocessable_content }
-      end
+    if @delivery_note.save
+      redirect_to @delivery_note, notice: 'Delivery Note was successfully created.'
+    else
+      render :new, status: :unprocessable_content
     end
   end
 
   # PUT /delivery_notes/1
-  # PUT /delivery_notes/1.json
   def update
     @delivery_note = DeliveryNote.find(params[:id])
     return unless check_unpublished
 
-    update_success = @delivery_note.update(delivery_note_params)
-
-    respond_to do |format|
-      if update_success
-        format.html { redirect_to @delivery_note, notice: 'Delivery Note was successfully updated.' }
-        format.json { head :no_content }
-      else
-        # If saving failed, redirect back to edit with errors
-        set_form_options
-        format.html { render :edit, status: :unprocessable_content }
-        format.json { render json: @delivery_note.errors, status: :unprocessable_content }
-      end
+    if @delivery_note.update(delivery_note_params)
+      redirect_to @delivery_note, notice: 'Delivery Note was successfully updated.'
+    else
+      set_form_options
+      render :edit, status: :unprocessable_content
     end
   end
 
   # DELETE /delivery_notes/1
-  # DELETE /delivery_notes/1.json
   def destroy
     @delivery_note = DeliveryNote.find(params[:id])
 
@@ -130,11 +98,7 @@ class DeliveryNotesController < ApplicationController
     end
 
     @delivery_note.destroy
-
-    respond_to do |format|
-      format.html { redirect_to delivery_notes_url }
-      format.json { head :no_content }
-    end
+    redirect_to delivery_notes_url
   end
 
   def publish
@@ -339,11 +303,7 @@ class DeliveryNotesController < ApplicationController
     return unless check_published
 
     DeliveryNoteEmailSenderJob.perform_later(@delivery_note.id)
-
-    respond_to do |format|
-      format.html { redirect_to @delivery_note, notice: 'E-Mail queued for sending.' }
-      format.json { render json: @delivery_note, status: :ok, location: @delivery_note }
-    end
+    redirect_to @delivery_note, notice: 'E-Mail queued for sending.'
   end
 
   def bulk_send_emails
@@ -374,10 +334,7 @@ class DeliveryNotesController < ApplicationController
       end
     end
 
-    respond_to do |format|
-      format.html { redirect_to delivery_notes_path, notice: "#{queued_count} emails queued for sending." }
-      format.json { render json: { queued_count: queued_count }, status: :ok }
-    end
+    redirect_to delivery_notes_path, notice: "#{queued_count} emails queued for sending."
   end
 
 protected

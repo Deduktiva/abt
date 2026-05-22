@@ -29,6 +29,13 @@ class PasskeyLoginFlowTest < ActionDispatch::IntegrationTest
     post options_session_path, params: { username: @user.username }, as: :json
     assert_response :success
     options = JSON.parse(response.body)
+    # allowCredentials entries must be {type:, id:} with id as a base64url string,
+    # otherwise Firefox refuses to parse the request options.
+    assert_equal 1, options['allowCredentials'].length
+    descriptor = options['allowCredentials'].first
+    assert_equal 'public-key', descriptor['type']
+    assert_kind_of String, descriptor['id']
+    assert_match(/\A[A-Za-z0-9_-]+\z/, descriptor['id'])
     assertion = @fake_client.get(challenge: options['challenge'])
 
     post verify_session_path, params: { credential: assertion }, as: :json

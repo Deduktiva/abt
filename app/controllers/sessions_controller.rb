@@ -9,7 +9,7 @@ class SessionsController < ApplicationController
     credentials = user ? user.credentials : []
 
     options = WebAuthn::Credential.options_for_get(
-      allow: credentials.map { |c| { id: c.external_id, type: 'public-key' } },
+      allow: credentials.map(&:external_id),
       user_verification: 'preferred'
     )
 

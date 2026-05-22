@@ -54,7 +54,7 @@ class InvitesController < ApplicationController
     options = WebAuthn::Credential.options_for_create(
       user: { id: webauthn_user_id, name: username, display_name: full_name },
       exclude: [],
-      authenticator_selection: { user_verification: 'preferred' }
+      authenticator_selection: { resident_key: 'required', user_verification: 'preferred' }
     )
 
     session[:webauthn_signup] = {
@@ -77,7 +77,7 @@ class InvitesController < ApplicationController
     options = WebAuthn::Credential.options_for_create(
       user: { id: target.webauthn_id, name: target.username, display_name: target.full_name },
       exclude: target.credentials.pluck(:external_id),
-      authenticator_selection: { user_verification: 'preferred' }
+      authenticator_selection: { resident_key: 'required', user_verification: 'preferred' }
     )
 
     session[:webauthn_passkey_reset] = {

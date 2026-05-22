@@ -25,17 +25,12 @@ class PasskeyLoginFlowTest < ActionDispatch::IntegrationTest
     )
   end
 
-  test 'a user with a passkey can sign in' do
-    post options_session_path, params: { username: @user.username }, as: :json
+  test 'a user with a passkey can sign in without supplying a username' do
+    post options_session_path, params: {}, as: :json
     assert_response :success
     options = JSON.parse(response.body)
-    # allowCredentials entries must be {type:, id:} with id as a base64url string,
-    # otherwise Firefox refuses to parse the request options.
-    assert_equal 1, options['allowCredentials'].length
-    descriptor = options['allowCredentials'].first
-    assert_equal 'public-key', descriptor['type']
-    assert_kind_of String, descriptor['id']
-    assert_match(/\A[A-Za-z0-9_-]+\z/, descriptor['id'])
+    # Usernameless flow: server must not pre-narrow the credential list.
+    assert(options['allowCredentials'].blank?, 'allowCredentials should be empty for usernameless flow')
     assertion = @fake_client.get(challenge: options['challenge'])
 
     post verify_session_path, params: { credential: assertion }, as: :json
@@ -57,9 +52,13 @@ class PasskeyLoginFlowTest < ActionDispatch::IntegrationTest
   test 'blocked users cannot sign in' do
     @user.update!(blocked_at: Time.current, blocked_reason: 'test')
 
-    post options_session_path, params: { username: @user.username }, as: :json
-    # User is excluded by User.active scope, so credentials list is empty;
-    # an attempt to verify with the user's actual credential should still fail.
+    post options_session_path, params: {}, as: :json
     assert_response :success
+    options = JSON.parse(response.body)
+    assertion = @fake_client.get(challenge: options['challenge'])
+
+    post verify_session_path, params: { credential: assertion }, as: :json
+    assert_response :unauthorized
+    assert UserAuditEvent.where(action: 'login_failed', user: @user, ).exists?
   end
 end

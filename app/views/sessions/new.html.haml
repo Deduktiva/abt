@@ -11,10 +11,6 @@
           "data-passkey-csrf-token-value" => form_authenticity_token}
       .card-body
         .alert.alert-danger.d-none{"data-passkey-target" => "error"}
-        = form_with url: '#', method: :post, local: true do |f|
-          .mb-3
-            = f.label :username, class: 'form-label'
-            = f.text_field :username, class: 'form-control', autocomplete: 'username', "data-passkey-target" => "username", required: true
-          .d-grid
-            %button.btn.btn-primary{type: 'button', "data-action" => "click->passkey#authenticate"}
-              Sign in with passkey
+        .d-grid
+          %button.btn.btn-primary{type: 'button', "data-action" => "click->passkey#authenticate"}
+            Sign in with passkey

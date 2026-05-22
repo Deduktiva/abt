@@ -15,7 +15,7 @@ class Account::CredentialsController < ApplicationController
     options = WebAuthn::Credential.options_for_create(
       user: { id: current_user.webauthn_id, name: current_user.username, display_name: current_user.full_name },
       exclude: current_user.credentials.pluck(:external_id),
-      authenticator_selection: { user_verification: 'preferred' }
+      authenticator_selection: { resident_key: 'required', user_verification: 'preferred' }
     )
 
     session[:webauthn_credential_add] = {

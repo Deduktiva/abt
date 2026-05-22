@@ -57,12 +57,9 @@ export default class extends Controller {
       return this.showError("This browser does not support passkeys.")
     }
 
-    const username = this.hasUsernameTarget ? this.usernameTarget.value.trim() : ""
-    if (!username) return this.showError("Username is required.")
-
     let optionsJSON
     try {
-      optionsJSON = await this.postJSON(this.optionsUrlValue, { username })
+      optionsJSON = await this.postJSON(this.optionsUrlValue, {})
     } catch (e) {
       return this.showError(e.message)
     }

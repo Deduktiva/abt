@@ -5,38 +5,36 @@ class SessionsController < ApplicationController
   end
 
   def options
-    user = User.active.find_by(username: params[:username].to_s.strip.downcase)
-    credentials = user ? user.credentials : []
-
     options = WebAuthn::Credential.options_for_get(
-      allow: credentials.map(&:external_id),
       user_verification: 'preferred'
     )
 
-    session[:webauthn_login] = {
-      challenge: options.challenge,
-      username: user&.username,
-      user_id: user&.id
-    }
+    session[:webauthn_login] = { challenge: options.challenge }
 
     render json: options.as_json
   end
 
   def verify
     login_session = session[:webauthn_login]
-    if login_session.blank? || login_session['user_id'].blank?
+    if login_session.blank? || login_session['challenge'].blank?
       return render json: { error: 'No login in progress' }, status: :unprocessable_content
     end
 
-    user = User.active.find_by(id: login_session['user_id'])
-    return render_login_error('Authentication failed') unless user
-
     webauthn_credential = WebAuthn::Credential.from_get(params[:credential].to_unsafe_h)
-    stored = user.credentials.find_by(external_id: webauthn_credential.id)
+    stored = UserCredential.find_by(external_id: webauthn_credential.id)
     unless stored
       UserAuditEvent.record!(
+        action: 'login_failed', request: request,
+        metadata: { reason: 'unknown_credential' }
+      )
+      return render_login_error('Authentication failed')
+    end
+
+    user = stored.user
+    unless user && !user.blocked?
+      UserAuditEvent.record!(
         action: 'login_failed', user: user, request: request,
-        metadata: { reason: 'unknown_credential', username: user.username }
+        metadata: { reason: user&.blocked? ? 'blocked' : 'no_user', username: user&.username }
       )
       return render_login_error('Authentication failed')
     end

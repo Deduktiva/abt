@@ -1,0 +1,161 @@
+= page_header('Background Jobs')
+
+- if @queue_adapter != :solid_queue
+  .alert.alert-warning
+    The Active Job queue adapter for this environment is
+    %code= @queue_adapter || 'default'
+    so jobs are not being routed through Solid Queue. The figures below
+    only reflect data persisted in the queue database.
+
+.row.mb-3
+  .col-md-2.col-6.mb-2
+    .card.text-center
+      .card-body.py-3
+        .h3.mb-0= @counts[:ready]
+        .small.text-muted Ready
+  .col-md-2.col-6.mb-2
+    .card.text-center
+      .card-body.py-3
+        .h3.mb-0= @counts[:scheduled]
+        .small.text-muted Scheduled
+  .col-md-2.col-6.mb-2
+    .card.text-center
+      .card-body.py-3
+        .h3.mb-0= @counts[:claimed]
+        .small.text-muted In progress
+  .col-md-2.col-6.mb-2
+    .card.text-center
+      .card-body.py-3
+        .h3.mb-0= @counts[:blocked]
+        .small.text-muted Blocked
+  .col-md-2.col-6.mb-2
+    .card.text-center.border-danger{class: ('text-danger' if @counts[:failed].positive?)}
+      .card-body.py-3
+        .h3.mb-0= @counts[:failed]
+        .small Failed
+  .col-md-2.col-6.mb-2
+    .card.text-center
+      .card-body.py-3
+        .h3.mb-0= @counts[:finished]
+        .small.text-muted Finished
+
+.card.mb-4
+  .card-header
+    Worker Processes
+  .card-body
+    - if @processes.empty?
+      %p.text-danger.mb-0
+        No worker processes registered. The
+        %code bin/jobs
+        worker may not be running.
+    - else
+      .table-responsive
+        %table.table.table-sm.mb-0
+          %thead
+            %tr
+              %th Kind
+              %th Name
+              %th Hostname
+              %th PID
+              %th Last heartbeat
+              %th Status
+          %tbody
+            - @processes.each do |process|
+              - stale = process.last_heartbeat_at < @stale_threshold
+              %tr
+                %td= process.kind
+                %td= process.name
+                %td= process.hostname
+                %td= process.pid
+                %td
+                  = format_datetime(process.last_heartbeat_at)
+                  %small.text-muted
+                    \(#{time_ago_in_words(process.last_heartbeat_at)} ago)
+                %td
+                  - if stale
+                    %span.badge.bg-danger Stale
+                  - else
+                    %span.badge.bg-success Alive
+
+.card.mb-4
+  .card-header
+    Recurring Tasks
+  .card-body
+    - if @recurring_tasks.empty?
+      %p.text-muted.mb-0 No recurring tasks registered.
+    - else
+      .table-responsive
+        %table.table.table-sm.mb-0
+          %thead
+            %tr
+              %th Key
+              %th Schedule
+              %th Class / Command
+              %th Queue
+              %th Next run
+          %tbody
+            - @recurring_tasks.each do |task|
+              %tr
+                %td
+                  %code= task.key
+                %td= task.schedule
+                %td
+                  - if task.class_name.present?
+                    = task.class_name
+                  - elsif task.command.present?
+                    %code= task.command
+                %td= task.queue_name || 'default'
+                %td
+                  - next_run = @next_recurring_runs[task.key]
+                  - if next_run
+                    = format_datetime(next_run)
+                  - else
+                    %span.text-muted —
+
+.card.mb-4
+  .card-header
+    Recently Failed Jobs
+  .card-body
+    - if @failed_jobs.empty?
+      %p.text-muted.mb-0 No failed jobs.
+    - else
+      .table-responsive
+        %table.table.table-sm.mb-0
+          %thead
+            %tr
+              %th Job
+              %th Queue
+              %th Error
+              %th Failed at
+          %tbody
+            - @failed_jobs.each do |failed|
+              %tr
+                %td= failed.job&.class_name
+                %td= failed.job&.queue_name
+                %td
+                  %div
+                    %strong= failed.exception_class
+                  %div.small.text-muted{style: 'max-width: 480px; word-break: break-word;'}
+                    = failed.message
+                %td= format_datetime(failed.created_at)
+
+.card
+  .card-header
+    Recently Finished Jobs
+  .card-body
+    - if @recent_finished_jobs.empty?
+      %p.text-muted.mb-0 No finished jobs.
+    - else
+      .table-responsive
+        %table.table.table-sm.mb-0
+          %thead
+            %tr
+              %th Job
+              %th Queue
+              %th Finished at
+          %tbody
+            - @recent_finished_jobs.each do |job|
+              %tr
+                %td= job.class_name
+                %td= job.queue_name
+                %td= format_datetime(job.finished_at)

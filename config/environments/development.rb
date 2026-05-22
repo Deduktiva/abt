@@ -58,6 +58,10 @@ Rails.application.configure do
   # Highlight code that enqueued background job in logs.
   config.active_job.verbose_enqueue_logs = true
 
+  # Use Solid Queue (database-backed) in development so bin/jobs can process
+  # enqueued work locally and the Background Jobs status page is meaningful.
+  config.active_job.queue_adapter = :solid_queue
+
   # Raises error for missing translations.
   # config.i18n.raise_on_missing_translations = true
 

@@ -23,5 +23,9 @@ module Abt
 
     config.action_mailer.delivery_method = :mailgun
     config.action_mailer.mailgun_settings = Rails.application.credentials.mailgun
+
+    # Route Solid Queue's ActiveRecord models to the dedicated queue database
+    # in all environments so the jobs status page can read them.
+    config.solid_queue.connects_to = { database: { writing: :queue } }
   end
 end

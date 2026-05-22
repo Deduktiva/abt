@@ -52,6 +52,8 @@
             .col-sm-8
               - if @invoice.paid?
                 %span.badge.bg-success Paid #{format_date(@invoice.paid_at)}
+              - elsif @invoice.overdue?
+                %span.badge.bg-danger Overdue
               - else
                 %span.badge.bg-warning Unpaid
 

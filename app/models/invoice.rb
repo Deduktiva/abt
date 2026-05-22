@@ -36,6 +36,10 @@ class Invoice < ApplicationRecord
     self.paid_at.present?
   end
 
+  def overdue?
+    self.published? && !self.paid? && self.due_date.present? && self.due_date < Date.current
+  end
+
   def validate_lines_for_booking
     errors = []
     log = []

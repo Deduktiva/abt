@@ -5,7 +5,7 @@ class SessionsController < ApplicationController
   end
 
   def options
-    user = User.active.find_by('lower(username) = ?', params[:username].to_s.strip.downcase)
+    user = User.active.find_by(username: params[:username].to_s.strip.downcase)
     credentials = user ? user.credentials : []
 
     options = WebAuthn::Credential.options_for_get(

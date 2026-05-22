@@ -196,11 +196,11 @@ class InvitesController < ApplicationController
     errors = []
     errors << 'Username is required' if username.blank?
     errors << 'Username has invalid format' if username.present? && !username.match?(User::USERNAME_FORMAT)
-    errors << 'Username is taken' if username.present? && User.exists?(['lower(username) = ?', username])
+    errors << 'Username is taken' if username.present? && User.exists?(username: username)
     errors << 'Full name is required' if full_name.blank?
     errors << 'Email is required' if email.blank?
     errors << 'Email format is invalid' if email.present? && !email.match?(URI::MailTo::EMAIL_REGEXP)
-    errors << 'Email is taken' if email.present? && UserEmail.exists?(['lower(address) = ?', email])
+    errors << 'Email is taken' if email.present? && UserEmail.exists?(address: email)
     errors
   end
 end

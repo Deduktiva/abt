@@ -1,0 +1,47 @@
+- content_for :title, t('mailers.overdue_invoices.title', count: @invoices.size)
+
+:css
+  table.overdue {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+  table.overdue th, table.overdue td {
+    border: 1px solid #dee2e6;
+    padding: 8px 10px;
+    text-align: left;
+  }
+  table.overdue th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+  }
+  table.overdue td.numeric {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+.greeting
+  = t('mailers.overdue_invoices.heading', date: @today.strftime('%d.%m.%Y'))
+
+.main-message
+  = t('mailers.overdue_invoices.main_message', count: @invoices.size)
+
+%table.overdue
+  %thead
+    %tr
+      %th= t('mailers.overdue_invoices.columns.invoice_number')
+      %th= t('mailers.overdue_invoices.columns.customer')
+      %th= t('mailers.overdue_invoices.columns.invoice_date')
+      %th= t('mailers.overdue_invoices.columns.due_date')
+      %th.numeric= t('mailers.overdue_invoices.columns.gross_amount')
+      %th.numeric= t('mailers.overdue_invoices.columns.days_overdue')
+  %tbody
+    - @invoices.each do |invoice|
+      %tr
+        %td= invoice.document_number
+        %td= invoice.customer.matchcode
+        %td= invoice.date&.strftime('%d.%m.%Y')
+        %td= invoice.due_date&.strftime('%d.%m.%Y')
+        %td.numeric= sprintf('%.2f', invoice.sum_total)
+        %td.numeric= (@today - invoice.due_date).to_i

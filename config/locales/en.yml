@@ -31,6 +31,23 @@
 
 en:
   mailers:
+    overdue_invoices:
+      subject: "[%{issuer_name}] %{count} overdue invoice(s)"
+      title: "Overdue invoices report"
+      heading: "Overdue invoices as of %{date}"
+      main_message: "There are %{count} unpaid invoice(s) past their due date."
+      columns:
+        invoice_number: "Invoice no."
+        customer: "Customer"
+        invoice_date: "Invoice date"
+        due_date: "Due date"
+        gross_amount: "Gross amount"
+        days_overdue: "Days overdue"
+      short:
+        invoice_date: "Date:"
+        due_date: "Due:"
+        days_overdue: "%{days} days overdue"
+
     invoice:
       subject: "%{issuer_name} Invoice %{document_number}"
       greeting: "Dear %{customer_name},"

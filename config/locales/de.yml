@@ -1,5 +1,22 @@
 de:
   mailers:
+    overdue_invoices:
+      subject: "[%{issuer_name}] %{count} überfällige Rechnung(en)"
+      title: "Bericht über überfällige Rechnungen"
+      heading: "Überfällige Rechnungen am %{date}"
+      main_message: "Es gibt %{count} unbezahlte Rechnung(en), deren Fälligkeitsdatum überschritten ist."
+      columns:
+        invoice_number: "Rechnungsnr."
+        customer: "Kunde"
+        invoice_date: "Rechnungsdatum"
+        due_date: "Fälligkeitsdatum"
+        gross_amount: "Bruttobetrag"
+        days_overdue: "Tage überfällig"
+      short:
+        invoice_date: "Datum:"
+        due_date: "Fällig:"
+        days_overdue: "%{days} Tage überfällig"
+
     invoice:
       subject: "%{issuer_name} Rechnung %{document_number}"
       greeting: "Sehr geehrte Damen und Herren,"

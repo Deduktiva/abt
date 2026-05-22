@@ -13,6 +13,10 @@ development:
     <<: *primary_development
     database: db/development_cache.sqlite3
     migrations_paths: db/cache_migrate
+  queue:
+    <<: *primary_development
+    database: db/development_queue.sqlite3
+    migrations_paths: db/queue_migrate
 
 development_postgres:
   primary: &primary_development_postgres
@@ -28,6 +32,10 @@ development_postgres:
     <<: *primary_development_postgres
     database: abt_development_cache
     migrations_paths: db/cache_migrate
+  queue:
+    <<: *primary_development_postgres
+    database: abt_development_queue
+    migrations_paths: db/queue_migrate
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -42,6 +50,10 @@ test:
     <<: *primary_test
     database: db/test_cache.sqlite3
     migrations_paths: db/cache_migrate
+  queue:
+    <<: *primary_test
+    database: db/test_queue.sqlite3
+    migrations_paths: db/queue_migrate
 
 production:
   primary: &primary_production
@@ -57,3 +69,7 @@ production:
     <<: *primary_production
     database: abt_production_cache
     migrations_paths: db/cache_migrate
+  queue:
+    <<: *primary_production
+    database: abt_production_queue
+    migrations_paths: db/queue_migrate

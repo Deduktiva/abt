@@ -7,10 +7,21 @@ class Attachment < ApplicationRecord
   validate :data_size_within_limit
   validate :content_type_in_safelist
 
+  # Detect MIME type from the binary content using Marcel (magic-byte sniffer
+  # used by ActiveStorage). Trusting the client-supplied Content-Type would
+  # let a user-supplied HTML file be served as e.g. application/pdf, which
+  # the safelist on `content_type` is meant to prevent.
+  def self.detect_content_type(io)
+    detected = Marcel::MimeType.for(io)
+    io.rewind if io.respond_to?(:rewind)
+    detected
+  end
+
   def uploaded_file=(incoming_file)
     self.filename = incoming_file.original_filename
-    self.content_type = incoming_file.content_type
-    self.data = incoming_file.read
+    io = incoming_file.respond_to?(:tempfile) ? incoming_file.tempfile : incoming_file
+    self.content_type = self.class.detect_content_type(io)
+    self.data = io.read
   end
 
   def set_data(data, content_type)

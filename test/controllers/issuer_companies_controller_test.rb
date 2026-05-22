@@ -67,7 +67,7 @@ class IssuerCompaniesControllerTest < ActionDispatch::IntegrationTest
     }
     assert_redirected_to edit_issuer_company_url
     follow_redirect!
-    assert_select '.alert-danger', text: /does not match/
+    assert_select '.alert-danger', text: /not image\/png/
   end
 
   test "should accept a valid png upload" do

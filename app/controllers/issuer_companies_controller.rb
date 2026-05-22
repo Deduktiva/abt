@@ -1,7 +1,5 @@
 class IssuerCompaniesController < ApplicationController
   MAX_LOGO_SIZE_BYTES = 2.megabytes
-  PNG_MAGIC = "\x89PNG\r\n\x1A\n".b.freeze
-  PDF_MAGIC = "%PDF-".b.freeze
 
   before_action :set_issuer_company
 
@@ -26,13 +24,13 @@ class IssuerCompaniesController < ApplicationController
 
     # Handle PDF logo upload
     if params[:issuer_company][:pdf_logo_file].present?
-      data = read_validated_logo(params[:issuer_company][:pdf_logo_file], PDF_MAGIC, 'PDF') or return
+      data = read_validated_logo(params[:issuer_company][:pdf_logo_file], 'application/pdf', 'PDF') or return
       params_hash[:pdf_logo] = data
     end
 
     # Handle PNG logo upload
     if params[:issuer_company][:png_logo_file].present?
-      data = read_validated_logo(params[:issuer_company][:png_logo_file], PNG_MAGIC, 'PNG') or return
+      data = read_validated_logo(params[:issuer_company][:png_logo_file], 'image/png', 'PNG') or return
       params_hash[:png_logo] = data
     end
 
@@ -45,19 +43,19 @@ class IssuerCompaniesController < ApplicationController
 
   private
 
-  def read_validated_logo(file, magic, label)
+  def read_validated_logo(file, expected_type, label)
     if file.size > MAX_LOGO_SIZE_BYTES
       redirect_to edit_issuer_company_path,
                   alert: "#{label} logo is too large (maximum is #{MAX_LOGO_SIZE_BYTES / 1.megabyte} MB)."
       return nil
     end
-    data = file.read
-    unless data.byteslice(0, magic.bytesize) == magic
+    detected = Attachment.detect_content_type(file.tempfile)
+    if detected != expected_type
       redirect_to edit_issuer_company_path,
-                  alert: "#{label} logo: file content does not match a #{label} file."
+                  alert: "#{label} logo: file content is not #{expected_type} (detected: #{detected})."
       return nil
     end
-    data
+    file.read
   end
 
   def set_issuer_company

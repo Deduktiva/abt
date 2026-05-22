@@ -36,6 +36,14 @@ body { padding-top: 60px; }
   }
 }
 
+// Bootstrap's `.dropdown-menu-end` only right-aligns when Popper sets
+// `[data-bs-popper]`. The navbar uses a custom Stimulus controller without
+// Popper, so right-align explicitly.
+.dropdown-menu-end {
+  right: 0;
+  left: auto;
+}
+
 // Fix searchable dropdown hover in dark mode
 .searchable-dropdown .dropdown-item {
   &:hover,

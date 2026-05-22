@@ -127,4 +127,47 @@ class InvoicesControllerPaidTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select '.invoice-filter a', text: 'Unpaid'
   end
+
+  test "index shows Overdue label for unpaid invoices past due date" do
+    invoice = invoices(:published_invoice)
+    invoice.update!(paid_at: nil, due_date: Date.current - 1.day)
+
+    get invoices_path(year: Date.current.year)
+
+    assert_response :success
+    assert_select '.badge.bg-danger', text: 'Overdue'
+  end
+
+  test "index shows Unpaid label for unpaid invoices not yet past due date" do
+    invoice = invoices(:published_invoice)
+    invoice.update!(paid_at: nil, due_date: Date.current + 1.day)
+
+    get invoices_path(year: Date.current.year)
+
+    assert_response :success
+    assert_select '.badge.bg-warning', text: 'Unpaid'
+    assert_select '.badge.bg-danger', text: 'Overdue', count: 0
+  end
+
+  test "show page shows Overdue label for unpaid invoices past due date" do
+    invoice = invoices(:published_invoice)
+    invoice.update!(paid_at: nil, due_date: Date.current - 1.day)
+
+    get invoice_path(invoice)
+
+    assert_response :success
+    assert_select '.badge.bg-danger', text: 'Overdue'
+    assert_select '.badge.bg-warning', text: 'Unpaid', count: 0
+  end
+
+  test "unpaid filter includes overdue invoices" do
+    invoice = invoices(:published_invoice)
+    invoice.update!(paid_at: nil, due_date: Date.current - 5.days)
+
+    get invoices_path(filter: 'unpaid', year: Date.current.year)
+
+    assert_response :success
+    assert_select 'a', text: invoice.document_number
+    assert_select '.badge.bg-danger', text: 'Overdue'
+  end
 end

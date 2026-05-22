@@ -50,7 +50,7 @@ class InvitesController < ApplicationController
 
     start_user_session!(user)
     AuditEvent.record!(event_type: "login", subject: user, actor: user, request: request,
-                       metadata: { provider: pending["provider"] })
+                       metadata: { method: "oauth", provider: pending["provider"] })
 
     redirect_to root_path, notice: "Welcome, #{user.username}!"
   rescue ActiveRecord::RecordInvalid => e

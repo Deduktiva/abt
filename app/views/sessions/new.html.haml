@@ -1,9 +1,14 @@
 = page_header('Sign in')
 
 .card
-  .card-body
+  .card-body{"data-controller" => "passkey",
+             "data-passkey-options-url-value" => passkey_login_options_path,
+             "data-passkey-verify-url-value"  => passkey_login_path}
     %p Sign in with your linked account to continue.
-    = button_to "Continue with GitHub", "/auth/github", method: :post, class: "btn btn-primary"
+    = button_to "Continue with GitHub", "/auth/github", method: :post, class: "btn btn-primary me-2"
+    %button.btn.btn-outline-primary{type: 'button', "data-action" => "click->passkey#login"} Sign in with passkey
+
+    %div.mt-3.text-muted.small{"data-passkey-target" => "status"}
 
     %hr
     %p.text-muted.small

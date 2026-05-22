@@ -127,3 +127,20 @@ in. Subsequent users can be onboarded the same way by clicking
 resulting URL.
 
 Invite links are single-use and expire 24 hours after creation.
+
+### 4. Passkey configuration
+
+Passkeys (WebAuthn / FIDO2) let users sign in with a security key, phone,
+or laptop biometric instead of GitHub. Each user can register multiple
+passkeys from their **My profile → My passkeys** page.
+
+WebAuthn pins the credential to a specific **origin** (scheme + host +
+port) for anti-phishing. Configure it per-environment in `config/settings/`:
+
+- `config/settings/development.yml` — `webauthn.origin: 'http://localhost:3000'` (already set).
+- `config/settings/test.yml` — `webauthn.origin: 'http://www.example.com'` (already set).
+- `config/settings/production.yml` — copy from `production.yml.tpl` and
+  edit `webauthn.origin` to match your deployment's public URL exactly.
+
+The app refuses to boot when `webauthn.origin` is blank — silently
+defaulting would defeat the anti-phishing property.

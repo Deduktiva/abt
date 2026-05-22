@@ -10,6 +10,7 @@
 
 = action_buttons_wrapper do
   = action_button('My sessions', profile_sessions_path, :primary)
+  = action_button('My passkeys', profile_passkeys_path, :primary)
   = button_to 'Disable my account', profile_block_path, method: :post, class: 'btn btn-danger', data: { turbo_confirm: 'This will block your account and terminate all sessions. Continue?' }
 
 %h3.mt-4 Linked accounts
@@ -25,6 +26,25 @@
       %td= i.nickname
       %td= i.email
       %td= format_datetime(i.created_at)
+
+%h3.mt-4 Passkeys
+- if @passkeys.any?
+  %table.table.table-sm
+    %tr
+      %th Nickname
+      %th Last used
+      %th Added
+    - @passkeys.each do |pk|
+      %tr
+        %td= pk.nickname.presence || "(unnamed)"
+        %td= pk.last_used_at ? format_datetime(pk.last_used_at) : "—"
+        %td= format_datetime(pk.created_at)
+  %p.small= link_to 'Manage passkeys', profile_passkeys_path
+- else
+  %p.text-muted
+    No passkeys registered.
+    = link_to 'Register one', profile_passkeys_path
+    to sign in without GitHub.
 
 %h3.mt-4 Recent activity
 %table.table.table-sm

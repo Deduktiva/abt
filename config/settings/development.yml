@@ -4,3 +4,6 @@ fop:
 
   # Debian trixie
   # binary_path: "./script/abt-fop"
+
+webauthn:
+  origin: 'http://localhost:3000'

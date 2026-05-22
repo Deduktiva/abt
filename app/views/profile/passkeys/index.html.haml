@@ -1,0 +1,44 @@
+= page_header('My passkeys')
+
+%p.text-muted
+  Passkeys let you sign in without a password using a security key, your phone,
+  or your laptop's biometric. You can register more than one (e.g. work laptop +
+  phone + hardware key). You'll always need at least one sign-in method on your
+  account.
+
+.card.mb-4{"data-controller" => "passkey",
+           "data-passkey-options-url-value" => registration_options_profile_passkeys_path,
+           "data-passkey-verify-url-value"  => profile_passkeys_path,
+           "data-passkey-nickname-input-value" => "#new-passkey-nickname"}
+  .card-body
+    %h5.card-title Register a new passkey
+    .mb-3
+      = label_tag :nickname, "Nickname (optional)", class: 'form-label'
+      %input.form-control#new-passkey-nickname{type: 'text', placeholder: 'e.g. Work laptop'}
+    %button.btn.btn-primary{type: 'button', "data-action" => "click->passkey#register"} Register passkey
+    %div.mt-2.text-muted{"data-passkey-target" => "status"}
+
+%h3 Registered passkeys
+- if @passkeys.empty?
+  %p.text-muted None yet.
+- else
+  %table.table.table-sm
+    %tr
+      %th Nickname
+      %th Transports
+      %th Last used
+      %th Added
+      %th
+    - @passkeys.each do |pk|
+      %tr
+        %td= pk.nickname.presence || "(unnamed)"
+        %td= Array(pk.transports).join(', ')
+        %td= pk.last_used_at ? format_datetime(pk.last_used_at) : "—"
+        %td= format_datetime(pk.created_at)
+        %td
+          - if current_user.sign_in_methods_count > 1
+            = button_to 'Remove', profile_passkey_path(pk), method: :delete, class: 'btn btn-sm btn-outline-danger py-0', data: { turbo_confirm: "Remove passkey \"#{pk.nickname}\"?" }
+          - else
+            %span.text-muted.small Last sign-in method — cannot remove
+
+= link_to 'Back to profile', profile_path, class: 'btn btn-secondary mt-3'

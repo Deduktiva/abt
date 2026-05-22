@@ -6,6 +6,7 @@ require 'rails/test_help'
 require 'capybara/rails'
 require 'capybara/minitest'
 require 'capybara/cuprite'
+require 'webauthn/fake_client'
 
 # Configure better waiting behavior
 Capybara.default_max_wait_time = 10

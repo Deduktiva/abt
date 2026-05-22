@@ -48,6 +48,23 @@
       %td= i.email
       %td= format_datetime(i.created_at)
 
+%h3.mt-4 Passkeys
+- if @passkeys.any?
+  %table.table.table-sm
+    %tr
+      %th Nickname
+      %th Transports
+      %th Last used
+      %th Added
+    - @passkeys.each do |pk|
+      %tr
+        %td= pk.nickname.presence || "(unnamed)"
+        %td= Array(pk.transports).join(', ')
+        %td= pk.last_used_at ? format_datetime(pk.last_used_at) : "—"
+        %td= format_datetime(pk.created_at)
+- else
+  %p.text-muted None.
+
 %h3.mt-4 Active sessions
 %table.table.table-sm
   %tr

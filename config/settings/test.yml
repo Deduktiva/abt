@@ -1,3 +1,6 @@
 fop:
   # (run script/setup-fop.sh first)
   binary_path: "./bin/abt-fop-container"
+
+webauthn:
+  origin: 'http://www.example.com'

@@ -2,6 +2,7 @@ class ProfileController < ApplicationController
   def show
     @user = current_user
     @identities = @user.identities.order(:provider)
+    @passkeys = @user.webauthn_credentials.ordered
     @recent_events = AuditEvent.for_subject(@user).recent.limit(20)
   end
 

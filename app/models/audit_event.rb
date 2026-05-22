@@ -11,6 +11,7 @@ class AuditEvent < ApplicationRecord
     block unblock self_block
     invite_created invite_consumed invite_revoked
     user_created identity_added identity_removed
+    passkey_added passkey_removed
   ].freeze
 
   scope :recent, -> { order(created_at: :desc) }

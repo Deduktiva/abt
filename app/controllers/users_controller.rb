@@ -6,6 +6,7 @@ class UsersController < ApplicationController
   def show
     @user = User.find_by!(username: params[:id])
     @identities = @user.identities.order(:provider)
+    @passkeys = @user.webauthn_credentials.ordered
     @active_sessions = @user.sessions.active.order(last_seen_at: :desc)
     @recent_events = AuditEvent.for_subject(@user).recent.limit(20)
   end

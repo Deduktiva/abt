@@ -50,6 +50,9 @@ Rails.application.routes.draw do
   get    "/auth/:provider/callback" => "sessions#callback"
   get    "/auth/failure"            => "sessions#failure", as: :auth_failure
 
+  post   "/login/passkey/options" => "sessions#passkey_options", as: :passkey_login_options
+  post   "/login/passkey"         => "sessions#passkey_login",   as: :passkey_login
+
   get    "/invites/:token"        => "invites#show",   as: :invite
   post   "/invites/:token/accept" => "invites#accept", as: :invite_accept
 
@@ -67,6 +70,11 @@ Rails.application.routes.draw do
 
   scope path: "/profile", as: :profile do
     resources :sessions, only: [:index, :destroy], controller: "profile/sessions"
+    resources :passkeys, only: [:index, :create, :destroy], controller: "profile/passkeys" do
+      collection do
+        post :registration_options
+      end
+    end
   end
 
   root to: "home#index"

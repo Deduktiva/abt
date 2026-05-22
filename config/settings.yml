@@ -1,3 +1,12 @@
 payments:
 #  public_url: 'https://pay.deduktiva.com/p/%token%'
   public_url: ''
+
+# WebAuthn (passkey) configuration. `origin` MUST match the scheme + host
+# + port that users see in their browser, and is required (the app refuses
+# to boot without it — silently defaulting would defeat the anti-phishing
+# property of WebAuthn origin binding). Override per-environment in
+# config/settings/<env>.yml.
+webauthn:
+  origin: ''
+  rp_name: 'ABT'

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_21_120400) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_22_120000) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -293,9 +293,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_21_120400) do
     t.datetime "last_seen_at"
     t.datetime "updated_at", null: false
     t.string "username", null: false
+    t.string "webauthn_id"
     t.index ["blocked_at"], name: "index_users_on_blocked_at"
     t.index ["blocked_by_user_id"], name: "index_users_on_blocked_by_user_id"
     t.index ["username"], name: "index_users_on_username", unique: true
+    t.index ["webauthn_id"], name: "index_users_on_webauthn_id", unique: true
+  end
+
+  create_table "webauthn_credentials", force: :cascade do |t|
+    t.string "aaguid"
+    t.datetime "created_at", null: false
+    t.text "external_id", null: false
+    t.datetime "last_used_at"
+    t.string "nickname"
+    t.text "public_key", null: false
+    t.integer "sign_count", default: 0, null: false
+    t.json "transports"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["external_id"], name: "index_webauthn_credentials_on_external_id", unique: true
+    t.index ["user_id"], name: "index_webauthn_credentials_on_user_id"
   end
 
   add_foreign_key "audit_events", "users", column: "actor_user_id"
@@ -311,4 +328,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_21_120400) do
   add_foreign_key "user_invites", "users", column: "created_by_user_id"
   add_foreign_key "user_sessions", "users"
   add_foreign_key "users", "users", column: "blocked_by_user_id"
+  add_foreign_key "webauthn_credentials", "users"
 end

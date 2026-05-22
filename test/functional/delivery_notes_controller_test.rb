@@ -250,7 +250,7 @@ class DeliveryNotesControllerTest < ActionController::TestCase
 
     # Upload a replacement
     second_pdf = Rack::Test::UploadedFile.new(
-      StringIO.new('replacement pdf content'),
+      Rails.root.join('test', 'fixtures', 'files', 'example_logo.pdf'),
       'application/pdf',
       original_filename: 'replacement.pdf'
     )

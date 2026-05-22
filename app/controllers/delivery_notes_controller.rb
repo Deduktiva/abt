@@ -199,8 +199,14 @@ class DeliveryNotesController < ApplicationController
       redirect_to @delivery_note and return
     end
 
-    if uploaded_file.content_type != 'application/pdf'
-      flash[:error] = "Only PDF files are allowed for acceptance documents."
+    if uploaded_file.size > Attachment::MAX_SIZE_BYTES
+      flash[:error] = "Acceptance document is too large (maximum is #{Attachment::MAX_SIZE_BYTES / 1.megabyte} MB)."
+      redirect_to @delivery_note and return
+    end
+
+    detected_type = Attachment.detect_content_type(uploaded_file.tempfile)
+    if detected_type != 'application/pdf'
+      flash[:error] = "Only PDF files are allowed for acceptance documents (detected: #{detected_type})."
       redirect_to @delivery_note and return
     end
 
@@ -213,7 +219,7 @@ class DeliveryNotesController < ApplicationController
 
     # Create new attachment
     attachment = Attachment.new
-    attachment.set_data uploaded_file.read, uploaded_file.content_type
+    attachment.set_data uploaded_file.read, 'application/pdf'
     attachment.filename = uploaded_file.original_filename
     attachment.title = "Acceptance Document for Delivery Note #{@delivery_note.document_number}"
 

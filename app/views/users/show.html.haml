@@ -1,7 +1,10 @@
 - content_for :title, "User #{@user.username}"
 
 .d-flex.justify-content-between.align-items-center.mb-3
-  %h1.page-header.mb-0= @user.username
+  .d-flex.align-items-center.gap-2
+    %h1.page-header.mb-0= @user.username
+    - if @user.id == current_user.id
+      %span.badge.bg-info.fs-6 This is you
   - if @user.blocked?
     %span.badge.bg-danger.fs-6 Blocked
   - else
@@ -92,8 +95,8 @@
         data: { turbo_confirm: "Delete all of #{@user.username}'s passkeys and email them an invite to register a new one?" },
         class: 'btn btn-warning'
   - elsif @user.id != current_user.id
-    = form_with url: block_user_path(@user), method: :post, local: true, class: 'd-inline' do |f|
-      .input-group.input-group-sm{style: 'width: 400px; display: inline-flex;'}
+    = form_with url: block_user_path(@user), method: :post, local: true, class: 'd-inline-flex' do |f|
+      .input-group{style: 'width: 400px;'}
         = f.text_field :reason, class: 'form-control', placeholder: 'Reason (required)', required: true
         = f.submit 'Block', class: 'btn btn-danger',
             data: { turbo_confirm: "Block #{@user.username}? All sessions will be terminated." }

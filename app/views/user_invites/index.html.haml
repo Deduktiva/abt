@@ -1,0 +1,30 @@
+- content_for :title, 'Invites'
+
+= page_header_with_new_button('Invites', new_user_invite_path)
+
+%table.table.table-striped.table-sm
+  %thead
+    %tr
+      %th Created
+      %th Created by
+      %th Expires
+      %th Used
+      %th Used by
+  %tbody
+    - @invites.each do |invite|
+      %tr
+        %td= format_datetime(invite.created_at)
+        %td= invite.created_by_user&.username || 'system'
+        %td= format_datetime(invite.expires_at)
+        %td
+          - if invite.used_at
+            %span.badge.bg-success Used
+            = format_datetime(invite.used_at)
+          - elsif invite.expires_at <= Time.current
+            %span.badge.bg-secondary Expired
+          - else
+            %span.badge.bg-warning Pending
+        %td= invite.used_by_user&.username || '—'
+
+.mt-4
+  = link_to 'Back to users', users_path, class: 'btn btn-secondary'

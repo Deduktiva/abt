@@ -1,3 +1,12 @@
 fop:
   # (run script/setup-fop.sh first)
   binary_path: "./bin/abt-fop-container"
+
+app:
+  host: 'www.example.com'
+  protocol: 'http'
+
+webauthn:
+  rp_name: 'ABT Test'
+  rp_id: 'www.example.com'
+  origin: 'http://www.example.com'

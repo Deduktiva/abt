@@ -1,0 +1,6 @@
+- content_for :title, 'Invite invalid'
+
+= page_header('Invite invalid')
+%p This invite link is invalid, expired, or has already been used.
+%p
+  = link_to 'Go to sign in', new_session_path, class: 'btn btn-primary'

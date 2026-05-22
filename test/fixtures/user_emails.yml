@@ -1,0 +1,27 @@
+alice_primary:
+  user: alice
+  address: alice@example.com
+  confirmed_at: <%= 1.week.ago %>
+  created_at: <%= 1.week.ago %>
+  updated_at: <%= 1.week.ago %>
+
+alice_secondary:
+  user: alice
+  address: alice.alt@example.com
+  confirmed_at: <%= 2.days.ago %>
+  created_at: <%= 3.days.ago %>
+  updated_at: <%= 2.days.ago %>
+
+bob_primary:
+  user: bob
+  address: bob@example.com
+  confirmed_at: <%= 3.days.ago %>
+  created_at: <%= 3.days.ago %>
+  updated_at: <%= 3.days.ago %>
+
+carol_primary:
+  user: blocked_carol
+  address: carol@example.com
+  confirmed_at: <%= 5.days.ago %>
+  created_at: <%= 5.days.ago %>
+  updated_at: <%= 5.days.ago %>

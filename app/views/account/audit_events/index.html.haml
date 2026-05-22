@@ -1,0 +1,25 @@
+- content_for :title, 'My activity'
+
+= page_header('My activity')
+
+%table.table.table-striped.table-sm
+  %thead
+    %tr
+      %th When
+      %th Action
+      %th Actor
+      %th IP
+      %th Details
+  %tbody
+    - @audit_events.each do |event|
+      %tr
+        %td= format_datetime(event.created_at)
+        %td
+          %code= event.action
+        %td= event.actor&.username || '—'
+        %td
+          %code.small= event.ip_address
+        %td.small= event.metadata.is_a?(Hash) ? event.metadata.except('username').to_a.map { |k,v| "#{k}=#{v}" }.join(', ') : event.metadata.to_s
+
+.mt-4
+  = link_to 'Back to account', account_profile_path, class: 'btn btn-secondary'

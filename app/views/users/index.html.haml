@@ -1,0 +1,29 @@
+- content_for :title, 'Users'
+
+.d-flex.justify-content-between.align-items-center.mb-3
+  %h1.page-header.mb-0 Users
+  = link_to '+ Invite user', new_user_invite_path, class: 'btn btn-info'
+
+%table.table.table-striped.table-sm
+  %thead
+    %tr
+      %th Username
+      %th Full name
+      %th Status
+      %th Created
+      %th
+  %tbody
+    - @users.each do |user|
+      %tr
+        %td= link_to user.username, user_path(user)
+        %td= user.full_name
+        %td
+          - if user.blocked?
+            %span.badge.bg-danger Blocked
+          - else
+            %span.badge.bg-success Active
+        %td= format_datetime(user.created_at)
+        %td= list_action_link('View', user_path(user), :show)
+
+.mt-4
+  = link_to 'View invites', user_invites_path, class: 'btn btn-secondary'

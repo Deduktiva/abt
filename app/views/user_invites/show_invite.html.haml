@@ -1,0 +1,16 @@
+- content_for :title, 'Invite generated'
+
+= page_header('Invite generated')
+
+.alert.alert-info
+  This URL is shown only once. Copy it now and share it with the invitee.
+
+.card.mb-3
+  .card-body
+    %p.mb-1.text-muted Invite URL (valid until #{format_datetime(@invite.expires_at)}):
+    %pre.mb-0
+      %code= @invite_url
+
+= action_buttons_wrapper do
+  = action_button('Back to invites', user_invites_path, :secondary)
+  = action_button('Generate another', new_user_invite_path, :primary)

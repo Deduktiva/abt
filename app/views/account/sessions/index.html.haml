@@ -1,0 +1,26 @@
+- content_for :title, 'My sessions'
+
+= page_header('My sessions')
+
+%table.table.table-striped.table-sm
+  %thead
+    %tr
+      %th IP
+      %th User agent
+      %th Last seen
+      %th Started
+      %th
+  %tbody
+    - @sessions.each do |s|
+      %tr
+        %td
+          %code.small= s.ip_address
+          - if current_user_session && current_user_session.id == s.id
+            %span.badge.bg-info.ms-1 This session
+        %td.small= s.user_agent.to_s.truncate(80)
+        %td= format_datetime(s.last_seen_at)
+        %td= format_datetime(s.created_at)
+        %td
+          = button_to 'Terminate', account_session_path(s), method: :delete,
+              data: { turbo_confirm: 'Terminate this session?' },
+              class: 'btn btn-sm btn-outline-danger'

@@ -1,0 +1,9 @@
+.greeting Hello #{@user.full_name},
+.main-message
+  An administrator has reset the passkeys on your ABT account. To regain access, register a new passkey by clicking the link below.
+.main-message
+  = link_to 'Register a new passkey', @invite_url
+.main-message
+  This link is valid for 24 hours.
+.main-message
+  If you did not expect this, contact an administrator immediately.

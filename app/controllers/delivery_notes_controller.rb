@@ -204,6 +204,11 @@ class DeliveryNotesController < ApplicationController
       redirect_to @delivery_note and return
     end
 
+    if uploaded_file.size > Attachment::MAX_SIZE_BYTES
+      flash[:error] = "Acceptance document is too large (maximum is #{Attachment::MAX_SIZE_BYTES / 1.megabyte} MB)."
+      redirect_to @delivery_note and return
+    end
+
     # If there's an existing acceptance attachment, delete it first
     if @delivery_note.acceptance_attachment.present?
       old_attachment = @delivery_note.acceptance_attachment

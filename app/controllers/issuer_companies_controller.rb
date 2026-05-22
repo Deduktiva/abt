@@ -1,4 +1,8 @@
 class IssuerCompaniesController < ApplicationController
+  MAX_LOGO_SIZE_BYTES = 2.megabytes
+  PNG_MAGIC = "\x89PNG\r\n\x1A\n".b.freeze
+  PDF_MAGIC = "%PDF-".b.freeze
+
   before_action :set_issuer_company
 
   def show
@@ -6,6 +10,7 @@ class IssuerCompaniesController < ApplicationController
 
   def png_logo
     if @issuer_company.png_logo.present?
+      response.set_header('X-Content-Type-Options', 'nosniff')
       send_data @issuer_company.png_logo, type: 'image/png', disposition: 'inline'
     else
       head :not_found
@@ -21,14 +26,14 @@ class IssuerCompaniesController < ApplicationController
 
     # Handle PDF logo upload
     if params[:issuer_company][:pdf_logo_file].present?
-      file = params[:issuer_company][:pdf_logo_file]
-      params_hash[:pdf_logo] = file.read
+      data = read_validated_logo(params[:issuer_company][:pdf_logo_file], PDF_MAGIC, 'PDF') or return
+      params_hash[:pdf_logo] = data
     end
 
     # Handle PNG logo upload
     if params[:issuer_company][:png_logo_file].present?
-      file = params[:issuer_company][:png_logo_file]
-      params_hash[:png_logo] = file.read
+      data = read_validated_logo(params[:issuer_company][:png_logo_file], PNG_MAGIC, 'PNG') or return
+      params_hash[:png_logo] = data
     end
 
     if @issuer_company.update(params_hash)
@@ -39,6 +44,21 @@ class IssuerCompaniesController < ApplicationController
   end
 
   private
+
+  def read_validated_logo(file, magic, label)
+    if file.size > MAX_LOGO_SIZE_BYTES
+      redirect_to edit_issuer_company_path,
+                  alert: "#{label} logo is too large (maximum is #{MAX_LOGO_SIZE_BYTES / 1.megabyte} MB)."
+      return nil
+    end
+    data = file.read
+    unless data.byteslice(0, magic.bytesize) == magic
+      redirect_to edit_issuer_company_path,
+                  alert: "#{label} logo: file content does not match a #{label} file."
+      return nil
+    end
+    data
+  end
 
   def set_issuer_company
     @issuer_company = IssuerCompany.get_the_issuer! || IssuerCompany.new

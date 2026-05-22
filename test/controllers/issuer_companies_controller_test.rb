@@ -42,6 +42,56 @@ class IssuerCompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_select 'form'
   end
 
+  test "should reject oversized png logo upload" do
+    big = Rack::Test::UploadedFile.new(
+      StringIO.new('x' * (IssuerCompaniesController::MAX_LOGO_SIZE_BYTES + 1)),
+      'image/png',
+      original_filename: 'big.png'
+    )
+    patch issuer_company_url, params: {
+      issuer_company: { png_logo_file: big }
+    }
+    assert_redirected_to edit_issuer_company_url
+    follow_redirect!
+    assert_select '.alert-danger', text: /too large/
+  end
+
+  test "should reject png upload that is not a real png" do
+    fake = Rack::Test::UploadedFile.new(
+      StringIO.new('<script>alert(1)</script>'),
+      'image/png',
+      original_filename: 'evil.png'
+    )
+    patch issuer_company_url, params: {
+      issuer_company: { png_logo_file: fake }
+    }
+    assert_redirected_to edit_issuer_company_url
+    follow_redirect!
+    assert_select '.alert-danger', text: /does not match/
+  end
+
+  test "should accept a valid png upload" do
+    png_data = "\x89PNG\r\n\x1A\n".b + ("\x00" * 32).b
+    valid = Rack::Test::UploadedFile.new(
+      StringIO.new(png_data),
+      'image/png',
+      original_filename: 'logo.png'
+    )
+    patch issuer_company_url, params: {
+      issuer_company: { png_logo_file: valid }
+    }
+    assert_redirected_to issuer_company_url
+    @issuer_company.reload
+    assert_equal png_data, @issuer_company.png_logo
+  end
+
+  test "png_logo response sets nosniff header" do
+    @issuer_company.update!(png_logo: "\x89PNG\r\n\x1A\n".b + "rest".b)
+    get png_logo_issuer_company_url
+    assert_response :success
+    assert_equal 'nosniff', response.headers['X-Content-Type-Options']
+  end
+
   test "should preserve whitespace in contact lines on show page" do
     # Update the fixture to have explicit whitespace
     @issuer_company.update!(

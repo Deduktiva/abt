@@ -30,9 +30,13 @@
         %li
           = link_to('Issuer Company', issuer_company_path, :class => 'dropdown-item')
         %li
+          %hr.dropdown-divider
+        %li
           = link_to('Product Catalog', products_path, :class => 'dropdown-item')
         %li
           = link_to('Sales Tax', sales_tax_rates_path, :class => 'dropdown-item')
+        %li
+          %hr.dropdown-divider
         %li
           = link_to('Background Jobs', jobs_status_path, :class => 'dropdown-item')
 

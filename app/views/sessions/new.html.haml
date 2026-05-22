@@ -8,7 +8,8 @@
     .card{"data-controller" => "passkey",
           "data-passkey-options-url-value" => options_session_path,
           "data-passkey-verify-url-value" => verify_session_path,
-          "data-passkey-csrf-token-value" => form_authenticity_token}
+          "data-passkey-csrf-token-value" => form_authenticity_token,
+          "data-passkey-auto-authenticate-value" => "true"}
       .card-body
         .alert.alert-danger.d-none{"data-passkey-target" => "error"}
         .d-grid

@@ -12,7 +12,7 @@
             "data-passkey-csrf-token-value" => form_authenticity_token}
         .card-body
           .alert.alert-danger.d-none{"data-passkey-target" => "error"}
-          = form_with url: '#', method: :post, local: true do |f|
+          = form_with url: '#', method: :post, local: true, data: { action: 'submit->passkey#register' } do |f|
             .mb-3
               = f.label :username, class: 'form-label'
               = f.text_field :username, class: 'form-control', "data-passkey-target" => "username", autocomplete: 'username', required: true
@@ -27,7 +27,7 @@
               = f.label :nickname, 'Passkey label (optional)', class: 'form-label'
               = f.text_field :nickname, class: 'form-control', "data-passkey-target" => "nickname", placeholder: 'e.g. My MacBook'
             .d-grid
-              %button.btn.btn-primary{type: 'button', "data-action" => "click->passkey#register"}
+              %button.btn.btn-primary{type: 'submit'}
                 Create account and register passkey
     - else
       - target = @invite.target_user
@@ -40,10 +40,10 @@
             "data-passkey-csrf-token-value" => form_authenticity_token}
         .card-body
           .alert.alert-danger.d-none{"data-passkey-target" => "error"}
-          = form_with url: '#', method: :post, local: true do |f|
+          = form_with url: '#', method: :post, local: true, data: { action: 'submit->passkey#register' } do |f|
             .mb-3
               = f.label :nickname, 'Passkey label', class: 'form-label'
               = f.text_field :nickname, class: 'form-control', "data-passkey-target" => "nickname", placeholder: 'e.g. New iPhone', required: true
             .d-grid
-              %button.btn.btn-primary{type: 'button', "data-action" => "click->passkey#register"}
+              %button.btn.btn-primary{type: 'submit'}
                 Register passkey

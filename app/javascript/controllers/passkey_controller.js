@@ -10,10 +10,19 @@ export default class extends Controller {
     optionsUrl: String,
     verifyUrl: String,
     csrfToken: String,
+    autoAuthenticate: Boolean,
+  }
+
+  connect() {
+    if (this.autoAuthenticateValue) {
+      // Defer so the page paints first; some browsers gate WebAuthn prompts
+      // on the page being visible.
+      setTimeout(() => this.authenticate(), 50)
+    }
   }
 
   async register(event) {
-    event.preventDefault()
+    if (event) event.preventDefault()
     this.clearError()
     if (!window.PublicKeyCredential) {
       return this.showError("This browser does not support passkeys.")
@@ -51,7 +60,7 @@ export default class extends Controller {
   }
 
   async authenticate(event) {
-    event.preventDefault()
+    if (event) event.preventDefault()
     this.clearError()
     if (!window.PublicKeyCredential) {
       return this.showError("This browser does not support passkeys.")

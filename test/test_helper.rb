@@ -44,7 +44,12 @@ module TestAuthHelpers
   def sign_in_as(user, request_obj = nil)
     request_obj ||= Struct.new(:remote_ip, :user_agent).new('127.0.0.1', 'test')
     session_record, plaintext = UserSession.create_for!(user: user, request: request_obj)
-    cookies[ApplicationController::SESSION_COOKIE] = plaintext
+    if is_a?(ActionDispatch::SystemTestCase)
+      visit '/' if page.current_url.blank? || page.current_url == 'about:blank'
+      page.driver.set_cookie(ApplicationController::SESSION_COOKIE.to_s, plaintext)
+    else
+      cookies[ApplicationController::SESSION_COOKIE] = plaintext
+    end
     session_record
   end
 end
@@ -54,5 +59,9 @@ class ActionDispatch::IntegrationTest
 end
 
 class ActionController::TestCase
+  include TestAuthHelpers
+end
+
+class ActionDispatch::SystemTestCase
   include TestAuthHelpers
 end

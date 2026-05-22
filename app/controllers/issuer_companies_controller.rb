@@ -72,7 +72,7 @@ class IssuerCompaniesController < ApplicationController
       :currency,
       :document_email_from,
       :document_email_auto_bcc,
-      :pdf_logo, :pdf_logo_width, :pdf_logo_height, :png_logo
+      :pdf_logo_width, :pdf_logo_height
     )
   end
 end

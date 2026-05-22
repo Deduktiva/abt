@@ -92,6 +92,19 @@ class IssuerCompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'nosniff', response.headers['X-Content-Type-Options']
   end
 
+  test "should ignore direct mass-assignment of pdf_logo and png_logo" do
+    @issuer_company.update!(png_logo: nil, pdf_logo: nil)
+    patch issuer_company_url, params: {
+      issuer_company: {
+        pdf_logo: '<script>alert(1)</script>',
+        png_logo: '<script>alert(1)</script>'
+      }
+    }
+    @issuer_company.reload
+    assert_nil @issuer_company.pdf_logo
+    assert_nil @issuer_company.png_logo
+  end
+
   test "should preserve whitespace in contact lines on show page" do
     # Update the fixture to have explicit whitespace
     @issuer_company.update!(

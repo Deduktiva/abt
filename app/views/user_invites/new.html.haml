@@ -4,7 +4,7 @@
 
 %p Click the button below to generate a one-time invite link. The link is valid for 24 hours. The next page will show the URL so you can copy it.
 
-= form_with url: user_invites_path, method: :post, local: true do
+= form_with url: user_invites_path, method: :post, local: true, data: { turbo: false } do
   = submit_tag 'Generate invite URL', class: 'btn btn-primary'
 
 .mt-4

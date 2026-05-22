@@ -22,4 +22,11 @@ class UserInvitesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select 'code', /\/invites\//
   end
+
+  test 'new form opts out of Turbo so the rendered token page survives' do
+    sign_in_as(users(:alice))
+    get new_user_invite_path
+    assert_response :success
+    assert_select 'form[action=?][data-turbo="false"]', user_invites_path
+  end
 end

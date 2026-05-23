@@ -108,16 +108,14 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     assert_select 'button[data-action*="email-preview#open"]', count: 0
   end
 
-  test "send_email JSON response returns valid HTTP status" do
+  test "send_email enqueues the job and redirects to the invoice" do
     invoice = invoices(:published_invoice)
 
     assert_enqueued_jobs 1, only: InvoiceEmailSenderJob do
-      post send_email_invoice_path(invoice), headers: { 'Accept' => 'application/json' }
+      post send_email_invoice_path(invoice)
     end
 
-    assert_response :ok
-    json_response = JSON.parse(response.body)
-    assert_equal invoice.id, json_response['id']
+    assert_redirected_to invoice_path(invoice)
   end
 
   test "bulk_send_emails queues jobs for selected invoices" do

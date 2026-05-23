@@ -13,9 +13,5 @@ class HomeController < ApplicationController
     @data = {}
     @data[:is_setup_done] = (SalesTaxCustomerClass.count > 0 and SalesTaxProductClass.count > 0 and SalesTaxRate.count > 0)
     @data[:issuer_company] = IssuerCompany.get_the_issuer!
-    respond_to do |format|
-      format.html
-      format.json { render :json => @stats }
-    end
   end
 end

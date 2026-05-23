@@ -3,7 +3,6 @@ require 'json'
 class InvoicesController < ApplicationController
   include EmailPreviewHelper
   # GET /invoices
-  # GET /invoices.json
   def index
     # Get the selected year from params, default to current year
     @selected_year = params[:year]&.to_i || Date.current.year
@@ -45,34 +44,17 @@ class InvoicesController < ApplicationController
                              .order(Arel.sql("#{year_sql} DESC"))
                              .pluck(Arel.sql(year_sql))
                              .map(&:to_i)
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.json { render json: @invoices }
-    end
   end
 
   # GET /invoices/1
-  # GET /invoices/1.json
   def show
     @invoice = Invoice.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.json { render json: @invoice }
-    end
   end
 
   # GET /invoices/new
-  # GET /invoices/new.json
   def new
     @invoice = Invoice.new
     set_form_options
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.json { render json: @invoice }
-    end
   end
 
   # GET /invoices/1/edit
@@ -84,53 +66,35 @@ class InvoicesController < ApplicationController
   end
 
   # POST /invoices
-  # POST /invoices.json
   def create
     @invoice = Invoice.new(invoice_params)
 
-    respond_to do |format|
-      if @invoice.save
-        format.html { redirect_to @invoice, notice: 'Invoice was successfully created.' }
-        format.json { render json: @invoice, status: :created, location: @invoice }
-      else
-        format.html { render :new, status: :unprocessable_content }
-        format.json { render json: @invoice.errors, status: :unprocessable_content }
-      end
+    if @invoice.save
+      redirect_to @invoice, notice: 'Invoice was successfully created.'
+    else
+      render :new, status: :unprocessable_content
     end
   end
 
   # PUT /invoices/1
-  # PUT /invoices/1.json
   def update
     @invoice = Invoice.find(params[:id])
     return unless check_unpublished
 
-    update_success = @invoice.update(invoice_params)
-
-    respond_to do |format|
-      if update_success
-        format.html { redirect_to @invoice, notice: 'Invoice was successfully updated.' }
-        format.json { head :no_content }
-      else
-        # If saving failed, redirect back to edit with errors
-        set_form_options
-        format.html { render :edit, status: :unprocessable_content }
-        format.json { render json: @invoice.errors, status: :unprocessable_content }
-      end
+    if @invoice.update(invoice_params)
+      redirect_to @invoice, notice: 'Invoice was successfully updated.'
+    else
+      set_form_options
+      render :edit, status: :unprocessable_content
     end
   end
 
   # DELETE /invoices/1
-  # DELETE /invoices/1.json
   def destroy
     @invoice = Invoice.find(params[:id])
     return unless check_unpublished
     @invoice.destroy
-
-    respond_to do |format|
-      format.html { redirect_to invoices_url }
-      format.json { head :no_content }
-    end
+    redirect_to invoices_url
   end
 
   def book
@@ -219,11 +183,7 @@ class InvoicesController < ApplicationController
     return unless check_published
 
     InvoiceEmailSenderJob.perform_later(@invoice.id)
-
-    respond_to do |format|
-      format.html { redirect_to @invoice, notice: 'E-Mail queued for sending.' }
-      format.json { render json: @invoice, status: :ok, location: @invoice }
-    end
+    redirect_to @invoice, notice: 'E-Mail queued for sending.'
   end
 
   def mark_paid
@@ -233,11 +193,7 @@ class InvoicesController < ApplicationController
     paid_date = params[:paid_at].presence
     @invoice.paid_at = paid_date ? Date.parse(paid_date) : Date.current
     @invoice.save!
-
-    respond_to do |format|
-      format.html { redirect_to @invoice, notice: "Invoice marked as paid on #{helpers.format_date(@invoice.paid_at)}." }
-      format.json { render json: @invoice, status: :ok, location: @invoice }
-    end
+    redirect_to @invoice, notice: "Invoice marked as paid on #{helpers.format_date(@invoice.paid_at)}."
   rescue ArgumentError
     redirect_to @invoice, alert: 'Invalid date.'
   end
@@ -247,11 +203,7 @@ class InvoicesController < ApplicationController
     return unless check_published
 
     @invoice.update!(paid_at: nil)
-
-    respond_to do |format|
-      format.html { redirect_to @invoice, notice: 'Invoice marked as unpaid.' }
-      format.json { render json: @invoice, status: :ok, location: @invoice }
-    end
+    redirect_to @invoice, notice: 'Invoice marked as unpaid.'
   end
 
   def bulk_send_emails
@@ -273,10 +225,7 @@ class InvoicesController < ApplicationController
       end
     end
 
-    respond_to do |format|
-      format.html { redirect_to invoices_path, notice: "#{queued_count} emails queued for sending." }
-      format.json { render json: { queued_count: queued_count }, status: :ok }
-    end
+    redirect_to invoices_path, notice: "#{queued_count} emails queued for sending."
   end
 
 protected

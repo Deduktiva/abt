@@ -60,3 +60,6 @@ gem "mailgun-ruby", "~> 1.4.3"
 gem "image_processing", "~> 1.2"
 
 gem "webauthn", "~> 3.4"
+
+# Rate-limit unauthenticated endpoints to mitigate brute-force and DoS attacks.
+gem "rack-attack", "~> 6.7"

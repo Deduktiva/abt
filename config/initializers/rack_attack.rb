@@ -2,10 +2,10 @@
 # DoS attacks targeting the CPU-heavy WebAuthn verification path.
 #
 # Notes on resilience:
-# - Counters live in Rails.cache (solid_cache) in real environments, so a
-#   cache-DB outage means EVERY request 500s, including /up. That is
-#   intentional: the load balancer will mark the instance unhealthy and stop
-#   sending traffic, instead of silently disabling rate limiting.
+# - Counters live in Rails.cache (solid_cache) in all environments including
+#   tests. A cache-DB outage means EVERY request 500s, including /up - this
+#   is intentional: the load balancer will mark the instance unhealthy and
+#   stop sending traffic, instead of silently disabling rate limiting.
 # - IPv6 addresses are bucketed by /64 to prevent free-address-rotation
 #   bypass (a single /64 holds 2**64 unique addresses).
 # - Client IP comes from ActionDispatch::RemoteIp (configured via
@@ -16,12 +16,7 @@
 require 'ipaddr'
 
 class Rack::Attack
-  self.cache.store =
-    if Rails.env.test?
-      ActiveSupport::Cache::MemoryStore.new
-    else
-      Rails.cache
-    end
+  self.cache.store = Rails.cache
 
   # --- Client identification ---
 

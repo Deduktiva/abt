@@ -133,23 +133,6 @@ class RackAttackTest < ActionDispatch::IntegrationTest
     assert_equal '203.0.113.7', Rack::Attack.client_ip(stub_req(env))
   end
 
-  test 'production cache backend (Rails.cache / solid_cache) supports the throttle counters' do
-    original = Rack::Attack.cache.store
-    Rack::Attack.cache.store = Rails.cache
-    Rails.cache.clear
-
-    30.times do
-      post options_session_path, params: { username: 'alice' }, as: :json
-      assert_response :success
-    end
-
-    post options_session_path, params: { username: 'alice' }, as: :json
-    assert_response :too_many_requests
-  ensure
-    Rails.cache.clear
-    Rack::Attack.cache.store = original
-  end
-
   private
 
   def stub_req(env)

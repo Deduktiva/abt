@@ -1,61 +1,150 @@
 # Rate-limits unauthenticated endpoints to mitigate brute-force probing and
 # DoS attacks targeting the CPU-heavy WebAuthn verification path.
+#
+# Notes on resilience:
+# - Counters live in Rails.cache (solid_cache) in real environments, so a
+#   cache-DB outage means EVERY request 500s, including /up. That is
+#   intentional: the load balancer will mark the instance unhealthy and stop
+#   sending traffic, instead of silently disabling rate limiting.
+# - IPv6 addresses are bucketed by /64 to prevent free-address-rotation
+#   bypass (a single /64 holds 2**64 unique addresses).
+# - Client IP comes from ActionDispatch::RemoteIp (configured via
+#   `config.action_dispatch.trusted_proxies`) rather than Rack::Request#ip,
+#   which has surprising X-Forwarded-For chain-walking behavior behind
+#   RFC1918 proxies.
+
+require 'ipaddr'
 
 class Rack::Attack
-  # Use Rails.cache (solid_cache_store) in real environments so counters are
-  # shared across processes. Use a per-process memory store in tests so
-  # individual tests do not throttle each other.
-  Rack::Attack.cache.store =
+  self.cache.store =
     if Rails.env.test?
       ActiveSupport::Cache::MemoryStore.new
     else
       Rails.cache
     end
 
-  # WebAuthn options/verify are CPU-heavy and unauthenticated.
-  # Throttle POSTs to /session/* and /invites/:token/* to 30 per minute per IP.
-  throttle('auth-post/ip', limit: 30, period: 1.minute) do |req|
+  # --- Client identification ---
+
+  def self.client_ip(req)
+    (req.env['action_dispatch.remote_ip'] || req.ip).to_s
+  end
+
+  def self.ip_key(req)
+    ip = IPAddr.new(client_ip(req))
+    ip.ipv6? ? ip.mask(64).to_s : ip.to_s
+  rescue IPAddr::InvalidAddressError, IPAddr::Error
+    client_ip(req)
+  end
+
+  # Whether the request carries a validly-signed session cookie. Does not
+  # verify the session is still active server-side; that is the controller's
+  # job. The cookie was minted by us after a successful WebAuthn login, so an
+  # attacker cannot forge one without our signing key.
+  def self.authenticated_request?(req)
+    ActionDispatch::Request.new(req.env)
+      .cookie_jar.signed[ApplicationController::SESSION_COOKIE].present?
+  rescue StandardError
+    false
+  end
+
+  # --- Throttles ---
+
+  # WebAuthn verify is the heaviest unauthenticated operation (curve crypto,
+  # COSE parsing, attestation). Strict per-/64 budget.
+  throttle('webauthn-verify/ip', limit: 10, period: 1.minute) do |req|
     next nil unless req.post?
-    if req.path.start_with?('/session/') ||
-       req.path.match?(%r{\A/invites/[^/]+/(options|verify)\z})
-      req.ip
+    if req.path == '/session/verify' ||
+       req.path.match?(%r{\A/invites/[^/]+/verify\z})
+      ip_key(req)
     end
   end
 
-  # Tokenized GET endpoints. Throttle to 60 per minute per IP to limit
-  # invite/confirmation token probing.
+  # General unauthenticated auth-related POSTs.
+  throttle('auth-post/ip', limit: 30, period: 1.minute) do |req|
+    next nil unless req.post?
+    if req.path.match?(%r{\A/session/(options|verify)\z}) ||
+       req.path.match?(%r{\A/invites/[^/]+/(options|verify)\z})
+      ip_key(req)
+    end
+  end
+
+  # GET /session/new — explicit per-/64 limit so a single attacker cannot
+  # consume the whole 300/min backstop on the login page.
+  throttle('session-new/ip', limit: 60, period: 1.minute) do |req|
+    ip_key(req) if req.get? && req.path == '/session/new'
+  end
+
+  # Tokenized GETs.
   throttle('token-fetch/ip', limit: 60, period: 1.minute) do |req|
     next nil unless req.get?
     if req.path.match?(%r{\A/invites/[^/]+\z}) ||
        req.path.match?(%r{\A/account/email_confirmations/[^/]+\z})
-      req.ip
+      ip_key(req)
     end
   end
 
-  # Backstop: cap any single IP to 300 requests per minute. Skip the health
-  # check and static assets so they cannot exhaust the budget.
+  # Backstop. Skips static assets and authenticated requests (signed session
+  # cookie present) so a chatty SPA does not hit this limit. /up is NOT
+  # exempted: see the file-level note above.
   throttle('req/ip', limit: 300, period: 1.minute) do |req|
-    next nil if req.path == '/up' || req.path.start_with?('/assets/')
-    req.ip
+    next nil if req.path.start_with?('/assets/')
+    next nil if authenticated_request?(req)
+    ip_key(req)
   end
 
-  # Respond with JSON 429 plus a Retry-After header.
+  # --- Escalation ---
+
+  # If an IP triggers 5 throttle violations within 10 minutes, ban it for an
+  # hour. Counters are incremented from throttled_responder below.
+  PERSISTENT_VIOLATOR_OPTIONS = {
+    maxretry: 5, findtime: 10.minutes, bantime: 1.hour
+  }.freeze
+
+  blocklist('persistent-throttle') do |req|
+    Rack::Attack::Allow2Ban.banned?("violator:#{ip_key(req)}")
+  end
+
+  # --- Response ---
+
   self.throttled_responder = lambda do |request|
     match_data = request.env['rack.attack.match_data'] || {}
     retry_after = match_data[:period] || 60
 
+    Rack::Attack::Allow2Ban.filter(
+      "violator:#{ip_key(request)}",
+      PERSISTENT_VIOLATOR_OPTIONS
+    ) { true }
+
+    accept = request.get_header('HTTP_ACCEPT').to_s
+    wants_html = accept.include?('text/html') && !accept.include?('application/json')
+
+    body, content_type =
+      if wants_html
+        ['<!DOCTYPE html><html><head><title>Too many requests</title></head>' \
+         "<body><h1>Too many requests</h1>" \
+         "<p>Please wait #{retry_after} seconds and try again.</p>" \
+         '</body></html>',
+         'text/html; charset=utf-8']
+      else
+        [{ error: 'Rate limit exceeded. Please try again later.' }.to_json,
+         'application/json']
+      end
+
     [
       429,
       {
-        'content-type' => 'application/json',
+        'content-type' => content_type,
+        'cache-control' => 'no-store',
         'retry-after' => retry_after.to_s
       },
-      [{ error: 'Rate limit exceeded. Please try again later.' }.to_json]
+      [body]
     ]
   end
 end
 
-ActiveSupport::Notifications.subscribe('throttle.rack_attack') do |_name, _start, _finish, _id, payload|
+ActiveSupport::Notifications.subscribe(/rack_attack$/) do |name, _start, _finish, _id, payload|
   req = payload[:request]
-  Rails.logger.warn "[rack-attack] throttled #{req.env['rack.attack.matched']} ip=#{req.ip} path=#{req.path}"
+  event = name.split('.').first
+  Rails.logger.warn "[rack-attack] #{event} #{req.env['rack.attack.matched']} " \
+                    "ip=#{Rack::Attack.client_ip(req)} path=#{req.path}"
 end

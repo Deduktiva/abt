@@ -5,11 +5,11 @@ class CustomersController < ApplicationController
     params[:filter] ||= "active"
     @customers = case params[:filter]
     when "all"
-                   Customer.all
+      Customer.all
     when "inactive"
-                   Customer.inactive
+      Customer.inactive
     else
-                   Customer.active
+      Customer.active
     end
 
     @customers = @customers.order(:matchcode)

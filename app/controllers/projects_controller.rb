@@ -6,11 +6,11 @@ class ProjectsController < ApplicationController
 
     @projects = case params[:filter]
     when "all"
-                   Project.all
+      Project.all
     when "inactive"
-                   Project.inactive
+      Project.inactive
     else
-                   Project.active
+      Project.active
     end
 
     # Filters for AJAX requests

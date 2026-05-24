@@ -1,4 +1,6 @@
 class Invoice < ApplicationRecord
+  include YearFilterable
+
   validates :customer_id, :presence => true
   default_scope { order(Arel.sql("id ASC")) }
 

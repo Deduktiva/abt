@@ -1,11 +1,10 @@
 class HomeController < ApplicationController
   def index
-    current_year = Date.current.year
-    current_year_start = Date.new(current_year, 1, 1)
+    ytd_range = Date.current.beginning_of_year..Date.current
 
     @stats = {
-      invoices_current_year: Invoice.where(date: current_year_start..Date.current).count,
-      invoices_ytd_total: Invoice.where(published: true, date: current_year_start..Date.current).sum(:sum_total),
+      invoices_current_year: Invoice.where(date: ytd_range).count,
+      invoices_ytd_total: Invoice.where(published: true, date: ytd_range).sum(:sum_total),
       invoices_total_count: Invoice.where(published: true).count,
       invoices_total_amount: Invoice.where(published: true).sum(:sum_total)
     }

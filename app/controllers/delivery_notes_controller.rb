@@ -5,44 +5,18 @@ class DeliveryNotesController < ApplicationController
   include ApplicationHelper
   # GET /delivery_notes
   def index
-    # Get the selected year from params, default to current year
     @selected_year = params[:year]&.to_i || Date.current.year
     @email_filter = params[:email_filter] || 'all'
 
-    # Filter delivery_notes by selected year, including draft delivery_notes (date = nil) for current year
-    year_start = Date.new(@selected_year, 1, 1)
-    year_end = Date.new(@selected_year, 12, 31)
-
-    if @selected_year == Date.current.year
-      # For current year, include both dated delivery_notes and draft delivery_notes (date = nil)
-      @delivery_notes = DeliveryNote.where("date BETWEEN ? AND ? OR date IS NULL", year_start, year_end)
-                        .reorder(Arel.sql('document_number DESC NULLS FIRST'))
-    else
-      # For other years, only show delivery_notes with dates in that year
-      @delivery_notes = DeliveryNote.where(date: year_start..year_end)
-                        .reorder(Arel.sql('document_number DESC NULLS FIRST'))
-    end
+    @delivery_notes = DeliveryNote.in_year(@selected_year, include_drafts: @selected_year == Date.current.year)
+                                  .reorder(Arel.sql('document_number DESC NULLS FIRST'))
 
     case @email_filter
     when 'unsent'
       @delivery_notes = @delivery_notes.email_unsent.published
     end
 
-    # Get available years for pagination (years that have delivery_notes)
-    # Use database-specific EXTRACT function (works in PostgreSQL, MySQL, and modern SQLite)
-    year_sql = case ActiveRecord::Base.connection.adapter_name.downcase
-               when 'sqlite'
-                 "strftime('%Y', date)"
-               else
-                 "EXTRACT(YEAR FROM date)"
-               end
-
-    @available_years = DeliveryNote.unscoped
-                             .where.not(date: nil)
-                             .group(Arel.sql(year_sql))
-                             .order(Arel.sql("#{year_sql} DESC"))
-                             .pluck(Arel.sql(year_sql))
-                             .map(&:to_i)
+    @available_years = DeliveryNote.available_years
   end
 
   # GET /delivery_notes/1

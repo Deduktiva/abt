@@ -106,7 +106,7 @@ class FopRenderer
           raise "fop generated invalid PDF (missing %%EOF trailer, got #{pdf_content.length} bytes):\n#{fop_result}"
         end
 
-        return pdf_content
+        pdf_content
       rescue Errno::ENOENT
         raise "fop failed - no output file created:\n#{fop_result}"
       end

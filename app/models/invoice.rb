@@ -70,7 +70,7 @@ class Invoice < ApplicationRecord
     log << '--- END LINES ---'
     log << ''
 
-    return {
+    {
       success: errors.empty?,
       errors: errors,
       log: log,

@@ -35,31 +35,12 @@ fi
 echo "📦 Building FOP container image..."
 $CONTAINER_CMD build -f "$PROJECT_ROOT/Dockerfile.fop" -t "$FOP_IMAGE_NAME" "$PROJECT_ROOT"
 
-# Create FOP wrapper script
-FOP_WRAPPER="$PROJECT_ROOT/bin/abt-fop-container"
-mkdir -p "$PROJECT_ROOT/bin"
-
-cat > "$FOP_WRAPPER" << EOF
-#!/bin/bash
-# FOP wrapper for containerized execution
-PROJECT_ROOT="\$(cd "\$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)"
-
-# Use either podman or docker
-CONTAINER_CMD="$CONTAINER_CMD"
-
-# Run FOP in container with project directory mounted
-\$CONTAINER_CMD run --rm \\
-  -v "\$PROJECT_ROOT:\$PROJECT_ROOT" \\
-  -w "\$PWD" \\
-  $FOP_IMAGE_NAME \\
-  "\$PROJECT_ROOT/script/abt-fop" "\$@"
-EOF
-
-chmod +x "$FOP_WRAPPER"
-FOP_BINARY="$FOP_WRAPPER"
+# bin/abt-fop-container is now tracked in the repo as the canonical
+# containerized launcher; no wrapper generation needed.
+FOP_BINARY="$PROJECT_ROOT/bin/abt-fop-container"
 
 echo "✅ FOP container image built: $FOP_IMAGE_NAME"
-echo "✅ FOP wrapper created at: $FOP_BINARY"
+echo "✅ Using tracked wrapper at: $FOP_BINARY"
 
 # Test installation
 echo "🧪 Testing FOP installation..."

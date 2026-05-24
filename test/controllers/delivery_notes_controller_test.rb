@@ -1,8 +1,8 @@
 require 'test_helper'
 
-class DeliveryNotesControllerTest < ActionController::TestCase
+class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
   test "should get index" do
-    get :index
+    get delivery_notes_url
     assert_response :success
   end
 
@@ -25,11 +25,11 @@ class DeliveryNotesControllerTest < ActionController::TestCase
     )
 
     # Test current year (default)
-    get :index
+    get delivery_notes_url
     assert_response :success
 
     # Test specific year filter
-    get :index, params: { year: 2023 }
+    get delivery_notes_url(year: 2023)
     assert_response :success
     # Verify the page contains the 2023 note reference but not 2024
     assert_select 'td', text: '2023-TEST'
@@ -46,24 +46,24 @@ class DeliveryNotesControllerTest < ActionController::TestCase
       # date is nil for draft notes
     )
 
-    get :index
+    get delivery_notes_url
     assert_response :success
     assert_select 'td', text: 'DRAFT-NO-DATE'
   end
 
   test "should show delivery note" do
-    get :show, params: { id: delivery_notes(:published_delivery_note) }
+    get delivery_note_url(delivery_notes(:published_delivery_note))
     assert_response :success
   end
 
   test "should get new" do
-    get :new
+    get new_delivery_note_url
     assert_response :success
   end
 
   test "should create delivery note" do
     assert_difference('DeliveryNote.count') do
-      post :create, params: {
+      post delivery_notes_url, params: {
         delivery_note: {
           customer_id: customers(:good_eu).id,
           project_id: projects(:one).id,
@@ -75,7 +75,7 @@ class DeliveryNotesControllerTest < ActionController::TestCase
       }
     end
 
-    assert_redirected_to delivery_note_path(DeliveryNote.last)
+    assert_redirected_to delivery_note_url(DeliveryNote.last)
 
     delivery_note = DeliveryNote.last
     assert_equal Date.new(2025, 5, 1), delivery_note.delivery_start_date
@@ -84,50 +84,49 @@ class DeliveryNotesControllerTest < ActionController::TestCase
   end
 
   test "should get edit" do
-    get :edit, params: { id: delivery_notes(:draft_delivery_note) }
+    get edit_delivery_note_url(delivery_notes(:draft_delivery_note))
     assert_response :success
   end
 
   test "should update delivery note" do
-    patch :update, params: {
-      id: delivery_notes(:draft_delivery_note),
+    patch delivery_note_url(delivery_notes(:draft_delivery_note)), params: {
       delivery_note: { cust_reference: "UPDATED-REF" }
     }
-    assert_redirected_to delivery_note_path(DeliveryNote.last)
+    assert_redirected_to delivery_note_url(DeliveryNote.last)
   end
 
   test "should destroy delivery note" do
     assert_difference('DeliveryNote.count', -1) do
-      delete :destroy, params: { id: delivery_notes(:draft_delivery_note) }
+      delete delivery_note_url(delivery_notes(:draft_delivery_note))
     end
 
-    assert_redirected_to delivery_notes_path
+    assert_redirected_to delivery_notes_url
   end
 
   test "should not destroy published delivery note" do
     assert_no_difference('DeliveryNote.count') do
-      delete :destroy, params: { id: delivery_notes(:published_delivery_note) }
+      delete delivery_note_url(delivery_notes(:published_delivery_note))
     end
 
-    assert_redirected_to delivery_notes_path
+    assert_redirected_to delivery_notes_url
     assert_match 'cannot be deleted', flash[:alert]
   end
 
   test "should get preview pdf" do
-    get :preview, params: { id: delivery_notes(:draft_delivery_note) }
+    get preview_delivery_note_url(delivery_notes(:draft_delivery_note))
     assert_response :success
     assert_equal 'application/pdf', response.content_type
   end
 
   test "should get pdf for published delivery note" do
-    get :pdf, params: { id: delivery_notes(:published_delivery_note) }
+    get pdf_delivery_note_url(delivery_notes(:published_delivery_note))
     assert_response :success
     assert_equal 'application/pdf', response.content_type
   end
 
   test "should not get pdf for draft delivery note" do
-    get :pdf, params: { id: delivery_notes(:draft_delivery_note) }
-    assert_redirected_to delivery_note_path(delivery_notes(:draft_delivery_note))
+    get pdf_delivery_note_url(delivery_notes(:draft_delivery_note))
+    assert_redirected_to delivery_note_url(delivery_notes(:draft_delivery_note))
     assert_match 'Draft delivery notes can not be used for this action', flash[:error]
   end
 
@@ -135,8 +134,8 @@ class DeliveryNotesControllerTest < ActionController::TestCase
     published_note = delivery_notes(:published_delivery_note)
     original_document_number = published_note.document_number
 
-    post :unpublish, params: { id: published_note }
-    assert_redirected_to delivery_note_path(published_note)
+    post unpublish_delivery_note_url(published_note)
+    assert_redirected_to delivery_note_url(published_note)
 
     published_note.reload
     assert_not published_note.published?
@@ -146,8 +145,8 @@ class DeliveryNotesControllerTest < ActionController::TestCase
   end
 
   test "should not unpublish draft delivery note" do
-    post :unpublish, params: { id: delivery_notes(:draft_delivery_note) }
-    assert_redirected_to delivery_note_path(delivery_notes(:draft_delivery_note))
+    post unpublish_delivery_note_url(delivery_notes(:draft_delivery_note))
+    assert_redirected_to delivery_note_url(delivery_notes(:draft_delivery_note))
     assert_match 'Draft delivery notes can not be used for this action', flash[:error]
   end
 
@@ -161,8 +160,8 @@ class DeliveryNotesControllerTest < ActionController::TestCase
     published_note = delivery_notes(:published_delivery_note)
     assert_nil published_note.acceptance_attachment
 
-    post :upload_acceptance, params: { id: published_note, acceptance_pdf: pdf_file }
-    assert_redirected_to delivery_note_path(published_note)
+    post upload_acceptance_delivery_note_url(published_note), params: { acceptance_pdf: pdf_file }
+    assert_redirected_to delivery_note_url(published_note)
 
     published_note.reload
     assert published_note.acceptance_attachment.present?
@@ -177,8 +176,8 @@ class DeliveryNotesControllerTest < ActionController::TestCase
       original_filename: 'test.txt'
     )
 
-    post :upload_acceptance, params: { id: delivery_notes(:published_delivery_note), acceptance_pdf: text_file }
-    assert_redirected_to delivery_note_path(delivery_notes(:published_delivery_note))
+    post upload_acceptance_delivery_note_url(delivery_notes(:published_delivery_note)), params: { acceptance_pdf: text_file }
+    assert_redirected_to delivery_note_url(delivery_notes(:published_delivery_note))
     assert_match 'Only PDF files are allowed', flash[:error]
   end
 
@@ -191,7 +190,7 @@ class DeliveryNotesControllerTest < ActionController::TestCase
       tax_class.indicator_code = 'STD'
     end
 
-    post :convert_to_invoice, params: { id: published_note }
+    post convert_to_invoice_delivery_note_url(published_note)
 
     published_note.reload
 
@@ -219,19 +218,19 @@ class DeliveryNotesControllerTest < ActionController::TestCase
     published_note.update!(invoice: invoice)
 
     assert_no_difference('Invoice.count') do
-      post :convert_to_invoice, params: { id: published_note }
+      post convert_to_invoice_delivery_note_url(published_note)
     end
 
-    assert_redirected_to delivery_note_path(published_note)
+    assert_redirected_to delivery_note_url(published_note)
     assert_match 'already been converted', flash[:error]
   end
 
   test "should not convert draft delivery note to invoice" do
     assert_no_difference('Invoice.count') do
-      post :convert_to_invoice, params: { id: delivery_notes(:draft_delivery_note) }
+      post convert_to_invoice_delivery_note_url(delivery_notes(:draft_delivery_note))
     end
 
-    assert_redirected_to delivery_note_path(delivery_notes(:draft_delivery_note))
+    assert_redirected_to delivery_note_url(delivery_notes(:draft_delivery_note))
     assert_match 'Draft delivery notes can not be used for this action', flash[:error]
   end
 
@@ -243,7 +242,7 @@ class DeliveryNotesControllerTest < ActionController::TestCase
       Rails.root.join('test', 'fixtures', 'files', 'example_logo.pdf'),
       'application/pdf'
     )
-    post :upload_acceptance, params: { id: published_note, acceptance_pdf: first_pdf }
+    post upload_acceptance_delivery_note_url(published_note), params: { acceptance_pdf: first_pdf }
 
     published_note.reload
     original_attachment_id = published_note.acceptance_attachment.id
@@ -255,7 +254,7 @@ class DeliveryNotesControllerTest < ActionController::TestCase
       original_filename: 'replacement.pdf'
     )
 
-    post :upload_acceptance, params: { id: published_note, acceptance_pdf: second_pdf }
+    post upload_acceptance_delivery_note_url(published_note), params: { acceptance_pdf: second_pdf }
 
     published_note.reload
     assert published_note.acceptance_attachment.present?
@@ -271,13 +270,13 @@ class DeliveryNotesControllerTest < ActionController::TestCase
       Rails.root.join('test', 'fixtures', 'files', 'example_logo.pdf'),
       'application/pdf'
     )
-    post :upload_acceptance, params: { id: published_note, acceptance_pdf: pdf_file }
+    post upload_acceptance_delivery_note_url(published_note), params: { acceptance_pdf: pdf_file }
 
     published_note.reload
     assert published_note.acceptance_attachment.present?
 
     # Delete the acceptance document
-    post :delete_acceptance, params: { id: published_note }
+    post delete_acceptance_delivery_note_url(published_note)
 
     published_note.reload
     assert_nil published_note.acceptance_attachment
@@ -288,9 +287,9 @@ class DeliveryNotesControllerTest < ActionController::TestCase
     published_note = delivery_notes(:published_delivery_note)
     assert_nil published_note.acceptance_attachment
 
-    post :delete_acceptance, params: { id: published_note }
+    post delete_acceptance_delivery_note_url(published_note)
 
-    assert_redirected_to delivery_note_path(published_note)
+    assert_redirected_to delivery_note_url(published_note)
     assert_match 'No acceptance document to delete', flash[:error]
   end
 
@@ -303,7 +302,7 @@ class DeliveryNotesControllerTest < ActionController::TestCase
       'application/pdf',
       original_filename: 'signed_acceptance.pdf'
     )
-    post :upload_acceptance, params: { id: published_note, acceptance_pdf: pdf_file }
+    post upload_acceptance_delivery_note_url(published_note), params: { acceptance_pdf: pdf_file }
 
     published_note.reload
     assert published_note.acceptance_attachment.present?
@@ -314,7 +313,7 @@ class DeliveryNotesControllerTest < ActionController::TestCase
     end
 
     # Convert to invoice
-    post :convert_to_invoice, params: { id: published_note }
+    post convert_to_invoice_delivery_note_url(published_note)
 
     published_note.reload
     assert published_note.invoice.present?
@@ -325,12 +324,12 @@ class DeliveryNotesControllerTest < ActionController::TestCase
   end
 
   test "should get email preview" do
-    get :preview_email, params: { id: delivery_notes(:published_delivery_note) }
+    get preview_email_delivery_note_url(delivery_notes(:published_delivery_note))
     assert_response :success
   end
 
   test "should get email preview json" do
-    get :preview_email, params: { id: delivery_notes(:published_delivery_note) }, format: :json
+    get preview_email_delivery_note_url(delivery_notes(:published_delivery_note), format: :json)
     assert_response :success
     json_response = JSON.parse(response.body)
     assert json_response.key?('subject')
@@ -340,14 +339,14 @@ class DeliveryNotesControllerTest < ActionController::TestCase
   test "should bulk send emails to selected delivery notes" do
     published_note = delivery_notes(:published_delivery_note)
 
-    post :bulk_send_emails, params: { delivery_note_ids: [published_note.id] }
-    assert_redirected_to delivery_notes_path
+    post bulk_send_emails_delivery_notes_url, params: { delivery_note_ids: [published_note.id] }
+    assert_redirected_to delivery_notes_url
     assert_match '1 emails queued for sending', flash[:notice]
   end
 
   test "should not bulk send emails if no delivery notes selected" do
-    post :bulk_send_emails, params: { delivery_note_ids: [] }
-    assert_redirected_to delivery_notes_path
+    post bulk_send_emails_delivery_notes_url, params: { delivery_note_ids: [] }
+    assert_redirected_to delivery_notes_url
     assert_match 'No delivery notes selected', flash[:alert]
   end
 
@@ -357,8 +356,8 @@ class DeliveryNotesControllerTest < ActionController::TestCase
     note1 = create_published_delivery_note(customer: customer, document_number: "DN-2025-002", cust_reference: "BULK-TEST-1")
     note2 = create_published_delivery_note(customer: customer, document_number: "DN-2025-003", cust_reference: "BULK-TEST-2")
 
-    post :bulk_send_emails, params: { delivery_note_ids: [note1.id, note2.id] }
-    assert_redirected_to delivery_notes_path
+    post bulk_send_emails_delivery_notes_url, params: { delivery_note_ids: [note1.id, note2.id] }
+    assert_redirected_to delivery_notes_url
     assert_match '2 emails queued for sending', flash[:notice]
   end
 
@@ -366,8 +365,8 @@ class DeliveryNotesControllerTest < ActionController::TestCase
     note1 = delivery_notes(:published_delivery_note)  # good_eu customer
     note2 = create_published_delivery_note(customer: customers(:good_national), document_number: "DN-2025-004", cust_reference: "DIFF-CUSTOMER")
 
-    post :bulk_send_emails, params: { delivery_note_ids: [note1.id, note2.id] }
-    assert_redirected_to delivery_notes_path
+    post bulk_send_emails_delivery_notes_url, params: { delivery_note_ids: [note1.id, note2.id] }
+    assert_redirected_to delivery_notes_url
     assert_match '2 emails queued for sending', flash[:notice]
   end
 

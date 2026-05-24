@@ -18,7 +18,7 @@
             %span.badge.bg-success Confirmed
           - else
             %span.badge.bg-warning Pending
-        %td= format_datetime(email.created_at)
+        %td= l(email.created_at)
         %td
           - if email.confirmed? && current_user.confirmed_emails.count <= 1
             %span.text-muted.small Only confirmed — add another to remove

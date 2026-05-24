@@ -185,9 +185,9 @@ class DeliveryNotesController < ApplicationController
       # Build enhanced prelude with delivery note information
       delivery_note_info = []
       delivery_note_info << "Based on Delivery Note #{@delivery_note.document_number}"
-      delivery_note_info << "Delivery Note Date: #{format_date(@delivery_note.date)}" if @delivery_note.date
+      delivery_note_info << "Delivery Note Date: #{I18n.l(@delivery_note.date)}" if @delivery_note.date
       if @delivery_note.acceptance_attachment
-        delivery_note_info << "Acceptance Document: #{@delivery_note.acceptance_attachment.filename} (#{format_date(@delivery_note.acceptance_attachment.created_at.to_date)})"
+        delivery_note_info << "Acceptance Document: #{@delivery_note.acceptance_attachment.filename} (#{I18n.l(@delivery_note.acceptance_attachment.created_at.to_date)})"
       end
 
       enhanced_prelude = delivery_note_info.join("\n")

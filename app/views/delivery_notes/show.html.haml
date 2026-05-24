@@ -15,7 +15,7 @@
             .col-sm-4
               %strong Date:
             .col-sm-8
-              = format_date(@delivery_note.date)
+              = l(@delivery_note.date)
         .row.mb-2
           .col-sm-4
             %strong Customer:
@@ -27,7 +27,7 @@
               %strong Email Status:
             .col-sm-8
               - if @delivery_note.email_sent_at
-                %span.badge.bg-success Sent #{format_datetime(@delivery_note.email_sent_at)}
+                %span.badge.bg-success Sent #{l(@delivery_note.email_sent_at)}
               - elsif @delivery_note.customer.email.present?
                 %span.badge.bg-warning Unsent
               - else
@@ -86,7 +86,7 @@
                 %i.fas.fa-file-pdf.text-danger.me-2
                 = link_to @delivery_note.acceptance_attachment.filename, @delivery_note.acceptance_attachment, class: 'me-auto', target: '_blank'
                 %small.text-muted.ms-2
-                  = "Uploaded #{format_datetime(@delivery_note.acceptance_attachment.created_at)}"
+                  = "Uploaded #{l(@delivery_note.acceptance_attachment.created_at)}"
             .d-flex.gap-2
               = form_with url: upload_acceptance_delivery_note_path(@delivery_note), method: :post, multipart: true, local: true, class: 'd-flex align-items-center', data: { controller: 'file-upload-validation' } do |form|
                 .me-2

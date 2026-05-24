@@ -42,12 +42,12 @@
           %td= link_to(invoice.document_number, invoice)
           %td= invoice.customer.name
           %td= invoice.project && invoice.project.display_name
-          %td= format_date(invoice.date)
+          %td= l(invoice.date) if invoice.date
           %td= invoice.cust_reference
           %td= invoice.cust_order
           %td
             - if invoice.email_sent_at
-              %span.badge.bg-success Sent #{format_date(invoice.email_sent_at)}
+              %span.badge.bg-success Sent #{l(invoice.email_sent_at.to_date)}
             - else
               %span.badge.bg-warning Unsent
           %td
@@ -72,13 +72,13 @@
             = link_to(invoice.document_number || "Draft \##{invoice.id}", invoice)
           %td= invoice.customer.name
           %td= invoice.project && invoice.project.display_name
-          %td= format_date(invoice.date)
+          %td= l(invoice.date) if invoice.date
           %td= invoice.cust_reference
           %td= invoice.cust_order
           %td
             - if invoice.published?
               - if invoice.paid?
-                %span.badge.bg-success Paid #{format_date(invoice.paid_at)}
+                %span.badge.bg-success Paid #{l(invoice.paid_at)}
               - elsif invoice.overdue?
                 %span.badge.bg-danger Overdue
               - else

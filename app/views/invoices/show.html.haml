@@ -15,7 +15,7 @@
             .col-sm-4
               %strong Date:
             .col-sm-8
-              = format_date(@invoice.date)
+              = l(@invoice.date)
         .row.mb-2
           .col-sm-4
             %strong Customer:
@@ -32,7 +32,7 @@
             .col-sm-4
               %strong Due Date:
             .col-sm-8
-              = format_date(@invoice.due_date)
+              = l(@invoice.due_date)
 
         - if @invoice.published?
           .row.mb-2
@@ -40,7 +40,7 @@
               %strong Email Status:
             .col-sm-8
               - if @invoice.email_sent_at
-                %span.badge.bg-success Sent #{format_datetime(@invoice.email_sent_at)}
+                %span.badge.bg-success Sent #{l(@invoice.email_sent_at)}
               - elsif @invoice.customer.email.present? || @invoice.customer.invoice_email_auto_enabled
                 %span.badge.bg-warning Unsent
               - else
@@ -51,7 +51,7 @@
               %strong Payment Status:
             .col-sm-8
               - if @invoice.paid?
-                %span.badge.bg-success Paid #{format_date(@invoice.paid_at)}
+                %span.badge.bg-success Paid #{l(@invoice.paid_at)}
               - elsif @invoice.overdue?
                 %span.badge.bg-danger Overdue
               - else

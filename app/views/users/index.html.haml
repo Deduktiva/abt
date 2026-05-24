@@ -22,7 +22,7 @@
             %span.badge.bg-danger Blocked
           - else
             %span.badge.bg-success Active
-        %td= format_datetime(user.created_at)
+        %td= l(user.created_at)
         %td= list_action_link('View', user_path(user), :show)
 
 .mt-4

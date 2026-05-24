@@ -4,6 +4,6 @@
 .main-message
   = link_to 'Confirm email address', @confirmation_url
 .main-message
-  This link expires on #{l(@expires_at, format: '%Y-%m-%d %H:%M %Z')}.
+  This link expires on #{l(@expires_at, format: '%d.%m.%Y %H:%M %Z')}.
 .main-message
   If you did not request this, you can ignore this email.

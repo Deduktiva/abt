@@ -4,9 +4,9 @@ class CustomersController < ApplicationController
     # Show active customers by default
     params[:filter] ||= "active"
     @customers = case params[:filter]
-                 when "all"
+    when "all"
                    Customer.all
-                 when "inactive"
+    when "inactive"
                    Customer.inactive
                  else
                    Customer.active

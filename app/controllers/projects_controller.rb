@@ -5,9 +5,9 @@ class ProjectsController < ApplicationController
     params[:filter] ||= "active"
 
     @projects = case params[:filter]
-                 when "all"
+    when "all"
                    Project.all
-                 when "inactive"
+    when "inactive"
                    Project.inactive
                  else
                    Project.active

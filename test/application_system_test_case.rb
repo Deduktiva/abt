@@ -3,7 +3,8 @@ require "test_helper"
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   cuprite_options = {
     js_errors: true,
-    headless: ENV['HEADLESS'] != '0'  # Default to headless unless explicitly disabled
+    headless: ENV['HEADLESS'] != '0',  # Default to headless unless explicitly disabled
+    process_timeout: 30  # Chromium can take longer than the 10s default to start on busy CI runners
   }
 
   # Allow pointing at a non-standard Chromium binary (e.g. the Playwright build

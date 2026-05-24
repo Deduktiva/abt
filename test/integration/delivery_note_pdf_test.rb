@@ -1,6 +1,8 @@
 require 'test_helper'
 
 class DeliveryNotePdfTest < ActionDispatch::IntegrationTest
+  include ActiveJob::TestHelper
+
   setup do
     @issuer = issuer_companies(:one)
     @customer_en = customers(:good_eu)  # English language customer
@@ -108,6 +110,61 @@ class DeliveryNotePdfTest < ActionDispatch::IntegrationTest
     renderer_de = DeliveryNoteRenderer.new(delivery_note_de, @issuer)
     xml_de = renderer_de.emit_xml(nil)
     assert_includes xml_de, '<language>de</language>', "German delivery note should include language de"
+  end
+
+  test "preview of an empty delivery note redirects with a flash instead of crashing FOP" do
+    empty = DeliveryNote.create!(
+      customer: @customer_en,
+      project: @project,
+      delivery_start_date: Date.new(2025, 8, 1)
+    )
+
+    get preview_delivery_note_path(empty)
+
+    assert_redirected_to delivery_note_path(empty)
+    assert_match(/no item lines/i, flash[:error])
+  end
+
+  test "publishing an empty delivery note is blocked" do
+    empty = DeliveryNote.create!(
+      customer: @customer_en,
+      project: @project,
+      delivery_start_date: Date.new(2025, 8, 1)
+    )
+
+    post publish_delivery_note_path(empty)
+
+    assert_redirected_to delivery_note_path(empty)
+    assert_match(/no item lines/i, flash[:error])
+    assert_not empty.reload.published?
+  end
+
+  test "publishing a delivery note with only non-item lines is blocked" do
+    dn = DeliveryNote.create!(
+      customer: @customer_en,
+      project: @project,
+      delivery_start_date: Date.new(2025, 8, 1)
+    )
+    dn.delivery_note_lines.create!(type: 'text', title: 'Note', description: 'no items here', position: 1)
+    dn.delivery_note_lines.create!(type: 'subheading', title: 'Section', position: 2)
+
+    post publish_delivery_note_path(dn)
+
+    assert_redirected_to delivery_note_path(dn)
+    assert_match(/no item lines/i, flash[:error])
+    assert_not dn.reload.published?
+  end
+
+  test "model rejects setting published=true on an empty delivery note" do
+    dn = DeliveryNote.create!(
+      customer: @customer_en,
+      project: @project,
+      delivery_start_date: Date.new(2025, 8, 1)
+    )
+
+    dn.published = true
+    refute dn.valid?
+    assert_includes dn.errors[:base].join, 'item line'
   end
 
   test "delivery note XML structure is correct" do

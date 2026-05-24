@@ -26,3 +26,11 @@ plain_line:
   type: plain
   title: "Plain text line"
   description: "Just plain text"
+
+draft_item_line:
+  delivery_note: draft_delivery_note
+  position: 3
+  type: item
+  title: "Draft Item"
+  description: "An item line so the draft fixture can be published"
+  quantity: 1.0

@@ -1,9 +1,13 @@
 class DeliveryNote < ApplicationRecord
   include YearFilterable
+  include HasLineItems
+
+  has_line_items :delivery_note_lines
 
   validates :customer_id, :presence => true
   validates :delivery_start_date, :presence => true
   validate :delivery_end_date_after_start_date
+  validate :must_have_item_line_for_publish
   default_scope { order(Arel.sql("id ASC")) }
 
   scope :email_sent, -> { where.not(email_sent_at: nil) }
@@ -95,5 +99,12 @@ class DeliveryNote < ApplicationRecord
     if delivery_end_date < delivery_start_date
       errors.add(:delivery_end_date, "cannot be before the start date")
     end
+  end
+
+  def must_have_item_line_for_publish
+    return unless will_save_change_to_published? && published?
+    return if has_items?
+
+    errors.add(:base, 'must have at least one item line before it can be published')
   end
 end

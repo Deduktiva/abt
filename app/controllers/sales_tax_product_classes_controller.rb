@@ -50,6 +50,6 @@ class SalesTaxProductClassesController < ApplicationController
 
 private
   def sales_tax_product_classes_params
-    params.require(:sales_tax_product_class).permit(:name, :indicator_code)
+    params.require(:sales_tax_product_class).permit(:name, :indicator_code, :is_default)
   end
 end

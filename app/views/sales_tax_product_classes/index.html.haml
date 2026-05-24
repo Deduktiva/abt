@@ -4,6 +4,7 @@
   %tr
     %th Name
     %th Indicator code
+    %th Default
     %th{:width => "3%"}
     %th{:width => "3%"}
 
@@ -11,5 +12,8 @@
     %tr
       %td= sales_tax_product_class.name
       %td= sales_tax_product_class.indicator_code
+      %td
+        - if sales_tax_product_class.is_default?
+          %span.badge.bg-success Default
       %td= list_action_link('Edit', edit_sales_tax_product_class_path(sales_tax_product_class), :edit)
       %td= destroy_link(sales_tax_product_class, "Are you sure you want to delete product class \"#{sales_tax_product_class.name}\"?")

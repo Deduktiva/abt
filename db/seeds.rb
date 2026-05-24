@@ -172,12 +172,12 @@ if Rails.env.development?
     project.bill_to_customer = nil  # Reusable project
   end
 
-  maintenance_project = Project.find_or_create_by(matchcode: 'MAINT') do |project|
+  Project.find_or_create_by(matchcode: 'MAINT') do |project|
     project.description = 'System Maintenance & Support'
     project.bill_to_customer = nil  # Reusable project
   end
 
-  research_project = Project.find_or_create_by(matchcode: 'RESEARCH') do |project|
+  Project.find_or_create_by(matchcode: 'RESEARCH') do |project|
     project.description = 'R&D and Technology Research'
     project.bill_to_customer = nil  # Reusable project
   end

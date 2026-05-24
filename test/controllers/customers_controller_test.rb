@@ -83,7 +83,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
 
   test "should filter customers by active status and handle index properly" do
     # Create inactive customer
-    inactive = Customer.create!(
+    Customer.create!(
       matchcode: 'INACTIVE',
       name: 'Inactive Customer',
       active: false,

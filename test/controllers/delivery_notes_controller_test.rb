@@ -8,7 +8,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
 
   test "should get index with year filter" do
     # Create delivery notes in different years
-    note_2023 = DeliveryNote.create!(
+    DeliveryNote.create!(
       customer: customers(:good_eu),
       project: projects(:one),
       cust_reference: "2023-TEST",
@@ -16,7 +16,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
       delivery_start_date: Date.new(2023, 6, 15)
     )
 
-    note_2024 = DeliveryNote.create!(
+    DeliveryNote.create!(
       customer: customers(:good_eu),
       project: projects(:one),
       cust_reference: "2024-TEST",
@@ -38,7 +38,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
 
   test "should include draft delivery notes with nil date in current year" do
     # Create a draft delivery note (no date)
-    draft_note = DeliveryNote.create!(
+    DeliveryNote.create!(
       customer: customers(:good_eu),
       project: projects(:one),
       cust_reference: "DRAFT-NO-DATE",
@@ -132,7 +132,6 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
 
   test "should unpublish delivery note" do
     published_note = delivery_notes(:published_delivery_note)
-    original_document_number = published_note.document_number
 
     post unpublish_delivery_note_url(published_note)
     assert_redirected_to delivery_note_url(published_note)

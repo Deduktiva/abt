@@ -8,14 +8,14 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
 
   test "should get index with year filter" do
     # Create invoices in different years
-    invoice_2023 = Invoice.create!(
+    Invoice.create!(
       customer: customers(:good_eu),
       project: projects(:test_project),
       cust_reference: "2023-TEST",
       date: Date.new(2023, 6, 15)
     )
 
-    invoice_2024 = Invoice.create!(
+    Invoice.create!(
       customer: customers(:good_eu),
       project: projects(:test_project),
       cust_reference: "2024-TEST",
@@ -39,7 +39,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     current_year = Date.current.year
 
     # Create a draft invoice (no date)
-    draft_invoice = Invoice.create!(
+    Invoice.create!(
       customer: customers(:good_eu),
       project: projects(:test_project),
       cust_reference: "DRAFT-NO-DATE"
@@ -47,7 +47,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     )
 
     # Create a booked invoice from previous year
-    old_invoice = Invoice.create!(
+    Invoice.create!(
       customer: customers(:good_eu),
       project: projects(:test_project),
       cust_reference: "OLD-BOOKED",

@@ -285,7 +285,6 @@ class LineManagementTest < ApplicationSystemTestCase
     visit edit_invoice_path(@invoice)
 
     # Remove existing lines to get down to single line scenario
-    initial_count = all('[data-line-index]').count
     all('[data-line-index]')[1..-1].each do |line|
       within line do
         click_button "🗑"

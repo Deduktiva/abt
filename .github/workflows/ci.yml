@@ -51,13 +51,12 @@ jobs:
         echo "$PWD/bin" >> $GITHUB_PATH
         ./bin/abt-fop-container -version || echo "FOP version check failed"
 
-    - name: Create test configuration
+    - name: Configure test environment
       run: |
-        ./bin/setup
-        mkdir -p config/settings
-        cat > config/settings/test.yml << 'EOF'
-        fop:
-          binary_path: './bin/abt-fop-container'
+        cp config/database.yml.sample config/database.yml
+        # CI-only overrides; the tracked config/settings/test.yml already
+        # points fop.binary_path at ./bin/abt-fop-container.
+        cat > config/settings/test.local.yml << 'EOF'
         payments:
           public_url: 'https://example.com/pay/%token%'
         EOF

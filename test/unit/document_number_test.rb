@@ -32,5 +32,4 @@ class DocumentNumberTest < ActiveSupport::TestCase
     DocumentNumber.get_next_for :one, Date.new(2014, 10, 2)
     assert DocumentNumber.get_next_for(:one, Date.new(2015, 1, 1)) == '20150001'
   end
-
 end

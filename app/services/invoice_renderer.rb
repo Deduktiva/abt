@@ -1,7 +1,6 @@
 require 'builder'
 
 class InvoiceRenderer
-
   def initialize(invoice, issuer)
     @invoice = invoice
     @issuer = issuer

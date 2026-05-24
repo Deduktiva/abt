@@ -1,7 +1,6 @@
 require 'builder'
 
 class DeliveryNoteRenderer
-
   def initialize(delivery_note, issuer)
     @delivery_note = delivery_note
     @issuer = issuer

@@ -489,5 +489,4 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     # Should redirect to the invoice show page since there's no flash data
     assert_redirected_to invoice_url(invoice)
   end
-
 end

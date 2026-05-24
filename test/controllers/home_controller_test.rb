@@ -35,5 +35,4 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select '.alert-warning h5', text: 'Quick Setup Required'
   end
-
 end

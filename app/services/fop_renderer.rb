@@ -13,7 +13,6 @@ require 'builder'
 #   embed a server-controlled tempfile path (logo_file_path) from
 #   render_pdf_with_logo, so this surface is not currently reachable.
 class FopRenderer
-
   def initialize
     @rails_tmp = Rails.root.join('tmp')
     @template_path = Rails.root.join('lib', 'foptemplate')

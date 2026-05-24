@@ -57,7 +57,7 @@ class InvitesController < ApplicationController
       authenticator_selection: { resident_key: "required", user_verification: "preferred" }
     )
 
-    session[:webauthn_signup] = {
+    webauthn_write(:signup,
       invite_token: params[:token],
       challenge: options.challenge,
       webauthn_user_id: webauthn_user_id,
@@ -65,7 +65,7 @@ class InvitesController < ApplicationController
       full_name: full_name,
       email: email,
       nickname: params[:nickname].to_s.presence || "Initial passkey"
-    }
+    )
 
     render json: options.as_json
   end
@@ -80,29 +80,23 @@ class InvitesController < ApplicationController
       authenticator_selection: { resident_key: "required", user_verification: "preferred" }
     )
 
-    session[:webauthn_passkey_reset] = {
+    webauthn_write(:passkey_reset,
       invite_token: params[:token],
       challenge: options.challenge,
       target_user_id: target.id,
       nickname: params[:nickname].to_s.presence || "Passkey"
-    }
+    )
 
     render json: options.as_json
   end
 
   def complete_signup
-    pending = session[:webauthn_signup]
+    pending = webauthn_consume(:signup)
     unless invite_token_matches?(pending)
       return render json: { error: "No signup in progress" }, status: :unprocessable_content
     end
 
-    webauthn_credential = WebAuthn::Credential.from_create(params[:credential].to_unsafe_h)
-
-    begin
-      webauthn_credential.verify(pending["challenge"])
-    rescue WebAuthn::Error => e
-      return render json: { error: "Verification failed: #{e.message}" }, status: :unprocessable_content
-    end
+    webauthn_credential = verify_webauthn_create(pending["challenge"]) or return
 
     user = nil
     User.transaction do
@@ -124,7 +118,6 @@ class InvitesController < ApplicationController
       @invite.consume!(user: user)
     end
 
-    session.delete(:webauthn_signup)
     sign_in_user!(user)
 
     UserAuditEvent.record!(action: "invite_used", user: user, actor: user, request: request,
@@ -144,7 +137,7 @@ class InvitesController < ApplicationController
   end
 
   def complete_passkey_reset
-    pending = session[:webauthn_passkey_reset]
+    pending = webauthn_consume(:passkey_reset)
     unless invite_token_matches?(pending)
       return render json: { error: "No passkey reset in progress" }, status: :unprocessable_content
     end
@@ -152,13 +145,7 @@ class InvitesController < ApplicationController
     target = User.find_by(id: pending["target_user_id"])
     return render_invalid unless target
 
-    webauthn_credential = WebAuthn::Credential.from_create(params[:credential].to_unsafe_h)
-
-    begin
-      webauthn_credential.verify(pending["challenge"])
-    rescue WebAuthn::Error => e
-      return render json: { error: "Verification failed: #{e.message}" }, status: :unprocessable_content
-    end
+    webauthn_credential = verify_webauthn_create(pending["challenge"]) or return
 
     User.transaction do
       target.credentials.create!(
@@ -175,7 +162,6 @@ class InvitesController < ApplicationController
       end
     end
 
-    session.delete(:webauthn_passkey_reset)
     sign_in_user!(target)
 
     UserAuditEvent.record!(action: "invite_used", user: target, actor: target, request: request,

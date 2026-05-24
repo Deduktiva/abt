@@ -30,6 +30,6 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as(users(:alice))
     delete session_path
     assert_redirected_to new_session_path
-    assert cookies[ApplicationController::SESSION_COOKIE].blank?
+    assert cookies[ApplicationController::AUTH_COOKIE].blank?
   end
 end

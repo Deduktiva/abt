@@ -11,6 +11,8 @@ class User < ApplicationRecord
 
   belongs_to :blocked_by_user, class_name: "User", optional: true
 
+  attribute :webauthn_id, default: -> { WebAuthn.generate_user_id }
+
   validates :username, presence: true, uniqueness: { case_sensitive: false },
             format: { with: USERNAME_FORMAT },
             length: { in: 2..40 }
@@ -18,8 +20,6 @@ class User < ApplicationRecord
   validates :webauthn_id, presence: true
 
   normalizes :username, with: ->(v) { v.strip.downcase }
-
-  before_validation :assign_webauthn_id, on: :create
 
   scope :active, -> { where(blocked_at: nil) }
   scope :blocked, -> { where.not(blocked_at: nil) }
@@ -85,11 +85,5 @@ class User < ApplicationRecord
       )
       [ invite, plaintext ]
     end
-  end
-
-  private
-
-  def assign_webauthn_id
-    self.webauthn_id ||= WebAuthn.generate_user_id
   end
 end

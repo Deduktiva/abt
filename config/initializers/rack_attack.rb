@@ -31,13 +31,13 @@ class Rack::Attack
     client_ip(req)
   end
 
-  # Whether the request carries a validly-signed session cookie. Does not
+  # Whether the request carries a validly-signed auth cookie. Does not
   # verify the session is still active server-side; that is the controller's
   # job. The cookie was minted by us after a successful WebAuthn login, so an
   # attacker cannot forge one without our signing key.
   def self.authenticated_request?(req)
     ActionDispatch::Request.new(req.env)
-      .cookie_jar.signed[ApplicationController::SESSION_COOKIE].present?
+      .cookie_jar.signed[ApplicationController::AUTH_COOKIE].present?
   rescue StandardError
     false
   end
@@ -78,7 +78,7 @@ class Rack::Attack
     end
   end
 
-  # Backstop. Skips static assets and authenticated requests (signed session
+  # Backstop. Skips static assets and authenticated requests (signed auth
   # cookie present) so a chatty SPA does not hit this limit. /up is NOT
   # exempted: see the file-level note above.
   throttle("req/ip", limit: 300, period: 1.minute) do |req|

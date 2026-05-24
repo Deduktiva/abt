@@ -18,27 +18,18 @@ class Account::CredentialsController < ApplicationController
       authenticator_selection: { resident_key: "required", user_verification: "preferred" }
     )
 
-    session[:webauthn_credential_add] = {
-      challenge: options.challenge,
-      nickname: nickname
-    }
+    webauthn_write(:credential_add, challenge: options.challenge, nickname: nickname)
 
     render json: options.as_json
   end
 
   def verify
-    pending = session[:webauthn_credential_add]
+    pending = webauthn_consume(:credential_add)
     if pending.blank?
       return render json: { error: "No registration in progress" }, status: :unprocessable_content
     end
 
-    webauthn_credential = WebAuthn::Credential.from_create(params[:credential].to_unsafe_h)
-
-    begin
-      webauthn_credential.verify(pending["challenge"])
-    rescue WebAuthn::Error => e
-      return render json: { error: "Verification failed: #{e.message}" }, status: :unprocessable_content
-    end
+    webauthn_credential = verify_webauthn_create(pending["challenge"]) or return
 
     credential = current_user.credentials.create!(
       external_id: webauthn_credential.id,
@@ -46,7 +37,6 @@ class Account::CredentialsController < ApplicationController
       nickname: pending["nickname"],
       sign_count: webauthn_credential.sign_count
     )
-    session.delete(:webauthn_credential_add)
 
     UserAuditEvent.record!(action: "passkey_added", user: current_user, actor: current_user,
                             request: request,

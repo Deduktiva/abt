@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
-  SESSION_COOKIE = :abt_session
+  AUTH_COOKIE = :abt_auth
 
   before_action :authenticate
 
@@ -24,18 +24,18 @@ class ApplicationController < ActionController::Base
   private
 
   def authenticate
-    plaintext = read_session_token
+    plaintext = read_auth_token
     session_record = plaintext.present? ? UserSession.authenticate(plaintext) : nil
 
     if session_record.nil?
-      reset_session_cookie
+      reset_auth_cookie
       redirect_to_login and return
     end
 
     user = session_record.user
     if user.blocked?
       session_record.terminate!(reason: "blocked_user", actor: nil) unless session_record.terminated_at
-      reset_session_cookie
+      reset_auth_cookie
       redirect_to_login(alert: "Your account has been blocked.") and return
     end
 
@@ -55,22 +55,42 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def reset_session_cookie
-    cookies.delete(SESSION_COOKIE)
+  def reset_auth_cookie
+    cookies.delete(AUTH_COOKIE)
   end
 
-  def read_session_token
-    value = cookies.signed[SESSION_COOKIE]
+  def read_auth_token
+    value = cookies.signed[AUTH_COOKIE]
     return value if value.present?
     # In test env, integration tests cannot easily set signed cookies through
     # rack-test's CookieJar; allow the raw cookie as a fallback there.
-    return cookies[SESSION_COOKIE] if Rails.env.test?
+    return cookies[AUTH_COOKIE] if Rails.env.test?
+    nil
+  end
+
+  def webauthn_write(flow, **payload)
+    WebauthnPendingStore.write(session: session, flow: flow, **payload)
+  end
+
+  def webauthn_consume(flow)
+    WebauthnPendingStore.consume(session: session, flow: flow)
+  end
+
+  # Verifies a WebAuthn create-style assertion against the given challenge.
+  # Returns the credential on success; on WebAuthn::Error, renders a 422 JSON
+  # error and returns nil — callers should `return` on nil.
+  def verify_webauthn_create(challenge)
+    credential = WebAuthn::Credential.from_create(params[:credential].to_unsafe_h)
+    credential.verify(challenge)
+    credential
+  rescue WebAuthn::Error => e
+    render json: { error: "Verification failed: #{e.message}" }, status: :unprocessable_content
     nil
   end
 
   def sign_in_user!(user)
     session_record, plaintext = UserSession.create_for!(user: user, request: request)
-    cookies.signed.permanent[SESSION_COOKIE] = {
+    cookies.signed.permanent[AUTH_COOKIE] = {
       value: plaintext,
       httponly: true,
       secure: Rails.env.production?,

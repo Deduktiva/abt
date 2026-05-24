@@ -35,10 +35,11 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
-  # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  config.assume_ssl = true
-
-  # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
+  # Scheme detection is provided by Apache + mod_passenger: Apache's mod_ssl
+  # sets HTTPS=on in the CGI env on SSL requests, which Passenger forwards into
+  # the Rack env. Rack::Request#scheme reads it directly (no trusted_proxies
+  # gating), so request.ssl? reflects reality and force_ssl only redirects
+  # requests that actually arrived over plain HTTP.
   config.force_ssl = true
 
   # Skip http-to-https redirect for the default health check endpoint.

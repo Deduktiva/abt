@@ -672,8 +672,7 @@ if Rails.env.development?
       date: 5.days.ago.to_date,
       delivery_start_date: 2.weeks.ago.to_date,
       delivery_end_date: 5.days.ago.to_date,
-      published: true,
-      document_number: 'LN20250001'
+      published: false
     )
 
     delivery_note_de.delivery_note_lines.create!(
@@ -705,6 +704,8 @@ if Rails.env.development?
       title: 'Alle Lieferungen wurden termingerecht und entsprechend den Spezifikationen erbracht.',
       position: 4
     )
+
+    delivery_note_de.update!(published: true, document_number: 'LN20250001')
   end
 
   # Update document number sequence for delivery notes

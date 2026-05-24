@@ -3,6 +3,9 @@ require 'json'
 class DeliveryNotesController < ApplicationController
   include EmailPreviewHelper
   include ApplicationHelper
+
+  before_action :set_delivery_note, only: %i[show edit update destroy publish preview pdf unpublish upload_acceptance delete_acceptance convert_to_invoice preview_email send_email]
+
   # GET /delivery_notes
   def index
     @selected_year = params[:year]&.to_i || Date.current.year
@@ -21,7 +24,6 @@ class DeliveryNotesController < ApplicationController
 
   # GET /delivery_notes/1
   def show
-    @delivery_note = DeliveryNote.find(params[:id])
   end
 
   # GET /delivery_notes/new
@@ -32,7 +34,6 @@ class DeliveryNotesController < ApplicationController
 
   # GET /delivery_notes/1/edit
   def edit
-    @delivery_note = DeliveryNote.find(params[:id])
     return unless check_unpublished
 
     set_form_options
@@ -51,7 +52,6 @@ class DeliveryNotesController < ApplicationController
 
   # PUT /delivery_notes/1
   def update
-    @delivery_note = DeliveryNote.find(params[:id])
     return unless check_unpublished
 
     if @delivery_note.update(delivery_note_params)
@@ -64,8 +64,6 @@ class DeliveryNotesController < ApplicationController
 
   # DELETE /delivery_notes/1
   def destroy
-    @delivery_note = DeliveryNote.find(params[:id])
-
     if @delivery_note.published?
       flash[:alert] = 'Published delivery notes cannot be deleted.'
       redirect_to delivery_notes_path and return
@@ -76,7 +74,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def publish
-    @delivery_note = DeliveryNote.find(params[:id])
     return unless check_unpublished
 
     begin
@@ -92,7 +89,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def preview
-    @delivery_note = DeliveryNote.find(params[:id])
     return unless check_unpublished
 
     issuer = IssuerCompany.get_the_issuer!
@@ -103,7 +99,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def pdf
-    @delivery_note = DeliveryNote.find(params[:id])
     return unless check_published
 
     issuer = IssuerCompany.get_the_issuer!
@@ -115,7 +110,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def unpublish
-    @delivery_note = DeliveryNote.find(params[:id])
     return unless check_published
 
     @delivery_note.update!(published: false, document_number: nil, date: nil)
@@ -127,7 +121,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def upload_acceptance
-    @delivery_note = DeliveryNote.find(params[:id])
     return unless check_published
 
     uploaded_file = params[:acceptance_pdf]
@@ -174,7 +167,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def delete_acceptance
-    @delivery_note = DeliveryNote.find(params[:id])
     return unless check_published
 
     if @delivery_note.acceptance_attachment.present?
@@ -192,7 +184,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def convert_to_invoice
-    @delivery_note = DeliveryNote.find(params[:id])
     return unless check_published
 
     if @delivery_note.invoice_id.present?
@@ -261,7 +252,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def preview_email
-    @delivery_note = DeliveryNote.find(params[:id])
     mail = DeliveryNoteMailer.with(delivery_note: @delivery_note).customer_email
 
     email_data = extract_email_preview_data(mail)
@@ -273,7 +263,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def send_email
-    @delivery_note = DeliveryNote.find(params[:id])
     return unless check_published
 
     DeliveryNoteEmailSenderJob.perform_later(@delivery_note.id)
@@ -312,6 +301,10 @@ class DeliveryNotesController < ApplicationController
   end
 
 protected
+  def set_delivery_note
+    @delivery_note = DeliveryNote.find(params[:id])
+  end
+
   def check_unpublished
     if @delivery_note.published?
       flash[:error] = 'Published delivery notes can not be modified.'

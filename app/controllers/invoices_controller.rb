@@ -2,6 +2,9 @@ require 'json'
 
 class InvoicesController < ApplicationController
   include EmailPreviewHelper
+
+  before_action :set_invoice, only: %i[show edit update destroy book preview preview_email send_email mark_paid mark_unpaid]
+
   # GET /invoices
   def index
     @selected_year = params[:year]&.to_i || Date.current.year
@@ -22,7 +25,6 @@ class InvoicesController < ApplicationController
 
   # GET /invoices/1
   def show
-    @invoice = Invoice.find(params[:id])
   end
 
   # GET /invoices/new
@@ -33,7 +35,6 @@ class InvoicesController < ApplicationController
 
   # GET /invoices/1/edit
   def edit
-    @invoice = Invoice.find(params[:id])
     return unless check_unpublished
 
     set_form_options
@@ -52,7 +53,6 @@ class InvoicesController < ApplicationController
 
   # PUT /invoices/1
   def update
-    @invoice = Invoice.find(params[:id])
     return unless check_unpublished
 
     if @invoice.update(invoice_params)
@@ -65,14 +65,12 @@ class InvoicesController < ApplicationController
 
   # DELETE /invoices/1
   def destroy
-    @invoice = Invoice.find(params[:id])
     return unless check_unpublished
     @invoice.destroy
     redirect_to invoices_url
   end
 
   def book
-    @invoice = Invoice.find(params[:id])
     cache_key = "booking_log_#{@invoice.id}"
 
     if request.post?
@@ -116,7 +114,6 @@ class InvoicesController < ApplicationController
 
   def preview
     Rails.logger.debug "InvoiceController#preview"
-    @invoice = Invoice.find(params[:id])
     return unless check_unpublished
 
     issuer = IssuerCompany.get_the_issuer!
@@ -140,7 +137,6 @@ class InvoicesController < ApplicationController
   end
 
   def preview_email
-    @invoice = Invoice.find(params[:id])
     mail = InvoiceMailer.with(invoice: @invoice).customer_email
 
     email_data = extract_email_preview_data(mail)
@@ -153,7 +149,6 @@ class InvoicesController < ApplicationController
 
 
   def send_email
-    @invoice = Invoice.find(params[:id])
     return unless check_published
 
     InvoiceEmailSenderJob.perform_later(@invoice.id)
@@ -161,7 +156,6 @@ class InvoicesController < ApplicationController
   end
 
   def mark_paid
-    @invoice = Invoice.find(params[:id])
     return unless check_published
 
     paid_date = params[:paid_at].presence
@@ -173,7 +167,6 @@ class InvoicesController < ApplicationController
   end
 
   def mark_unpaid
-    @invoice = Invoice.find(params[:id])
     return unless check_published
 
     @invoice.update!(paid_at: nil)
@@ -203,6 +196,10 @@ class InvoicesController < ApplicationController
   end
 
 protected
+  def set_invoice
+    @invoice = Invoice.find(params[:id])
+  end
+
   def check_unpublished
     if @invoice.published?
       flash[:error] = 'Published invoices can not be modified.'

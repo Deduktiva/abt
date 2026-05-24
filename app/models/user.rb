@@ -17,8 +17,9 @@ class User < ApplicationRecord
   validates :full_name, presence: true, length: { maximum: 120 }
   validates :webauthn_id, presence: true
 
+  normalizes :username, with: ->(v) { v.strip.downcase }
+
   before_validation :assign_webauthn_id, on: :create
-  before_validation :normalize_username
 
   scope :active, -> { where(blocked_at: nil) }
   scope :blocked, -> { where.not(blocked_at: nil) }
@@ -87,10 +88,6 @@ class User < ApplicationRecord
   end
 
   private
-
-  def normalize_username
-    self.username = username.to_s.strip.downcase if username.present?
-  end
 
   def assign_webauthn_id
     self.webauthn_id ||= WebAuthn.generate_user_id

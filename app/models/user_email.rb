@@ -9,7 +9,7 @@ class UserEmail < ApplicationRecord
             format: { with: URI::MailTo::EMAIL_REGEXP },
             uniqueness: { case_sensitive: false }
 
-  before_validation :normalize_address
+  normalizes :address, with: ->(v) { v.strip.downcase }
 
   scope :confirmed, -> { where.not(confirmed_at: nil) }
   scope :pending, -> { where(confirmed_at: nil) }
@@ -41,11 +41,5 @@ class UserEmail < ApplicationRecord
       .where("confirmation_expires_at > ?", Time.current)
       .where(confirmed_at: nil)
       .first
-  end
-
-  private
-
-  def normalize_address
-    self.address = address.to_s.strip.downcase if address.present?
   end
 end

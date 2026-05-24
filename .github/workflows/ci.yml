@@ -46,30 +46,10 @@ jobs:
       run: |
         podman build -f Dockerfile.fop -t abt-fop .
 
-    - name: Set up FOP wrapper script
-      run: |
-        mkdir -p bin
-        cat > bin/abt-fop-container << EOF
-        #!/bin/bash
-        # FOP wrapper for containerized execution
-        PROJECT_ROOT="\$(cd "\$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)"
-        podman run --rm \\
-          -v "\$PROJECT_ROOT:\$PROJECT_ROOT":rw,Z \\
-          -w "\$PWD" \\
-          --userns=keep-id \\
-          -u "$(id -u):$(id -g)" \\
-          abt-fop \\
-          "\$PROJECT_ROOT/script/abt-fop" "\$@"
-        EOF
-        chmod +x bin/abt-fop-container
-        echo "$PWD/bin" >> $GITHUB_PATH
-        cat bin/abt-fop-container
-
     - name: Test FOP integration
       run: |
-        echo "Testing FOP binary accessibility..."
-        which abt-fop-container || exit 1
-        abt-fop-container -version || echo "FOP version check failed"
+        echo "$PWD/bin" >> $GITHUB_PATH
+        ./bin/abt-fop-container -version || echo "FOP version check failed"
 
     - name: Create test configuration
       run: |

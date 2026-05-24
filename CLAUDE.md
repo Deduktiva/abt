@@ -54,8 +54,11 @@ For testing against PostgreSQL (matches production environment):
 
 ### PDF Generation
 - Uses Apache FOP (Formatting Objects Processor) for PDF generation
-- XML template in `lib/foptemplate/invoice.xsl`
-- Requires external FOP binary configured in `settings.yml`
+- XML templates in `lib/foptemplate/`; shared base in `document_base.xsl` uses XSLT 2.0 features (`xsl:function`, `format-date` picture strings) — Saxon-B is mandatory, JDK's built-in XSLTC silently can't process these
+- Two launchers, both tracked in this repo and both injecting Saxon-B plus the JAXP hardening flags from issue #273 (`jdk.xml.dtd.support=deny`, `accessExternalDTD=`, `accessExternalSchema=`, `accessExternalStylesheet=file`):
+  - `bin/abt-fop-container` — wraps `podman run` (or docker) around the abt-fop image and execs `script/abt-fop` inside it. Default for dev/test/CI.
+  - `script/abt-fop` — invokes `run_java` directly on the host's `fop` + `libsaxonb-java` packages. Used in production and in environments without a container runtime (e.g. the Claude Code sandbox, which writes a `config/settings/{env}.local.yml` override pointing at it).
+- When changing XML handling, keep hardening in `script/abt-fop` — don't introduce a second launcher path.
 
 ### Key Workflow
 1. Create draft invoice with lines
@@ -80,7 +83,9 @@ For testing against PostgreSQL (matches production environment):
 
 ### Required Software
 - Ruby >= 3.3
-- Apache FOP 2.10 for PDF generation
+- Apache FOP 2.10 for PDF generation (Debian trixie package: `fop`)
+- Saxon-B as the XSLT 2.0 processor (Debian package: `libsaxonb-java`) — without this, FOP rendering fails because the templates use XSLT 2.0
+- OpenJDK 21 (or any JDK ≥ 21 that honours the `jdk.xml.*` JAXP system properties)
 - Database (SQLite3 for dev, PostgreSQL for production and in CI)
 
 ### Font Files

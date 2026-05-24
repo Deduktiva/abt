@@ -22,7 +22,6 @@
 /config/master.key
 instance-data
 .ruby-version
-/bin/abt-fop-container
 /node_modules
 /public/assets/
 /vendor

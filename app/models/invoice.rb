@@ -83,7 +83,6 @@ private
 
     self.setup_tax_classes
     self.invoice_tax_classes.records  # ensure invoice_tax_classes is loaded
-    modified_itcs = []
     valid = true
 
     # Reset all tax class sums before recalculating

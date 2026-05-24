@@ -13,7 +13,8 @@ class UserInvitesController < ApplicationController
                             request: request,
                             metadata: { purpose: 'signup', source: 'web' })
 
-    @invite_url = invite_url(token: plaintext, host: Settings.app.host, protocol: Settings.app.protocol)
+    @invite_url = invite_url(token: plaintext, host: Settings.app.host, protocol: Settings.app.protocol,
+                              script_name: Settings.app.script_name)
     @invite = invite
     render :show_invite
   end

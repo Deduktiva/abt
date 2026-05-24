@@ -3,9 +3,9 @@ Abt
 
 Rails app to print invoices, basically.
 
-Has a customer, project, product list, and invoices. Knows about tax classes.
+Has customers, projects, products, invoices, and delivery notes. Knows about tax classes. Passkey-only auth, invite-based user management, scheduled background reports.
 
-Exports invoices to PDF.
+Exports invoices and delivery notes to PDF.
 
 
 Dependencies
@@ -34,6 +34,8 @@ bundle install
 - Apache FOP 2.10 for PDF generation (run `./script/setup-fop.sh` for automated setup)
 - PostgreSQL (production)
 - Web server
+- Mailgun account for outbound email
+- Solid Queue worker (`bin/jobs`) for `deliver_later` and scheduled jobs (overdue-invoice reports, queue cleanup — see `config/recurring.yml`)
 
 ### Pre-commit Hooks (Optional)
 For automatic whitespace cleanup and code quality checks:
@@ -71,7 +73,7 @@ The task prints a one-time URL that is valid for 24 hours. Copy it to a browser,
 
 ### WebAuthn configuration
 
-WebAuthn requires three settings in `config/settings.yml` (override per environment as needed in `config/settings/<env>.yml`):
+WebAuthn requires the following settings in `config/settings.yml` (override per environment as needed in `config/settings/<env>.yml`):
 
 - `app.host` / `app.protocol` — used by the rake task and email links to build absolute URLs.
 - `webauthn.rp_id` — the **registrable domain** the app is served from (e.g. `app.example.com`). Must NOT include scheme or port.

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is "ABT", a Rails 8 application for invoice management. Features modern Bootstrap 5 UI, Turbo-powered interactions, email automation, and PDF generation via Apache FOP.
+This is "ABT", a Rails 8 application for invoice and delivery-note management. Bootstrap 5 + Turbo UI, passkey auth, Solid Queue background jobs, Apache FOP PDFs.
 
 ## Common Commands
 
@@ -35,10 +35,16 @@ For testing against PostgreSQL (matches production environment):
 
 ### Core Models
 - **Invoice** (`app/models/invoice.rb`) - Central model with customer, project associations and nested invoice lines
+- **DeliveryNote** (`app/models/delivery_note.rb`) - Parallel document type to Invoice; shares the line/publish/email pipeline via concerns
 - **Customer** (`app/models/customer.rb`) - Customer management with sales tax classes
-- **InvoiceLine** (`app/models/invoice_line.rb`) - Line items for invoices with different types (item, text, subheading)
+- **InvoiceLine** / **DeliveryNoteLine** - Line items with types (item, text, subheading)
 - **Product** (`app/models/product.rb`) - Product catalog
 - **Project** (`app/models/project.rb`) - Project tracking
+- **User** + `UserCredential`, `UserEmail`, `UserInvite`, `UserSession`, `UserAuditEvent` - Passkey/WebAuthn auth, invite-only signup, audit log
+
+### Shared Concerns
+- `PublishableDocument`, `DocumentWithLines` (controllers) - draft/published guards and line-form plumbing for Invoice + DeliveryNote
+- `HasLineItems`, `YearFilterable`, `DigestedToken` (models) - line helpers, date-scoped queries, SHA-256-digested token storage
 
 ### Tax System
 - **SalesTaxCustomerClass** - Customer tax classification
@@ -50,12 +56,22 @@ For testing against PostgreSQL (matches production environment):
 1. **InvoicesController** - Standard CRUD + special actions (preview, book, bulk email)
 2. **InvoiceBooker** - Business logic for "booking" invoices (calculating taxes, assigning document numbers, publishing)
 3. **InvoiceRenderer** - PDF generation using Apache FOP with XML/XSL transformation
-4. **Email System** - Automated email sending with tracking and bulk operations
+4. **Email System** - `DocumentMailer` delivered via `deliver_later` (Solid Queue). Bulk send marks `email_sent_at` for tracking.
+
+### Background Jobs
+- Solid Queue (`bin/jobs` worker, `solid_queue` gem). Schedule lives in `config/recurring.yml` — currently `OverdueInvoicesReportJob` (every other day at 08:00) and finished-job cleanup.
+- Worker status surfaced under **Configuration → Background Jobs** (`JobsStatusController`).
+
+### Authentication
+- WebAuthn-only via the `webauthn` gem. No passwords. Invite-only signup (24h single-use URLs, `users:invite` rake task bootstraps the first user).
+- Self-service under `/account/*`; admin under `/users` (block, reset passkeys, manage emails).
+- Tokens (invite, session, email confirmation) stored as SHA-256 digests via `DigestedToken`.
+- Rate limiting via `rack-attack` on unauthenticated endpoints (`config/initializers/rack_attack.rb`).
 
 ### PDF Generation
 - Uses Apache FOP (Formatting Objects Processor) for PDF generation
 - XML templates in `lib/foptemplate/`; shared base in `document_base.xsl` uses XSLT 2.0 features (`xsl:function`, `format-date` picture strings) — Saxon-B is mandatory, JDK's built-in XSLTC silently can't process these
-- Two launchers, both tracked in this repo and both injecting Saxon-B plus the JAXP hardening flags from issue #273 (`jdk.xml.dtd.support=deny`, `accessExternalDTD=`, `accessExternalSchema=`, `accessExternalStylesheet=file`):
+- Two launchers, both tracked in this repo and both injecting Saxon-B plus JAXP hardening flags (`jdk.xml.dtd.support=deny`, `accessExternalDTD=`, `accessExternalSchema=`, `accessExternalStylesheet=file`):
   - `bin/abt-fop-container` — wraps `podman run` (or docker) around the abt-fop image and execs `script/abt-fop` inside it. Default for dev/test/CI.
   - `script/abt-fop` — invokes `run_java` directly on the host's `fop` + `libsaxonb-java` packages. Used in production and in environments without a container runtime (e.g. the Claude Code sandbox, which writes a `config/settings/{env}.local.yml` override pointing at it).
 - When changing XML handling, keep hardening in `script/abt-fop` — don't introduce a second launcher path.
@@ -92,6 +108,8 @@ For testing against PostgreSQL (matches production environment):
 - Saxon-B as the XSLT 2.0 processor (Debian package: `libsaxonb-java`) — without this, FOP rendering fails because the templates use XSLT 2.0
 - OpenJDK 21 (or any JDK ≥ 21 that honours the `jdk.xml.*` JAXP system properties)
 - Database (SQLite3 for dev, PostgreSQL for production and in CI)
+- Mailgun account for outbound email (`mailgun-ruby`)
+- WebAuthn-capable browser/authenticator for sign-in (`webauthn` gem; configured via `webauthn.rp_id` / `webauthn.origin` / `webauthn.rp_name` in settings)
 
 ### Font Files
 - Open Sans fonts in `lib/foptemplate/open-sans/` for PDF rendering
@@ -101,15 +119,14 @@ For testing against PostgreSQL (matches production environment):
 - PDF template: `lib/foptemplate/invoice.xsl`
 - Invoice model: `app/models/invoice.rb`
 - Main invoice controller: `app/controllers/invoices_controller.rb`
+- Delivery notes: `app/controllers/delivery_notes_controller.rb`, `app/models/delivery_note.rb`
+- Auth flows: `app/controllers/sessions_controller.rb`, `invites_controller.rb`, `account/`, `users_controller.rb`
 - UI helpers: `app/helpers/application_helper.rb`
 
 ## Development Preferences
 
 ### Template Language
-- **PREFER HAML** over ERB for all new view templates
-- HAML is more concise, readable, and less error-prone than ERB
-- All existing templates have been converted to HAML for consistency
-- Use `.html.haml` extension for view files
+- Use HAML (`.html.haml`) for all view templates
 
 ### UI Framework
 - Bootstrap 5 for responsive design and components
@@ -125,7 +142,7 @@ For testing against PostgreSQL (matches production environment):
 ### Testing Guidelines
 - Write simple unit tests when implementing new features
 - Test database auto-migrates via `ActiveRecord::Migration.maintain_test_schema!` in test_helper.rb
-- **NEVER use `assigns()` in tests** - it has been extracted to a gem in modern Rails. Use `assert_select` or other response testing methods instead
+- **NEVER use `assigns()` in tests** - use `assert_select` or other response testing methods instead
 - **Run UI tests headless by default before declaring frontend/UI tasks complete** when making frontend/UI changes
 - **NEVER use `sleep` in system tests** - use Capybara's waiting methods instead (`assert_selector`, `assert_text`, `assert_no_text` with `wait:` option)
 
@@ -174,7 +191,7 @@ For testing against PostgreSQL (matches production environment):
 - Be factual and precise rather than enthusiastic or salesy
 
 ### Code Quality
-- When refactoring or fixing bugs, follow DRY principles but don't overdo it
+- Follow DRY when refactoring or fixing bugs, but don't overdo it
 - Prefer clarity and maintainability over excessive abstraction
 
 ### Git Commit Message Style
@@ -191,10 +208,7 @@ For testing against PostgreSQL (matches production environment):
 
 ### Git and Version Control
 - **NEVER check in screenshots or temporary image files**
-- Screenshots are typically for debugging or demonstration purposes only
 - Use `.gitignore` to exclude temporary files and screenshots from commits
-
-- when refactoring or fixing bugs try to follow DRY principles, but dont overdo it
 
 ### Development Commands
 - **ALWAYS run `pre-commit run --all-files` before committing** to ensure code formatting and linting

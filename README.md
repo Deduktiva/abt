@@ -73,7 +73,7 @@ The task prints a one-time URL that is valid for 24 hours. Copy it to a browser,
 
 ### WebAuthn configuration
 
-WebAuthn requires three settings in `config/settings.yml` (override per environment as needed in `config/settings/<env>.yml`):
+WebAuthn requires the following settings in `config/settings.yml` (override per environment as needed in `config/settings/<env>.yml`):
 
 - `app.host` / `app.protocol` — used by the rake task and email links to build absolute URLs.
 - `webauthn.rp_id` — the **registrable domain** the app is served from (e.g. `app.example.com`). Must NOT include scheme or port.

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is "ABT", a Rails 8 application for invoice management. Features modern Bootstrap 5 UI, Turbo-powered interactions, email automation, and PDF generation via Apache FOP.
+This is "ABT", a Rails 8 application for invoice and delivery-note management. Bootstrap 5 + Turbo UI, passkey auth, Solid Queue background jobs, Apache FOP PDFs.
 
 ## Common Commands
 
@@ -56,7 +56,7 @@ For testing against PostgreSQL (matches production environment):
 1. **InvoicesController** - Standard CRUD + special actions (preview, book, bulk email)
 2. **InvoiceBooker** - Business logic for "booking" invoices (calculating taxes, assigning document numbers, publishing)
 3. **InvoiceRenderer** - PDF generation using Apache FOP with XML/XSL transformation
-4. **Email System** - `DocumentMailer` delivered via `deliver_later` (Solid Queue); per-document sender jobs were removed. Bulk send marks `email_sent_at` for tracking.
+4. **Email System** - `DocumentMailer` delivered via `deliver_later` (Solid Queue). Bulk send marks `email_sent_at` for tracking.
 
 ### Background Jobs
 - Solid Queue (`bin/jobs` worker, `solid_queue` gem). Schedule lives in `config/recurring.yml` — currently `OverdueInvoicesReportJob` (every other day at 08:00) and finished-job cleanup.
@@ -71,7 +71,7 @@ For testing against PostgreSQL (matches production environment):
 ### PDF Generation
 - Uses Apache FOP (Formatting Objects Processor) for PDF generation
 - XML templates in `lib/foptemplate/`; shared base in `document_base.xsl` uses XSLT 2.0 features (`xsl:function`, `format-date` picture strings) — Saxon-B is mandatory, JDK's built-in XSLTC silently can't process these
-- Two launchers, both tracked in this repo and both injecting Saxon-B plus the JAXP hardening flags from issue #273 (`jdk.xml.dtd.support=deny`, `accessExternalDTD=`, `accessExternalSchema=`, `accessExternalStylesheet=file`):
+- Two launchers, both tracked in this repo and both injecting Saxon-B plus JAXP hardening flags (`jdk.xml.dtd.support=deny`, `accessExternalDTD=`, `accessExternalSchema=`, `accessExternalStylesheet=file`):
   - `bin/abt-fop-container` — wraps `podman run` (or docker) around the abt-fop image and execs `script/abt-fop` inside it. Default for dev/test/CI.
   - `script/abt-fop` — invokes `run_java` directly on the host's `fop` + `libsaxonb-java` packages. Used in production and in environments without a container runtime (e.g. the Claude Code sandbox, which writes a `config/settings/{env}.local.yml` override pointing at it).
 - When changing XML handling, keep hardening in `script/abt-fop` — don't introduce a second launcher path.
@@ -126,10 +126,7 @@ For testing against PostgreSQL (matches production environment):
 ## Development Preferences
 
 ### Template Language
-- **PREFER HAML** over ERB for all new view templates
-- HAML is more concise, readable, and less error-prone than ERB
-- All existing templates have been converted to HAML for consistency
-- Use `.html.haml` extension for view files
+- Use HAML (`.html.haml`) for all view templates
 
 ### UI Framework
 - Bootstrap 5 for responsive design and components
@@ -145,7 +142,7 @@ For testing against PostgreSQL (matches production environment):
 ### Testing Guidelines
 - Write simple unit tests when implementing new features
 - Test database auto-migrates via `ActiveRecord::Migration.maintain_test_schema!` in test_helper.rb
-- **NEVER use `assigns()` in tests** - it has been extracted to a gem in modern Rails. Use `assert_select` or other response testing methods instead
+- **NEVER use `assigns()` in tests** - use `assert_select` or other response testing methods instead
 - **Run UI tests headless by default before declaring frontend/UI tasks complete** when making frontend/UI changes
 - **NEVER use `sleep` in system tests** - use Capybara's waiting methods instead (`assert_selector`, `assert_text`, `assert_no_text` with `wait:` option)
 
@@ -194,7 +191,7 @@ For testing against PostgreSQL (matches production environment):
 - Be factual and precise rather than enthusiastic or salesy
 
 ### Code Quality
-- When refactoring or fixing bugs, follow DRY principles but don't overdo it
+- Follow DRY when refactoring or fixing bugs, but don't overdo it
 - Prefer clarity and maintainability over excessive abstraction
 
 ### Git Commit Message Style
@@ -211,10 +208,7 @@ For testing against PostgreSQL (matches production environment):
 
 ### Git and Version Control
 - **NEVER check in screenshots or temporary image files**
-- Screenshots are typically for debugging or demonstration purposes only
 - Use `.gitignore` to exclude temporary files and screenshots from commits
-
-- when refactoring or fixing bugs try to follow DRY principles, but dont overdo it
 
 ### Development Commands
 - **ALWAYS run `pre-commit run --all-files` before committing** to ensure code formatting and linting

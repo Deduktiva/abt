@@ -1,8 +1,8 @@
 class SalesTaxProductClass < ApplicationRecord
-  has_many :sales_tax_rates, :dependent => :restrict_with_exception
+  has_many :sales_tax_rates, dependent: :restrict_with_exception
 
-  validates :name, :indicator_code, :presence => true
-  validates :indicator_code, :uniqueness => true
+  validates :name, :indicator_code, presence: true
+  validates :indicator_code, uniqueness: true
 
   before_save :unset_other_defaults, if: -> { is_default? && is_default_changed? }
 

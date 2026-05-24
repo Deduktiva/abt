@@ -1,8 +1,8 @@
 class Project < ApplicationRecord
-  belongs_to :bill_to_customer, :class_name => 'Customer', :optional => true
+  belongs_to :bill_to_customer, class_name: 'Customer', optional: true
   has_many :invoices
 
-  validates :matchcode, :presence => true
+  validates :matchcode, presence: true
 
   # Scopes for filtering
   scope :active, -> { where(active: true) }

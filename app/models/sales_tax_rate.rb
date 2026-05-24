@@ -2,6 +2,6 @@ class SalesTaxRate < ApplicationRecord
   belongs_to :sales_tax_customer_class
   belongs_to :sales_tax_product_class
 
-  validates :rate, :presence => true, :inclusion => 0..100
-  validates :sales_tax_customer_class, :sales_tax_product_class, :presence => true
+  validates :rate, presence: true, inclusion: 0..100
+  validates :sales_tax_customer_class, :sales_tax_product_class, presence: true
 end

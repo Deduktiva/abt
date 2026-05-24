@@ -7,10 +7,10 @@ class InvoiceRenderer
   end
 
   def emit_xml(logo_file_path)
-    xml = Builder::XmlMarkup.new(:indent => 2)
-    xml.instruct! :xml, :encoding => 'UTF-8', :version => '1.0'
+    xml = Builder::XmlMarkup.new(indent: 2)
+    xml.instruct! :xml, encoding: 'UTF-8', version: '1.0'
 
-    xml.document :class => 'invoice' do |xml_root|
+    xml.document class: 'invoice' do |xml_root|
       xml_root.language @invoice.customer.language.iso_code
       xml_root.tag! 'accent-color', @issuer.document_accent_color
       xml_root.tag! 'footer', @issuer.invoice_footer

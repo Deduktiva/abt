@@ -20,7 +20,7 @@ class DocumentNumber < ApplicationRecord
   end
 
   def format_at(date)
-    self.format % { :year => date.year, :number => self.sequence }
+    self.format % { year: date.year, number: self.sequence }
   end
 
   def self.get_next_for(code, date)

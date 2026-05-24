@@ -2,8 +2,8 @@ class InvoiceTaxClass < ApplicationRecord
   belongs_to :sales_tax_product_class
   belongs_to :invoice
 
-  validates :net, :presence => true
-  validates :rate, :presence => true
+  validates :net, presence: true
+  validates :rate, presence: true
 
   def net=(value)
     self[:net] = value

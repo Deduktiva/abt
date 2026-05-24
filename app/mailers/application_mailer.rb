@@ -4,7 +4,7 @@ class ApplicationMailer < ActionMailer::Base
     setup_issuer
   end
 
-  default :from => Proc.new { build_default_from }
+  default from: Proc.new { build_default_from }
   layout 'mailer'
 
   protected

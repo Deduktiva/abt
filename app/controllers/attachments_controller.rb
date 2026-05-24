@@ -21,10 +21,10 @@ class AttachmentsController < ApplicationController
 
     if @attachment.save
       flash[:notice] = "Attachment created."
-      redirect_to :action => "index"  # FIXME: do something useful
+      redirect_to action: "index"  # FIXME: do something useful
     else
       flash[:error] = "Saving attachment failed: #{@attachment.errors.full_messages.join(', ')}"
-      render :action => "new"
+      render action: "new"
     end
   end
 

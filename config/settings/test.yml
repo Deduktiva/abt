@@ -6,6 +6,9 @@ fop:
   # binary_path: "./script/abt-fop".
   binary_path: "./bin/abt-fop-container"
 
+payments:
+  public_url: 'https://example.com/pay/%token%'
+
 app:
   host: 'www.example.com'
   protocol: 'http'

@@ -6,7 +6,7 @@ module DigestedToken
     # handing the plaintext back to the caller exactly once.
     def generate_token
       plaintext = SecureRandom.urlsafe_base64(32)
-      [plaintext, digest_token(plaintext)]
+      [ plaintext, digest_token(plaintext) ]
     end
 
     def digest_token(plaintext)

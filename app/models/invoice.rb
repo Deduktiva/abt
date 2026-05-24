@@ -4,7 +4,7 @@ class Invoice < ApplicationRecord
 
   has_line_items :invoice_lines
 
-  validates :customer_id, :presence => true
+  validates :customer_id, presence: true
   default_scope { order(Arel.sql("id ASC")) }
 
   scope :email_sent, -> { where.not(email_sent_at: nil) }
@@ -21,11 +21,11 @@ class Invoice < ApplicationRecord
 
   belongs_to :customer
   belongs_to :project
-  belongs_to :attachment, :optional => true
+  belongs_to :attachment, optional: true
 
   has_one :delivery_note
 
-  has_many :invoice_lines, -> { order(:position, :id) }, :after_add => :line_addedremoved, :after_remove => :line_addedremoved
+  has_many :invoice_lines, -> { order(:position, :id) }, after_add: :line_addedremoved, after_remove: :line_addedremoved
   accepts_nested_attributes_for :invoice_lines, allow_destroy: true, reject_if: :all_blank
 
   has_many :invoice_tax_classes
@@ -44,7 +44,7 @@ class Invoice < ApplicationRecord
   def validate_lines_for_booking
     errors = []
     log = []
-    log << '--- BEGIN LINES ---'
+    log << "--- BEGIN LINES ---"
 
     self.invoice_lines.each do |line|
       log << "#{line.id}.  #{line.type} #{line.title} #{line.description}"
@@ -67,13 +67,13 @@ class Invoice < ApplicationRecord
       log << "#{line.id}.     Qty #{line.quantity} * #{line.rate} = #{line.amount}"
     end
 
-    log << '--- END LINES ---'
-    log << ''
+    log << "--- END LINES ---"
+    log << ""
 
-    return {
-      :success => errors.empty?,
-      :errors => errors,
-      :log => log,
+    {
+      success: errors.empty?,
+      errors: errors,
+      log: log
     }
   end
 

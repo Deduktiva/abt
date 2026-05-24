@@ -10,7 +10,7 @@ class Account::EmailsController < ApplicationController
       email = current_user.emails.create!(address: address)
       plaintext = email.generate_confirmation_token!
 
-      UserAuditEvent.record!(action: 'email_added', user: current_user, actor: current_user,
+      UserAuditEvent.record!(action: "email_added", user: current_user, actor: current_user,
                               request: request,
                               metadata: { username: current_user.username, address: address })
 
@@ -22,22 +22,22 @@ class Account::EmailsController < ApplicationController
       end
     end
 
-    redirect_to account_emails_path, notice: 'Confirmation email sent. Click the link to activate the address.'
+    redirect_to account_emails_path, notice: "Confirmation email sent. Click the link to activate the address."
   rescue ActiveRecord::RecordInvalid => e
-    redirect_to account_emails_path, alert: e.record.errors.full_messages.join(', ')
+    redirect_to account_emails_path, alert: e.record.errors.full_messages.join(", ")
   end
 
   def destroy
     email = current_user.emails.find(params[:id])
 
     if email.confirmed? && current_user.confirmed_emails.count <= 1
-      redirect_to account_emails_path, alert: 'Cannot remove the last confirmed email. Add another one first.' and return
+      redirect_to account_emails_path, alert: "Cannot remove the last confirmed email. Add another one first." and return
     end
 
     address = email.address
     email.destroy!
 
-    UserAuditEvent.record!(action: 'email_removed', user: current_user, actor: current_user,
+    UserAuditEvent.record!(action: "email_removed", user: current_user, actor: current_user,
                             request: request,
                             metadata: { username: current_user.username, address: address })
 

@@ -4,8 +4,8 @@ class AttachmentsController < ApplicationController
   def show
     @attachment = Attachment.find(params[:id])
     served_type = @attachment.safe_content_type
-    disposition = INLINE_CONTENT_TYPES.include?(served_type) ? 'inline' : 'attachment'
-    response.set_header('X-Content-Type-Options', 'nosniff')
+    disposition = INLINE_CONTENT_TYPES.include?(served_type) ? "inline" : "attachment"
+    response.set_header("X-Content-Type-Options", "nosniff")
     send_data @attachment.data,
               filename: @attachment.filename,
               type: served_type,
@@ -21,10 +21,10 @@ class AttachmentsController < ApplicationController
 
     if @attachment.save
       flash[:notice] = "Attachment created."
-      redirect_to :action => "index"  # FIXME: do something useful
+      redirect_to action: "index"  # FIXME: do something useful
     else
       flash[:error] = "Saving attachment failed: #{@attachment.errors.full_messages.join(', ')}"
-      render :action => "new"
+      render action: "new"
     end
   end
 

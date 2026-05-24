@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class InvoicesControllerPaidTest < ActionDispatch::IntegrationTest
   test "published invoice defaults to unpaid" do
@@ -35,7 +35,7 @@ class InvoicesControllerPaidTest < ActionDispatch::IntegrationTest
     post mark_paid_invoice_path(invoice)
 
     assert_redirected_to invoice
-    assert_equal 'Draft invoices can not be used for this action.', flash[:error]
+    assert_equal "Draft invoices can not be used for this action.", flash[:error]
     invoice.reload
     assert_nil invoice.paid_at
   end
@@ -43,10 +43,10 @@ class InvoicesControllerPaidTest < ActionDispatch::IntegrationTest
   test "mark_paid handles invalid date" do
     invoice = invoices(:published_invoice)
 
-    post mark_paid_invoice_path(invoice), params: { paid_at: 'not-a-date' }
+    post mark_paid_invoice_path(invoice), params: { paid_at: "not-a-date" }
 
     assert_redirected_to invoice
-    assert_equal 'Invalid date.', flash[:alert]
+    assert_equal "Invalid date.", flash[:alert]
     invoice.reload
     assert_nil invoice.paid_at
   end
@@ -69,7 +69,7 @@ class InvoicesControllerPaidTest < ActionDispatch::IntegrationTest
     post mark_unpaid_invoice_path(invoice)
 
     assert_redirected_to invoice
-    assert_equal 'Draft invoices can not be used for this action.', flash[:error]
+    assert_equal "Draft invoices can not be used for this action.", flash[:error]
   end
 
   test "show page exposes unpaid status with mark paid form for booked invoice" do
@@ -79,7 +79,7 @@ class InvoicesControllerPaidTest < ActionDispatch::IntegrationTest
     get invoice_path(invoice)
 
     assert_response :success
-    assert_select '.badge.bg-warning', text: 'Unpaid'
+    assert_select ".badge.bg-warning", text: "Unpaid"
     assert_select "form[action=\"#{mark_paid_invoice_path(invoice)}\"]"
     assert_select "input[type='date'][name='paid_at']"
     assert_select 'input[type="submit"][value="Mark Paid"]'
@@ -92,7 +92,7 @@ class InvoicesControllerPaidTest < ActionDispatch::IntegrationTest
     get invoice_path(invoice)
 
     assert_response :success
-    assert_select '.badge.bg-success', text: /Paid/
+    assert_select ".badge.bg-success", text: /Paid/
     assert_select "form[action=\"#{mark_unpaid_invoice_path(invoice)}\"]"
   end
 
@@ -102,7 +102,7 @@ class InvoicesControllerPaidTest < ActionDispatch::IntegrationTest
     get invoice_path(invoice)
 
     assert_response :success
-    assert_select 'strong', text: 'Payment Status:', count: 0
+    assert_select "strong", text: "Payment Status:", count: 0
   end
 
   test "index unpaid filter shows only unpaid published invoices" do
@@ -112,20 +112,20 @@ class InvoicesControllerPaidTest < ActionDispatch::IntegrationTest
     paid.update!(paid_at: Date.current)
     draft = invoices(:draft_invoice)
 
-    get invoices_path(filter: 'unpaid', year: Date.current.year)
+    get invoices_path(filter: "unpaid", year: Date.current.year)
 
     assert_response :success
-    assert_select '.invoice-filter .active', text: 'Unpaid'
-    assert_select 'a', text: unpaid.document_number
-    assert_select 'a', text: paid.document_number, count: 0
-    assert_select 'a', text: "Draft ##{draft.id}", count: 0
+    assert_select ".invoice-filter .active", text: "Unpaid"
+    assert_select "a", text: unpaid.document_number
+    assert_select "a", text: paid.document_number, count: 0
+    assert_select "a", text: "Draft ##{draft.id}", count: 0
   end
 
   test "index has Unpaid filter button" do
     get invoices_path
 
     assert_response :success
-    assert_select '.invoice-filter a', text: 'Unpaid'
+    assert_select ".invoice-filter a", text: "Unpaid"
   end
 
   test "index shows Overdue label for unpaid invoices past due date" do
@@ -135,7 +135,7 @@ class InvoicesControllerPaidTest < ActionDispatch::IntegrationTest
     get invoices_path(year: Date.current.year)
 
     assert_response :success
-    assert_select '.badge.bg-danger', text: 'Overdue'
+    assert_select ".badge.bg-danger", text: "Overdue"
   end
 
   test "index shows Unpaid label for unpaid invoices not yet past due date" do
@@ -145,8 +145,8 @@ class InvoicesControllerPaidTest < ActionDispatch::IntegrationTest
     get invoices_path(year: Date.current.year)
 
     assert_response :success
-    assert_select '.badge.bg-warning', text: 'Unpaid'
-    assert_select '.badge.bg-danger', text: 'Overdue', count: 0
+    assert_select ".badge.bg-warning", text: "Unpaid"
+    assert_select ".badge.bg-danger", text: "Overdue", count: 0
   end
 
   test "show page shows Overdue label for unpaid invoices past due date" do
@@ -156,18 +156,18 @@ class InvoicesControllerPaidTest < ActionDispatch::IntegrationTest
     get invoice_path(invoice)
 
     assert_response :success
-    assert_select '.badge.bg-danger', text: 'Overdue'
-    assert_select '.badge.bg-warning', text: 'Unpaid', count: 0
+    assert_select ".badge.bg-danger", text: "Overdue"
+    assert_select ".badge.bg-warning", text: "Unpaid", count: 0
   end
 
   test "unpaid filter includes overdue invoices" do
     invoice = invoices(:published_invoice)
     invoice.update!(paid_at: nil, due_date: Date.current - 5.days)
 
-    get invoices_path(filter: 'unpaid', year: Date.current.year)
+    get invoices_path(filter: "unpaid", year: Date.current.year)
 
     assert_response :success
-    assert_select 'a', text: invoice.document_number
-    assert_select '.badge.bg-danger', text: 'Overdue'
+    assert_select "a", text: invoice.document_number
+    assert_select ".badge.bg-danger", text: "Overdue"
   end
 end

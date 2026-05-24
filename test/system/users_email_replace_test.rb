@@ -1,4 +1,4 @@
-require 'application_system_test_case'
+require "application_system_test_case"
 
 class UsersEmailReplaceTest < ApplicationSystemTestCase
   setup do
@@ -15,13 +15,13 @@ class UsersEmailReplaceTest < ApplicationSystemTestCase
     assert_no_selector "#{panel_selector}:not(.d-none)"
 
     within("li", text: @email.address) do
-      click_button 'Replace…'
+      click_button "Replace…"
     end
 
     assert_selector "#{panel_selector}:not(.d-none)"
     within(panel_selector) do
       assert_selector "input[type='email']"
-      assert_button 'Replace'
+      assert_button "Replace"
     end
   end
 
@@ -30,12 +30,12 @@ class UsersEmailReplaceTest < ApplicationSystemTestCase
     panel_selector = "#replace-email-#{@email.id}"
 
     within("li", text: @email.address) do
-      click_button 'Replace…'
+      click_button "Replace…"
     end
     assert_selector "#{panel_selector}:not(.d-none)"
 
     within("li", text: @email.address) do
-      click_button 'Replace…'
+      click_button "Replace…"
     end
     assert_selector "#{panel_selector}.d-none", visible: :all
   end

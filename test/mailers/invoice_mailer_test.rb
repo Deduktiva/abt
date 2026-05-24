@@ -10,10 +10,10 @@ class InvoiceMailerTest < ActionMailer::TestCase
     mail = InvoiceMailer.with(invoice: invoice).customer_email
 
     assert_not_nil mail
-    assert_equal ["customer@good-company.co.uk"], mail.to
+    assert_equal [ "customer@good-company.co.uk" ], mail.to
     assert_nil mail.cc
-    assert_equal ["from@example.com"], mail.from  # from issuer fixture
-    assert_equal ["bcc@example.com"], mail.bcc    # from issuer fixture
+    assert_equal [ "from@example.com" ], mail.from  # from issuer fixture
+    assert_equal [ "bcc@example.com" ], mail.bcc    # from issuer fixture
     assert_equal "My Example Invoice INV-2024-001", mail.subject
 
     # Check attachment
@@ -28,10 +28,10 @@ class InvoiceMailerTest < ActionMailer::TestCase
     mail = InvoiceMailer.with(invoice: invoice).customer_email
 
     assert_not_nil mail
-    assert_equal ["billing@autoemail.com"], mail.to
-    assert_equal ["customer@autoemail.com"], mail.cc
-    assert_equal ["from@example.com"], mail.from
-    assert_equal ["bcc@example.com"], mail.bcc
+    assert_equal [ "billing@autoemail.com" ], mail.to
+    assert_equal [ "customer@autoemail.com" ], mail.cc
+    assert_equal [ "from@example.com" ], mail.from
+    assert_equal [ "bcc@example.com" ], mail.bcc
     assert_equal "Invoice AUTO-ORDER-111 - Ref: AUTO-REF-999", mail.subject
 
     # Check attachment
@@ -47,7 +47,7 @@ class InvoiceMailerTest < ActionMailer::TestCase
 
     mail = InvoiceMailer.with(invoice: invoice).customer_email
 
-    assert_equal ["billing@autoemail.com"], mail.to
+    assert_equal [ "billing@autoemail.com" ], mail.to
     assert_nil mail.cc
   end
 
@@ -58,7 +58,7 @@ class InvoiceMailerTest < ActionMailer::TestCase
 
     mail = InvoiceMailer.with(invoice: invoice).customer_email
 
-    assert_equal ["billing@autoemail.com"], mail.to
+    assert_equal [ "billing@autoemail.com" ], mail.to
     assert_nil mail.cc
   end
 

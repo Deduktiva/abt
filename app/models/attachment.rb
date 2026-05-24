@@ -1,7 +1,7 @@
 class Attachment < ApplicationRecord
   MAX_SIZE_BYTES = 25.megabytes
   SAFE_CONTENT_TYPES = %w[application/pdf image/png image/jpeg].freeze
-  DEFAULT_CONTENT_TYPE = 'application/octet-stream'.freeze
+  DEFAULT_CONTENT_TYPE = "application/octet-stream".freeze
 
   validates :title, presence: true
   validate :data_size_within_limit
@@ -45,7 +45,7 @@ class Attachment < ApplicationRecord
     # get only the filename, not the whole path (from IE)
     just_filename = File.basename(filename)
     # replace all non-alphanumeric, underscore or periods with underscores
-    just_filename.gsub(/[^\w\.\-]/, '_')
+    just_filename.gsub(/[^\w\.\-]/, "_")
   end
 
   def data_size_within_limit

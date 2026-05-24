@@ -1,9 +1,9 @@
 class DeliveryNoteLine < ApplicationRecord
   TYPE_OPTIONS = {
-    'Text' => 'text',
-    'Item' => 'item',
-    'Subheading' => 'subheading',
-    'Plaintext' => 'plain'
+    "Text" => "text",
+    "Item" => "item",
+    "Subheading" => "subheading",
+    "Plaintext" => "plain"
   }.freeze
 
   validates :title, presence: true
@@ -13,10 +13,10 @@ class DeliveryNoteLine < ApplicationRecord
   belongs_to :delivery_note
 
   def self.inheritance_column
-    'type_'
+    "type_"
   end
 
   def is_item?
-    self[:type] == 'item'
+    self[:type] == "item"
   end
 end

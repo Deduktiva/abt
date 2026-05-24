@@ -1,4 +1,4 @@
-require 'builder'
+require "builder"
 
 # Apache FOP wrapper.
 #
@@ -13,16 +13,15 @@ require 'builder'
 #   embed a server-controlled tempfile path (logo_file_path) from
 #   render_pdf_with_logo, so this surface is not currently reachable.
 class FopRenderer
-
   def initialize
-    @rails_tmp = Rails.root.join('tmp')
-    @template_path = Rails.root.join('lib', 'foptemplate')
-    @fop_conf = @template_path.join('fop-conf.xml')
+    @rails_tmp = Rails.root.join("tmp")
+    @template_path = Rails.root.join("lib", "foptemplate")
+    @fop_conf = @template_path.join("fop-conf.xml")
     # Pin the font cache to tmp/. Otherwise FOP writes it relative to
     # <base>.</base> in fop-conf.xml, which resolves to the cwd we set in
     # build_fop_command (lib/foptemplate/), leaving an untracked .fop/
     # directory in the source tree after every render.
-    @fop_cache = @rails_tmp.join('fop-fonts.cache')
+    @fop_cache = @rails_tmp.join("fop-fonts.cache")
   end
 
   def render_pdf_with_logo(xsl_template, logo_data = nil)
@@ -32,19 +31,19 @@ class FopRenderer
     fop_binary = resolve_fop_binary_path
 
     # Create dedicated temp directory with proper permissions
-    Dir.mktmpdir('abt-fop-', @rails_tmp) do |temp_dir|
+    Dir.mktmpdir("abt-fop-", @rails_tmp) do |temp_dir|
       File.chmod(0755, temp_dir)
 
       logo_path = nil
       if logo_data
-        logo_path = File.join(temp_dir, 'logo.pdf')
+        logo_path = File.join(temp_dir, "logo.pdf")
         write_file_with_permissions(logo_path, logo_data, 0644, binary: true)
       end
 
       # Call block to emit XML
       xml_data = yield logo_path
 
-      xml_path = File.join(temp_dir, 'input.xml')
+      xml_path = File.join(temp_dir, "input.xml")
       write_file_with_permissions(xml_path, xml_data, 0644)
 
       Rails.logger.info "FopRenderer wrote XML to: #{xml_path}"
@@ -57,7 +56,7 @@ class FopRenderer
   private
 
   def resolve_fop_binary_path
-    if Settings.fop.binary_path.start_with?('/')
+    if Settings.fop.binary_path.start_with?("/")
       Settings.fop.binary_path
     else
       Rails.root.join(Settings.fop.binary_path).to_s
@@ -66,10 +65,10 @@ class FopRenderer
 
   def execute_fop_command(fop_binary, xml_path, xsl_path, temp_dir)
     begin
-      pdf_path = File.join(temp_dir, 'output.pdf')
+      pdf_path = File.join(temp_dir, "output.pdf")
 
       # Create empty output file with correct permissions that FOP can write to
-      write_file_with_permissions(pdf_path, '', 0666)
+      write_file_with_permissions(pdf_path, "", 0666)
 
       fop_command = build_fop_command(fop_binary, xml_path, xsl_path, pdf_path)
 
@@ -77,7 +76,7 @@ class FopRenderer
 
       fop_result = nil
       exit_status = nil
-      IO.popen(fop_command, "r", :err=>[:child, :out]) do |fop_io|
+      IO.popen(fop_command, "r", err: [ :child, :out ]) do |fop_io|
         fop_result = fop_io.read
         fop_io.close
         exit_status = $?.exitstatus
@@ -107,7 +106,7 @@ class FopRenderer
           raise "fop generated invalid PDF (missing %%EOF trailer, got #{pdf_content.length} bytes):\n#{fop_result}"
         end
 
-        return pdf_content
+        pdf_content
       rescue Errno::ENOENT
         raise "fop failed - no output file created:\n#{fop_result}"
       end

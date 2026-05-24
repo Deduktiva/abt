@@ -9,13 +9,13 @@ class Account::CredentialsController < ApplicationController
   def options
     nickname = params[:nickname].to_s.strip
     if nickname.blank?
-      return render json: { error: 'Nickname is required' }, status: :unprocessable_content
+      return render json: { error: "Nickname is required" }, status: :unprocessable_content
     end
 
     options = WebAuthn::Credential.options_for_create(
       user: { id: current_user.webauthn_id, name: current_user.username, display_name: current_user.full_name },
       exclude: current_user.credentials.pluck(:external_id),
-      authenticator_selection: { resident_key: 'required', user_verification: 'preferred' }
+      authenticator_selection: { resident_key: "required", user_verification: "preferred" }
     )
 
     session[:webauthn_credential_add] = {
@@ -29,13 +29,13 @@ class Account::CredentialsController < ApplicationController
   def verify
     pending = session[:webauthn_credential_add]
     if pending.blank?
-      return render json: { error: 'No registration in progress' }, status: :unprocessable_content
+      return render json: { error: "No registration in progress" }, status: :unprocessable_content
     end
 
     webauthn_credential = WebAuthn::Credential.from_create(params[:credential].to_unsafe_h)
 
     begin
-      webauthn_credential.verify(pending['challenge'])
+      webauthn_credential.verify(pending["challenge"])
     rescue WebAuthn::Error => e
       return render json: { error: "Verification failed: #{e.message}" }, status: :unprocessable_content
     end
@@ -43,12 +43,12 @@ class Account::CredentialsController < ApplicationController
     credential = current_user.credentials.create!(
       external_id: webauthn_credential.id,
       public_key: webauthn_credential.public_key,
-      nickname: pending['nickname'],
+      nickname: pending["nickname"],
       sign_count: webauthn_credential.sign_count
     )
     session.delete(:webauthn_credential_add)
 
-    UserAuditEvent.record!(action: 'passkey_added', user: current_user, actor: current_user,
+    UserAuditEvent.record!(action: "passkey_added", user: current_user, actor: current_user,
                             request: request,
                             metadata: { username: current_user.username, credential_nickname: credential.nickname })
 
@@ -58,19 +58,19 @@ class Account::CredentialsController < ApplicationController
 
     render json: { redirect_url: account_credentials_path }
   rescue ActiveRecord::RecordInvalid => e
-    render json: { error: e.record.errors.full_messages.join(', ') }, status: :unprocessable_content
+    render json: { error: e.record.errors.full_messages.join(", ") }, status: :unprocessable_content
   end
 
   def destroy
     credential = current_user.credentials.find(params[:id])
     if current_user.credentials.count <= 1
-      redirect_to account_credentials_path, alert: 'Cannot remove the last passkey. Add another one first.' and return
+      redirect_to account_credentials_path, alert: "Cannot remove the last passkey. Add another one first." and return
     end
 
     nickname = credential.nickname
     credential.destroy!
 
-    UserAuditEvent.record!(action: 'passkey_removed', user: current_user, actor: current_user,
+    UserAuditEvent.record!(action: "passkey_removed", user: current_user, actor: current_user,
                             request: request,
                             metadata: { username: current_user.username, credential_nickname: nickname })
 

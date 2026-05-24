@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class InvoiceTaxCalculationTest < ActiveSupport::TestCase
   def setup
@@ -16,9 +16,9 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
   test "calculates taxes correctly for invoice with item lines" do
     # Create item lines
     line1 = @invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Product 1',
-      description: 'First product',
+      type: "item",
+      title: "Product 1",
+      description: "First product",
       rate: 100.0,
       quantity: 2.0,
       sales_tax_product_class: @product_class,
@@ -26,9 +26,9 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
     )
 
     line2 = @invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Product 2',
-      description: 'Second product',
+      type: "item",
+      title: "Product 2",
+      description: "Second product",
       rate: 50.0,
       quantity: 1.0,
       sales_tax_product_class: @product_class,
@@ -57,8 +57,8 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
   test "handles text lines correctly by clearing amounts" do
     # Create mixed lines
     @invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Product',
+      type: "item",
+      title: "Product",
       rate: 100.0,
       quantity: 1.0,
       sales_tax_product_class: @product_class,
@@ -66,9 +66,9 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
     )
 
     text_line = @invoice.invoice_lines.create!(
-      type: 'text',
-      title: 'Note',
-      description: 'A note',
+      type: "text",
+      title: "Note",
+      description: "A note",
       rate: 50.0,  # This should be cleared
       quantity: 2.0,  # This should be cleared
       amount: 100.0,  # This should be cleared
@@ -84,8 +84,8 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
   test "reports errors for missing tax configuration" do
     # Create item line with invalid product class
     @invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Product',
+      type: "item",
+      title: "Product",
       rate: 100.0,
       quantity: 1.0,
       sales_tax_product_class_id: 99999, # Invalid ID
@@ -100,8 +100,8 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
 
   test "has_items? returns true when invoice has item lines" do
     @invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Product',
+      type: "item",
+      title: "Product",
       rate: 100.0,
       quantity: 1.0,
       sales_tax_product_class: @product_class,
@@ -113,9 +113,9 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
 
   test "has_items? returns false when invoice has no item lines" do
     @invoice.invoice_lines.create!(
-      type: 'text',
-      title: 'Note',
-      description: 'Just a note',
+      type: "text",
+      title: "Note",
+      description: "Just a note",
       position: 1
     )
 
@@ -126,7 +126,7 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
     # Create some existing tax classes
     @invoice.invoice_tax_classes.create!(
       sales_tax_product_class: @product_class,
-      name: 'Old Tax',
+      name: "Old Tax",
       rate: 10.0,
       net: 100.0,
       total: 110.0
@@ -134,8 +134,8 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
 
     # Add an item line
     @invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Product',
+      type: "item",
+      title: "Product",
       rate: 50.0,
       quantity: 1.0,
       sales_tax_product_class: @product_class,
@@ -148,14 +148,14 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
     @invoice.reload
     tax_classes = @invoice.invoice_tax_classes
     assert_not_empty tax_classes
-    assert_not tax_classes.any? { |tc| tc.name == 'Old Tax' }
+    assert_not tax_classes.any? { |tc| tc.name == "Old Tax" }
   end
 
   test "generates detailed log output" do
     @invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Test Product',
-      description: 'Test Description',
+      type: "item",
+      title: "Test Product",
+      description: "Test Description",
       rate: 100.0,
       quantity: 2.0,
       sales_tax_product_class: @product_class,
@@ -165,24 +165,24 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
     result = @invoice.validate_lines_for_booking
 
     log = result[:log]
-    assert_includes log, '--- BEGIN LINES ---'
-    assert_includes log, '--- END LINES ---'
-    assert log.any? { |line| line.include?('Test Product') }
-    assert log.any? { |line| line.include?('Qty 2.0 * 100.0 = 200.0') }
+    assert_includes log, "--- BEGIN LINES ---"
+    assert_includes log, "--- END LINES ---"
+    assert log.any? { |line| line.include?("Test Product") }
+    assert log.any? { |line| line.include?("Qty 2.0 * 100.0 = 200.0") }
   end
 
   test "validates successfully with mixed line types" do
     # Create mixed lines: subheading, items, and text
     @invoice.invoice_lines.create!(
-      type: 'subheading',
-      title: 'Phase 1: Setup',
+      type: "subheading",
+      title: "Phase 1: Setup",
       position: 1
     )
 
     @invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Project Setup',
-      description: 'Initial setup work',
+      type: "item",
+      title: "Project Setup",
+      description: "Initial setup work",
       rate: 100.0,
       quantity: 2.0,
       sales_tax_product_class: @product_class,
@@ -190,16 +190,16 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
     )
 
     @invoice.invoice_lines.create!(
-      type: 'text',
-      title: 'Phase 1 completed successfully',
-      description: 'All deliverables approved',
+      type: "text",
+      title: "Phase 1 completed successfully",
+      description: "All deliverables approved",
       position: 3
     )
 
     @invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Documentation',
-      description: 'Technical documentation',
+      type: "item",
+      title: "Documentation",
+      description: "Technical documentation",
       rate: 75.0,
       quantity: 1.0,
       sales_tax_product_class: @product_class,

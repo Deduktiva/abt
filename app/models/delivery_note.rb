@@ -4,8 +4,8 @@ class DeliveryNote < ApplicationRecord
 
   has_line_items :delivery_note_lines
 
-  validates :customer_id, :presence => true
-  validates :delivery_start_date, :presence => true
+  validates :customer_id, presence: true
+  validates :delivery_start_date, presence: true
   validate :delivery_end_date_after_start_date
   validate :must_have_item_line_for_publish
   default_scope { order(Arel.sql("id ASC")) }
@@ -20,8 +20,8 @@ class DeliveryNote < ApplicationRecord
 
   belongs_to :customer
   belongs_to :project
-  belongs_to :acceptance_attachment, class_name: 'Attachment', :optional => true
-  belongs_to :invoice, :optional => true
+  belongs_to :acceptance_attachment, class_name: "Attachment", optional: true
+  belongs_to :invoice, optional: true
 
   has_many :delivery_note_lines, -> { order(:position, :id) }, dependent: :delete_all
   accepts_nested_attributes_for :delivery_note_lines, allow_destroy: true, reject_if: :all_blank
@@ -31,7 +31,7 @@ class DeliveryNote < ApplicationRecord
 
     self.date = Date.today
     if self.document_number.nil?
-      self.document_number = DocumentNumber.get_next_for 'delivery_note', self.date
+      self.document_number = DocumentNumber.get_next_for "delivery_note", self.date
     end
     self.published = true
     self.save!
@@ -105,6 +105,6 @@ class DeliveryNote < ApplicationRecord
     return unless will_save_change_to_published? && published?
     return if has_items?
 
-    errors.add(:base, 'must have at least one item line before it can be published')
+    errors.add(:base, "must have at least one item line before it can be published")
   end
 end

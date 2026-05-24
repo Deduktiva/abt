@@ -1,6 +1,6 @@
 class UserAuditEvent < ApplicationRecord
   belongs_to :user, optional: true
-  belongs_to :actor, class_name: 'User', foreign_key: :actor_user_id, optional: true
+  belongs_to :actor, class_name: "User", foreign_key: :actor_user_id, optional: true
 
   serialize :metadata, coder: JSON
 
@@ -21,6 +21,6 @@ class UserAuditEvent < ApplicationRecord
   end
 
   def self.for_user(user)
-    where('user_id = :id OR actor_user_id = :id', id: user.id).recent
+    where("user_id = :id OR actor_user_id = :id", id: user.id).recent
   end
 end

@@ -24,6 +24,6 @@ class PermissionsPolicyHeader
   def call(env)
     status, headers, body = @app.call(env)
     headers["Permissions-Policy"] ||= POLICY
-    [status, headers, body]
+    [ status, headers, body ]
   end
 end

@@ -8,18 +8,18 @@ class DeliveryNoteLinesTest < ApplicationSystemTestCase
   test "adding new lines to delivery note works correctly" do
     visit edit_delivery_note_path(@delivery_note)
 
-    initial_line_count = all('[data-line-index]').count
+    initial_line_count = all("[data-line-index]").count
     click_button "Add Line"
 
-    assert_selector '[data-line-index]', count: initial_line_count + 1
-    new_line = all('[data-line-index]').last
+    assert_selector "[data-line-index]", count: initial_line_count + 1
+    new_line = all("[data-line-index]").last
 
     # Verify new line has correct defaults
     position_field = new_line.find('input[name*="[position]"]', visible: false)
     assert_equal (initial_line_count + 1).to_s, position_field.value
 
     type_select = new_line.find('select[name*="[type]"]')
-    assert_equal 'item', type_select.value
+    assert_equal "item", type_select.value
 
     # Verify delivery note-specific fields (quantity but no rate)
     within new_line do
@@ -33,7 +33,7 @@ class DeliveryNoteLinesTest < ApplicationSystemTestCase
     visit edit_delivery_note_path(@delivery_note)
 
     click_button "Add Line"
-    new_line = all('[data-line-index]').last
+    new_line = all("[data-line-index]").last
 
     within new_line do
       type_select = find('select[name*="[type]"]')
@@ -44,10 +44,10 @@ class DeliveryNoteLinesTest < ApplicationSystemTestCase
         assert_equal value, type_select.value
 
         case value
-        when 'subheading'
+        when "subheading"
           assert_selector 'div[data-line-type-target="itemOnly"]', visible: false
           assert_selector '[data-line-type-target="notSubheading"]', visible: false
-        when 'item'
+        when "item"
           assert_selector 'div[data-line-type-target="itemOnly"]', visible: true
           assert_selector '[data-line-type-target="notSubheading"]', visible: true
           assert_selector 'input[name*="[quantity]"]'
@@ -63,23 +63,23 @@ class DeliveryNoteLinesTest < ApplicationSystemTestCase
     visit edit_delivery_note_path(@delivery_note)
 
     click_button "Add Line"
-    new_line = all('[data-line-index]').last
+    new_line = all("[data-line-index]").last
 
     within new_line do
       # Ensure it's an item type
       type_select = find('select[name*="[type]"]')
-      select 'Item', from: type_select[:name] if type_select.value != 'item'
+      select "Item", from: type_select[:name] if type_select.value != "item"
 
       # Verify quantity field is visible and accessible for items
       quantity_field = find('input[name*="[quantity]"]')
       assert quantity_field.visible?
 
       # Fill in required fields
-      fill_in find('input[name*="[title]"]')[:name], with: 'Test Item'
-      quantity_field.set('10')  # Set a valid quantity
+      fill_in find('input[name*="[title]"]')[:name], with: "Test Item"
+      quantity_field.set("10")  # Set a valid quantity
 
       # Verify the field works correctly
-      assert_equal '10', quantity_field.value
+      assert_equal "10", quantity_field.value
     end
   end
 end

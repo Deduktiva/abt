@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class InvoicesControllerTest < ActionDispatch::IntegrationTest
   test "should get index" do
@@ -25,14 +25,14 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     # Test current year (default)
     get invoices_url
     assert_response :success
-    assert_select '.year-pagination'
+    assert_select ".year-pagination"
 
     # Test specific year filter
     get invoices_url(year: 2023)
     assert_response :success
     # Verify the page contains the 2023 invoice reference but not 2024
-    assert_select 'td', text: '2023-TEST'
-    assert_select 'td', text: '2024-TEST', count: 0
+    assert_select "td", text: "2023-TEST"
+    assert_select "td", text: "2024-TEST", count: 0
   end
 
   test "should include draft invoices with nil date in current year" do
@@ -57,14 +57,14 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     # Test current year (should include draft invoice)
     get invoices_url(year: current_year)
     assert_response :success
-    assert_select 'td', text: 'DRAFT-NO-DATE'  # Draft should appear
-    assert_select 'td', text: 'OLD-BOOKED', count: 0  # Old invoice should not appear
+    assert_select "td", text: "DRAFT-NO-DATE"  # Draft should appear
+    assert_select "td", text: "OLD-BOOKED", count: 0  # Old invoice should not appear
 
     # Test previous year (should include old invoice, not draft)
     get invoices_url(year: current_year - 1)
     assert_response :success
-    assert_select 'td', text: 'OLD-BOOKED'  # Old invoice should appear
-    assert_select 'td', text: 'DRAFT-NO-DATE', count: 0  # Draft should not appear in old year
+    assert_select "td", text: "OLD-BOOKED"  # Old invoice should appear
+    assert_select "td", text: "DRAFT-NO-DATE", count: 0  # Draft should not appear in old year
   end
 
   test "should get new" do
@@ -73,7 +73,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should create invoice" do
-    assert_difference('Invoice.count') do
+    assert_difference("Invoice.count") do
       post invoices_url, params: {
         invoice: {
           customer_id: customers(:good_eu).id,
@@ -111,9 +111,9 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
 
     # Add invoice lines
     invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Test Product',
-      description: 'A test product',
+      type: "item",
+      title: "Test Product",
+      description: "A test product",
       rate: 100.0,
       quantity: 2.0,
       sales_tax_product_class: sales_tax_product_classes(:standard),
@@ -132,8 +132,8 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
 
     get invoice_url(invoice)
     assert_response :success
-    assert_select 'table.table-bordered'
-    assert_select '.badge.bg-success', text: 'Booked'
+    assert_select "table.table-bordered"
+    assert_select ".badge.bg-success", text: "Booked"
   end
 
   test "should show draft invoice prompting for test booking" do
@@ -147,9 +147,9 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
 
     # Add invoice line with tax class
     invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Test Product',
-      description: 'A test product',
+      type: "item",
+      title: "Test Product",
+      description: "A test product",
       rate: 100.0,
       quantity: 1.0,
       sales_tax_product_class: sales_tax_product_classes(:standard),
@@ -158,7 +158,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
 
     get invoice_url(invoice)
     assert_response :success
-    assert_select '.badge.bg-warning', text: 'Draft'
+    assert_select ".badge.bg-warning", text: "Draft"
   end
 
   test "should get edit" do
@@ -180,9 +180,9 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
 
     # Add some invoice lines to test the HAML template rendering
     invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Test Product',
-      description: 'A test product',
+      type: "item",
+      title: "Test Product",
+      description: "A test product",
       rate: 100.0,
       quantity: 2.0,
       sales_tax_product_class: sales_tax_product_classes(:standard),
@@ -190,9 +190,9 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     )
 
     invoice.invoice_lines.create!(
-      type: 'text',
-      title: 'Note',
-      description: 'Additional information',
+      type: "text",
+      title: "Note",
+      description: "Additional information",
       position: 2
     )
 
@@ -269,9 +269,9 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
 
     # Add an invoice line
     invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Test Product',
-      description: 'A test product',
+      type: "item",
+      title: "Test Product",
+      description: "A test product",
       rate: 100.0,
       quantity: 2.0,
       sales_tax_product_class: sales_tax_product_classes(:standard),
@@ -298,9 +298,9 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
 
     # Add an invoice line
     invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Test Product',
-      description: 'A test product',
+      type: "item",
+      title: "Test Product",
+      description: "A test product",
       rate: 100.0,
       quantity: 2.0,
       sales_tax_product_class: sales_tax_product_classes(:standard),
@@ -338,9 +338,9 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
 
     # Add an invoice line
     invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Test Product',
-      description: 'A test product',
+      type: "item",
+      title: "Test Product",
+      description: "A test product",
       rate: 100.0,
       quantity: 2.0,
       sales_tax_product_class: sales_tax_product_classes(:standard),
@@ -386,7 +386,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     # Add many invoice lines to make the booking log large
     15.times do |i|
       invoice.invoice_lines.create!(
-        type: 'item',
+        type: "item",
         title: "Large Invoice Item #{i + 1}",
         description: "This is a test item with a longer description to increase the booking log size for invoice line #{i + 1}",
         rate: 85.0 + i,
@@ -404,7 +404,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     # Verify flash data was set instead of session data to avoid cookie overflow
     assert flash[:booking_success].present?, "Flash should contain booking success status"
     assert flash[:notice].present?, "Flash should contain booking notice"
-    assert flash[:notice].include?('succeeded'), "Flash notice should indicate success"
+    assert flash[:notice].include?("succeeded"), "Flash notice should indicate success"
 
     # Test the GET request to the booking results page
     get book_invoice_url(invoice)
@@ -432,7 +432,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
       # Add multiple lines to each invoice to create substantial booking logs
       10.times do |line_num|
         invoice.invoice_lines.create!(
-          type: 'item',
+          type: "item",
           title: "Invoice #{invoice_num + 1} Item #{line_num + 1}",
           description: "Detailed description for invoice #{invoice_num + 1}, item #{line_num + 1} with enough text to make the booking log substantial",
           rate: 100.0 + line_num,
@@ -489,5 +489,4 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     # Should redirect to the invoice show page since there's no flash data
     assert_redirected_to invoice_url(invoice)
   end
-
 end

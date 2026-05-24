@@ -13,7 +13,7 @@ class SalesTaxRatesController < ApplicationController
     SalesTaxProductClass.all.each do |pc|
       SalesTaxCustomerClass.all.each do |cc|
         if !@class_rates[pc.id] || !@class_rates[pc.id][cc.id]
-          @missing_rates << {:product => pc, :customer => cc}
+          @missing_rates << { product: pc, customer: cc }
         end
       end
     end
@@ -39,7 +39,7 @@ class SalesTaxRatesController < ApplicationController
     @sales_tax_rate = SalesTaxRate.new(sales_tax_rates_params)
 
     if @sales_tax_rate.save
-      redirect_to sales_tax_rates_path, notice: 'Sales tax rate was successfully created.'
+      redirect_to sales_tax_rates_path, notice: "Sales tax rate was successfully created."
     else
       render :new, status: :unprocessable_content
     end
@@ -50,7 +50,7 @@ class SalesTaxRatesController < ApplicationController
     @sales_tax_rate = SalesTaxRate.find(params[:id])
 
     if @sales_tax_rate.update(sales_tax_rates_params)
-      redirect_to sales_tax_rates_url, notice: 'Sales tax rate was successfully updated.'
+      redirect_to sales_tax_rates_url, notice: "Sales tax rate was successfully updated."
     else
       render :edit, status: :unprocessable_content
     end

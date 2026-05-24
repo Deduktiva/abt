@@ -30,13 +30,13 @@ class FopRendererTest < ActiveSupport::TestCase
     XML
 
     # Test PDF generation with simple XSL transformation (uses lib/foptemplate/simple_test.xsl)
-    pdf_data = renderer.render_pdf_with_logo('simple_test.xsl') do |logo_path|
+    pdf_data = renderer.render_pdf_with_logo("simple_test.xsl") do |logo_path|
       xml_content
     end
 
     # Verify PDF was generated successfully
     assert_not_nil pdf_data
-    assert pdf_data.start_with?('%PDF'), "Should be a valid PDF file"
+    assert pdf_data.start_with?("%PDF"), "Should be a valid PDF file"
     assert pdf_data.end_with?("%%EOF") || pdf_data.end_with?("%%EOF\n"), "PDF should have valid trailer"
     assert pdf_data.length > 1000, "PDF should have substantial content (got #{pdf_data.length} bytes)"
   rescue => e
@@ -59,9 +59,9 @@ class FopRendererTest < ActiveSupport::TestCase
     # A path under /tmp would not exist inside that container, so an
     # unhardened FOP would still fail to leak — which would make the test
     # pass for the wrong reason.
-    secret_dir = Rails.root.join('tmp')
+    secret_dir = Rails.root.join("tmp")
     secret_path = secret_dir.join("abt-xxe-secret-#{Process.pid}.txt").to_s
-    File.write(secret_path, 'XXE_LEAKED_SECRET')
+    File.write(secret_path, "XXE_LEAKED_SECRET")
     File.chmod(0644, secret_path)
 
     xxe_xml = <<~XML
@@ -90,15 +90,15 @@ class FopRendererTest < ActiveSupport::TestCase
     # was unreachable. Then we additionally refute the leak ever made it
     # into the error output.
     error = assert_raises(RuntimeError) do
-      renderer.render_pdf_with_logo('simple_test.xsl') do |_logo_path|
+      renderer.render_pdf_with_logo("simple_test.xsl") do |_logo_path|
         xxe_xml
       end
     end
 
     assert_match(/DOCTYPE.*(disallow|not allowed|denied)/i, error.message,
       "FOP must reject DOCTYPE-bearing input; got: #{error.message}")
-    refute_includes error.message, 'XXE_LEAKED_SECRET',
-      'External entity content must not leak into FOP error output'
+    refute_includes error.message, "XXE_LEAKED_SECRET",
+      "External entity content must not leak into FOP error output"
   ensure
     File.delete(secret_path) if secret_path && File.exist?(secret_path)
     File.umask(old_umask) if old_umask
@@ -132,7 +132,7 @@ class FopRendererTest < ActiveSupport::TestCase
 
     # Test that FOP properly detects and reports the error (uses lib/foptemplate/simple_test_invalid.xsl)
     error = assert_raises(RuntimeError) do
-      renderer.render_pdf_with_logo('simple_test_invalid.xsl') do |logo_path|
+      renderer.render_pdf_with_logo("simple_test_invalid.xsl") do |logo_path|
         invalid_xml_content
       end
     end

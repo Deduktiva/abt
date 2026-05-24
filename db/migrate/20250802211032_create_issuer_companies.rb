@@ -18,6 +18,6 @@ class CreateIssuerCompanies < ActiveRecord::Migration[7.1]
     end
 
     # Quite the hack, but should be fine for now.
-    add_index :issuer_companies, :active, :unique => true
+    add_index :issuer_companies, :active, unique: true
   end
 end

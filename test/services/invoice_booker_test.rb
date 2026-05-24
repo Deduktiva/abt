@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class InvoiceBookerTest < ActiveSupport::TestCase
   test "should use customer payment terms for due date calculation" do

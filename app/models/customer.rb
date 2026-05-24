@@ -1,13 +1,13 @@
 class Customer < ApplicationRecord
-  validates :matchcode, :presence => true
-  validates :name, :presence => true
+  validates :matchcode, presence: true
+  validates :name, presence: true
 
   # Set default language (English) for new customers
   before_validation :set_default_language, on: :create
 
   belongs_to :sales_tax_customer_class
   belongs_to :language
-  has_many :sales_tax_rates, :through => :sales_tax_customer_class
+  has_many :sales_tax_rates, through: :sales_tax_customer_class
   has_many :invoices
 
   # Scopes for filtering
@@ -34,7 +34,7 @@ class Customer < ApplicationRecord
   private
 
   def set_default_language
-    self.language ||= Language.find_by(iso_code: 'en')
+    self.language ||= Language.find_by(iso_code: "en")
   end
 
   def check_if_used

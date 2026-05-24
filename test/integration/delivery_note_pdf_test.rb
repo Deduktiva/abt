@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class DeliveryNotePdfTest < ActionDispatch::IntegrationTest
   include ActiveJob::TestHelper
@@ -105,11 +105,11 @@ class DeliveryNotePdfTest < ActionDispatch::IntegrationTest
     # Test XML generation includes correct language
     renderer_en = DeliveryNoteRenderer.new(delivery_note_en, @issuer)
     xml_en = renderer_en.emit_xml(nil)
-    assert_includes xml_en, '<language>en</language>', "English delivery note should include language en"
+    assert_includes xml_en, "<language>en</language>", "English delivery note should include language en"
 
     renderer_de = DeliveryNoteRenderer.new(delivery_note_de, @issuer)
     xml_de = renderer_de.emit_xml(nil)
-    assert_includes xml_de, '<language>de</language>', "German delivery note should include language de"
+    assert_includes xml_de, "<language>de</language>", "German delivery note should include language de"
   end
 
   test "preview of an empty delivery note redirects with a flash instead of crashing FOP" do
@@ -145,8 +145,8 @@ class DeliveryNotePdfTest < ActionDispatch::IntegrationTest
       project: @project,
       delivery_start_date: Date.new(2025, 8, 1)
     )
-    dn.delivery_note_lines.create!(type: 'text', title: 'Note', description: 'no items here', position: 1)
-    dn.delivery_note_lines.create!(type: 'subheading', title: 'Section', position: 2)
+    dn.delivery_note_lines.create!(type: "text", title: "Note", description: "no items here", position: 1)
+    dn.delivery_note_lines.create!(type: "subheading", title: "Section", position: 2)
 
     post publish_delivery_note_path(dn)
 
@@ -164,7 +164,7 @@ class DeliveryNotePdfTest < ActionDispatch::IntegrationTest
 
     dn.published = true
     refute dn.valid?
-    assert_includes dn.errors[:base].join, 'item line'
+    assert_includes dn.errors[:base].join, "item line"
   end
 
   test "delivery note XML structure is correct" do
@@ -191,21 +191,21 @@ class DeliveryNotePdfTest < ActionDispatch::IntegrationTest
     xml = renderer.emit_xml(nil)
 
     # Verify key XML elements
-    assert_includes xml, '<language>en</language>'
-    assert_includes xml, '<prelude>Test prelude content</prelude>'
-    assert_includes xml, '<reference>XML-TEST-REF</reference>'
-    assert_includes xml, '<order-no>XML-TEST-ORDER</order-no>'
-    assert_includes xml, '<delivery-timeframe>August 2025</delivery-timeframe>'
-    assert_includes xml, '<item>'
-    assert_includes xml, '<title>Test Item</title>'
-    assert_includes xml, '<description>Test description</description>'
-    assert_includes xml, '<quantity>5.0</quantity>'
+    assert_includes xml, "<language>en</language>"
+    assert_includes xml, "<prelude>Test prelude content</prelude>"
+    assert_includes xml, "<reference>XML-TEST-REF</reference>"
+    assert_includes xml, "<order-no>XML-TEST-ORDER</order-no>"
+    assert_includes xml, "<delivery-timeframe>August 2025</delivery-timeframe>"
+    assert_includes xml, "<item>"
+    assert_includes xml, "<title>Test Item</title>"
+    assert_includes xml, "<description>Test description</description>"
+    assert_includes xml, "<quantity>5.0</quantity>"
   end
 
   private
 
   def assert_valid_pdf_response
-    assert_equal 'application/pdf', response.content_type
-    assert response.body.start_with?('%PDF'), "Response should be a valid PDF file"
+    assert_equal "application/pdf", response.content_type
+    assert response.body.start_with?("%PDF"), "Response should be a valid PDF file"
   end
 end

@@ -2,7 +2,7 @@ module EmailPreviewHelper
   # Extracts email preview data from ActionMailer::MessageDelivery or Mail::Message
   def extract_email_preview_data(mail)
     data = {
-      to: mail.to&.join(', '),
+      to: mail.to&.join(", "),
       from: mail.from&.first,
       subject: mail.subject,
       html_body: extract_html_body(mail),
@@ -10,8 +10,8 @@ module EmailPreviewHelper
       attachments: extract_attachments_info(mail)
     }
 
-    data[:cc] = mail.cc&.join(', ') if mail.cc&.any?
-    data[:bcc] = mail.bcc&.join(', ') if mail.bcc&.any?
+    data[:cc] = mail.cc&.join(", ") if mail.cc&.any?
+    data[:bcc] = mail.bcc&.join(", ") if mail.bcc&.any?
     data
   end
 
@@ -21,7 +21,7 @@ module EmailPreviewHelper
     if mail.multipart?
       mail.html_part&.body&.decoded
     else
-      mail.content_type&.include?('text/html') ? mail.body.decoded : nil
+      mail.content_type&.include?("text/html") ? mail.body.decoded : nil
     end
   end
 
@@ -29,7 +29,7 @@ module EmailPreviewHelper
     if mail.multipart?
       mail.text_part&.body&.decoded
     else
-      mail.content_type&.include?('text/plain') ? mail.body.decoded : nil
+      mail.content_type&.include?("text/plain") ? mail.body.decoded : nil
     end
   end
 

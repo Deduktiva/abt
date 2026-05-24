@@ -1,11 +1,11 @@
 ENV["RAILS_ENV"] = "test"
-require File.expand_path('../../config/environment', __FILE__)
-require 'rails/test_help'
+require File.expand_path("../../config/environment", __FILE__)
+require "rails/test_help"
 
 # System testing with Capybara
-require 'capybara/rails'
-require 'capybara/minitest'
-require 'capybara/cuprite'
+require "capybara/rails"
+require "capybara/minitest"
+require "capybara/cuprite"
 
 # Configure better waiting behavior
 Capybara.default_max_wait_time = 10
@@ -42,10 +42,10 @@ module TestAuthHelpers
   end
 
   def sign_in_as(user, request_obj = nil)
-    request_obj ||= Struct.new(:remote_ip, :user_agent).new('127.0.0.1', 'test')
+    request_obj ||= Struct.new(:remote_ip, :user_agent).new("127.0.0.1", "test")
     session_record, plaintext = UserSession.create_for!(user: user, request: request_obj)
     if is_a?(ActionDispatch::SystemTestCase)
-      visit '/' if page.current_url.blank? || page.current_url == 'about:blank'
+      visit "/" if page.current_url.blank? || page.current_url == "about:blank"
       page.driver.set_cookie(ApplicationController::SESSION_COOKIE.to_s, plaintext)
     else
       cookies[ApplicationController::SESSION_COOKIE] = plaintext

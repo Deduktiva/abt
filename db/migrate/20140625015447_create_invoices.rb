@@ -13,6 +13,6 @@ class CreateInvoices < ActiveRecord::Migration[6.0]
 
       t.timestamps
     end
-    add_index :invoices, :document_number, :unique => true
+    add_index :invoices, :document_number, unique: true
   end
 end

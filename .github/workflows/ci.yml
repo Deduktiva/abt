@@ -61,6 +61,15 @@ jobs:
         bundle exec rails db:migrate
         bundle exec rails db:seed
 
+    - name: Verify development seeds
+      env:
+        RAILS_ENV: development
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/abt_development
+      run: |
+        bundle exec rails db:create
+        bundle exec rails db:migrate
+        bundle exec rails db:seed
+
     - name: Run tests
       env:
         RAILS_ENV: test

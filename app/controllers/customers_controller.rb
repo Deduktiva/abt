@@ -10,7 +10,7 @@ class CustomersController < ApplicationController
                    Customer.inactive
                  else
                    Customer.active
-                 end
+    end
 
     @customers = @customers.order(:matchcode)
 

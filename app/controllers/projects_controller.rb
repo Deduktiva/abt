@@ -11,7 +11,7 @@ class ProjectsController < ApplicationController
                    Project.inactive
                  else
                    Project.active
-                 end
+    end
 
     # Filters for AJAX requests
     if params[:customer_id].present?

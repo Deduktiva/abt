@@ -19,7 +19,7 @@ class AddPaymentTermsDaysToInvoices < ActiveRecord::Migration[8.0]
                   (due_date - date).to_i
         else
                   customer_terms
-                end
+        end
         terms ||= 30
 
         conn.exec_update(

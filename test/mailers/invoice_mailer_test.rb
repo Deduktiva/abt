@@ -97,6 +97,19 @@ class InvoiceMailerTest < ActionMailer::TestCase
     assert_match "Example Company B.V.", text_body  # issuer legal_name from fixture
   end
 
+  test "customer_email subject strips CRLF from user-controlled substitution values" do
+    invoice = invoices(:auto_email_invoice)
+    invoice.update!(
+      cust_order: "ORDER\r\nBcc: attacker@example.com",
+      cust_reference: "REF\nX-Injected: yes"
+    )
+
+    mail = InvoiceMailer.with(invoice: invoice).customer_email
+
+    assert_equal "Invoice ORDER Bcc: attacker@example.com - Ref: REF X-Injected: yes", mail.subject
+    assert_no_match(/[\r\n]/, mail.subject)
+  end
+
   test "customer_email subject template handles empty substitution values" do
     # Create invoice with empty reference fields
     invoice = Invoice.create!(

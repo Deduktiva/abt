@@ -28,4 +28,11 @@ class ApplicationMailer < ActionMailer::Base
       subject: subject
     )
   end
+
+  # Strip CR/LF from values interpolated into mail headers (e.g. Subject) to
+  # prevent header injection. The mail gem strips CRLF too, but doing it
+  # explicitly keeps us safe if that ever changes.
+  def sanitize_header_value(value)
+    value.to_s.gsub(/[\r\n]+/, ' ')
+  end
 end

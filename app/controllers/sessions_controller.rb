@@ -9,14 +9,14 @@ class SessionsController < ApplicationController
       user_verification: "preferred"
     )
 
-    session[:webauthn_login] = { challenge: options.challenge }
+    webauthn_write(:login, challenge: options.challenge)
 
     render json: options.as_json
   end
 
   def verify
-    login_session = session[:webauthn_login]
-    if login_session.blank? || login_session["challenge"].blank?
+    pending = webauthn_consume(:login)
+    if pending.blank? || pending["challenge"].blank?
       return render json: { error: "No login in progress" }, status: :unprocessable_content
     end
 
@@ -41,7 +41,7 @@ class SessionsController < ApplicationController
 
     begin
       webauthn_credential.verify(
-        login_session["challenge"],
+        pending["challenge"],
         public_key: stored.public_key,
         sign_count: stored.sign_count,
         user_verification: false
@@ -55,7 +55,6 @@ class SessionsController < ApplicationController
     end
 
     stored.touch_used!(webauthn_credential.sign_count)
-    session.delete(:webauthn_login)
     new_session = sign_in_user!(user)
     UserAuditEvent.record!(
       action: "login_success", user: user, actor: user, request: request,
@@ -86,7 +85,6 @@ class SessionsController < ApplicationController
   private
 
   def render_login_error(message)
-    session.delete(:webauthn_login)
     render json: { error: message }, status: :unauthorized
   end
 end

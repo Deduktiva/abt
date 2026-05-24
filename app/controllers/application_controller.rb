@@ -68,6 +68,14 @@ class ApplicationController < ActionController::Base
     nil
   end
 
+  def webauthn_write(flow, **payload)
+    WebauthnPendingStore.write(session: session, flow: flow, **payload)
+  end
+
+  def webauthn_consume(flow)
+    WebauthnPendingStore.consume(session: session, flow: flow)
+  end
+
   def sign_in_user!(user)
     session_record, plaintext = UserSession.create_for!(user: user, request: request)
     cookies.signed.permanent[AUTH_COOKIE] = {

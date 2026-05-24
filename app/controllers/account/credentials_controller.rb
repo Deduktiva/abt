@@ -18,16 +18,13 @@ class Account::CredentialsController < ApplicationController
       authenticator_selection: { resident_key: "required", user_verification: "preferred" }
     )
 
-    session[:webauthn_credential_add] = {
-      challenge: options.challenge,
-      nickname: nickname
-    }
+    webauthn_write(:credential_add, challenge: options.challenge, nickname: nickname)
 
     render json: options.as_json
   end
 
   def verify
-    pending = session[:webauthn_credential_add]
+    pending = webauthn_consume(:credential_add)
     if pending.blank?
       return render json: { error: "No registration in progress" }, status: :unprocessable_content
     end
@@ -46,7 +43,6 @@ class Account::CredentialsController < ApplicationController
       nickname: pending["nickname"],
       sign_count: webauthn_credential.sign_count
     )
-    session.delete(:webauthn_credential_add)
 
     UserAuditEvent.record!(action: "passkey_added", user: current_user, actor: current_user,
                             request: request,

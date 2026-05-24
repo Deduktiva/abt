@@ -1,6 +1,8 @@
 app:
   host: 'localhost:3000'
   protocol: 'http'
+  # Sub-path the app is mounted at, e.g. '/abt'. Leave blank for root.
+  script_name: ''
 
 payments:
 #  public_url: 'https://pay.deduktiva.com/p/%token%'

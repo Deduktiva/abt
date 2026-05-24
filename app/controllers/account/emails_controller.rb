@@ -17,7 +17,8 @@ class Account::EmailsController < ApplicationController
       confirmation_url = account_email_confirmation_url(
         token: plaintext,
         host: Settings.app.host,
-        protocol: Settings.app.protocol
+        protocol: Settings.app.protocol,
+        script_name: Settings.app.script_name
       )
       UserMailer.email_confirmation(email, confirmation_url).deliver_later
 

@@ -1,4 +1,6 @@
 class UserEmail < ApplicationRecord
+  include DigestedToken
+
   CONFIRMATION_VALIDITY = 48.hours
 
   belongs_to :user
@@ -17,9 +19,9 @@ class UserEmail < ApplicationRecord
   end
 
   def generate_confirmation_token!
-    plaintext = SecureRandom.urlsafe_base64(32)
+    plaintext, digest = self.class.generate_token
     update!(
-      confirmation_token_digest: self.class.digest_token(plaintext),
+      confirmation_token_digest: digest,
       confirmation_expires_at: CONFIRMATION_VALIDITY.from_now
     )
     plaintext
@@ -39,10 +41,6 @@ class UserEmail < ApplicationRecord
       .where('confirmation_expires_at > ?', Time.current)
       .where(confirmed_at: nil)
       .first
-  end
-
-  def self.digest_token(plaintext)
-    Digest::SHA256.hexdigest(plaintext)
   end
 
   private

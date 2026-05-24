@@ -1,4 +1,6 @@
 class UserInvite < ApplicationRecord
+  include DigestedToken
+
   EXPIRY = 24.hours
 
   PURPOSE_SIGNUP = 'signup'.freeze
@@ -17,9 +19,9 @@ class UserInvite < ApplicationRecord
   scope :usable, -> { where(used_at: nil).where('expires_at > ?', Time.current) }
 
   def self.create_signup!(actor:)
-    plaintext = SecureRandom.urlsafe_base64(32)
+    plaintext, digest = generate_token
     record = create!(
-      token_digest: digest_token(plaintext),
+      token_digest: digest,
       created_by_user: actor,
       purpose: PURPOSE_SIGNUP,
       expires_at: EXPIRY.from_now
@@ -28,9 +30,9 @@ class UserInvite < ApplicationRecord
   end
 
   def self.create_passkey_reset!(target_user:, actor:)
-    plaintext = SecureRandom.urlsafe_base64(32)
+    plaintext, digest = generate_token
     record = create!(
-      token_digest: digest_token(plaintext),
+      token_digest: digest,
       created_by_user: actor,
       target_user: target_user,
       purpose: PURPOSE_PASSKEY_RESET,
@@ -42,10 +44,6 @@ class UserInvite < ApplicationRecord
   def self.find_usable(plaintext)
     return nil if plaintext.blank?
     usable.where(token_digest: digest_token(plaintext)).first
-  end
-
-  def self.digest_token(plaintext)
-    Digest::SHA256.hexdigest(plaintext)
   end
 
   def usable?

@@ -110,7 +110,6 @@ class InvoiceRenderer
         xml_sums.net @invoice.sum_net
         xml_sums.total @invoice.sum_total
       end
-
     end
 
     xml.target!

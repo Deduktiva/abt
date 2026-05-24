@@ -36,7 +36,7 @@ class ApplicationController < ActionController::Base
     if user.blocked?
       session_record.terminate!(reason: "blocked_user", actor: nil) unless session_record.terminated_at
       reset_session_cookie
-      redirect_to_login(alert: 'Your account has been blocked.') and return
+      redirect_to_login(alert: "Your account has been blocked.") and return
     end
 
     session_record.touch_seen!(request)
@@ -47,7 +47,7 @@ class ApplicationController < ActionController::Base
     Current.user_agent = request.user_agent
   end
 
-  def redirect_to_login(alert: 'You must sign in to continue.')
+  def redirect_to_login(alert: "You must sign in to continue.")
     respond_to do |format|
       format.html { redirect_to new_session_path, alert: alert }
       format.json { render json: { error: alert }, status: :unauthorized }

@@ -5,7 +5,7 @@ class ApplicationMailer < ActionMailer::Base
   end
 
   default from: Proc.new { build_default_from }
-  layout 'mailer'
+  layout "mailer"
 
   protected
 
@@ -33,6 +33,6 @@ class ApplicationMailer < ActionMailer::Base
   # prevent header injection. The mail gem strips CRLF too, but doing it
   # explicitly keeps us safe if that ever changes.
   def sanitize_header_value(value)
-    value.to_s.gsub(/[\r\n]+/, ' ')
+    value.to_s.gsub(/[\r\n]+/, " ")
   end
 end

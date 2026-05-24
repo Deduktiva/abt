@@ -20,7 +20,7 @@ class DeliveryNote < ApplicationRecord
 
   belongs_to :customer
   belongs_to :project
-  belongs_to :acceptance_attachment, class_name: 'Attachment', optional: true
+  belongs_to :acceptance_attachment, class_name: "Attachment", optional: true
   belongs_to :invoice, optional: true
 
   has_many :delivery_note_lines, -> { order(:position, :id) }, dependent: :delete_all
@@ -31,7 +31,7 @@ class DeliveryNote < ApplicationRecord
 
     self.date = Date.today
     if self.document_number.nil?
-      self.document_number = DocumentNumber.get_next_for 'delivery_note', self.date
+      self.document_number = DocumentNumber.get_next_for "delivery_note", self.date
     end
     self.published = true
     self.save!
@@ -105,6 +105,6 @@ class DeliveryNote < ApplicationRecord
     return unless will_save_change_to_published? && published?
     return if has_items?
 
-    errors.add(:base, 'must have at least one item line before it can be published')
+    errors.add(:base, "must have at least one item line before it can be published")
   end
 end

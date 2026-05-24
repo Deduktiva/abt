@@ -1,4 +1,4 @@
-require 'json'
+require "json"
 
 class DeliveryNotesController < ApplicationController
   include EmailPreviewHelper
@@ -6,7 +6,7 @@ class DeliveryNotesController < ApplicationController
   include PublishableDocument
   include DocumentWithLines
 
-  publishable_document :delivery_note, label: 'delivery note'
+  publishable_document :delivery_note, label: "delivery note"
   document_with_lines line_class: DeliveryNoteLine
 
   before_action :set_delivery_note, only: %i[show edit update destroy publish preview pdf unpublish upload_acceptance delete_acceptance convert_to_invoice preview_email send_email]
@@ -17,13 +17,13 @@ class DeliveryNotesController < ApplicationController
   # GET /delivery_notes
   def index
     @selected_year = params[:year]&.to_i || Date.current.year
-    @email_filter = params[:email_filter] || 'all'
+    @email_filter = params[:email_filter] || "all"
 
     @delivery_notes = DeliveryNote.in_year(@selected_year, include_drafts: @selected_year == Date.current.year)
-                                  .reorder(Arel.sql('document_number DESC NULLS FIRST'))
+                                  .reorder(Arel.sql("document_number DESC NULLS FIRST"))
 
     case @email_filter
-    when 'unsent'
+    when "unsent"
       @delivery_notes = @delivery_notes.email_unsent.published
     end
 
@@ -50,7 +50,7 @@ class DeliveryNotesController < ApplicationController
     @delivery_note = DeliveryNote.new(delivery_note_params)
 
     if @delivery_note.save
-      redirect_to @delivery_note, notice: 'Delivery Note was successfully created.'
+      redirect_to @delivery_note, notice: "Delivery Note was successfully created."
     else
       render :new, status: :unprocessable_content
     end
@@ -59,7 +59,7 @@ class DeliveryNotesController < ApplicationController
   # PUT /delivery_notes/1
   def update
     if @delivery_note.update(delivery_note_params)
-      redirect_to @delivery_note, notice: 'Delivery Note was successfully updated.'
+      redirect_to @delivery_note, notice: "Delivery Note was successfully updated."
     else
       set_form_options
       render :edit, status: :unprocessable_content
@@ -69,7 +69,7 @@ class DeliveryNotesController < ApplicationController
   # DELETE /delivery_notes/1
   def destroy
     if @delivery_note.published?
-      flash[:alert] = 'Published delivery notes cannot be deleted.'
+      flash[:alert] = "Published delivery notes cannot be deleted."
       redirect_to delivery_notes_path and return
     end
 
@@ -95,7 +95,7 @@ class DeliveryNotesController < ApplicationController
 
     @pdf = DeliveryNoteRenderer.new(@delivery_note, issuer).render
 
-    send_data @pdf, type: 'application/pdf', disposition: 'inline'
+    send_data @pdf, type: "application/pdf", disposition: "inline"
   end
 
   def pdf
@@ -104,7 +104,7 @@ class DeliveryNotesController < ApplicationController
     @pdf = DeliveryNoteRenderer.new(@delivery_note, issuer).render
 
     filename = "#{issuer.short_name}-DeliveryNote-#{@delivery_note.document_number}.pdf"
-    send_data @pdf, type: 'application/pdf', disposition: 'attachment', filename: filename
+    send_data @pdf, type: "application/pdf", disposition: "attachment", filename: filename
   end
 
   def unpublish
@@ -130,7 +130,7 @@ class DeliveryNotesController < ApplicationController
     end
 
     detected_type = Attachment.detect_content_type(uploaded_file.tempfile)
-    if detected_type != 'application/pdf'
+    if detected_type != "application/pdf"
       flash[:error] = "Only PDF files are allowed for acceptance documents (detected: #{detected_type})."
       redirect_to @delivery_note and return
     end
@@ -144,7 +144,7 @@ class DeliveryNotesController < ApplicationController
 
     # Create new attachment
     attachment = Attachment.new
-    attachment.set_data uploaded_file.read, 'application/pdf'
+    attachment.set_data uploaded_file.read, "application/pdf"
     attachment.filename = uploaded_file.original_filename
     attachment.title = "Acceptance Document for Delivery Note #{@delivery_note.document_number}"
 
@@ -218,7 +218,7 @@ class DeliveryNotesController < ApplicationController
           }
 
           # Set appropriate fields based on line type
-          if dn_line.type == 'item'
+          if dn_line.type == "item"
             attrs[:quantity] = (dn_line.quantity&.to_f || 1.0).to_f
             attrs[:rate] = 0.01 # Small non-zero rate
             attrs[:sales_tax_product_class_id] = default_sales_tax_product_class_id
@@ -249,7 +249,7 @@ class DeliveryNotesController < ApplicationController
     email_data = extract_email_preview_data(mail)
 
     respond_to do |format|
-      format.html { render layout: 'application' }
+      format.html { render layout: "application" }
       format.json { render json: email_data }
     end
   end
@@ -257,7 +257,7 @@ class DeliveryNotesController < ApplicationController
   def send_email
     DeliveryNoteMailer.with(delivery_note: @delivery_note).customer_email.deliver_later
     @delivery_note.update_column(:email_sent_at, Time.current)
-    redirect_to @delivery_note, notice: 'E-Mail queued for sending.'
+    redirect_to @delivery_note, notice: "E-Mail queued for sending."
   end
 
   def bulk_send_emails
@@ -265,7 +265,7 @@ class DeliveryNotesController < ApplicationController
     delivery_note_ids = delivery_note_ids.reject(&:blank?)
 
     if delivery_note_ids.empty?
-      redirect_to delivery_notes_path, alert: 'No delivery notes selected.'
+      redirect_to delivery_notes_path, alert: "No delivery notes selected."
       return
     end
 

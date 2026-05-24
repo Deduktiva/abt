@@ -10,7 +10,7 @@ class OverdueInvoicesMailer < ApplicationMailer
       mail(
         to: recipient,
         from: "\"#{@issuer.short_name}\" <#{@issuer.document_email_from}>",
-        subject: I18n.t('mailers.overdue_invoices.subject',
+        subject: I18n.t("mailers.overdue_invoices.subject",
                         issuer_name: @issuer.short_name,
                         count: @invoices.size)
       )

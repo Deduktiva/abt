@@ -2,11 +2,11 @@ class CustomersController < ApplicationController
   # GET /customers
   def index
     # Show active customers by default
-    params[:filter] ||= 'active'
+    params[:filter] ||= "active"
     @customers = case params[:filter]
-                 when 'all'
+                 when "all"
                    Customer.all
-                 when 'inactive'
+                 when "inactive"
                    Customer.inactive
                  else
                    Customer.active
@@ -40,7 +40,7 @@ class CustomersController < ApplicationController
     @customer = Customer.new(customers_params)
 
     if @customer.save
-      redirect_to @customer, notice: 'Customer was successfully created.'
+      redirect_to @customer, notice: "Customer was successfully created."
     else
       render :new, status: :unprocessable_content
     end
@@ -51,7 +51,7 @@ class CustomersController < ApplicationController
     @customer = Customer.find(params[:id])
 
     if @customer.update(customers_params)
-      redirect_to @customer, notice: 'Customer was successfully updated.'
+      redirect_to @customer, notice: "Customer was successfully updated."
     else
       render :edit, status: :unprocessable_content
     end
@@ -62,9 +62,9 @@ class CustomersController < ApplicationController
     @customer = Customer.find(params[:id])
 
     if @customer.destroy
-      redirect_to customers_url, notice: 'Customer was successfully deleted.'
+      redirect_to customers_url, notice: "Customer was successfully deleted."
     else
-      redirect_to customers_url, alert: @customer.errors.full_messages.join(', ')
+      redirect_to customers_url, alert: @customer.errors.full_messages.join(", ")
     end
   end
 

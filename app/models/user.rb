@@ -1,15 +1,15 @@
 class User < ApplicationRecord
   USERNAME_FORMAT = /\A[a-z0-9][a-z0-9_\-.]*\z/i
 
-  has_many :emails, class_name: 'UserEmail', dependent: :destroy
-  has_many :credentials, class_name: 'UserCredential', dependent: :destroy
-  has_many :sessions, class_name: 'UserSession', dependent: :destroy
-  has_many :audit_events_as_subject, class_name: 'UserAuditEvent',
+  has_many :emails, class_name: "UserEmail", dependent: :destroy
+  has_many :credentials, class_name: "UserCredential", dependent: :destroy
+  has_many :sessions, class_name: "UserSession", dependent: :destroy
+  has_many :audit_events_as_subject, class_name: "UserAuditEvent",
            foreign_key: :user_id, dependent: :nullify
-  has_many :audit_events_as_actor, class_name: 'UserAuditEvent',
+  has_many :audit_events_as_actor, class_name: "UserAuditEvent",
            foreign_key: :actor_user_id, dependent: :nullify
 
-  belongs_to :blocked_by_user, class_name: 'User', optional: true
+  belongs_to :blocked_by_user, class_name: "User", optional: true
 
   validates :username, presence: true, uniqueness: { case_sensitive: false },
             format: { with: USERNAME_FORMAT },
@@ -46,7 +46,7 @@ class User < ApplicationRecord
         s.terminate!(reason: "user_blocked: #{reason}", actor: actor)
       end
       UserAuditEvent.record!(
-        action: 'blocked',
+        action: "blocked",
         user: self,
         actor: actor,
         request: request,
@@ -59,7 +59,7 @@ class User < ApplicationRecord
     transaction do
       update!(blocked_at: nil, blocked_reason: nil, blocked_by_user: nil)
       UserAuditEvent.record!(
-        action: 'unblocked',
+        action: "unblocked",
         user: self,
         actor: actor,
         request: request,
@@ -72,11 +72,11 @@ class User < ApplicationRecord
     transaction do
       credentials.destroy_all
       sessions.active.find_each do |s|
-        s.terminate!(reason: 'passkey_reset', actor: actor)
+        s.terminate!(reason: "passkey_reset", actor: actor)
       end
       invite, plaintext = UserInvite.create_passkey_reset!(target_user: self, actor: actor)
       UserAuditEvent.record!(
-        action: 'passkey_reset',
+        action: "passkey_reset",
         user: self,
         actor: actor,
         request: request,

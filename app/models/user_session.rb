@@ -4,10 +4,10 @@ class UserSession < ApplicationRecord
   EXPIRY = 30.days
 
   belongs_to :user
-  belongs_to :terminated_by_user, class_name: 'User', optional: true
+  belongs_to :terminated_by_user, class_name: "User", optional: true
 
   scope :active, -> {
-    where(terminated_at: nil).where('last_seen_at > ?', EXPIRY.ago)
+    where(terminated_at: nil).where("last_seen_at > ?", EXPIRY.ago)
   }
 
   def self.create_for!(user:, request:)
@@ -40,7 +40,7 @@ class UserSession < ApplicationRecord
       terminated_by_user: actor
     )
     UserAuditEvent.record!(
-      action: 'session_terminated',
+      action: "session_terminated",
       user: user,
       actor: actor,
       request: request,

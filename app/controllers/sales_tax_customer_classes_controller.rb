@@ -24,7 +24,7 @@ class SalesTaxCustomerClassesController < ApplicationController
     @sales_tax_customer_class = SalesTaxCustomerClass.new(sales_tax_customer_classes_params)
 
     if @sales_tax_customer_class.save
-      redirect_to @sales_tax_customer_class, notice: 'Sales tax customer class was successfully created.'
+      redirect_to @sales_tax_customer_class, notice: "Sales tax customer class was successfully created."
     else
       render :new, status: :unprocessable_content
     end
@@ -35,7 +35,7 @@ class SalesTaxCustomerClassesController < ApplicationController
     @sales_tax_customer_class = SalesTaxCustomerClass.find(params[:id])
 
     if @sales_tax_customer_class.update(sales_tax_customer_classes_params)
-      redirect_to @sales_tax_customer_class, notice: 'Sales tax customer class was successfully updated.'
+      redirect_to @sales_tax_customer_class, notice: "Sales tax customer class was successfully updated."
     else
       render :edit, status: :unprocessable_content
     end

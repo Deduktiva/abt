@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class ProjectsControllerTest < ActionDispatch::IntegrationTest
   def setup
@@ -7,52 +7,52 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get index" do
-    get projects_url(filter: 'all')
+    get projects_url(filter: "all")
     assert_response :success
-    assert_select 'table tr', count: Project.count + 1 # +1 for header row
+    assert_select "table tr", count: Project.count + 1 # +1 for header row
   end
 
   test "should filter projects by active status and handle index properly" do
     # Create inactive project
     Project.create!(
-      matchcode: 'INACTIVE',
-      description: 'Inactive project',
+      matchcode: "INACTIVE",
+      description: "Inactive project",
       active: false,
       bill_to_customer: @customer
     )
 
     # Test all filter options in a single request cycle
-    [ 'active', 'inactive', 'all' ].each do |filter_type|
+    [ "active", "inactive", "all" ].each do |filter_type|
       get projects_url(filter: filter_type)
       assert_response :success
       assert_select ".status-filter .active", text: filter_type.capitalize
 
       case filter_type
-      when 'active'
-        assert_select 'td', text: 'INACTIVE', count: 0
-      when 'inactive', 'all'
-        assert_select 'td', text: 'INACTIVE'
+      when "active"
+        assert_select "td", text: "INACTIVE", count: 0
+      when "inactive", "all"
+        assert_select "td", text: "INACTIVE"
       end
     end
 
     # Test default behavior (should default to active)
     get projects_url
     assert_response :success
-    assert_select '.status-filter .active', text: 'Active'
-    assert_select 'td', text: 'INACTIVE', count: 0
+    assert_select ".status-filter .active", text: "Active"
+    assert_select "td", text: "INACTIVE", count: 0
   end
 
   test "should show project" do
     get project_url(@project)
     assert_response :success
-    assert_select '.badge.bg-success', text: 'Active'
+    assert_select ".badge.bg-success", text: "Active"
   end
 
   test "should show inactive status on project page" do
     @project.update!(active: false)
     get project_url(@project)
     assert_response :success
-    assert_select '.badge.bg-secondary', text: 'Inactive'
+    assert_select ".badge.bg-secondary", text: "Inactive"
   end
 
   test "should get new" do
@@ -61,11 +61,11 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should create project" do
-    assert_difference('Project.count') do
+    assert_difference("Project.count") do
       post projects_url, params: {
         project: {
-          matchcode: 'NEW_PROJECT',
-          description: 'New project',
+          matchcode: "NEW_PROJECT",
+          description: "New project",
           bill_to_customer_id: @customer.id,
           active: true
         }
@@ -77,12 +77,12 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should create project without customer" do
-    assert_difference('Project.count') do
+    assert_difference("Project.count") do
       post projects_url, params: {
         project: {
-          matchcode: 'NO_CUSTOMER_PROJECT',
-          description: 'Project without customer for reuse',
-          bill_to_customer_id: '', # Empty customer ID
+          matchcode: "NO_CUSTOMER_PROJECT",
+          description: "Project without customer for reuse",
+          bill_to_customer_id: "", # Empty customer ID
           active: true
         }
       }
@@ -92,7 +92,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     new_project = Project.last
     assert new_project.active?
     assert_nil new_project.bill_to_customer
-    assert_equal 'NO_CUSTOMER_PROJECT', new_project.matchcode
+    assert_equal "NO_CUSTOMER_PROJECT", new_project.matchcode
   end
 
   test "should get edit" do
@@ -103,38 +103,38 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   test "should update project" do
     patch project_url(@project), params: {
       project: {
-        description: 'Updated description',
+        description: "Updated description",
         active: false
       }
     }
     assert_redirected_to project_url(@project)
 
     @project.reload
-    assert_equal 'Updated description', @project.description
+    assert_equal "Updated description", @project.description
     assert_not @project.active?
   end
 
   test "should delete unused project" do
     # Create a project that's not used in any invoices
     unused_project = Project.create!(
-      matchcode: 'UNUSED',
-      description: 'Unused project',
+      matchcode: "UNUSED",
+      description: "Unused project",
       bill_to_customer: @customer
     )
 
-    assert_difference('Project.count', -1) do
+    assert_difference("Project.count", -1) do
       delete project_url(unused_project)
     end
 
     assert_redirected_to projects_url
-    assert_equal 'Project was successfully deleted.', flash[:notice]
+    assert_equal "Project was successfully deleted.", flash[:notice]
   end
 
   test "should not delete project used in invoices" do
     # Create a project and an invoice that uses it
     used_project = Project.create!(
-      matchcode: 'USED',
-      description: 'Used project',
+      matchcode: "USED",
+      description: "Used project",
       bill_to_customer: @customer
     )
 
@@ -143,19 +143,19 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
       project: used_project
     )
 
-    assert_no_difference('Project.count') do
+    assert_no_difference("Project.count") do
       delete project_url(used_project)
     end
 
     assert_redirected_to projects_url
-    assert_includes flash[:alert], 'Cannot delete project that has been used in invoices'
+    assert_includes flash[:alert], "Cannot delete project that has been used in invoices"
   end
 
   test "index shows delete link for unused projects" do
     # Create a project that's not used in any invoices
     unused_project = Project.create!(
-      matchcode: 'UNUSED',
-      description: 'Unused project',
+      matchcode: "UNUSED",
+      description: "Unused project",
       bill_to_customer: @customer
     )
 
@@ -173,8 +173,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   test "index hides delete link for used projects" do
     # Create a project and an invoice that uses it
     used_project = Project.create!(
-      matchcode: 'USED',
-      description: 'Used project',
+      matchcode: "USED",
+      description: "Used project",
       bill_to_customer: @customer
     )
 
@@ -193,28 +193,28 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     get edit_project_url(@project)
     assert_response :success
     assert_select 'input[type="checkbox"][name="project[active]"]'
-    assert_select 'label.form-check-label', text: 'Active'
+    assert_select "label.form-check-label", text: "Active"
   end
 
   test "should show project without customer" do
     # Create a project without a customer
     project_without_customer = Project.create!(
-      matchcode: 'NO_CUSTOMER',
-      description: 'Project without customer',
+      matchcode: "NO_CUSTOMER",
+      description: "Project without customer",
       bill_to_customer: nil,
       active: true
     )
 
     get project_url(project_without_customer)
     assert_response :success
-    assert_select 'span.text-muted', text: 'No customer (reusable project)'
+    assert_select "span.text-muted", text: "No customer (reusable project)"
   end
 
   test "should edit project without customer" do
     # Create a project without a customer
     project_without_customer = Project.create!(
-      matchcode: 'NO_CUSTOMER',
-      description: 'Project without customer',
+      matchcode: "NO_CUSTOMER",
+      description: "Project without customer",
       bill_to_customer: nil,
       active: true
     )
@@ -223,7 +223,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     # Form should render without errors
     assert_select 'select[name="project[bill_to_customer_id]"]'
-    assert_select 'option', text: 'No customer (reusable project)'
+    assert_select "option", text: "No customer (reusable project)"
   end
 
   test "should update project to remove customer" do
@@ -233,15 +233,15 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     # Update to remove the customer
     patch project_url(@project), params: {
       project: {
-        bill_to_customer_id: '', # Empty to remove customer
-        description: 'Updated to have no customer'
+        bill_to_customer_id: "", # Empty to remove customer
+        description: "Updated to have no customer"
       }
     }
     assert_redirected_to project_url(@project)
 
     @project.reload
     assert_nil @project.bill_to_customer
-    assert_equal 'Updated to have no customer', @project.description
+    assert_equal "Updated to have no customer", @project.description
   end
 
   test "should filter projects by customer_id in JSON format" do
@@ -250,15 +250,15 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     customer_b = customers(:good_national)
 
     project_a = Project.create!(
-      matchcode: 'CUST_A',
-      description: 'Project for Customer A',
+      matchcode: "CUST_A",
+      description: "Project for Customer A",
       bill_to_customer: customer_a,
       active: true
     )
 
     project_b = Project.create!(
-      matchcode: 'CUST_B',
-      description: 'Project for Customer B',
+      matchcode: "CUST_B",
+      description: "Project for Customer B",
       bill_to_customer: customer_b,
       active: true
     )
@@ -267,7 +267,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     projects = JSON.parse(response.body)
-    customer_a_project_ids = projects.map { |p| p['id'] }
+    customer_a_project_ids = projects.map { |p| p["id"] }
 
     assert_includes customer_a_project_ids, project_a.id
     assert_not_includes customer_a_project_ids, project_b.id
@@ -276,18 +276,18 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   test "should include reusable projects when include_reusable is true" do
     # Create a reusable project (no customer)
     reusable_project = Project.create!(
-      matchcode: 'REUSABLE',
-      description: 'Reusable project',
+      matchcode: "REUSABLE",
+      description: "Reusable project",
       bill_to_customer: nil,
       active: true
     )
 
-    get projects_url(format: :json, include_reusable: 'true')
+    get projects_url(format: :json, include_reusable: "true")
     assert_response :success
 
     projects = JSON.parse(response.body)
-    project_ids = projects.map { |p| p['id'] }
-    reusable_flags = projects.map { |p| p['is_reusable'] }
+    project_ids = projects.map { |p| p["id"] }
+    reusable_flags = projects.map { |p| p["is_reusable"] }
 
     assert_includes project_ids, reusable_project.id
     assert_includes reusable_flags, true
@@ -298,16 +298,16 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
 
     # Create project assigned to customer
     customer_project = Project.create!(
-      matchcode: 'ASSIGNED',
-      description: 'Project assigned to customer',
+      matchcode: "ASSIGNED",
+      description: "Project assigned to customer",
       bill_to_customer: customer,
       active: true
     )
 
     # Create reusable project
     reusable_project = Project.create!(
-      matchcode: 'REUSABLE',
-      description: 'Reusable project',
+      matchcode: "REUSABLE",
+      description: "Reusable project",
       bill_to_customer: nil,
       active: true
     )
@@ -315,17 +315,17 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     # Create project for different customer
     other_customer = customers(:good_national)
     other_project = Project.create!(
-      matchcode: 'OTHER',
-      description: 'Project for other customer',
+      matchcode: "OTHER",
+      description: "Project for other customer",
       bill_to_customer: other_customer,
       active: true
     )
 
-    get projects_url(format: :json, customer_id: customer.id, include_reusable: 'true')
+    get projects_url(format: :json, customer_id: customer.id, include_reusable: "true")
     assert_response :success
 
     projects = JSON.parse(response.body)
-    project_ids = projects.map { |p| p['id'] }
+    project_ids = projects.map { |p| p["id"] }
 
     # Should include customer's project and reusable project
     assert_includes project_ids, customer_project.id
@@ -336,48 +336,48 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "JSON response includes all required fields" do
-    get projects_url(format: :json, filter: 'active')
+    get projects_url(format: :json, filter: "active")
     assert_response :success
 
     projects = JSON.parse(response.body)
     assert projects.length > 0
 
     project = projects.first
-    assert project.key?('id')
-    assert project.key?('name')
-    assert project.key?('matchcode')
-    assert project.key?('description')
-    assert project.key?('is_reusable')
+    assert project.key?("id")
+    assert project.key?("name")
+    assert project.key?("matchcode")
+    assert project.key?("description")
+    assert project.key?("is_reusable")
   end
 
   test "JSON response marks reusable projects correctly" do
     # Create projects with and without customers
     with_customer = Project.create!(
-      matchcode: 'WITH_CUST',
-      description: 'With customer',
+      matchcode: "WITH_CUST",
+      description: "With customer",
       bill_to_customer: customers(:good_eu),
       active: true
     )
 
     without_customer = Project.create!(
-      matchcode: 'NO_CUST',
-      description: 'Without customer',
+      matchcode: "NO_CUST",
+      description: "Without customer",
       bill_to_customer: nil,
       active: true
     )
 
-    get projects_url(format: :json, filter: 'active')
+    get projects_url(format: :json, filter: "active")
     assert_response :success
 
     projects = JSON.parse(response.body)
 
-    with_cust_data = projects.find { |p| p['id'] == with_customer.id }
-    without_cust_data = projects.find { |p| p['id'] == without_customer.id }
+    with_cust_data = projects.find { |p| p["id"] == with_customer.id }
+    without_cust_data = projects.find { |p| p["id"] == without_customer.id }
 
     assert_not_nil with_cust_data
     assert_not_nil without_cust_data
 
-    assert_equal false, with_cust_data['is_reusable']
-    assert_equal true, without_cust_data['is_reusable']
+    assert_equal false, with_cust_data["is_reusable"]
+    assert_equal true, without_cust_data["is_reusable"]
   end
 end

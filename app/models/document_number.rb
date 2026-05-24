@@ -13,7 +13,7 @@ class DocumentNumber < ApplicationRecord
   end
 
   def wraparound_if_needed(date)
-    return unless self.format.include? 'year'
+    return unless self.format.include? "year"
     if self.last_date.nil? or (date.year != self.last_date.year)
       self.sequence = 0
     end

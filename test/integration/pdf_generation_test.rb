@@ -16,9 +16,9 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
 
     # Add some invoice lines
     @invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Test Product',
-      description: 'Test product description',
+      type: "item",
+      title: "Test Product",
+      description: "Test product description",
       quantity: 2,
       rate: 50.00,
       sales_tax_product_class_id: sales_tax_product_classes(:standard).id
@@ -36,7 +36,7 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
 
   def test_invoice_booking_creates_attachment
     # Book the invoice (this should create PDF attachment)
-    post book_invoice_path(@invoice), params: { save: 'true' }
+    post book_invoice_path(@invoice), params: { save: "true" }
 
     assert_redirected_to book_invoice_path(@invoice)
 
@@ -45,8 +45,8 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
 
     # Check if PDF attachment was created
     assert @invoice.attachment.present?
-    assert_equal 'application/pdf', @invoice.attachment.content_type
-    assert @invoice.attachment.data.start_with?('%PDF'), "Attachment should be a PDF"
+    assert_equal "application/pdf", @invoice.attachment.content_type
+    assert @invoice.attachment.data.start_with?("%PDF"), "Attachment should be a PDF"
   end
 
   def test_pdf_contains_invoice_data
@@ -57,7 +57,7 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
     # that the invoice was processed through the booking controller
     # by checking that invoice_lines have calculated amounts
     @invoice.reload
-    assert @invoice.invoice_lines.any? { |line| line.amount.present? if line.type == 'item' }
+    assert @invoice.invoice_lines.any? { |line| line.amount.present? if line.type == "item" }
   end
 
   def test_pdf_generation_with_missing_data
@@ -76,7 +76,7 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
   def test_pdf_generation_with_logo
     # Set up issuer company with a PDF logo
     issuer_company = issuer_companies(:one)
-    logo_path = Rails.root.join('test', 'fixtures', 'files', 'example_logo.pdf')
+    logo_path = Rails.root.join("test", "fixtures", "files", "example_logo.pdf")
     logo_data = File.binread(logo_path)
 
     issuer_company.update!(
@@ -101,7 +101,7 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
   private
 
   def assert_valid_pdf_response
-    assert_equal 'application/pdf', response.content_type
-    assert response.body.start_with?('%PDF'), "Response should be a valid PDF file"
+    assert_equal "application/pdf", response.content_type
+    assert response.body.start_with?("%PDF"), "Response should be a valid PDF file"
   end
 end

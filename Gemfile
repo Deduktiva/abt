@@ -42,20 +42,20 @@ end
 
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
-  gem 'capybara'
-  gem 'cuprite'
+  gem "capybara"
+  gem "cuprite"
 end
 
 group :test, :prod do
-  gem 'pg', '~> 1.6'
+  gem "pg", "~> 1.6"
 end
 
-gem 'config'
+gem "config"
 
-gem 'sass-rails'  # necessary for bootstrap
-gem 'bootstrap', '~> 5.3'
-gem 'haml-rails'
-gem 'simple_form'
+gem "sass-rails"  # necessary for bootstrap
+gem "bootstrap", "~> 5.3"
+gem "haml-rails"
+gem "simple_form"
 
 gem "mailgun-ruby", "~> 1.4.3"
 

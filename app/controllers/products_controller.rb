@@ -24,7 +24,7 @@ class ProductsController < ApplicationController
     @product = Product.new(products_params)
 
     if @product.save
-      redirect_to @product, notice: 'Product was successfully created.'
+      redirect_to @product, notice: "Product was successfully created."
     else
       render :new, status: :unprocessable_content
     end
@@ -35,7 +35,7 @@ class ProductsController < ApplicationController
     @product = Product.find(params[:id])
 
     if @product.update(products_params)
-      redirect_to @product, notice: 'Product was successfully updated.'
+      redirect_to @product, notice: "Product was successfully updated."
     else
       render :edit, status: :unprocessable_content
     end

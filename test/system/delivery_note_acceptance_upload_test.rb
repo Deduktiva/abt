@@ -69,13 +69,13 @@ class DeliveryNoteAcceptanceUploadTest < ApplicationSystemTestCase
     assert_button "Upload PDF"
 
     # Verify the basic form structure exists
-    assert_selector 'form'
+    assert_selector "form"
     assert_selector 'input[type="file"][name="acceptance_pdf"]'
     assert_selector 'input[type="submit"], button[type="submit"]'
 
     # Verify the form accepts PDF files
     file_input = find('input[type="file"][name="acceptance_pdf"]', visible: :all)
-    assert file_input['accept'] == 'application/pdf', "File input should only accept PDF files"
+    assert file_input["accept"] == "application/pdf", "File input should only accept PDF files"
 
     # This test ensures the basic file upload infrastructure is in place
     # and working in headless mode, without requiring complex JavaScript interactions

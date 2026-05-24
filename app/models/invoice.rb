@@ -44,7 +44,7 @@ class Invoice < ApplicationRecord
   def validate_lines_for_booking
     errors = []
     log = []
-    log << '--- BEGIN LINES ---'
+    log << "--- BEGIN LINES ---"
 
     self.invoice_lines.each do |line|
       log << "#{line.id}.  #{line.type} #{line.title} #{line.description}"
@@ -67,8 +67,8 @@ class Invoice < ApplicationRecord
       log << "#{line.id}.     Qty #{line.quantity} * #{line.rate} = #{line.amount}"
     end
 
-    log << '--- END LINES ---'
-    log << ''
+    log << "--- END LINES ---"
+    log << ""
 
     {
       success: errors.empty?,

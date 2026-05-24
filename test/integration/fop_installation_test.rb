@@ -54,7 +54,7 @@ class FopInstallationTest < ActiveSupport::TestCase
       File.write(xsl_file, test_xsl)
 
       # Test XSLT 2.0 function (upper-case) which requires Saxon
-      if fop_path.include?('bin/fop') && File.read(fop_path).include?('podman')
+      if fop_path.include?("bin/fop") && File.read(fop_path).include?("podman")
         # Podman-based FOP already includes Saxon
         result = `"#{fop_path}" -xml "#{xml_file}" -xsl "#{xsl_file}" -foout /dev/null 2>&1`
       else

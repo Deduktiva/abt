@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class ApplicationHelperTest < ActionView::TestCase
   # Removed redundant page_title tests - covered more comprehensively in integration tests

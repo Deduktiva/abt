@@ -12,12 +12,12 @@ class InvoiceMailer < ApplicationMailer
     I18n.with_locale(customer.language.iso_code) do
       if customer.invoice_email_auto_enabled
         subject = customer.invoice_email_auto_subject_template
-                          .gsub('$CUST_ORDER$', sanitize_header_value(@invoice.cust_order))
-                          .gsub('$CUST_REF$', sanitize_header_value(@invoice.cust_reference))
+                          .gsub("$CUST_ORDER$", sanitize_header_value(@invoice.cust_order))
+                          .gsub("$CUST_REF$", sanitize_header_value(@invoice.cust_reference))
         to = customer.invoice_email_auto_to
         cc = customer.email if customer.email.present? && customer.email != to
       elsif customer.email.present?
-        subject = I18n.t('mailers.invoice.subject', issuer_name: @issuer.short_name, document_number: @invoice.document_number)
+        subject = I18n.t("mailers.invoice.subject", issuer_name: @issuer.short_name, document_number: @invoice.document_number)
         to = customer.email
       end
 

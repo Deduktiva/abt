@@ -24,7 +24,7 @@ class SalesTaxProductClassesController < ApplicationController
     @sales_tax_product_class = SalesTaxProductClass.new(sales_tax_product_classes_params)
 
     if @sales_tax_product_class.save
-      redirect_to @sales_tax_product_class, notice: 'Sales tax product class was successfully created.'
+      redirect_to @sales_tax_product_class, notice: "Sales tax product class was successfully created."
     else
       render :new, status: :unprocessable_content
     end
@@ -35,7 +35,7 @@ class SalesTaxProductClassesController < ApplicationController
     @sales_tax_product_class = SalesTaxProductClass.find(params[:id])
 
     if @sales_tax_product_class.update(sales_tax_product_classes_params)
-      redirect_to @sales_tax_product_class, notice: 'Sales tax product class was successfully updated.'
+      redirect_to @sales_tax_product_class, notice: "Sales tax product class was successfully updated."
     else
       render :edit, status: :unprocessable_content
     end

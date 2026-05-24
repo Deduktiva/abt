@@ -1,4 +1,4 @@
-require 'jbuilder'
+require "jbuilder"
 
 module InvoiceHelper
   def json_lines(lines, options = {})

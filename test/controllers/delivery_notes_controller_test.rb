@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
   test "should get index" do
@@ -32,8 +32,8 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     get delivery_notes_url(year: 2023)
     assert_response :success
     # Verify the page contains the 2023 note reference but not 2024
-    assert_select 'td', text: '2023-TEST'
-    assert_select 'td', text: '2024-TEST', count: 0
+    assert_select "td", text: "2023-TEST"
+    assert_select "td", text: "2024-TEST", count: 0
   end
 
   test "should include draft delivery notes with nil date in current year" do
@@ -48,7 +48,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
 
     get delivery_notes_url
     assert_response :success
-    assert_select 'td', text: 'DRAFT-NO-DATE'
+    assert_select "td", text: "DRAFT-NO-DATE"
   end
 
   test "should show delivery note" do
@@ -62,7 +62,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should create delivery note" do
-    assert_difference('DeliveryNote.count') do
+    assert_difference("DeliveryNote.count") do
       post delivery_notes_url, params: {
         delivery_note: {
           customer_id: customers(:good_eu).id,
@@ -96,7 +96,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should destroy delivery note" do
-    assert_difference('DeliveryNote.count', -1) do
+    assert_difference("DeliveryNote.count", -1) do
       delete delivery_note_url(delivery_notes(:draft_delivery_note))
     end
 
@@ -104,30 +104,30 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should not destroy published delivery note" do
-    assert_no_difference('DeliveryNote.count') do
+    assert_no_difference("DeliveryNote.count") do
       delete delivery_note_url(delivery_notes(:published_delivery_note))
     end
 
     assert_redirected_to delivery_notes_url
-    assert_match 'cannot be deleted', flash[:alert]
+    assert_match "cannot be deleted", flash[:alert]
   end
 
   test "should get preview pdf" do
     get preview_delivery_note_url(delivery_notes(:draft_delivery_note))
     assert_response :success
-    assert_equal 'application/pdf', response.content_type
+    assert_equal "application/pdf", response.content_type
   end
 
   test "should get pdf for published delivery note" do
     get pdf_delivery_note_url(delivery_notes(:published_delivery_note))
     assert_response :success
-    assert_equal 'application/pdf', response.content_type
+    assert_equal "application/pdf", response.content_type
   end
 
   test "should not get pdf for draft delivery note" do
     get pdf_delivery_note_url(delivery_notes(:draft_delivery_note))
     assert_redirected_to delivery_note_url(delivery_notes(:draft_delivery_note))
-    assert_match 'Draft delivery notes can not be used for this action', flash[:error]
+    assert_match "Draft delivery notes can not be used for this action", flash[:error]
   end
 
   test "should unpublish delivery note" do
@@ -140,20 +140,20 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert_not published_note.published?
     assert_nil published_note.document_number
     assert_nil published_note.date
-    assert_match 'reverted to draft status', flash[:notice]
+    assert_match "reverted to draft status", flash[:notice]
   end
 
   test "should not unpublish draft delivery note" do
     post unpublish_delivery_note_url(delivery_notes(:draft_delivery_note))
     assert_redirected_to delivery_note_url(delivery_notes(:draft_delivery_note))
-    assert_match 'Draft delivery notes can not be used for this action', flash[:error]
+    assert_match "Draft delivery notes can not be used for this action", flash[:error]
   end
 
   test "should upload acceptance document for published delivery note" do
     # Create a mock PDF file
     pdf_file = Rack::Test::UploadedFile.new(
-      Rails.root.join('test', 'fixtures', 'files', 'example_logo.pdf'),
-      'application/pdf'
+      Rails.root.join("test", "fixtures", "files", "example_logo.pdf"),
+      "application/pdf"
     )
 
     published_note = delivery_notes(:published_delivery_note)
@@ -164,20 +164,20 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
 
     published_note.reload
     assert published_note.acceptance_attachment.present?
-    assert_equal 'application/pdf', published_note.acceptance_attachment.content_type
-    assert_match 'uploaded successfully', flash[:notice]
+    assert_equal "application/pdf", published_note.acceptance_attachment.content_type
+    assert_match "uploaded successfully", flash[:notice]
   end
 
   test "should not upload non-PDF files as acceptance document" do
     text_file = Rack::Test::UploadedFile.new(
       StringIO.new("test content"),
-      'text/plain',
-      original_filename: 'test.txt'
+      "text/plain",
+      original_filename: "test.txt"
     )
 
     post upload_acceptance_delivery_note_url(delivery_notes(:published_delivery_note)), params: { acceptance_pdf: text_file }
     assert_redirected_to delivery_note_url(delivery_notes(:published_delivery_note))
-    assert_match 'Only PDF files are allowed', flash[:error]
+    assert_match "Only PDF files are allowed", flash[:error]
   end
 
   test "should convert published delivery note to invoice" do
@@ -210,7 +210,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     post convert_to_invoice_delivery_note_url(published_note)
 
     published_note.reload
-    item_lines = published_note.invoice.invoice_lines.where(type: 'item')
+    item_lines = published_note.invoice.invoice_lines.where(type: "item")
     assert item_lines.any?, "expected at least one item line on the converted invoice"
     item_lines.each do |line|
       assert_equal default_class.id, line.sales_tax_product_class_id
@@ -223,21 +223,21 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     invoice = Invoice.create!(customer: published_note.customer, project: published_note.project)
     published_note.update!(invoice: invoice)
 
-    assert_no_difference('Invoice.count') do
+    assert_no_difference("Invoice.count") do
       post convert_to_invoice_delivery_note_url(published_note)
     end
 
     assert_redirected_to delivery_note_url(published_note)
-    assert_match 'already been converted', flash[:error]
+    assert_match "already been converted", flash[:error]
   end
 
   test "should not convert draft delivery note to invoice" do
-    assert_no_difference('Invoice.count') do
+    assert_no_difference("Invoice.count") do
       post convert_to_invoice_delivery_note_url(delivery_notes(:draft_delivery_note))
     end
 
     assert_redirected_to delivery_note_url(delivery_notes(:draft_delivery_note))
-    assert_match 'Draft delivery notes can not be used for this action', flash[:error]
+    assert_match "Draft delivery notes can not be used for this action", flash[:error]
   end
 
   test "should replace acceptance document" do
@@ -245,8 +245,8 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
 
     # First upload an acceptance document
     first_pdf = Rack::Test::UploadedFile.new(
-      Rails.root.join('test', 'fixtures', 'files', 'example_logo.pdf'),
-      'application/pdf'
+      Rails.root.join("test", "fixtures", "files", "example_logo.pdf"),
+      "application/pdf"
     )
     post upload_acceptance_delivery_note_url(published_note), params: { acceptance_pdf: first_pdf }
 
@@ -255,9 +255,9 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
 
     # Upload a replacement
     second_pdf = Rack::Test::UploadedFile.new(
-      Rails.root.join('test', 'fixtures', 'files', 'example_logo.pdf'),
-      'application/pdf',
-      original_filename: 'replacement.pdf'
+      Rails.root.join("test", "fixtures", "files", "example_logo.pdf"),
+      "application/pdf",
+      original_filename: "replacement.pdf"
     )
 
     post upload_acceptance_delivery_note_url(published_note), params: { acceptance_pdf: second_pdf }
@@ -265,7 +265,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     published_note.reload
     assert published_note.acceptance_attachment.present?
     assert_not_equal original_attachment_id, published_note.acceptance_attachment.id
-    assert_equal 'replacement.pdf', published_note.acceptance_attachment.filename
+    assert_equal "replacement.pdf", published_note.acceptance_attachment.filename
   end
 
   test "should delete acceptance document" do
@@ -273,8 +273,8 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
 
     # First upload an acceptance document
     pdf_file = Rack::Test::UploadedFile.new(
-      Rails.root.join('test', 'fixtures', 'files', 'example_logo.pdf'),
-      'application/pdf'
+      Rails.root.join("test", "fixtures", "files", "example_logo.pdf"),
+      "application/pdf"
     )
     post upload_acceptance_delivery_note_url(published_note), params: { acceptance_pdf: pdf_file }
 
@@ -286,7 +286,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
 
     published_note.reload
     assert_nil published_note.acceptance_attachment
-    assert_match 'deleted successfully', flash[:notice]
+    assert_match "deleted successfully", flash[:notice]
   end
 
   test "should not delete acceptance document if none exists" do
@@ -296,7 +296,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     post delete_acceptance_delivery_note_url(published_note)
 
     assert_redirected_to delivery_note_url(published_note)
-    assert_match 'No acceptance document to delete', flash[:error]
+    assert_match "No acceptance document to delete", flash[:error]
   end
 
   test "should include acceptance document info in invoice prelude when converting" do
@@ -304,9 +304,9 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
 
     # First upload an acceptance document
     pdf_file = Rack::Test::UploadedFile.new(
-      Rails.root.join('test', 'fixtures', 'files', 'example_logo.pdf'),
-      'application/pdf',
-      original_filename: 'signed_acceptance.pdf'
+      Rails.root.join("test", "fixtures", "files", "example_logo.pdf"),
+      "application/pdf",
+      original_filename: "signed_acceptance.pdf"
     )
     post upload_acceptance_delivery_note_url(published_note), params: { acceptance_pdf: pdf_file }
 
@@ -314,8 +314,8 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert published_note.acceptance_attachment.present?
 
     # Ensure there's a sales tax product class for the conversion
-    SalesTaxProductClass.find_or_create_by(name: 'Standard') do |tax_class|
-      tax_class.indicator_code = 'STD'
+    SalesTaxProductClass.find_or_create_by(name: "Standard") do |tax_class|
+      tax_class.indicator_code = "STD"
     end
 
     # Convert to invoice
@@ -338,8 +338,8 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     get preview_email_delivery_note_url(delivery_notes(:published_delivery_note), format: :json)
     assert_response :success
     json_response = JSON.parse(response.body)
-    assert json_response.key?('subject')
-    assert json_response.key?('html_body')
+    assert json_response.key?("subject")
+    assert json_response.key?("html_body")
   end
 
   test "should bulk send emails to selected delivery notes" do
@@ -347,13 +347,13 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
 
     post bulk_send_emails_delivery_notes_url, params: { delivery_note_ids: [ published_note.id ] }
     assert_redirected_to delivery_notes_url
-    assert_match '1 emails queued for sending', flash[:notice]
+    assert_match "1 emails queued for sending", flash[:notice]
   end
 
   test "should not bulk send emails if no delivery notes selected" do
     post bulk_send_emails_delivery_notes_url, params: { delivery_note_ids: [] }
     assert_redirected_to delivery_notes_url
-    assert_match 'No delivery notes selected', flash[:alert]
+    assert_match "No delivery notes selected", flash[:alert]
   end
 
   test "should send bulk email when multiple delivery notes for same customer" do
@@ -364,7 +364,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
 
     post bulk_send_emails_delivery_notes_url, params: { delivery_note_ids: [ note1.id, note2.id ] }
     assert_redirected_to delivery_notes_url
-    assert_match '2 emails queued for sending', flash[:notice]
+    assert_match "2 emails queued for sending", flash[:notice]
   end
 
   test "should send individual emails when delivery notes are for different customers" do
@@ -373,7 +373,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
 
     post bulk_send_emails_delivery_notes_url, params: { delivery_note_ids: [ note1.id, note2.id ] }
     assert_redirected_to delivery_notes_url
-    assert_match '2 emails queued for sending', flash[:notice]
+    assert_match "2 emails queued for sending", flash[:notice]
   end
 
   private
@@ -388,7 +388,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
       cust_reference: cust_reference,
       delivery_start_date: Date.current,
       delivery_note_lines_attributes: [
-        { type: 'item', title: 'Item', description: 'desc', quantity: 1.0, position: 1 }
+        { type: "item", title: "Item", description: "desc", quantity: 1.0, position: 1 }
       ]
     ).tap(&:save!)
   end

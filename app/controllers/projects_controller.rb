@@ -2,12 +2,12 @@ class ProjectsController < ApplicationController
   # GET /projects
   # GET /projects.json
   def index
-    params[:filter] ||= 'active'
+    params[:filter] ||= "active"
 
     @projects = case params[:filter]
-                 when 'all'
+                 when "all"
                    Project.all
-                 when 'inactive'
+                 when "inactive"
                    Project.inactive
                  else
                    Project.active
@@ -15,11 +15,11 @@ class ProjectsController < ApplicationController
 
     # Filters for AJAX requests
     if params[:customer_id].present?
-      want_reusable_projects = params[:include_reusable].present? && params[:include_reusable] == 'true'
+      want_reusable_projects = params[:include_reusable].present? && params[:include_reusable] == "true"
 
       if want_reusable_projects
         @projects = @projects.where(
-          'bill_to_customer_id = ? OR bill_to_customer_id IS NULL',
+          "bill_to_customer_id = ? OR bill_to_customer_id IS NULL",
           params[:customer_id]
         )
       else
@@ -66,7 +66,7 @@ class ProjectsController < ApplicationController
     @project = Project.new(projects_params)
 
     if @project.save
-      redirect_to @project, notice: 'Project was successfully created.'
+      redirect_to @project, notice: "Project was successfully created."
     else
       render :new, status: :unprocessable_content
     end
@@ -77,7 +77,7 @@ class ProjectsController < ApplicationController
     @project = Project.find(params[:id])
 
     if @project.update(projects_params)
-      redirect_to @project, notice: 'Project was successfully updated.'
+      redirect_to @project, notice: "Project was successfully updated."
     else
       render :edit, status: :unprocessable_content
     end
@@ -88,9 +88,9 @@ class ProjectsController < ApplicationController
     @project = Project.find(params[:id])
 
     if @project.destroy
-      redirect_to projects_url, notice: 'Project was successfully deleted.'
+      redirect_to projects_url, notice: "Project was successfully deleted."
     else
-      redirect_to projects_url, alert: @project.errors.full_messages.join(', ')
+      redirect_to projects_url, alert: @project.errors.full_messages.join(", ")
     end
   end
 

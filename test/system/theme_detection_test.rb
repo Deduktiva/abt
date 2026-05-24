@@ -1,4 +1,4 @@
-require 'application_system_test_case'
+require "application_system_test_case"
 
 class ThemeDetectionTest < ApplicationSystemTestCase
   test "html element has data-bs-theme attribute set after page load" do

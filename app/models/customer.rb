@@ -34,7 +34,7 @@ class Customer < ApplicationRecord
   private
 
   def set_default_language
-    self.language ||= Language.find_by(iso_code: 'en')
+    self.language ||= Language.find_by(iso_code: "en")
   end
 
   def check_if_used

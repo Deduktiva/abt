@@ -1,9 +1,9 @@
 class InvoiceLine < ApplicationRecord
   TYPE_OPTIONS = {
-    'Text' => 'text',
-    'Item' => 'item',
-    'Subheading' => 'subheading',
-    'Plaintext' => 'plain'
+    "Text" => "text",
+    "Item" => "item",
+    "Subheading" => "subheading",
+    "Plaintext" => "plain"
   }.freeze
 
   validates :title, presence: true
@@ -15,7 +15,7 @@ class InvoiceLine < ApplicationRecord
   belongs_to :sales_tax_product_class, optional: true
 
   def self.inheritance_column
-    'type_'
+    "type_"
   end
 
   before_save :clear_non_item_fields
@@ -30,7 +30,7 @@ class InvoiceLine < ApplicationRecord
   end
 
   def is_item?
-    self[:type] == 'item'
+    self[:type] == "item"
   end
 
 private

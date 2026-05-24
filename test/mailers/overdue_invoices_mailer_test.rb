@@ -31,9 +31,9 @@ class OverdueInvoicesMailerTest < ActionMailer::TestCase
     invoices.each do |inv|
       assert_match inv.document_number, html
       assert_match inv.customer.matchcode, html
-      assert_match inv.date.strftime('%d.%m.%Y'), html
-      assert_match inv.due_date.strftime('%d.%m.%Y'), html
-      assert_match sprintf('%.2f', inv.sum_total), html
+      assert_match inv.date.strftime("%d.%m.%Y"), html
+      assert_match inv.due_date.strftime("%d.%m.%Y"), html
+      assert_match sprintf("%.2f", inv.sum_total), html
 
       days_overdue = (Date.current - inv.due_date).to_i
       assert_match days_overdue.to_s, html
@@ -48,9 +48,9 @@ class OverdueInvoicesMailerTest < ActionMailer::TestCase
 
     assert_match @overdue_a.document_number, text
     assert_match @overdue_a.customer.matchcode, text
-    assert_match @overdue_a.date.strftime('%d.%m.%Y'), text
-    assert_match @overdue_a.due_date.strftime('%d.%m.%Y'), text
-    assert_match sprintf('%.2f', @overdue_a.sum_total), text
+    assert_match @overdue_a.date.strftime("%d.%m.%Y"), text
+    assert_match @overdue_a.due_date.strftime("%d.%m.%Y"), text
+    assert_match sprintf("%.2f", @overdue_a.sum_total), text
     assert_match "10 days overdue", text
   end
 

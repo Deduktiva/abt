@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class PageTitleTest < ActionDispatch::IntegrationTest
   def setup
@@ -16,7 +16,7 @@ class PageTitleTest < ActionDispatch::IntegrationTest
 
     get root_path
     assert_response :success
-    assert_select 'title', text: 'ABT: TestCorp'
+    assert_select "title", text: "ABT: TestCorp"
   end
 
   test "home page shows ABT title when issuer short_name is blank" do
@@ -25,6 +25,6 @@ class PageTitleTest < ActionDispatch::IntegrationTest
 
     get root_path
     assert_response :success
-    assert_select 'title', text: 'ABT'
+    assert_select "title", text: "ABT"
   end
 end

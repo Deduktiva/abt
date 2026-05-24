@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class CustomersControllerTest < ActionDispatch::IntegrationTest
   def setup
@@ -6,29 +6,29 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get index" do
-    get customers_url(filter: 'all')
+    get customers_url(filter: "all")
     assert_response :success
-    assert_select 'table tr', count: Customer.count + 1 # +1 for header row
+    assert_select "table tr", count: Customer.count + 1 # +1 for header row
   end
 
   test "should get show" do
     get customer_url(@customer)
     assert_response :success
-    assert_select 'h1', text: /Customer/
+    assert_select "h1", text: /Customer/
   end
 
   test "should get new" do
     get new_customer_url
     assert_response :success
-    assert_select 'form'
+    assert_select "form"
   end
 
   test "should create customer" do
-    assert_difference('Customer.count') do
+    assert_difference("Customer.count") do
       post customers_url, params: {
         customer: {
-          matchcode: 'TEST123',
-          name: 'Test Company',
+          matchcode: "TEST123",
+          name: "Test Company",
           sales_tax_customer_class_id: @customer.sales_tax_customer_class_id
         }
       }
@@ -39,17 +39,17 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
   test "should delete unused customer" do
     # Create a new customer that hasn't been used
     unused_customer = Customer.create!(
-      matchcode: 'UNUSED',
-      name: 'Unused Customer',
+      matchcode: "UNUSED",
+      name: "Unused Customer",
       sales_tax_customer_class: @customer.sales_tax_customer_class
     )
 
-    assert_difference('Customer.count', -1) do
+    assert_difference("Customer.count", -1) do
       delete customer_url(unused_customer)
     end
     assert_redirected_to customers_url
     follow_redirect!
-    assert_select '.alert-success', text: /successfully deleted/
+    assert_select ".alert-success", text: /successfully deleted/
   end
 
   test "should not delete customer used in invoices" do
@@ -59,19 +59,19 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     # Ensure it has invoices
     assert used_customer.used_in_invoices?, "Customer should have invoices for this test"
 
-    assert_no_difference('Customer.count') do
+    assert_no_difference("Customer.count") do
       delete customer_url(used_customer)
     end
     assert_redirected_to customers_url
     follow_redirect!
-    assert_select '.alert-danger', text: /Cannot delete customer that has been used in invoices/
+    assert_select ".alert-danger", text: /Cannot delete customer that has been used in invoices/
   end
 
   test "customer deletion prevention logic works" do
     # Test that unused customer can be deleted
     unused_customer = Customer.create!(
-      matchcode: 'UNUSED2',
-      name: 'Another Unused Customer',
+      matchcode: "UNUSED2",
+      name: "Another Unused Customer",
       sales_tax_customer_class: @customer.sales_tax_customer_class
     )
     assert_not unused_customer.used_in_invoices?
@@ -84,37 +84,37 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
   test "should filter customers by active status and handle index properly" do
     # Create inactive customer
     Customer.create!(
-      matchcode: 'INACTIVE',
-      name: 'Inactive Customer',
+      matchcode: "INACTIVE",
+      name: "Inactive Customer",
       active: false,
       sales_tax_customer_class: @customer.sales_tax_customer_class
     )
 
     # Test all filter options in a single request cycle
-    [ 'active', 'inactive', 'all' ].each do |filter_type|
+    [ "active", "inactive", "all" ].each do |filter_type|
       get customers_url(filter: filter_type)
       assert_response :success
       assert_select ".status-filter .active", text: filter_type.capitalize
 
       case filter_type
-      when 'active'
-        assert_select 'td', text: 'INACTIVE', count: 0
-      when 'inactive', 'all'
-        assert_select 'td', text: 'INACTIVE'
+      when "active"
+        assert_select "td", text: "INACTIVE", count: 0
+      when "inactive", "all"
+        assert_select "td", text: "INACTIVE"
       end
     end
 
     # Test default behavior (should default to active)
     get customers_url
     assert_response :success
-    assert_select '.status-filter .active', text: 'Active'
-    assert_select 'td', text: 'INACTIVE', count: 0
+    assert_select ".status-filter .active", text: "Active"
+    assert_select "td", text: "INACTIVE", count: 0
   end
 
   test "should show active status in show page" do
     get customer_url(@customer)
     assert_response :success
-    assert_select 'span.badge.bg-success', text: 'Yes'
+    assert_select "span.badge.bg-success", text: "Yes"
   end
 
   test "should allow updating customer active status" do

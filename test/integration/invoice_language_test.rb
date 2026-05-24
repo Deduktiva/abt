@@ -26,8 +26,8 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
     )
 
     english_invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'English Product',
+      type: "item",
+      title: "English Product",
       quantity: 1,
       rate: 100.00,
       sales_tax_product_class_id: sales_tax_product_classes(:standard).id
@@ -35,7 +35,7 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
 
     get preview_invoice_path(english_invoice)
     assert_response :success
-    assert_equal 'application/pdf', response.content_type
+    assert_equal "application/pdf", response.content_type
     assert_valid_pdf_response
   end
 
@@ -58,8 +58,8 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
     )
 
     german_invoice.invoice_lines.create!(
-      type: 'item',
-      title: 'Deutsches Produkt',
+      type: "item",
+      title: "Deutsches Produkt",
       quantity: 1,
       rate: 100.00,
       sales_tax_product_class_id: sales_tax_product_classes(:standard).id
@@ -67,7 +67,7 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
 
     get preview_invoice_path(german_invoice)
     assert_response :success
-    assert_equal 'application/pdf', response.content_type
+    assert_equal "application/pdf", response.content_type
     assert_valid_pdf_response
   end
 
@@ -89,13 +89,13 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
 
     english_invoice = Invoice.create!(customer: english_customer, project: @project)
     english_invoice.invoice_lines.create!(
-      type: 'item', title: 'Test Item', quantity: 1, rate: 50.00,
+      type: "item", title: "Test Item", quantity: 1, rate: 50.00,
       sales_tax_product_class_id: sales_tax_product_classes(:standard).id
     )
 
     german_invoice = Invoice.create!(customer: german_customer, project: @project)
     german_invoice.invoice_lines.create!(
-      type: 'item', title: 'Test Item', quantity: 1, rate: 50.00,
+      type: "item", title: "Test Item", quantity: 1, rate: 50.00,
       sales_tax_product_class_id: sales_tax_product_classes(:standard).id
     )
 
@@ -132,7 +132,7 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
   private
 
   def assert_valid_pdf_response
-    assert_equal 'application/pdf', response.content_type
-    assert response.body.start_with?('%PDF'), "Response should be a valid PDF file"
+    assert_equal "application/pdf", response.content_type
+    assert response.body.start_with?("%PDF"), "Response should be a valid PDF file"
   end
 end

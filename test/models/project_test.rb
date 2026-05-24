@@ -1,11 +1,11 @@
-require 'test_helper'
+require "test_helper"
 
 class ProjectTest < ActiveSupport::TestCase
   def setup
     @customer = customers(:good_eu)
     @project = Project.create!(
-      matchcode: 'TEST_PROJECT',
-      description: 'Test project',
+      matchcode: "TEST_PROJECT",
+      description: "Test project",
       bill_to_customer: @customer
     )
   end
@@ -22,7 +22,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should be active by default" do
     new_project = Project.new(
-      matchcode: 'NEW_PROJECT',
+      matchcode: "NEW_PROJECT",
       bill_to_customer: @customer
     )
     assert new_project.active?
@@ -31,13 +31,13 @@ class ProjectTest < ActiveSupport::TestCase
   test "should have active and inactive scopes" do
     # Create some test projects
     active_project = Project.create!(
-      matchcode: 'ACTIVE',
+      matchcode: "ACTIVE",
       bill_to_customer: @customer,
       active: true
     )
 
     inactive_project = Project.create!(
-      matchcode: 'INACTIVE',
+      matchcode: "INACTIVE",
       bill_to_customer: @customer,
       active: false
     )
@@ -107,8 +107,8 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should allow projects without bill_to_customer" do
     project_without_customer = Project.new(
-      matchcode: 'NO_CUSTOMER_PROJECT',
-      description: 'Project without customer'
+      matchcode: "NO_CUSTOMER_PROJECT",
+      description: "Project without customer"
     )
 
     assert project_without_customer.valid?
@@ -119,6 +119,6 @@ class ProjectTest < ActiveSupport::TestCase
 
     # Should still have all expected methods
     assert_respond_to project_without_customer, :bill_to_customer
-    assert_equal 'Project without customer', project_without_customer.display_name
+    assert_equal "Project without customer", project_without_customer.display_name
   end
 end

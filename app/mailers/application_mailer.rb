@@ -16,4 +16,16 @@ class ApplicationMailer < ActionMailer::Base
   def build_default_from
     "\"#{@issuer.short_name}\" <#{@issuer.document_email_from}>"
   end
+
+  # Send the standard document email envelope. From comes from the default
+  # configured at class level, bcc from the issuer. No-op when `to` is blank.
+  def document_mail(to:, subject:, cc: nil)
+    return if to.blank?
+    mail(
+      to: to,
+      cc: cc,
+      bcc: @issuer.document_email_auto_bcc,
+      subject: subject
+    )
+  end
 end

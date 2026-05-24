@@ -14,10 +14,73 @@ export default class extends Controller {
   }
 
   connect() {
+    this.cachedPublicKey = null
+    this.conditionalAbortController = null
     if (this.autoAuthenticateValue) {
-      // Defer so the page paints first; some browsers gate WebAuthn prompts
-      // on the page being visible.
-      setTimeout(() => this.authenticate(), 50)
+      this.startConditionalMediation()
+    }
+  }
+
+  disconnect() {
+    this.abortConditional()
+  }
+
+  abortConditional() {
+    if (this.conditionalAbortController && !this.conditionalAbortController.signal.aborted) {
+      this.conditionalAbortController.abort()
+    }
+    this.conditionalAbortController = null
+  }
+
+  async fetchOptions() {
+    if (this.cachedPublicKey) return this.cachedPublicKey
+    const optionsJSON = await this.postJSON(this.optionsUrlValue, {})
+    this.cachedPublicKey = this.parseRequestOptions(optionsJSON)
+    return this.cachedPublicKey
+  }
+
+  async startConditionalMediation() {
+    if (!window.PublicKeyCredential) return
+    if (typeof PublicKeyCredential.isConditionalMediationAvailable !== "function") return
+    try {
+      if (!(await PublicKeyCredential.isConditionalMediationAvailable())) return
+    } catch (_) {
+      return
+    }
+
+    let publicKey
+    try {
+      publicKey = await this.fetchOptions()
+    } catch (e) {
+      return this.showError(e.message)
+    }
+
+    this.conditionalAbortController = new AbortController()
+    let credential
+    try {
+      credential = await navigator.credentials.get({
+        publicKey,
+        mediation: "conditional",
+        signal: this.conditionalAbortController.signal,
+      })
+    } catch (e) {
+      // Silent: our own abort (button click / disconnect) and ambient
+      // user dismissals of the autofill chip should not surface as errors.
+      if (e && (e.name === "AbortError" || e.name === "NotAllowedError")) return
+      return this.showError(`Passkey sign-in failed: ${e.message || e}`)
+    }
+
+    let result
+    try {
+      result = await this.postJSON(this.verifyUrlValue, {
+        credential: this.credentialToJSON(credential),
+      })
+    } catch (e) {
+      return this.showError(e.message)
+    }
+
+    if (result.redirect_url) {
+      window.location.href = result.redirect_url
     }
   }
 
@@ -66,19 +129,23 @@ export default class extends Controller {
       return this.showError("This browser does not support passkeys.")
     }
 
-    let optionsJSON
+    this.abortConditional()
+
+    let publicKey
     try {
-      optionsJSON = await this.postJSON(this.optionsUrlValue, {})
+      publicKey = await this.fetchOptions()
     } catch (e) {
       return this.showError(e.message)
     }
 
     let credential
     try {
-      const publicKey = this.parseRequestOptions(optionsJSON)
       credential = await navigator.credentials.get({ publicKey })
     } catch (e) {
-      return this.showError(`Passkey sign-in was cancelled or failed: ${e.message || e}`)
+      if (e && e.name === "NotAllowedError") {
+        return this.showError("Passkey sign-in cancelled.")
+      }
+      return this.showError(`Passkey sign-in failed: ${e.message || e}`)
     }
 
     let result

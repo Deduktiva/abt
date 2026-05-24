@@ -8,6 +8,12 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test 'new renders username input with webauthn conditional-mediation autocomplete' do
+    get new_session_path
+    assert_response :success
+    assert_select 'input[name=username][autocomplete="username webauthn"]'
+  end
+
   test 'options stashes challenge for a known user' do
     post options_session_path, params: { username: 'alice' }, as: :json
     assert_response :success

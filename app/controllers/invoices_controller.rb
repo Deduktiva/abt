@@ -2,8 +2,13 @@ require 'json'
 
 class InvoicesController < ApplicationController
   include EmailPreviewHelper
+  include PublishableDocument
+
+  publishable_document :invoice, label: 'invoice'
 
   before_action :set_invoice, only: %i[show edit update destroy book preview preview_email send_email mark_paid mark_unpaid]
+  before_action :require_unpublished, only: %i[edit update destroy preview]
+  before_action :require_published, only: %i[send_email mark_paid mark_unpaid]
 
   # GET /invoices
   def index
@@ -35,8 +40,6 @@ class InvoicesController < ApplicationController
 
   # GET /invoices/1/edit
   def edit
-    return unless check_unpublished
-
     set_form_options
   end
 
@@ -53,8 +56,6 @@ class InvoicesController < ApplicationController
 
   # PUT /invoices/1
   def update
-    return unless check_unpublished
-
     if @invoice.update(invoice_params)
       redirect_to @invoice, notice: 'Invoice was successfully updated.'
     else
@@ -65,7 +66,6 @@ class InvoicesController < ApplicationController
 
   # DELETE /invoices/1
   def destroy
-    return unless check_unpublished
     @invoice.destroy
     redirect_to invoices_url
   end
@@ -74,7 +74,7 @@ class InvoicesController < ApplicationController
     cache_key = "booking_log_#{@invoice.id}"
 
     if request.post?
-      return unless check_unpublished
+      return unless require_unpublished
 
       want_save = (params[:save] == 'true')
       action = want_save ? 'Booking' : 'TEST-Booking'
@@ -114,8 +114,6 @@ class InvoicesController < ApplicationController
 
   def preview
     Rails.logger.debug "InvoiceController#preview"
-    return unless check_unpublished
-
     issuer = IssuerCompany.get_the_issuer!
     @booker = InvoiceBooker.new @invoice, issuer
 
@@ -149,15 +147,11 @@ class InvoicesController < ApplicationController
 
 
   def send_email
-    return unless check_published
-
     InvoiceEmailSenderJob.perform_later(@invoice.id)
     redirect_to @invoice, notice: 'E-Mail queued for sending.'
   end
 
   def mark_paid
-    return unless check_published
-
     paid_date = params[:paid_at].presence
     @invoice.paid_at = paid_date ? Date.parse(paid_date) : Date.current
     @invoice.save!
@@ -167,8 +161,6 @@ class InvoicesController < ApplicationController
   end
 
   def mark_unpaid
-    return unless check_published
-
     @invoice.update!(paid_at: nil)
     redirect_to @invoice, notice: 'Invoice marked as unpaid.'
   end
@@ -198,24 +190,6 @@ class InvoicesController < ApplicationController
 protected
   def set_invoice
     @invoice = Invoice.find(params[:id])
-  end
-
-  def check_unpublished
-    if @invoice.published?
-      flash[:error] = 'Published invoices can not be modified.'
-      redirect_to invoice_url(@invoice)
-      return false
-    end
-    true
-  end
-
-  def check_published
-    if !@invoice.published?
-      flash[:error] = 'Draft invoices can not be used for this action.'
-      redirect_to invoice_url(@invoice)
-      return false
-    end
-    true
   end
 
   def invoice_params

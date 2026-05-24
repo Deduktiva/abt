@@ -3,8 +3,13 @@ require 'json'
 class DeliveryNotesController < ApplicationController
   include EmailPreviewHelper
   include ApplicationHelper
+  include PublishableDocument
+
+  publishable_document :delivery_note, label: 'delivery note'
 
   before_action :set_delivery_note, only: %i[show edit update destroy publish preview pdf unpublish upload_acceptance delete_acceptance convert_to_invoice preview_email send_email]
+  before_action :require_unpublished, only: %i[edit update publish preview]
+  before_action :require_published, only: %i[pdf unpublish upload_acceptance delete_acceptance convert_to_invoice send_email]
 
   # GET /delivery_notes
   def index
@@ -34,8 +39,6 @@ class DeliveryNotesController < ApplicationController
 
   # GET /delivery_notes/1/edit
   def edit
-    return unless check_unpublished
-
     set_form_options
   end
 
@@ -52,8 +55,6 @@ class DeliveryNotesController < ApplicationController
 
   # PUT /delivery_notes/1
   def update
-    return unless check_unpublished
-
     if @delivery_note.update(delivery_note_params)
       redirect_to @delivery_note, notice: 'Delivery Note was successfully updated.'
     else
@@ -74,8 +75,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def publish
-    return unless check_unpublished
-
     begin
       @delivery_note.publish!
       flash[:notice] = "Delivery Note #{@delivery_note.document_number} has been published."
@@ -89,8 +88,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def preview
-    return unless check_unpublished
-
     issuer = IssuerCompany.get_the_issuer!
 
     @pdf = DeliveryNoteRenderer.new(@delivery_note, issuer).render
@@ -99,8 +96,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def pdf
-    return unless check_published
-
     issuer = IssuerCompany.get_the_issuer!
 
     @pdf = DeliveryNoteRenderer.new(@delivery_note, issuer).render
@@ -110,8 +105,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def unpublish
-    return unless check_published
-
     @delivery_note.update!(published: false, document_number: nil, date: nil)
     flash[:notice] = "Delivery Note has been reverted to draft status."
 
@@ -121,8 +114,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def upload_acceptance
-    return unless check_published
-
     uploaded_file = params[:acceptance_pdf]
 
     if uploaded_file.blank?
@@ -167,8 +158,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def delete_acceptance
-    return unless check_published
-
     if @delivery_note.acceptance_attachment.present?
       old_attachment = @delivery_note.acceptance_attachment
       @delivery_note.update!(acceptance_attachment: nil)
@@ -184,8 +173,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def convert_to_invoice
-    return unless check_published
-
     if @delivery_note.invoice_id.present?
       flash[:error] = "This delivery note has already been converted to an invoice."
       redirect_to @delivery_note and return
@@ -263,8 +250,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def send_email
-    return unless check_published
-
     DeliveryNoteEmailSenderJob.perform_later(@delivery_note.id)
     redirect_to @delivery_note, notice: 'E-Mail queued for sending.'
   end
@@ -303,24 +288,6 @@ class DeliveryNotesController < ApplicationController
 protected
   def set_delivery_note
     @delivery_note = DeliveryNote.find(params[:id])
-  end
-
-  def check_unpublished
-    if @delivery_note.published?
-      flash[:error] = 'Published delivery notes can not be modified.'
-      redirect_to delivery_note_url(@delivery_note)
-      return false
-    end
-    true
-  end
-
-  def check_published
-    if !@delivery_note.published?
-      flash[:error] = 'Draft delivery notes can not be used for this action.'
-      redirect_to delivery_note_url(@delivery_note)
-      return false
-    end
-    true
   end
 
   def delivery_note_params

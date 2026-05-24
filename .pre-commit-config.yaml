@@ -10,3 +10,13 @@ repos:
       - id: check-merge-conflict
       - id: check-yaml
         args: ['--unsafe']
+
+  - repo: local
+    hooks:
+      - id: rubocop
+        name: rubocop
+        entry: ./bin/rubocop
+        language: system
+        types: [ruby]
+        args: ['--force-exclusion']
+        require_serial: true

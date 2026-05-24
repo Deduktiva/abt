@@ -143,6 +143,12 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.3'
+        bundler-cache: true
+
     - name: Set up Python
       uses: actions/setup-python@v6
       with:

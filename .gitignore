@@ -6,8 +6,6 @@
 
 # Ignore bundler config
 /.bundle
-# Ignore bundler-generated binstubs
-/bin/rubocop
 
 # Ignore the default SQLite database.
 /db/*.sqlite3*

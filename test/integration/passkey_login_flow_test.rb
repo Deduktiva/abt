@@ -59,6 +59,6 @@ class PasskeyLoginFlowTest < ActionDispatch::IntegrationTest
 
     post verify_session_path, params: { credential: assertion }, as: :json
     assert_response :unauthorized
-    assert UserAuditEvent.where(action: 'login_failed', user: @user, ).exists?
+    assert UserAuditEvent.where(action: 'login_failed', user: @user,).exists?
   end
 end

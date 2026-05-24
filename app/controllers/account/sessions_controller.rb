@@ -9,7 +9,7 @@ class Account::SessionsController < ApplicationController
     session_record.terminate!(reason: "user_terminated", actor: current_user, request: request)
 
     if is_current
-      reset_session_cookie
+      reset_auth_cookie
       Current.user = nil
       Current.session = nil
       redirect_to new_session_path, notice: "Session terminated. You have been signed out."

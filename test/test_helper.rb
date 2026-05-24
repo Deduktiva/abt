@@ -46,9 +46,9 @@ module TestAuthHelpers
     session_record, plaintext = UserSession.create_for!(user: user, request: request_obj)
     if is_a?(ActionDispatch::SystemTestCase)
       visit "/" if page.current_url.blank? || page.current_url == "about:blank"
-      page.driver.set_cookie(ApplicationController::SESSION_COOKIE.to_s, plaintext)
+      page.driver.set_cookie(ApplicationController::AUTH_COOKIE.to_s, plaintext)
     else
-      cookies[ApplicationController::SESSION_COOKIE] = plaintext
+      cookies[ApplicationController::AUTH_COOKIE] = plaintext
     end
     session_record
   end

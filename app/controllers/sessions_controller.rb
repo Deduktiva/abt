@@ -77,7 +77,7 @@ class SessionsController < ApplicationController
         request: request, metadata: { username: current_user.username }
       )
     end
-    reset_session_cookie
+    reset_auth_cookie
     Current.user = nil
     Current.session = nil
     redirect_to new_session_path, notice: "Signed out."

@@ -3,51 +3,34 @@ require 'json'
 class DeliveryNotesController < ApplicationController
   include EmailPreviewHelper
   include ApplicationHelper
+  include PublishableDocument
+  include DocumentWithLines
+
+  publishable_document :delivery_note, label: 'delivery note'
+  document_with_lines line_class: DeliveryNoteLine
+
+  before_action :set_delivery_note, only: %i[show edit update destroy publish preview pdf unpublish upload_acceptance delete_acceptance convert_to_invoice preview_email send_email]
+  before_action :require_unpublished, only: %i[edit update publish preview]
+  before_action :require_published, only: %i[pdf unpublish upload_acceptance delete_acceptance convert_to_invoice send_email]
+
   # GET /delivery_notes
   def index
-    # Get the selected year from params, default to current year
     @selected_year = params[:year]&.to_i || Date.current.year
     @email_filter = params[:email_filter] || 'all'
 
-    # Filter delivery_notes by selected year, including draft delivery_notes (date = nil) for current year
-    year_start = Date.new(@selected_year, 1, 1)
-    year_end = Date.new(@selected_year, 12, 31)
-
-    if @selected_year == Date.current.year
-      # For current year, include both dated delivery_notes and draft delivery_notes (date = nil)
-      @delivery_notes = DeliveryNote.where("date BETWEEN ? AND ? OR date IS NULL", year_start, year_end)
-                        .reorder(Arel.sql('document_number DESC NULLS FIRST'))
-    else
-      # For other years, only show delivery_notes with dates in that year
-      @delivery_notes = DeliveryNote.where(date: year_start..year_end)
-                        .reorder(Arel.sql('document_number DESC NULLS FIRST'))
-    end
+    @delivery_notes = DeliveryNote.in_year(@selected_year, include_drafts: @selected_year == Date.current.year)
+                                  .reorder(Arel.sql('document_number DESC NULLS FIRST'))
 
     case @email_filter
     when 'unsent'
       @delivery_notes = @delivery_notes.email_unsent.published
     end
 
-    # Get available years for pagination (years that have delivery_notes)
-    # Use database-specific EXTRACT function (works in PostgreSQL, MySQL, and modern SQLite)
-    year_sql = case ActiveRecord::Base.connection.adapter_name.downcase
-               when 'sqlite'
-                 "strftime('%Y', date)"
-               else
-                 "EXTRACT(YEAR FROM date)"
-               end
-
-    @available_years = DeliveryNote.unscoped
-                             .where.not(date: nil)
-                             .group(Arel.sql(year_sql))
-                             .order(Arel.sql("#{year_sql} DESC"))
-                             .pluck(Arel.sql(year_sql))
-                             .map(&:to_i)
+    @available_years = DeliveryNote.available_years
   end
 
   # GET /delivery_notes/1
   def show
-    @delivery_note = DeliveryNote.find(params[:id])
   end
 
   # GET /delivery_notes/new
@@ -58,9 +41,6 @@ class DeliveryNotesController < ApplicationController
 
   # GET /delivery_notes/1/edit
   def edit
-    @delivery_note = DeliveryNote.find(params[:id])
-    return unless check_unpublished
-
     set_form_options
   end
 
@@ -77,9 +57,6 @@ class DeliveryNotesController < ApplicationController
 
   # PUT /delivery_notes/1
   def update
-    @delivery_note = DeliveryNote.find(params[:id])
-    return unless check_unpublished
-
     if @delivery_note.update(delivery_note_params)
       redirect_to @delivery_note, notice: 'Delivery Note was successfully updated.'
     else
@@ -90,8 +67,6 @@ class DeliveryNotesController < ApplicationController
 
   # DELETE /delivery_notes/1
   def destroy
-    @delivery_note = DeliveryNote.find(params[:id])
-
     if @delivery_note.published?
       flash[:alert] = 'Published delivery notes cannot be deleted.'
       redirect_to delivery_notes_path and return
@@ -102,9 +77,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def publish
-    @delivery_note = DeliveryNote.find(params[:id])
-    return unless check_unpublished
-
     begin
       @delivery_note.publish!
       flash[:notice] = "Delivery Note #{@delivery_note.document_number} has been published."
@@ -118,9 +90,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def preview
-    @delivery_note = DeliveryNote.find(params[:id])
-    return unless check_unpublished
-
     issuer = IssuerCompany.get_the_issuer!
 
     @pdf = DeliveryNoteRenderer.new(@delivery_note, issuer).render
@@ -129,9 +98,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def pdf
-    @delivery_note = DeliveryNote.find(params[:id])
-    return unless check_published
-
     issuer = IssuerCompany.get_the_issuer!
 
     @pdf = DeliveryNoteRenderer.new(@delivery_note, issuer).render
@@ -141,9 +107,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def unpublish
-    @delivery_note = DeliveryNote.find(params[:id])
-    return unless check_published
-
     @delivery_note.update!(published: false, document_number: nil, date: nil)
     flash[:notice] = "Delivery Note has been reverted to draft status."
 
@@ -153,9 +116,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def upload_acceptance
-    @delivery_note = DeliveryNote.find(params[:id])
-    return unless check_published
-
     uploaded_file = params[:acceptance_pdf]
 
     if uploaded_file.blank?
@@ -200,9 +160,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def delete_acceptance
-    @delivery_note = DeliveryNote.find(params[:id])
-    return unless check_published
-
     if @delivery_note.acceptance_attachment.present?
       old_attachment = @delivery_note.acceptance_attachment
       @delivery_note.update!(acceptance_attachment: nil)
@@ -218,9 +175,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def convert_to_invoice
-    @delivery_note = DeliveryNote.find(params[:id])
-    return unless check_published
-
     if @delivery_note.invoice_id.present?
       flash[:error] = "This delivery note has already been converted to an invoice."
       redirect_to @delivery_note and return
@@ -287,7 +241,6 @@ class DeliveryNotesController < ApplicationController
   end
 
   def preview_email
-    @delivery_note = DeliveryNote.find(params[:id])
     mail = DeliveryNoteMailer.with(delivery_note: @delivery_note).customer_email
 
     email_data = extract_email_preview_data(mail)
@@ -299,10 +252,8 @@ class DeliveryNotesController < ApplicationController
   end
 
   def send_email
-    @delivery_note = DeliveryNote.find(params[:id])
-    return unless check_published
-
-    DeliveryNoteEmailSenderJob.perform_later(@delivery_note.id)
+    DeliveryNoteMailer.with(delivery_note: @delivery_note).customer_email.deliver_later
+    @delivery_note.update_column(:email_sent_at, Time.current)
     redirect_to @delivery_note, notice: 'E-Mail queued for sending.'
   end
 
@@ -320,48 +271,30 @@ class DeliveryNotesController < ApplicationController
     # Group delivery notes by customer
     grouped_by_customer = delivery_notes.group_by(&:customer)
     queued_count = 0
+    now = Time.current
 
     grouped_by_customer.each do |customer, customer_delivery_notes|
-      if customer.email.present?
-        if customer_delivery_notes.length == 1
-          # Single delivery note - use existing individual email
-          DeliveryNoteEmailSenderJob.perform_later(customer_delivery_notes.first.id)
-        else
-          # Multiple delivery notes for same customer - use bulk email
-          DeliveryNoteBulkEmailSenderJob.perform_later(customer_delivery_notes.map(&:id))
-        end
-        queued_count += customer_delivery_notes.length
+      next unless customer.email.present?
+
+      if customer_delivery_notes.length == 1
+        DeliveryNoteMailer.with(delivery_note: customer_delivery_notes.first).customer_email.deliver_later
+      else
+        DeliveryNoteMailer.with(delivery_notes: customer_delivery_notes).bulk_customer_email.deliver_later
       end
+      DeliveryNote.where(id: customer_delivery_notes.map(&:id)).update_all(email_sent_at: now)
+      queued_count += customer_delivery_notes.length
     end
 
     redirect_to delivery_notes_path, notice: "#{queued_count} emails queued for sending."
   end
 
 protected
-  def check_unpublished
-    if @delivery_note.published?
-      flash[:error] = 'Published delivery notes can not be modified.'
-      redirect_to delivery_note_url(@delivery_note)
-      return false
-    end
-    true
-  end
-
-  def check_published
-    if !@delivery_note.published?
-      flash[:error] = 'Draft delivery notes can not be used for this action.'
-      redirect_to delivery_note_url(@delivery_note)
-      return false
-    end
-    true
+  def set_delivery_note
+    @delivery_note = DeliveryNote.find(params[:id])
   end
 
   def delivery_note_params
     params.require(:delivery_note).permit(:customer_id, :project_id, :cust_reference, :cust_order, :prelude, :delivery_start_date, :delivery_end_date,
       delivery_note_lines_attributes: [:id, :type, :title, :description, :position, :quantity, :_destroy])
-  end
-
-  def set_form_options
-    @line_type_options = DeliveryNoteLine::TYPE_OPTIONS.to_a
   end
 end

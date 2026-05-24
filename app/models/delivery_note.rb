@@ -1,4 +1,6 @@
 class DeliveryNote < ApplicationRecord
+  include YearFilterable
+
   validates :customer_id, :presence => true
   validates :delivery_start_date, :presence => true
   validate :delivery_end_date_after_start_date

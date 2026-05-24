@@ -2,25 +2,23 @@ require 'json'
 
 class InvoicesController < ApplicationController
   include EmailPreviewHelper
+  include PublishableDocument
+  include DocumentWithLines
+
+  publishable_document :invoice, label: 'invoice'
+  document_with_lines line_class: InvoiceLine
+
+  before_action :set_invoice, only: %i[show edit update destroy book preview preview_email send_email mark_paid mark_unpaid]
+  before_action :require_unpublished, only: %i[edit update destroy preview]
+  before_action :require_published, only: %i[send_email mark_paid mark_unpaid]
+
   # GET /invoices
   def index
-    # Get the selected year from params, default to current year
     @selected_year = params[:year]&.to_i || Date.current.year
     @filter = params[:filter] || 'all'
 
-    # Filter invoices by selected year, including draft invoices (date = nil) for current year
-    year_start = Date.new(@selected_year, 1, 1)
-    year_end = Date.new(@selected_year, 12, 31)
-
-    if @selected_year == Date.current.year
-      # For current year, include both dated invoices and draft invoices (date = nil)
-      @invoices = Invoice.where("date BETWEEN ? AND ? OR date IS NULL", year_start, year_end)
-                        .reorder(Arel.sql('document_number DESC NULLS FIRST'))
-    else
-      # For other years, only show invoices with dates in that year
-      @invoices = Invoice.where(date: year_start..year_end)
-                        .reorder(Arel.sql('document_number DESC NULLS FIRST'))
-    end
+    @invoices = Invoice.in_year(@selected_year, include_drafts: @selected_year == Date.current.year)
+                       .reorder(Arel.sql('document_number DESC NULLS FIRST'))
 
     case @filter
     when 'unsent'
@@ -29,26 +27,11 @@ class InvoicesController < ApplicationController
       @invoices = @invoices.unpaid.published
     end
 
-    # Get available years for pagination (years that have invoices)
-    # Use database-specific EXTRACT function (works in PostgreSQL, MySQL, and modern SQLite)
-    year_sql = case ActiveRecord::Base.connection.adapter_name.downcase
-               when 'sqlite'
-                 "strftime('%Y', date)"
-               else
-                 "EXTRACT(YEAR FROM date)"
-               end
-
-    @available_years = Invoice.unscoped
-                             .where.not(date: nil)
-                             .group(Arel.sql(year_sql))
-                             .order(Arel.sql("#{year_sql} DESC"))
-                             .pluck(Arel.sql(year_sql))
-                             .map(&:to_i)
+    @available_years = Invoice.available_years
   end
 
   # GET /invoices/1
   def show
-    @invoice = Invoice.find(params[:id])
   end
 
   # GET /invoices/new
@@ -59,9 +42,6 @@ class InvoicesController < ApplicationController
 
   # GET /invoices/1/edit
   def edit
-    @invoice = Invoice.find(params[:id])
-    return unless check_unpublished
-
     set_form_options
   end
 
@@ -78,9 +58,6 @@ class InvoicesController < ApplicationController
 
   # PUT /invoices/1
   def update
-    @invoice = Invoice.find(params[:id])
-    return unless check_unpublished
-
     if @invoice.update(invoice_params)
       redirect_to @invoice, notice: 'Invoice was successfully updated.'
     else
@@ -91,18 +68,15 @@ class InvoicesController < ApplicationController
 
   # DELETE /invoices/1
   def destroy
-    @invoice = Invoice.find(params[:id])
-    return unless check_unpublished
     @invoice.destroy
     redirect_to invoices_url
   end
 
   def book
-    @invoice = Invoice.find(params[:id])
     cache_key = "booking_log_#{@invoice.id}"
 
     if request.post?
-      return unless check_unpublished
+      return unless require_unpublished
 
       want_save = (params[:save] == 'true')
       action = want_save ? 'Booking' : 'TEST-Booking'
@@ -142,9 +116,6 @@ class InvoicesController < ApplicationController
 
   def preview
     Rails.logger.debug "InvoiceController#preview"
-    @invoice = Invoice.find(params[:id])
-    return unless check_unpublished
-
     issuer = IssuerCompany.get_the_issuer!
     @booker = InvoiceBooker.new @invoice, issuer
 
@@ -166,7 +137,6 @@ class InvoicesController < ApplicationController
   end
 
   def preview_email
-    @invoice = Invoice.find(params[:id])
     mail = InvoiceMailer.with(invoice: @invoice).customer_email
 
     email_data = extract_email_preview_data(mail)
@@ -179,17 +149,12 @@ class InvoicesController < ApplicationController
 
 
   def send_email
-    @invoice = Invoice.find(params[:id])
-    return unless check_published
-
-    InvoiceEmailSenderJob.perform_later(@invoice.id)
+    InvoiceMailer.with(invoice: @invoice).customer_email.deliver_later
+    @invoice.update_column(:email_sent_at, Time.current)
     redirect_to @invoice, notice: 'E-Mail queued for sending.'
   end
 
   def mark_paid
-    @invoice = Invoice.find(params[:id])
-    return unless check_published
-
     paid_date = params[:paid_at].presence
     @invoice.paid_at = paid_date ? Date.parse(paid_date) : Date.current
     @invoice.save!
@@ -199,9 +164,6 @@ class InvoicesController < ApplicationController
   end
 
   def mark_unpaid
-    @invoice = Invoice.find(params[:id])
-    return unless check_published
-
     @invoice.update!(paid_at: nil)
     redirect_to @invoice, notice: 'Invoice marked as unpaid.'
   end
@@ -217,10 +179,12 @@ class InvoicesController < ApplicationController
 
     invoices = Invoice.where(id: invoice_ids, published: true)
     queued_count = 0
+    now = Time.current
 
     invoices.each do |invoice|
       if invoice.customer.email.present? || invoice.customer.invoice_email_auto_enabled
-        InvoiceEmailSenderJob.perform_later(invoice.id)
+        InvoiceMailer.with(invoice: invoice).customer_email.deliver_later
+        invoice.update_column(:email_sent_at, now)
         queued_count += 1
       end
     end
@@ -229,30 +193,12 @@ class InvoicesController < ApplicationController
   end
 
 protected
-  def check_unpublished
-    if @invoice.published?
-      flash[:error] = 'Published invoices can not be modified.'
-      redirect_to invoice_url(@invoice)
-      return false
-    end
-    true
-  end
-
-  def check_published
-    if !@invoice.published?
-      flash[:error] = 'Draft invoices can not be used for this action.'
-      redirect_to invoice_url(@invoice)
-      return false
-    end
-    true
+  def set_invoice
+    @invoice = Invoice.find(params[:id])
   end
 
   def invoice_params
     params.require(:invoice).permit(:customer_id, :project_id, :cust_reference, :cust_order, :prelude,
       invoice_lines_attributes: [:id, :type, :title, :description, :rate, :quantity, :sales_tax_product_class_id, :position, :_destroy])
-  end
-
-  def set_form_options
-    @line_type_options = InvoiceLine::TYPE_OPTIONS.to_a
   end
 end

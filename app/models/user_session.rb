@@ -1,4 +1,6 @@
 class UserSession < ApplicationRecord
+  include DigestedToken
+
   EXPIRY = 30.days
 
   belongs_to :user
@@ -9,10 +11,10 @@ class UserSession < ApplicationRecord
   }
 
   def self.create_for!(user:, request:)
-    plaintext = SecureRandom.urlsafe_base64(32)
+    plaintext, digest = generate_token
     record = create!(
       user: user,
-      token_digest: digest_token(plaintext),
+      token_digest: digest,
       ip_address: request&.remote_ip,
       user_agent: request&.user_agent.to_s.first(500),
       last_seen_at: Time.current
@@ -23,10 +25,6 @@ class UserSession < ApplicationRecord
   def self.authenticate(plaintext)
     return nil if plaintext.blank?
     active.where(token_digest: digest_token(plaintext)).first
-  end
-
-  def self.digest_token(plaintext)
-    Digest::SHA256.hexdigest(plaintext)
   end
 
   def active?

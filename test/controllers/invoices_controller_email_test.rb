@@ -12,7 +12,7 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     # Test regular customer email
     regular_invoice = invoices(:published_invoice)
 
-    assert_enqueued_jobs 1, only: InvoiceEmailSenderJob do
+    assert_enqueued_emails 1 do
       post send_email_invoice_path(regular_invoice)
     end
 
@@ -41,7 +41,7 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     # Test auto email configuration
     auto_invoice = invoices(:auto_email_invoice)
 
-    assert_enqueued_jobs 1, only: InvoiceEmailSenderJob do
+    assert_enqueued_emails 1 do
       post send_email_invoice_path(auto_invoice)
     end
 
@@ -61,7 +61,7 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     invoice = invoices(:no_email_invoice)
 
     # Should still enqueue the job even if no email will be sent
-    assert_enqueued_jobs 1, only: InvoiceEmailSenderJob do
+    assert_enqueued_emails 1 do
       post send_email_invoice_path(invoice)
     end
 
@@ -99,19 +99,19 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     published_invoice = invoices(:published_invoice)
     get invoice_path(published_invoice)
     assert_response :success
-    assert_select 'button[data-action*="email-preview#open"]'
+    assert_select 'button[data-action*="generic-email-preview#open"]'
 
     # Test draft invoice - button should not appear
     draft_invoice = invoices(:draft_invoice)
     get invoice_path(draft_invoice)
     assert_response :success
-    assert_select 'button[data-action*="email-preview#open"]', count: 0
+    assert_select 'button[data-action*="generic-email-preview#open"]', count: 0
   end
 
   test "send_email enqueues the job and redirects to the invoice" do
     invoice = invoices(:published_invoice)
 
-    assert_enqueued_jobs 1, only: InvoiceEmailSenderJob do
+    assert_enqueued_emails 1 do
       post send_email_invoice_path(invoice)
     end
 
@@ -122,7 +122,7 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     invoice1 = invoices(:published_invoice)
     invoice2 = invoices(:auto_email_invoice)
 
-    assert_enqueued_jobs 2, only: InvoiceEmailSenderJob do
+    assert_enqueued_emails 2 do
       post bulk_send_emails_invoices_path, params: { invoice_ids: [invoice1.id, invoice2.id] }
     end
 

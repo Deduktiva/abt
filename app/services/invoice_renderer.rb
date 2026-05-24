@@ -99,7 +99,7 @@ class InvoiceRenderer
       xml_root.sums do |xml_sums|
         xml_sums.tag! 'tax-classes' do |xml_tax_classes|
           @invoice.invoice_tax_classes.all.each do |tax_class|
-            xml_tax_classes.tag! 'tax-class', {:name => tax_class.name, 'indicator-code' => tax_class.indicator_code} do |xml_tax_class|
+            xml_tax_classes.tag! 'tax-class', { :name => tax_class.name, 'indicator-code' => tax_class.indicator_code } do |xml_tax_class|
               xml_tax_class.percentage tax_class.rate
               xml_tax_class.sum tax_class.net
               xml_tax_class.value tax_class.value

@@ -13,7 +13,7 @@ class SalesTaxRatesController < ApplicationController
     SalesTaxProductClass.all.each do |pc|
       SalesTaxCustomerClass.all.each do |cc|
         if !@class_rates[pc.id] || !@class_rates[pc.id][cc.id]
-          @missing_rates << {:product => pc, :customer => cc}
+          @missing_rates << { :product => pc, :customer => cc }
         end
       end
     end

@@ -1,5 +1,17 @@
 require 'builder'
 
+# Apache FOP wrapper.
+#
+# Security assumptions (issue #273):
+# - Callers MUST emit XML via Builder::XmlMarkup (or another escaping
+#   serializer). Unescaped user input would let an attacker inject XML
+#   markup including a DOCTYPE.
+# - DOCTYPE rejection is enforced JVM-wide by script/abt-fop via
+#   -Djdk.xml.dtd.support=deny (plus belt-and-suspenders JAXP properties).
+# - <fo:external-graphic> can still fetch arbitrary file:// / http:// URIs
+#   if the FO template ever embeds an untrusted URI. The renderers only
+#   embed a server-controlled tempfile path (logo_file_path) from
+#   render_pdf_with_logo, so this surface is not currently reachable.
 class FopRenderer
 
   def initialize

@@ -1,15 +1,68 @@
 #!/bin/sh
-# This runs fop and injects SaxonHE.
+# Canonical Apache FOP launcher.
+#
+# Calls run_java directly (rather than delegating to /usr/bin/fop) so the
+# JVM args we set below are guaranteed to reach the java process. An
+# earlier version delegated to /usr/bin/fop with JAVA_ARGS exported, but
+# CI showed that in some environments the env var did not propagate
+# through the Debian wrapper to run_java, leaving the JAXP hardening
+# silently inactive.
+#
+# Hardening (defense-in-depth against XXE; see issue #273):
+#
+#   -Djdk.xml.dtd.support=deny
+#       JDK 21+ JAXP property. Rejects any XML or XSL input that
+#       contains a DOCTYPE declaration, JVM-wide, regardless of which
+#       parser or TransformerFactory is in use. Stronger than Xerces'
+#       disallow-doctype-decl feature because it does not depend on
+#       Saxon/Xerces version or configuration.
+#
+#   -Djavax.xml.accessExternalDTD=  (empty)
+#   -Djavax.xml.accessExternalSchema=  (empty)
+#       JAXP 1.5 properties. Block external DTD and schema references.
+#       Redundant with jdk.xml.dtd.support=deny for DTDs, but kept as a
+#       second layer in case the JDK property is ever relaxed.
+#
+#   -Djavax.xml.accessExternalStylesheet=file
+#       JAXP 1.5 property. Required for the JDK 21 built-in XSLTC,
+#       which defaults to deny-all under FEATURE_SECURE_PROCESSING and
+#       would otherwise block xsl:import of document_base.xsl. Debian's
+#       Saxon-B 9.1 predates JAXP 1.5 and ignores this property, so
+#       Saxon paths are unaffected. "file" allows local imports while
+#       blocking http://, ftp://, etc.
 . /usr/lib/java-wrappers/java-wrappers.sh
-HEADLESS=-Djava.awt.headless=true
 
-JAVA_ARGS="-Djava.awt.headless=true -Djavax.xml.transform.TransformerFactory=net.sf.saxon.TransformerFactoryImpl"
-find_java_runtime
-find_jars saxonb fop fop-core /usr/share/fop/fop-hyph.jar
+# Fail loud if Saxon-B isn't installed. The invoice templates use XSLT
+# 2.0 features (xsl:function, format-date picture strings) that the
+# JDK's built-in XSLTC silently can't handle, but the TransformerFactory
+# pin would otherwise fall through to XSLTC and produce obscure
+# "xsl:import blocked" or "expression type" errors instead of the real
+# cause.
+find_jars saxonb
+case "${JAVA_CLASSPATH:-}" in
+  *saxonb*) ;;
+  *)
+    echo "script/abt-fop: Saxon-B not found on classpath." >&2
+    echo "  Install the libsaxonb-java Debian package (or equivalent)" >&2
+    echo "  — the invoice templates require an XSLT 2.0 processor." >&2
+    exit 1 ;;
+esac
 
-# Add fop plugins if they are available.
-if [ ! -z "$FOP_EXTRA_JAR_PATH" ]; then
-    find_jars "$FOP_EXTRA_JAR_PATH"/*jar
+# FOP plus its support jars from the fop Debian package.
+find_jars fop fop-core /usr/share/fop/fop-hyph.jar
+find_jars commons-io commons-logging xmlgraphics-commons xercesImpl xml-apis xml-apis-ext fontbox2 batik-all
+
+if [ -n "${FOP_EXTRA_JAR_PATH:-}" ]; then
+  find_jars "$FOP_EXTRA_JAR_PATH"/*.jar
 fi
+
+find_java_runtime
+
+JAVA_ARGS="-Djava.awt.headless=true \
+-Djavax.xml.transform.TransformerFactory=net.sf.saxon.TransformerFactoryImpl \
+-Djdk.xml.dtd.support=deny \
+-Djavax.xml.accessExternalDTD= \
+-Djavax.xml.accessExternalSchema= \
+-Djavax.xml.accessExternalStylesheet=file"
 
 run_java org.apache.fop.cli.Main "$@"

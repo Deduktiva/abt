@@ -47,6 +47,63 @@ class FopRendererTest < ActiveSupport::TestCase
     File.umask(old_umask) if old_umask
   end
 
+  def test_fop_renderer_blocks_external_entity_expansion
+    # Defense-in-depth (issue #273). The hardened FOP wrapper must reject any
+    # XML containing a DOCTYPE — and therefore any external entity reference
+    # — regardless of which JAXP layer enforces it (jdk.xml.dtd.support=deny,
+    # accessExternalDTD, or Xerces' disallow-doctype-decl default).
+    old_umask = File.umask(0022)
+
+    # Place the bait file under Rails.root/tmp because production runs FOP in
+    # a container with only the project root bind-mounted (script/setup-fop.sh).
+    # A path under /tmp would not exist inside that container, so an
+    # unhardened FOP would still fail to leak — which would make the test
+    # pass for the wrong reason.
+    secret_dir = Rails.root.join('tmp')
+    secret_path = secret_dir.join("abt-xxe-secret-#{Process.pid}.txt").to_s
+    File.write(secret_path, 'XXE_LEAKED_SECRET')
+    File.chmod(0644, secret_path)
+
+    xxe_xml = <<~XML
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE fo:root [
+        <!ENTITY xxe SYSTEM "file://#{secret_path}">
+      ]>
+      <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
+        <fo:layout-master-set>
+          <fo:simple-page-master master-name="simple" page-height="11in" page-width="8.5in">
+            <fo:region-body margin="1in"/>
+          </fo:simple-page-master>
+        </fo:layout-master-set>
+        <fo:page-sequence master-reference="simple">
+          <fo:flow flow-name="xsl-region-body">
+            <fo:block font-family="OpenSans" font-size="12pt">LEAK[&xxe;]LEAK</fo:block>
+          </fo:flow>
+        </fo:page-sequence>
+      </fo:root>
+    XML
+
+    renderer = FopRenderer.new
+
+    # We expect FOP to fail with an error mentioning DOCTYPE — that proves
+    # the rejection actually fired in the parser, not that the bait file
+    # was unreachable. Then we additionally refute the leak ever made it
+    # into the error output.
+    error = assert_raises(RuntimeError) do
+      renderer.render_pdf_with_logo('simple_test.xsl') do |_logo_path|
+        xxe_xml
+      end
+    end
+
+    assert_match(/DOCTYPE.*(disallow|not allowed|denied)/i, error.message,
+      "FOP must reject DOCTYPE-bearing input; got: #{error.message}")
+    refute_includes error.message, 'XXE_LEAKED_SECRET',
+      'External entity content must not leak into FOP error output'
+  ensure
+    File.delete(secret_path) if secret_path && File.exist?(secret_path)
+    File.umask(old_umask) if old_umask
+  end
+
   def test_fop_renderer_handles_invalid_data
     # Test with more permissive umask for temp files
     old_umask = File.umask(0022)

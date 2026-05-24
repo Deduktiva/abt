@@ -68,7 +68,7 @@
                 %td= process.hostname
                 %td= process.pid
                 %td
-                  = format_datetime(process.last_heartbeat_at)
+                  = l(process.last_heartbeat_at)
                   %small.text-muted
                     \(#{time_ago_in_words(process.last_heartbeat_at)} ago)
                 %td
@@ -108,7 +108,7 @@
                 %td
                   - next_run = @next_recurring_runs[task.key]
                   - if next_run
-                    = format_datetime(next_run)
+                    = l(next_run)
                   - else
                     %span.text-muted —
 
@@ -137,7 +137,7 @@
                     %strong= failed.exception_class
                   %div.small.text-muted.job-row-description
                     = failed.message
-                %td= format_datetime(failed.created_at)
+                %td= l(failed.created_at)
 
 .card
   .card-header
@@ -158,4 +158,4 @@
               %tr
                 %td= job.class_name
                 %td= job.queue_name
-                %td= format_datetime(job.finished_at)
+                %td= l(job.finished_at)

@@ -18,8 +18,8 @@
           - if current_user_session && current_user_session.id == s.id
             %span.badge.bg-info.ms-1 This session
         %td.small= s.user_agent.to_s.truncate(80)
-        %td= format_datetime(s.last_seen_at)
-        %td= format_datetime(s.created_at)
+        %td= l(s.last_seen_at)
+        %td= l(s.created_at)
         %td
           = button_to 'Terminate', account_session_path(s), method: :delete,
               data: { turbo_confirm: 'Terminate this session?' },

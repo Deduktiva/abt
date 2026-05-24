@@ -13,13 +13,13 @@
   %tbody
     - @invites.each do |invite|
       %tr
-        %td= format_datetime(invite.created_at)
+        %td= l(invite.created_at)
         %td= invite.created_by_user&.username || 'system'
-        %td= format_datetime(invite.expires_at)
+        %td= l(invite.expires_at)
         %td
           - if invite.used_at
             %span.badge.bg-success Used
-            = format_datetime(invite.used_at)
+            = l(invite.used_at)
           - elsif invite.expires_at <= Time.current
             %span.badge.bg-secondary Expired
           - else

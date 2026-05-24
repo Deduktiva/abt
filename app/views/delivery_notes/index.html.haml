@@ -41,12 +41,12 @@
           %td= link_to(delivery_note.document_number, delivery_note)
           %td= delivery_note.customer.name
           %td= delivery_note.project && delivery_note.project.display_name
-          %td= format_date(delivery_note.date)
+          %td= l(delivery_note.date) if delivery_note.date
           %td= delivery_note.cust_reference
           %td= delivery_note.cust_order
           %td
             - if delivery_note.email_sent_at
-              %span.badge.bg-success Sent #{format_date(delivery_note.email_sent_at)}
+              %span.badge.bg-success Sent #{l(delivery_note.email_sent_at.to_date)}
             - else
               %span.badge.bg-warning Unsent
           %td
@@ -68,7 +68,7 @@
             = link_to(delivery_note.document_number || "Draft \##{delivery_note.id}", delivery_note)
           %td= delivery_note.customer.name
           %td= delivery_note.project && delivery_note.project.display_name
-          %td= format_date(delivery_note.date)
+          %td= l(delivery_note.date) if delivery_note.date
           %td= delivery_note.cust_reference
           %td= delivery_note.cust_order
           %td

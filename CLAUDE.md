@@ -157,12 +157,13 @@ For testing against PostgreSQL (matches production environment):
 - This app supports multiple regions - NEVER hardcode currency symbols like $ or USD
 - Use IssuerCompany.currency field for currency configuration (defaults to EUR)
 - Currency formatting handled by ApplicationHelper#format_currency
-- Date formatting via ApplicationHelper#format_date and #format_datetime
+- Date/datetime formatting: use Rails' `l(date)` / `l(time)` in views (or `I18n.l(...)` in controllers/models). Defaults are configured in `config/locales/en.yml` under `date.formats.default` (`%d.%m.%Y`) and `time.formats.default` (`%d.%m.%Y %H:%M`).
 
 ### Formatting Standards
 - ALWAYS use European date formats: DD.MM.YYYY for dates, DD.MM.YYYY HH:MM for datetimes
 - Use DD.MM for short dates when year is implied
 - NEVER use American MM/DD/YYYY or MM-DD formats
+- To render a `datetime` column as date-only (e.g. `email_sent_at` in compact list rows), call `l(value.to_date)` — `l` on a `Time`/`DateTime` produces the time format.
 
 ### UI Helper Methods
 - `action_buttons_wrapper` - Container for action button groups

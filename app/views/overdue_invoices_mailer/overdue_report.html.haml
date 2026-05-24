@@ -22,7 +22,7 @@
   }
 
 .greeting
-  = t('mailers.overdue_invoices.heading', date: @today.strftime('%d.%m.%Y'))
+  = t('mailers.overdue_invoices.heading', date: l(@today))
 
 .main-message
   = t('mailers.overdue_invoices.main_message', count: @invoices.size)
@@ -41,7 +41,7 @@
       %tr
         %td= invoice.document_number
         %td= invoice.customer.matchcode
-        %td= invoice.date&.strftime('%d.%m.%Y')
-        %td= invoice.due_date&.strftime('%d.%m.%Y')
+        %td= l(invoice.date) if invoice.date
+        %td= l(invoice.due_date) if invoice.due_date
         %td.numeric= sprintf('%.2f', invoice.sum_total)
         %td.numeric= (@today - invoice.due_date).to_i

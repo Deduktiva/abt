@@ -158,7 +158,7 @@ class InvoicesController < ApplicationController
     paid_date = params[:paid_at].presence
     @invoice.paid_at = paid_date ? Date.parse(paid_date) : Date.current
     @invoice.save!
-    redirect_to @invoice, notice: "Invoice marked as paid on #{helpers.format_date(@invoice.paid_at)}."
+    redirect_to @invoice, notice: "Invoice marked as paid on #{I18n.l(@invoice.paid_at)}."
   rescue ArgumentError
     redirect_to @invoice, alert: "Invalid date."
   end

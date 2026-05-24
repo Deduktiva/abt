@@ -7,7 +7,7 @@
 
 .card.mb-3
   .card-body
-    %p.mb-1.text-muted Invite URL (valid until #{format_datetime(@invite.expires_at)}):
+    %p.mb-1.text-muted Invite URL (valid until #{l(@invite.expires_at)}):
     %pre.mb-0
       %code= @invite_url
 

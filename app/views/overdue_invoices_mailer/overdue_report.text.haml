@@ -1,7 +1,7 @@
-= t('mailers.overdue_invoices.heading', date: @today.strftime('%d.%m.%Y'))
+= t('mailers.overdue_invoices.heading', date: l(@today))
 \
 = t('mailers.overdue_invoices.main_message', count: @invoices.size)
 \
 - @invoices.each do |invoice|
   - days_overdue = (@today - invoice.due_date).to_i
-  = "#{invoice.document_number}  #{invoice.customer.matchcode}  #{t('mailers.overdue_invoices.short.invoice_date')} #{invoice.date&.strftime('%d.%m.%Y')}  #{t('mailers.overdue_invoices.short.due_date')} #{invoice.due_date&.strftime('%d.%m.%Y')}  #{sprintf('%.2f', invoice.sum_total)}  #{t('mailers.overdue_invoices.short.days_overdue', days: days_overdue)}"
+  = "#{invoice.document_number}  #{invoice.customer.matchcode}  #{t('mailers.overdue_invoices.short.invoice_date')} #{l(invoice.date) if invoice.date}  #{t('mailers.overdue_invoices.short.due_date')} #{l(invoice.due_date) if invoice.due_date}  #{sprintf('%.2f', invoice.sum_total)}  #{t('mailers.overdue_invoices.short.days_overdue', days: days_overdue)}"

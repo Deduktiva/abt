@@ -13,7 +13,7 @@
   %tbody
     - @audit_events.each do |event|
       %tr
-        %td= format_datetime(event.created_at)
+        %td= l(event.created_at)
         %td
           %code= event.action
         %td= event.actor&.username || '—'

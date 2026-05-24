@@ -30,6 +30,13 @@
 # available at https://guides.rubyonrails.org/i18n.html.
 
 en:
+  date:
+    formats:
+      default: "%d.%m.%Y"
+  time:
+    formats:
+      default: "%d.%m.%Y %H:%M"
+
   mailers:
     overdue_invoices:
       subject: "[%{issuer_name}] %{count} overdue invoice(s)"

@@ -540,7 +540,7 @@ if Rails.env.development?
     # Set invoice totals and generate token, then publish
     last_year_invoice.sum_net = net_amount
     last_year_invoice.sum_total = net_amount + tax_amount # National customer with 20% VAT
-    last_year_invoice.token = Rfc4648Base32.i_to_s((SecureRandom.random_number(100).to_s + (last_year_invoice.customer.id + 100000).to_s + last_year_invoice.document_number.to_s).to_i)
+    last_year_invoice.token = SecureRandom.base58(13)
     last_year_invoice.published = true # Now publish the invoice
 
     # Create a sample PDF attachment

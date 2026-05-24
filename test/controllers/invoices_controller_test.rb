@@ -1,8 +1,8 @@
 require 'test_helper'
 
-class InvoicesControllerTest < ActionController::TestCase
+class InvoicesControllerTest < ActionDispatch::IntegrationTest
   test "should get index" do
-    get :index
+    get invoices_url
     assert_response :success
   end
 
@@ -23,12 +23,12 @@ class InvoicesControllerTest < ActionController::TestCase
     )
 
     # Test current year (default)
-    get :index
+    get invoices_url
     assert_response :success
     assert_select '.year-pagination'
 
     # Test specific year filter
-    get :index, params: { year: 2023 }
+    get invoices_url(year: 2023)
     assert_response :success
     # Verify the page contains the 2023 invoice reference but not 2024
     assert_select 'td', text: '2023-TEST'
@@ -55,26 +55,26 @@ class InvoicesControllerTest < ActionController::TestCase
     )
 
     # Test current year (should include draft invoice)
-    get :index, params: { year: current_year }
+    get invoices_url(year: current_year)
     assert_response :success
     assert_select 'td', text: 'DRAFT-NO-DATE'  # Draft should appear
     assert_select 'td', text: 'OLD-BOOKED', count: 0  # Old invoice should not appear
 
     # Test previous year (should include old invoice, not draft)
-    get :index, params: { year: current_year - 1 }
+    get invoices_url(year: current_year - 1)
     assert_response :success
     assert_select 'td', text: 'OLD-BOOKED'  # Old invoice should appear
     assert_select 'td', text: 'DRAFT-NO-DATE', count: 0  # Draft should not appear in old year
   end
 
   test "should get new" do
-    get :new
+    get new_invoice_url
     assert_response :success
   end
 
   test "should create invoice" do
     assert_difference('Invoice.count') do
-      post :create, params: {
+      post invoices_url, params: {
         invoice: {
           customer_id: customers(:good_eu).id,
           project_id: projects(:test_project).id,
@@ -93,7 +93,7 @@ class InvoicesControllerTest < ActionController::TestCase
       project: projects(:test_project),
       cust_reference: "TEST"
     )
-    get :show, params: { id: invoice.id }
+    get invoice_url(invoice)
     assert_response :success
   end
 
@@ -130,7 +130,7 @@ class InvoicesControllerTest < ActionController::TestCase
     tax_class.net = 200.0
     tax_class.save!
 
-    get :show, params: { id: invoice.id }
+    get invoice_url(invoice)
     assert_response :success
     assert_select 'table.table-bordered'
     assert_select '.badge.bg-success', text: 'Booked'
@@ -156,7 +156,7 @@ class InvoicesControllerTest < ActionController::TestCase
       position: 1
     )
 
-    get :show, params: { id: invoice.id }
+    get invoice_url(invoice)
     assert_response :success
     assert_select '.badge.bg-warning', text: 'Draft'
   end
@@ -167,7 +167,7 @@ class InvoicesControllerTest < ActionController::TestCase
       project: projects(:test_project),
       cust_reference: "TEST"
     )
-    get :edit, params: { id: invoice.id }
+    get edit_invoice_url(invoice)
     assert_response :success
   end
 
@@ -196,7 +196,7 @@ class InvoicesControllerTest < ActionController::TestCase
       position: 2
     )
 
-    get :edit, params: { id: invoice.id }
+    get edit_invoice_url(invoice)
     assert_response :success
   end
 
@@ -207,8 +207,7 @@ class InvoicesControllerTest < ActionController::TestCase
       cust_reference: "TEST"
     )
 
-    put :update, params: {
-      id: invoice.id,
+    patch invoice_url(invoice), params: {
       invoice: {
         cust_reference: "UPDATED_REF",
         invoice_lines_attributes: {
@@ -231,7 +230,7 @@ class InvoicesControllerTest < ActionController::TestCase
       }
     }
 
-    assert_redirected_to invoice_path(invoice)
+    assert_redirected_to invoice_url(invoice)
     invoice.reload
     assert_equal "UPDATED_REF", invoice.cust_reference
     assert_equal 2, invoice.invoice_lines.count
@@ -251,8 +250,7 @@ class InvoicesControllerTest < ActionController::TestCase
       cust_reference: "TEST"
     )
 
-    put :update, params: {
-      id: invoice.id,
+    patch invoice_url(invoice), params: {
       invoice: {
         customer_id: nil, # This should cause validation error
         cust_reference: "INVALID"
@@ -280,9 +278,9 @@ class InvoicesControllerTest < ActionController::TestCase
       position: 1
     )
 
-    post :book, params: { id: invoice.id, save: false }
+    post book_invoice_url(invoice), params: { save: false }
 
-    assert_redirected_to book_invoice_path(invoice)
+    assert_redirected_to book_invoice_url(invoice)
     invoice.reload
 
     # Verify that test booking calculated and persisted totals
@@ -310,7 +308,7 @@ class InvoicesControllerTest < ActionController::TestCase
     )
 
     # Run test booking first time to create tax classes
-    put :update, params: { id: invoice.id, invoice: { cust_reference: "NEW_REF" } }
+    patch invoice_url(invoice), params: { invoice: { cust_reference: "NEW_REF" } }
     invoice.reload
 
     # Remember the tax class ID
@@ -321,7 +319,7 @@ class InvoicesControllerTest < ActionController::TestCase
     invoice.invoice_lines.first.update!(quantity: 3.0)
 
     # Run test booking again - should reuse existing tax class
-    put :update, params: { id: invoice.id, invoice: { cust_reference: "NEW_REF2" } }
+    patch invoice_url(invoice), params: { invoice: { cust_reference: "NEW_REF2" } }
     invoice.reload
 
     # Verify the tax class was updated, not recreated
@@ -350,7 +348,7 @@ class InvoicesControllerTest < ActionController::TestCase
     )
 
     # Update with national customer to calculate initial taxes
-    put :update, params: { id: invoice.id, invoice: { cust_reference: "TAX_TEST_NATIONAL" } }
+    patch invoice_url(invoice), params: { invoice: { cust_reference: "TAX_TEST_NATIONAL" } }
     invoice.reload
 
     # Verify national customer has 20% tax
@@ -361,8 +359,7 @@ class InvoicesControllerTest < ActionController::TestCase
     assert_equal 40.0, tax_class.value, "Tax value should be 40.0"
 
     # Now change to EU customer (0% tax)
-    put :update, params: {
-      id: invoice.id,
+    patch invoice_url(invoice), params: {
       invoice: {
         customer_id: customers(:good_eu).id,
         cust_reference: "TAX_TEST_EU"
@@ -400,9 +397,9 @@ class InvoicesControllerTest < ActionController::TestCase
     end
 
     # Test booking should work without cookie overflow
-    post :book, params: { id: invoice.id, save: false }
+    post book_invoice_url(invoice), params: { save: false }
 
-    assert_redirected_to book_invoice_path(invoice)
+    assert_redirected_to book_invoice_url(invoice)
 
     # Verify flash data was set instead of session data to avoid cookie overflow
     assert flash[:booking_success].present?, "Flash should contain booking success status"
@@ -410,7 +407,7 @@ class InvoicesControllerTest < ActionController::TestCase
     assert flash[:notice].include?('succeeded'), "Flash notice should indicate success"
 
     # Test the GET request to the booking results page
-    get :book, params: { id: invoice.id }
+    get book_invoice_url(invoice)
     assert_response :success
 
     # Verify booking log is accessible and contains expected information
@@ -450,16 +447,16 @@ class InvoicesControllerTest < ActionController::TestCase
 
     # Book each invoice in sequence, simulating rapid successive bookings
     invoices.each_with_index do |invoice, index|
-      post :book, params: { id: invoice.id, save: false }
+      post book_invoice_url(invoice), params: { save: false }
 
-      assert_redirected_to book_invoice_path(invoice), "Invoice #{index + 1} booking should redirect"
+      assert_redirected_to book_invoice_url(invoice), "Invoice #{index + 1} booking should redirect"
 
       # Verify booking succeeded
       assert flash[:booking_success].present?, "Invoice #{index + 1} booking should succeed"
       assert flash[:notice].present?, "Invoice #{index + 1} should have booking notice"
 
       # Make a GET request to the booking result page
-      get :book, params: { id: invoice.id }
+      get book_invoice_url(invoice)
       assert_response :success, "Should be able to view booking results for invoice #{index + 1}"
 
       # Check that booking log is available in cache storage
@@ -487,10 +484,10 @@ class InvoicesControllerTest < ActionController::TestCase
     )
 
     # Direct GET request without prior POST booking
-    get :book, params: { id: invoice.id }
+    get book_invoice_url(invoice)
 
     # Should redirect to the invoice show page since there's no flash data
-    assert_redirected_to invoice_path(invoice)
+    assert_redirected_to invoice_url(invoice)
   end
 
 end

@@ -58,10 +58,6 @@ class ActionDispatch::IntegrationTest
   include TestAuthHelpers
 end
 
-class ActionController::TestCase
-  include TestAuthHelpers
-end
-
 class ActionDispatch::SystemTestCase
   include TestAuthHelpers
 end

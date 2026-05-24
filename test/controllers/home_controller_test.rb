@@ -1,8 +1,8 @@
 require 'test_helper'
 
-class HomeControllerTest < ActionController::TestCase
+class HomeControllerTest < ActionDispatch::IntegrationTest
   test "should display home page with business statistics and dashboard" do
-    get :index
+    get root_url
     assert_response :success
     assert_select 'h1', text: 'Business Dashboard'
 
@@ -31,7 +31,7 @@ class HomeControllerTest < ActionController::TestCase
     SalesTaxCustomerClass.delete_all
     SalesTaxProductClass.delete_all
 
-    get :index
+    get root_url
     assert_response :success
     assert_select '.alert-warning h5', text: 'Quick Setup Required'
   end

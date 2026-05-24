@@ -130,6 +130,25 @@ class InvoiceMailerTest < ActionMailer::TestCase
     assert_equal "Invoice  - Ref: ", mail.subject
   end
 
+  test "customer_email subject template handles nil substitution values" do
+    invoice = Invoice.create!(
+      customer: customers(:auto_email_customer),
+      project: projects(:one),
+      attachment: attachments(:auto_email_pdf),
+      document_number: "INV-NIL",
+      published: true,
+      date: Date.current,
+      due_date: 30.days.from_now,
+      cust_reference: nil,
+      cust_order: nil,
+      sum_net: 100.00,
+      sum_total: 121.00
+    )
+
+    mail = InvoiceMailer.with(invoice: invoice).customer_email
+    assert_equal "Invoice  - Ref: ", mail.subject
+  end
+
   test "customer_email works in test environment without mailgun" do
     # Verify we're using test delivery method, not mailgun
     assert_equal :test, ActionMailer::Base.delivery_method

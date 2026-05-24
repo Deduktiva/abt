@@ -20,7 +20,7 @@ class UserSessionTest < ActiveSupport::TestCase
   end
 
   test 'active scope excludes terminated and expired' do
-    session, plaintext = UserSession.create_for!(user: users(:alice), request: fake_request)
+    session, _plaintext = UserSession.create_for!(user: users(:alice), request: fake_request)
     assert_includes UserSession.active.to_a, session
     session.update_column(:last_seen_at, 31.days.ago)
     assert_not_includes UserSession.active.to_a, session

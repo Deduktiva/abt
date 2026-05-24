@@ -13,7 +13,7 @@ class DeliveryNoteAcceptanceUploadTest < ApplicationSystemTestCase
     assert_button "Upload PDF"
 
     # Find the file input field - should have no files
-    file_input = find('input[type="file"][name="acceptance_pdf"]', visible: :all)
+    find('input[type="file"][name="acceptance_pdf"]', visible: :all)
 
     # Verify no file is selected initially
     files_count = page.execute_script(<<~JS) || 0
@@ -98,7 +98,7 @@ class DeliveryNoteAcceptanceUploadTest < ApplicationSystemTestCase
     assert_button "Replace"
 
     # Find the file input field - should have no files
-    file_input = find('input[type="file"][name="acceptance_pdf"]', visible: :all)
+    find('input[type="file"][name="acceptance_pdf"]', visible: :all)
 
     # Verify no file is selected initially
     files_count = page.execute_script(<<~JS) || 0

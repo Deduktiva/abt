@@ -14,7 +14,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
 
   test "should filter projects by active status and handle index properly" do
     # Create inactive project
-    inactive = Project.create!(
+    Project.create!(
       matchcode: 'INACTIVE',
       description: 'Inactive project',
       active: false,

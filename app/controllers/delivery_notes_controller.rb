@@ -4,8 +4,10 @@ class DeliveryNotesController < ApplicationController
   include EmailPreviewHelper
   include ApplicationHelper
   include PublishableDocument
+  include DocumentWithLines
 
   publishable_document :delivery_note, label: 'delivery note'
+  document_with_lines line_class: DeliveryNoteLine
 
   before_action :set_delivery_note, only: %i[show edit update destroy publish preview pdf unpublish upload_acceptance delete_acceptance convert_to_invoice preview_email send_email]
   before_action :require_unpublished, only: %i[edit update publish preview]
@@ -293,9 +295,5 @@ protected
   def delivery_note_params
     params.require(:delivery_note).permit(:customer_id, :project_id, :cust_reference, :cust_order, :prelude, :delivery_start_date, :delivery_end_date,
       delivery_note_lines_attributes: [:id, :type, :title, :description, :position, :quantity, :_destroy])
-  end
-
-  def set_form_options
-    @line_type_options = DeliveryNoteLine::TYPE_OPTIONS.to_a
   end
 end

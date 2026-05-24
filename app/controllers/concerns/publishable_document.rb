@@ -6,8 +6,8 @@ module PublishableDocument
     #
     #   publishable_document :invoice, label: 'invoice'
     #
-    # Generates `require_unpublished` and `require_published` before_action
-    # callbacks; controllers declare which actions they guard via
+    # Provides require_unpublished and require_published filters; controllers
+    # declare which actions they guard via
     #   before_action :require_unpublished, only: [...]
     def publishable_document(ivar_name, label:)
       @publishable_ivar = "@#{ivar_name}"

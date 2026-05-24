@@ -3,8 +3,10 @@ require 'json'
 class InvoicesController < ApplicationController
   include EmailPreviewHelper
   include PublishableDocument
+  include DocumentWithLines
 
   publishable_document :invoice, label: 'invoice'
+  document_with_lines line_class: InvoiceLine
 
   before_action :set_invoice, only: %i[show edit update destroy book preview preview_email send_email mark_paid mark_unpaid]
   before_action :require_unpublished, only: %i[edit update destroy preview]
@@ -195,9 +197,5 @@ protected
   def invoice_params
     params.require(:invoice).permit(:customer_id, :project_id, :cust_reference, :cust_order, :prelude,
       invoice_lines_attributes: [:id, :type, :title, :description, :rate, :quantity, :sales_tax_product_class_id, :position, :_destroy])
-  end
-
-  def set_form_options
-    @line_type_options = InvoiceLine::TYPE_OPTIONS.to_a
   end
 end

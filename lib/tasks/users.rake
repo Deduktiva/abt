@@ -9,11 +9,7 @@ namespace :users do
       metadata: { purpose: 'signup', source: 'rake' }
     )
 
-    url = Rails.application.routes.url_helpers.invite_url(
-      token: plaintext,
-      host: Settings.app.host,
-      protocol: Settings.app.protocol
-    )
+    url = AbsoluteUrl.invite(plaintext)
 
     puts ''
     puts 'Invite URL (valid until ' + invite.expires_at.utc.iso8601 + '):'

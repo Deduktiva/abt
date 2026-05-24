@@ -43,8 +43,7 @@ class UsersController < ApplicationController
     end
 
     _invite, plaintext = @user.reset_passkeys!(actor: current_user, request: request)
-    invite_url = invite_url(token: plaintext, host: Settings.app.host, protocol: Settings.app.protocol,
-                             script_name: Settings.app.script_name)
+    invite_url = AbsoluteUrl.invite(plaintext)
 
     UserAuditEvent.record!(action: 'invite_created', user: @user, actor: current_user,
                             request: request,

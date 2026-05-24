@@ -79,6 +79,11 @@ For testing against PostgreSQL (matches production environment):
 - FOP binary path must be configured for PDF generation
 - Payment URL template for invoice tokens
 
+### Deployment
+- Production runs Apache + mod_passenger on `*:443` (see `apache2.conf.tpl`). mod_passenger forwards Apache's `HTTPS=on` directly into the Rack env, so `request.ssl?` is honest — no `X-Forwarded-Proto` / `trusted_proxies` plumbing needed. If the topology ever changes (nginx, Caddy, a CDN in front), revisit `config.assume_ssl` / `config.action_dispatch.trusted_proxies` in `config/environments/production.rb`.
+- `config.hosts` in production is populated from `Settings.app.host`. Adding a new domain means updating the settings overlay, not editing `production.rb`.
+- Absolute URLs in mailers and tokens go through `app/services/absolute_url.rb`, which reads `Settings.app.host` / `Settings.app.protocol` / `Settings.app.script_name` explicitly. `config.action_mailer.default_url_options` is intentionally unset in production — don't reach for it.
+
 ## External Dependencies
 
 ### Required Software

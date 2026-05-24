@@ -472,6 +472,7 @@ if Rails.env.development?
     current_year_invoice.attachment.title = 'My Example Invoice 20250001'
     current_year_invoice.attachment.save!
 
+    current_year_invoice.paid_at = Date.new(2025, 2, 10)
     current_year_invoice.save!
   end
 
@@ -552,6 +553,7 @@ if Rails.env.development?
       last_year_invoice.attachment.save!
     end
 
+    last_year_invoice.paid_at = Date.new(2025, 1, 20)
     last_year_invoice.save!
   end
 

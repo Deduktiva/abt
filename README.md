@@ -3,9 +3,9 @@ Abt
 
 Rails app to print invoices, basically.
 
-Has a customer, project, product list, and invoices. Knows about tax classes.
+Has customers, projects, products, invoices, and delivery notes. Knows about tax classes. Passkey-only auth, invite-based user management, scheduled background reports.
 
-Exports invoices to PDF.
+Exports invoices and delivery notes to PDF.
 
 
 Dependencies
@@ -34,6 +34,8 @@ bundle install
 - Apache FOP 2.10 for PDF generation (run `./script/setup-fop.sh` for automated setup)
 - PostgreSQL (production)
 - Web server
+- Mailgun account for outbound email
+- Solid Queue worker (`bin/jobs`) for `deliver_later` and scheduled jobs (overdue-invoice reports, queue cleanup — see `config/recurring.yml`)
 
 ### Pre-commit Hooks (Optional)
 For automatic whitespace cleanup and code quality checks:

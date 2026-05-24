@@ -35,10 +35,16 @@ For testing against PostgreSQL (matches production environment):
 
 ### Core Models
 - **Invoice** (`app/models/invoice.rb`) - Central model with customer, project associations and nested invoice lines
+- **DeliveryNote** (`app/models/delivery_note.rb`) - Parallel document type to Invoice; shares the line/publish/email pipeline via concerns
 - **Customer** (`app/models/customer.rb`) - Customer management with sales tax classes
-- **InvoiceLine** (`app/models/invoice_line.rb`) - Line items for invoices with different types (item, text, subheading)
+- **InvoiceLine** / **DeliveryNoteLine** - Line items with types (item, text, subheading)
 - **Product** (`app/models/product.rb`) - Product catalog
 - **Project** (`app/models/project.rb`) - Project tracking
+- **User** + `UserCredential`, `UserEmail`, `UserInvite`, `UserSession`, `UserAuditEvent` - Passkey/WebAuthn auth, invite-only signup, audit log
+
+### Shared Concerns
+- `PublishableDocument`, `DocumentWithLines` (controllers) - draft/published guards and line-form plumbing for Invoice + DeliveryNote
+- `HasLineItems`, `YearFilterable`, `DigestedToken` (models) - line helpers, date-scoped queries, SHA-256-digested token storage
 
 ### Tax System
 - **SalesTaxCustomerClass** - Customer tax classification
@@ -50,7 +56,17 @@ For testing against PostgreSQL (matches production environment):
 1. **InvoicesController** - Standard CRUD + special actions (preview, book, bulk email)
 2. **InvoiceBooker** - Business logic for "booking" invoices (calculating taxes, assigning document numbers, publishing)
 3. **InvoiceRenderer** - PDF generation using Apache FOP with XML/XSL transformation
-4. **Email System** - Automated email sending with tracking and bulk operations
+4. **Email System** - `DocumentMailer` delivered via `deliver_later` (Solid Queue); per-document sender jobs were removed. Bulk send marks `email_sent_at` for tracking.
+
+### Background Jobs
+- Solid Queue (`bin/jobs` worker, `solid_queue` gem). Schedule lives in `config/recurring.yml` — currently `OverdueInvoicesReportJob` (every other day at 08:00) and finished-job cleanup.
+- Worker status surfaced under **Configuration → Background Jobs** (`JobsStatusController`).
+
+### Authentication
+- WebAuthn-only via the `webauthn` gem. No passwords. Invite-only signup (24h single-use URLs, `users:invite` rake task bootstraps the first user).
+- Self-service under `/account/*`; admin under `/users` (block, reset passkeys, manage emails).
+- Tokens (invite, session, email confirmation) stored as SHA-256 digests via `DigestedToken`.
+- Rate limiting via `rack-attack` on unauthenticated endpoints (`config/initializers/rack_attack.rb`).
 
 ### PDF Generation
 - Uses Apache FOP (Formatting Objects Processor) for PDF generation
@@ -92,6 +108,8 @@ For testing against PostgreSQL (matches production environment):
 - Saxon-B as the XSLT 2.0 processor (Debian package: `libsaxonb-java`) — without this, FOP rendering fails because the templates use XSLT 2.0
 - OpenJDK 21 (or any JDK ≥ 21 that honours the `jdk.xml.*` JAXP system properties)
 - Database (SQLite3 for dev, PostgreSQL for production and in CI)
+- Mailgun account for outbound email (`mailgun-ruby`)
+- WebAuthn-capable browser/authenticator for sign-in (`webauthn` gem; configured via `webauthn.rp_id` / `webauthn.origin` / `webauthn.rp_name` in settings)
 
 ### Font Files
 - Open Sans fonts in `lib/foptemplate/open-sans/` for PDF rendering
@@ -101,6 +119,8 @@ For testing against PostgreSQL (matches production environment):
 - PDF template: `lib/foptemplate/invoice.xsl`
 - Invoice model: `app/models/invoice.rb`
 - Main invoice controller: `app/controllers/invoices_controller.rb`
+- Delivery notes: `app/controllers/delivery_notes_controller.rb`, `app/models/delivery_note.rb`
+- Auth flows: `app/controllers/sessions_controller.rb`, `invites_controller.rb`, `account/`, `users_controller.rb`
 - UI helpers: `app/helpers/application_helper.rb`
 
 ## Development Preferences

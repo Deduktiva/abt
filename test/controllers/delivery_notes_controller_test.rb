@@ -184,20 +184,9 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     published_note = delivery_notes(:published_delivery_note)
     assert_nil published_note.invoice
 
-    # Ensure there's a sales tax product class for the conversion
-    SalesTaxProductClass.find_or_create_by(name: 'Standard') do |tax_class|
-      tax_class.indicator_code = 'STD'
-    end
-
     post convert_to_invoice_delivery_note_url(published_note)
 
     published_note.reload
-
-    # Debug what happened
-    if published_note.invoice.nil?
-      puts "Flash error: #{flash[:error]}"
-      puts "Flash success: #{flash[:success]}"
-    end
 
     assert published_note.invoice.present?, "Invoice should have been created and linked"
     assert_not published_note.invoice.published?
@@ -208,6 +197,24 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     # Check that the enhanced prelude includes delivery note information
     assert_match "Based on Delivery Note #{published_note.document_number}", published_note.invoice.prelude
     assert_match "Delivery Note Date:", published_note.invoice.prelude
+  end
+
+  test "convert_to_invoice uses the default sales tax product class for item lines" do
+    published_note = delivery_notes(:published_delivery_note)
+    default_class = sales_tax_product_classes(:standard)
+    assert default_class.is_default?
+
+    # Add a non-default class to make sure the default is selected, not just any row.
+    SalesTaxProductClass.create!(name: "Reduced", indicator_code: "RED", is_default: false)
+
+    post convert_to_invoice_delivery_note_url(published_note)
+
+    published_note.reload
+    item_lines = published_note.invoice.invoice_lines.where(type: 'item')
+    assert item_lines.any?, "expected at least one item line on the converted invoice"
+    item_lines.each do |line|
+      assert_equal default_class.id, line.sales_tax_product_class_id
+    end
   end
 
   test "should not convert delivery note to invoice twice" do

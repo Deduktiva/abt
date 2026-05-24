@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_22_140006) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_24_221140) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -214,8 +214,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_22_140006) do
   create_table "sales_tax_product_classes", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "indicator_code"
+    t.boolean "is_default", default: false, null: false
     t.string "name"
     t.datetime "updated_at", null: false
+    t.index ["is_default"], name: "index_sales_tax_product_classes_on_is_default", unique: true, where: "is_default = true"
   end
 
   create_table "sales_tax_rates", force: :cascade do |t|

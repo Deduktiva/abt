@@ -1,2 +1,4 @@
 standard:
   name: Standard Goods
+  indicator_code: STD
+  is_default: true

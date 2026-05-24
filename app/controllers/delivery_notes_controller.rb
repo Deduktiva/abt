@@ -202,7 +202,7 @@ class DeliveryNotesController < ApplicationController
         prelude: enhanced_prelude
       )
 
-      default_sales_tax_product_class_id = SalesTaxProductClass.first&.id
+      default_sales_tax_product_class_id = SalesTaxProductClass.default&.id
 
       ActiveRecord::Base.transaction do
         invoice.save!

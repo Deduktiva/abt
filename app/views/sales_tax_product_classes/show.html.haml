@@ -4,6 +4,12 @@
 %p
   %b Indicator code:
   = @sales_tax_product_class.indicator_code
+%p
+  %b Default:
+  - if @sales_tax_product_class.is_default?
+    %span.badge.bg-success Yes
+  - else
+    No
 
 = action_buttons_wrapper do
   = action_button 'Edit', edit_sales_tax_product_class_path(@sales_tax_product_class), :primary

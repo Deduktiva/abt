@@ -252,7 +252,8 @@ class DeliveryNotesController < ApplicationController
   end
 
   def send_email
-    DeliveryNoteEmailSenderJob.perform_later(@delivery_note.id)
+    DeliveryNoteMailer.with(delivery_note: @delivery_note).customer_email.deliver_later
+    @delivery_note.update_column(:email_sent_at, Time.current)
     redirect_to @delivery_note, notice: 'E-Mail queued for sending.'
   end
 
@@ -270,18 +271,18 @@ class DeliveryNotesController < ApplicationController
     # Group delivery notes by customer
     grouped_by_customer = delivery_notes.group_by(&:customer)
     queued_count = 0
+    now = Time.current
 
     grouped_by_customer.each do |customer, customer_delivery_notes|
-      if customer.email.present?
-        if customer_delivery_notes.length == 1
-          # Single delivery note - use existing individual email
-          DeliveryNoteEmailSenderJob.perform_later(customer_delivery_notes.first.id)
-        else
-          # Multiple delivery notes for same customer - use bulk email
-          DeliveryNoteBulkEmailSenderJob.perform_later(customer_delivery_notes.map(&:id))
-        end
-        queued_count += customer_delivery_notes.length
+      next unless customer.email.present?
+
+      if customer_delivery_notes.length == 1
+        DeliveryNoteMailer.with(delivery_note: customer_delivery_notes.first).customer_email.deliver_later
+      else
+        DeliveryNoteMailer.with(delivery_notes: customer_delivery_notes).bulk_customer_email.deliver_later
       end
+      DeliveryNote.where(id: customer_delivery_notes.map(&:id)).update_all(email_sent_at: now)
+      queued_count += customer_delivery_notes.length
     end
 
     redirect_to delivery_notes_path, notice: "#{queued_count} emails queued for sending."

@@ -149,7 +149,8 @@ class InvoicesController < ApplicationController
 
 
   def send_email
-    InvoiceEmailSenderJob.perform_later(@invoice.id)
+    InvoiceMailer.with(invoice: @invoice).customer_email.deliver_later
+    @invoice.update_column(:email_sent_at, Time.current)
     redirect_to @invoice, notice: 'E-Mail queued for sending.'
   end
 
@@ -178,10 +179,12 @@ class InvoicesController < ApplicationController
 
     invoices = Invoice.where(id: invoice_ids, published: true)
     queued_count = 0
+    now = Time.current
 
     invoices.each do |invoice|
       if invoice.customer.email.present? || invoice.customer.invoice_email_auto_enabled
-        InvoiceEmailSenderJob.perform_later(invoice.id)
+        InvoiceMailer.with(invoice: invoice).customer_email.deliver_later
+        invoice.update_column(:email_sent_at, now)
         queued_count += 1
       end
     end

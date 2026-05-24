@@ -180,9 +180,7 @@ export default class extends Controller {
 
   toggleProductDropdownForLine(line) {
     const dropdown = line.querySelector('[data-product-dropdown]')
-
-    const isVisible = dropdown.style.display !== 'none'
-    dropdown.style.display = isVisible ? 'none' : 'block'
+    dropdown.classList.toggle('d-none')
   }
 
   toggleProductDropdown(event) {

@@ -34,7 +34,7 @@
       .card-header Emails
       %ul.list-group.list-group-flush
         - @emails.each do |email|
-          %li.list-group-item
+          %li.list-group-item{data: { controller: 'toggle-visibility' }}
             .d-flex.justify-content-between.align-items-center
               %div
                 = email.address
@@ -43,12 +43,12 @@
                 - else
                   %span.badge.bg-warning.ms-2 Pending
               %div.btn-group
-                = button_to 'Replace…', '#', class: 'btn btn-sm btn-outline-secondary', form: { class: 'd-inline', "data-toggle-form" => "email-#{email.id}" }, type: 'button', onclick: "document.getElementById('replace-email-#{email.id}').classList.toggle('d-none'); return false;"
+                %button.btn.btn-sm.btn-outline-secondary{type: 'button', data: { action: 'click->toggle-visibility#toggle' }} Replace…
                 - if !(email.confirmed? && @user.confirmed_emails.count <= 1)
                   = button_to 'Remove', user_email_path(user_id: @user, id: email), method: :delete,
                       data: { turbo_confirm: "Remove email #{email.address}?" },
                       class: 'btn btn-sm btn-outline-danger'
-            .mt-2.d-none{id: "replace-email-#{email.id}"}
+            .mt-2.d-none{id: "replace-email-#{email.id}", data: { 'toggle-visibility-target': 'panel' }}
               = form_with url: user_email_path(user_id: @user, id: email), method: :put, scope: :user_email, local: true do |f|
                 .input-group.input-group-sm
                   = f.email_field :address, class: 'form-control', placeholder: 'replacement@example.com', required: true
@@ -96,7 +96,7 @@
         class: 'btn btn-warning'
   - elsif @user.id != current_user.id
     = form_with url: block_user_path(@user), method: :post, local: true, class: 'd-inline-flex' do |f|
-      .input-group{style: 'width: 400px;'}
+      .input-group.w-fixed-400
         = f.text_field :reason, class: 'form-control', placeholder: 'Reason (required)', required: true
         = f.submit 'Block', class: 'btn btn-danger',
             data: { turbo_confirm: "Block #{@user.username}? All sessions will be terminated." }

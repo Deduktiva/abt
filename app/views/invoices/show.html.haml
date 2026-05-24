@@ -101,14 +101,14 @@
           = simple_format(@invoice.prelude)
 
   .document-lines.mb-2
-    %table.table.table-bordered
+    %table.table.table-bordered.document-lines-table
       %thead
         %tr
-          %th{style: "width: 55%"} Description
-          %th.text-end{style: "width: 10%"} Quantity
-          %th.text-end{style: "width: 15%"} Rate
-          %th.text-center{style: "width: 10%"} Tax Class
-          %th.text-end{style: "width: 15%"} Amount
+          %th.col-description Description
+          %th.text-end.col-quantity Quantity
+          %th.text-end.col-rate Rate
+          %th.text-center.col-tax-class Tax Class
+          %th.text-end.col-amount Amount
       %tbody
         - @invoice.invoice_lines.each do |line|
           - case line.type
@@ -129,17 +129,17 @@
                 %strong= format_currency(line.amount || (line.quantity * line.rate))
           - when 'subheading'
             %tr
-              %td.fw-bold.table-secondary{colspan: 5, style: "padding: 12px 8px;"}
+              %td.fw-bold.table-secondary.document-section-row{colspan: 5}
                 = line.title
           - when 'text', 'plain'
             %tr
-              %td{colspan: 5, style: "padding: 8px;"}
+              %td.document-text-row{colspan: 5}
                 - if line.title.present?
                   %div= line.title
                 - if line.description.present?
-                  %div.text-muted{style: "margin-left: 20px;"}
+                  %div.text-muted.document-line-comment
                     - if line.type == 'plain'
-                      %pre.mb-0{style: "font-family: monospace; white-space: pre-wrap;"}= line.description
+                      %pre.mb-0.font-monospace.text-pre-wrap= line.description
                     - else
                       = simple_format(line.description)
 
@@ -186,12 +186,12 @@
         = button_to 'Mark Unpaid', mark_unpaid_invoice_path(@invoice), method: :post, class: 'btn btn-outline-secondary', data: { 'turbo-confirm': 'Mark this invoice as unpaid?' }
       - else
         = form_with url: mark_paid_invoice_path(@invoice), method: :post, local: true, class: 'd-flex gap-1 align-items-center' do |f|
-          = f.date_field :paid_at, value: Date.current, class: 'form-control form-control-sm', style: 'width: auto;'
+          = f.date_field :paid_at, value: Date.current, class: 'form-control form-control-sm w-auto'
           = f.submit 'Mark Paid', class: 'btn btn-success'
 
   // Email Preview Modal
-  .modal.d-none{"data-email-preview-target" => "modal", "data-action" => "click->email-preview#closeOnBackdrop keydown@window->email-preview#closeOnEscape", "style" => "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1050; display: flex; align-items: center; justify-content: center;"}
-    .modal-dialog.modal-lg{"style" => "max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto;"}
+  .modal.d-none.email-preview-modal{"data-email-preview-target" => "modal", "data-action" => "click->email-preview#closeOnBackdrop keydown@window->email-preview#closeOnEscape"}
+    .modal-dialog.modal-lg.email-preview-modal-dialog
       .modal-content
         .modal-header.d-flex.justify-content-between.align-items-center
           %h5.modal-title.mb-0

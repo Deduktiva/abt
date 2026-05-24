@@ -37,10 +37,15 @@
       .card-body
         - if @data[:issuer_company].png_logo.present?
           .mb-3.text-center
-            = image_tag png_logo_issuer_company_path, alt: @data[:issuer_company].legal_name, style: 'max-height: 80px; max-width: 200px;'
+            = image_tag png_logo_issuer_company_path, alt: @data[:issuer_company].legal_name, class: 'dashboard-issuer-logo'
 
-        %h6.text-primary{:style => "color: #{@data[:issuer_company].document_accent_color} !important"}
-          = @data[:issuer_company].legal_name
+        - if @data[:issuer_company].document_accent_color.present?
+          = tag.style ":root { --issuer-accent-color: #{@data[:issuer_company].document_accent_color}; }".html_safe, nonce: true
+          %h6.text-issuer-accent
+            = @data[:issuer_company].legal_name
+        - else
+          %h6.text-primary
+            = @data[:issuer_company].legal_name
 
         .mb-2
           %strong Address:

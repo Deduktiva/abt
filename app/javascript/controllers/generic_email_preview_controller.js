@@ -188,7 +188,7 @@ export default class extends Controller {
 
     const textContentSection = data.text_body ? `
       <div class="card-body email-preview-content d-none" data-format-content="text">
-        <pre class="mb-0" style="white-space: pre-wrap; font-family: monospace;">${data.text_body}</pre>
+        <pre class="mb-0 font-monospace text-pre-wrap">${data.text_body}</pre>
       </div>
     ` : ''
 
@@ -266,7 +266,7 @@ export default class extends Controller {
             </div>
             <div class="card-body email-preview-content" data-format-content="html">
               ${data.html_body ? `
-                <iframe src="${iframeContent}" style="width: 100%; height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"></iframe>
+                <iframe class="email-preview-iframe" src="${iframeContent}"></iframe>
               ` : '<p class="text-muted"><i>No HTML content available</i></p>'}
             </div>
 

@@ -116,7 +116,7 @@ class IssuerCompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # Check that whitespace is preserved in the rendered HTML
-    assert_select 'span[style*="white-space: pre-wrap"]' do |elements|
+    assert_select 'span.text-pre-wrap' do |elements|
       contact_line1_element = elements.find { |el| el.text.include?("www.example.com      hi@example.com") }
       contact_line2_element = elements.find { |el| el.text.include?("voice + xxx xxxxxx") }
 

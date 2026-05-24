@@ -73,7 +73,7 @@ class Invoice < ApplicationRecord
     {
       success: errors.empty?,
       errors: errors,
-      log: log,
+      log: log
     }
   end
 

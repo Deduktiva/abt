@@ -1,4 +1,7 @@
 {
+  "env": {
+    "BROWSER_PATH": "/opt/pw-browsers/chromium"
+  },
   "hooks": {
     "SessionStart": [
       {

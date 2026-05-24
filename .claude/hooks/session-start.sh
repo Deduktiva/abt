@@ -35,6 +35,20 @@ fi
 echo "== Installing Ruby gems =="
 bundle install --quiet
 
+echo "== Seeding config/database.yml from sample (if missing) =="
+if [ ! -f config/database.yml ]; then
+  cp config/database.yml.sample config/database.yml
+fi
+
+echo "== Verifying chromium for system tests =="
+# BROWSER_PATH is set in .claude/settings.json to the version-stable
+# Playwright chromium symlink; we just sanity-check it here.
+if [ -x "${BROWSER_PATH:-/opt/pw-browsers/chromium}" ]; then
+  "${BROWSER_PATH:-/opt/pw-browsers/chromium}" --version
+else
+  echo "WARNING: chromium not found at ${BROWSER_PATH:-/opt/pw-browsers/chromium} — system tests will fail until BROWSER_PATH is fixed."
+fi
+
 echo "== Creating FOP wrapper at ./bin/abt-fop-container =="
 mkdir -p bin
 cat > bin/abt-fop-container << 'WRAPPER'

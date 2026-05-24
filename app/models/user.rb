@@ -82,7 +82,7 @@ class User < ApplicationRecord
         request: request,
         metadata: { username: username }
       )
-      [invite, plaintext]
+      [ invite, plaintext ]
     end
   end
 

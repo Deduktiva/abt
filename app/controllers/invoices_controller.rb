@@ -131,7 +131,7 @@ class InvoicesController < ApplicationController
     if @booked and !@pdf.nil? and !@pdf.empty?
       send_data @pdf, type: 'application/pdf', disposition: 'inline'
     else
-      log = ["Test-Booking succeeded? #{@booked}", "PDF empty: #{@pdf.nil? or @pdf.empty?}", ''] + @booker.log
+      log = [ "Test-Booking succeeded? #{@booked}", "PDF empty: #{@pdf.nil? or @pdf.empty?}", '' ] + @booker.log
       send_data log.join("\n"), type: 'text/plain', disposition: 'inline'
     end
   end
@@ -199,6 +199,6 @@ protected
 
   def invoice_params
     params.require(:invoice).permit(:customer_id, :project_id, :cust_reference, :cust_order, :prelude,
-      invoice_lines_attributes: [:id, :type, :title, :description, :rate, :quantity, :sales_tax_product_class_id, :position, :_destroy])
+      invoice_lines_attributes: [ :id, :type, :title, :description, :rate, :quantity, :sales_tax_product_class_id, :position, :_destroy ])
   end
 end

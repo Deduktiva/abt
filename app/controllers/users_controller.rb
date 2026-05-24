@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :load_user, only: [:show, :block, :unblock, :reset_passkeys, :audit]
+  before_action :load_user, only: [ :show, :block, :unblock, :reset_passkeys, :audit ]
 
   def index
     @users = User.order(:username)

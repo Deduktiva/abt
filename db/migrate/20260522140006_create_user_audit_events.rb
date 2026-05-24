@@ -10,8 +10,8 @@ class CreateUserAuditEvents < ActiveRecord::Migration[8.1]
       t.datetime :created_at, null: false
     end
 
-    add_index :user_audit_events, [:user_id, :created_at]
-    add_index :user_audit_events, [:actor_user_id, :created_at]
+    add_index :user_audit_events, [ :user_id, :created_at ]
+    add_index :user_audit_events, [ :actor_user_id, :created_at ]
     add_index :user_audit_events, :action
   end
 end

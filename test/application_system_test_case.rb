@@ -21,5 +21,5 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     cuprite_options[:browser_options] = { 'no-sandbox' => nil }
   end
 
-  driven_by :cuprite, using: :chrome, screen_size: [1400, 1400], options: cuprite_options
+  driven_by :cuprite, using: :chrome, screen_size: [ 1400, 1400 ], options: cuprite_options
 end

@@ -167,7 +167,7 @@ class InvoiceEditTest < ApplicationSystemTestCase
 
       # Clear search using multiple methods for headless compatibility
       # Method 1: Select all and delete
-      search_input.send_keys([:control, 'a'])
+      search_input.send_keys([ :control, 'a' ])
       search_input.send_keys(:backspace)
 
       # Method 2: Clear via JavaScript if above doesn't work

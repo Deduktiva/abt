@@ -1,5 +1,5 @@
 class InvitesController < ApplicationController
-  allow_unauthenticated_access only: [:show, :options, :verify]
+  allow_unauthenticated_access only: [ :show, :options, :verify ]
 
   before_action :load_invite
 

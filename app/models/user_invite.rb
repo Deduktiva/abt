@@ -5,7 +5,7 @@ class UserInvite < ApplicationRecord
 
   PURPOSE_SIGNUP = 'signup'.freeze
   PURPOSE_PASSKEY_RESET = 'passkey_reset'.freeze
-  PURPOSES = [PURPOSE_SIGNUP, PURPOSE_PASSKEY_RESET].freeze
+  PURPOSES = [ PURPOSE_SIGNUP, PURPOSE_PASSKEY_RESET ].freeze
 
   belongs_to :created_by_user, class_name: 'User', optional: true
   belongs_to :target_user, class_name: 'User', optional: true
@@ -26,7 +26,7 @@ class UserInvite < ApplicationRecord
       purpose: PURPOSE_SIGNUP,
       expires_at: EXPIRY.from_now
     )
-    [record, plaintext]
+    [ record, plaintext ]
   end
 
   def self.create_passkey_reset!(target_user:, actor:)
@@ -38,7 +38,7 @@ class UserInvite < ApplicationRecord
       purpose: PURPOSE_PASSKEY_RESET,
       expires_at: EXPIRY.from_now
     )
-    [record, plaintext]
+    [ record, plaintext ]
   end
 
   def self.find_usable(plaintext)

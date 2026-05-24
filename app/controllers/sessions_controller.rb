@@ -1,5 +1,5 @@
 class SessionsController < ApplicationController
-  allow_unauthenticated_access only: [:new, :options, :verify]
+  allow_unauthenticated_access only: [ :new, :options, :verify ]
 
   def new
   end

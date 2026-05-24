@@ -91,7 +91,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     )
 
     # Test all filter options in a single request cycle
-    ['active', 'inactive', 'all'].each do |filter_type|
+    [ 'active', 'inactive', 'all' ].each do |filter_type|
       get customers_url(filter: filter_type)
       assert_response :success
       assert_select ".status-filter .active", text: filter_type.capitalize

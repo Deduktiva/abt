@@ -25,7 +25,7 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     # Check that email was delivered with PDF attachment and timestamp was set
     assert_equal 1, ActionMailer::Base.deliveries.size
     delivered_mail = ActionMailer::Base.deliveries.last
-    assert_equal ["customer@good-company.co.uk"], delivered_mail.to
+    assert_equal [ "customer@good-company.co.uk" ], delivered_mail.to
     assert_equal "My Example Invoice INV-2024-001", delivered_mail.subject
     assert_equal 1, delivered_mail.attachments.size
     assert_equal "test_invoice.pdf", delivered_mail.attachments.first.filename
@@ -50,7 +50,7 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     # Verify auto email delivery
     assert_equal 1, ActionMailer::Base.deliveries.size
     auto_mail = ActionMailer::Base.deliveries.last
-    assert_equal ["billing@autoemail.com"], auto_mail.to
+    assert_equal [ "billing@autoemail.com" ], auto_mail.to
     assert_equal "Invoice AUTO-ORDER-111 - Ref: AUTO-REF-999", auto_mail.subject
 
     auto_invoice.reload
@@ -123,7 +123,7 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     invoice2 = invoices(:auto_email_invoice)
 
     assert_enqueued_emails 2 do
-      post bulk_send_emails_invoices_path, params: { invoice_ids: [invoice1.id, invoice2.id] }
+      post bulk_send_emails_invoices_path, params: { invoice_ids: [ invoice1.id, invoice2.id ] }
     end
 
     assert_redirected_to invoices_path

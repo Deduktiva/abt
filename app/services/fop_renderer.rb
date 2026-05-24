@@ -76,7 +76,7 @@ class FopRenderer
 
       fop_result = nil
       exit_status = nil
-      IO.popen(fop_command, "r", :err=>[:child, :out]) do |fop_io|
+      IO.popen(fop_command, "r", :err=>[ :child, :out ]) do |fop_io|
         fop_result = fop_io.read
         fop_io.close
         exit_status = $?.exitstatus

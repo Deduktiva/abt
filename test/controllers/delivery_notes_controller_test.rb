@@ -345,7 +345,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
   test "should bulk send emails to selected delivery notes" do
     published_note = delivery_notes(:published_delivery_note)
 
-    post bulk_send_emails_delivery_notes_url, params: { delivery_note_ids: [published_note.id] }
+    post bulk_send_emails_delivery_notes_url, params: { delivery_note_ids: [ published_note.id ] }
     assert_redirected_to delivery_notes_url
     assert_match '1 emails queued for sending', flash[:notice]
   end
@@ -362,7 +362,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     note1 = create_published_delivery_note(customer: customer, document_number: "DN-2025-002", cust_reference: "BULK-TEST-1")
     note2 = create_published_delivery_note(customer: customer, document_number: "DN-2025-003", cust_reference: "BULK-TEST-2")
 
-    post bulk_send_emails_delivery_notes_url, params: { delivery_note_ids: [note1.id, note2.id] }
+    post bulk_send_emails_delivery_notes_url, params: { delivery_note_ids: [ note1.id, note2.id ] }
     assert_redirected_to delivery_notes_url
     assert_match '2 emails queued for sending', flash[:notice]
   end
@@ -371,7 +371,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     note1 = delivery_notes(:published_delivery_note)  # good_eu customer
     note2 = create_published_delivery_note(customer: customers(:good_national), document_number: "DN-2025-004", cust_reference: "DIFF-CUSTOMER")
 
-    post bulk_send_emails_delivery_notes_url, params: { delivery_note_ids: [note1.id, note2.id] }
+    post bulk_send_emails_delivery_notes_url, params: { delivery_note_ids: [ note1.id, note2.id ] }
     assert_redirected_to delivery_notes_url
     assert_match '2 emails queued for sending', flash[:notice]
   end

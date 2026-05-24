@@ -115,14 +115,14 @@ class Rack::Attack
 
     body, content_type =
       if wants_html
-        ['<!DOCTYPE html><html><head><title>Too many requests</title></head>' \
+        [ '<!DOCTYPE html><html><head><title>Too many requests</title></head>' \
          "<body><h1>Too many requests</h1>" \
          "<p>Please wait #{retry_after} seconds and try again.</p>" \
          '</body></html>',
-         'text/html; charset=utf-8']
+         'text/html; charset=utf-8' ]
       else
-        [{ error: 'Rate limit exceeded. Please try again later.' }.to_json,
-         'application/json']
+        [ { error: 'Rate limit exceeded. Please try again later.' }.to_json,
+         'application/json' ]
       end
 
     [
@@ -132,7 +132,7 @@ class Rack::Attack
         'cache-control' => 'no-store',
         'retry-after' => retry_after.to_s
       },
-      [body]
+      [ body ]
     ]
   end
 end

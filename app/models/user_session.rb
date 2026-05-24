@@ -19,7 +19,7 @@ class UserSession < ApplicationRecord
       user_agent: request&.user_agent.to_s.first(500),
       last_seen_at: Time.current
     )
-    [record, plaintext]
+    [ record, plaintext ]
   end
 
   def self.authenticate(plaintext)

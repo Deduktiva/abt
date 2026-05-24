@@ -21,13 +21,13 @@ class UserMailerTest < ActionMailer::TestCase
     url = 'http://example.com/account/email_confirmations/sometoken'
 
     mail = UserMailer.email_confirmation(email, url)
-    assert_equal ['new@example.com'], mail.to
+    assert_equal [ 'new@example.com' ], mail.to
     assert_match url, body_text(mail)
   end
 
   test 'email_added_notice goes to the recipient with new address in body' do
     mail = UserMailer.email_added_notice(users(:alice), 'newish@example.com', 'alice@example.com')
-    assert_equal ['alice@example.com'], mail.to
+    assert_equal [ 'alice@example.com' ], mail.to
     assert_match 'newish@example.com', body_text(mail)
   end
 

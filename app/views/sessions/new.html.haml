@@ -12,6 +12,14 @@
           "data-passkey-auto-authenticate-value" => "true"}
       .card-body
         .alert.alert-danger.d-none{"data-passkey-target" => "error"}
+        .mb-3
+          = label_tag :username, 'Username', class: 'form-label'
+          %input.form-control#username{type: 'text',
+                                       name: 'username',
+                                       autocomplete: 'username webauthn',
+                                       autofocus: true}
+          %small.form-text.text-muted
+            Pick a passkey from the autofill suggestions, or use the button.
         .d-grid
           %button.btn.btn-primary{type: 'button', "data-action" => "click->passkey#authenticate"}
             Sign in with passkey

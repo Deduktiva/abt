@@ -17,4 +17,21 @@ module DocumentWithLines
   def set_form_options
     @line_type_options = self.class.document_line_class::TYPE_OPTIONS.to_a
   end
+
+  # Filter: redirect with a flash if the document doesn't yet have at least
+  # one item line. Without this, the renderer hands FOP a table with no
+  # body and FOP aborts; this is also the business rule for booking /
+  # publishing a meaningful document.
+  #
+  # Relies on PublishableDocument for the record lookup and human label,
+  # and on the model including HasLineItems for `has_items?`.
+  def require_item_line
+    record = publishable_record
+    unless record.has_items?
+      flash[:error] = "Cannot proceed with a #{self.class.publishable_label} that has no item lines."
+      redirect_to record
+      return false
+    end
+    true
+  end
 end

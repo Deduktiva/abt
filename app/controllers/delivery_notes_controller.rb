@@ -12,6 +12,7 @@ class DeliveryNotesController < ApplicationController
   before_action :set_delivery_note, only: %i[show edit update destroy publish preview pdf unpublish upload_acceptance delete_acceptance convert_to_invoice preview_email send_email]
   before_action :require_unpublished, only: %i[edit update publish preview]
   before_action :require_published, only: %i[pdf unpublish upload_acceptance delete_acceptance convert_to_invoice send_email]
+  before_action :require_item_line, only: %i[publish preview preview_email]
 
   # GET /delivery_notes
   def index

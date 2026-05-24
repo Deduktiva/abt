@@ -1,5 +1,8 @@
 class Invoice < ApplicationRecord
   include YearFilterable
+  include HasLineItems
+
+  has_line_items :invoice_lines
 
   validates :customer_id, :presence => true
   default_scope { order(Arel.sql("id ASC")) }
@@ -29,10 +32,6 @@ class Invoice < ApplicationRecord
 
   before_save :update_customer
   before_save :update_sums
-
-  def has_items?
-    self.invoice_lines.any? { |line| line.is_item? }
-  end
 
   def paid?
     self.paid_at.present?

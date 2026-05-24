@@ -86,6 +86,22 @@ jobs:
       run: |
         HEADLESS=1 bundle exec rails test:system --verbose
 
+  brakeman:
+    name: Brakeman
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.3'
+        bundler-cache: true
+
+    - name: Run Brakeman
+      run: bundle exec brakeman --no-pager --exit-on-warn --exit-on-error
+
   stimulus-memory-leak-check:
     name: Stimulus Memory Leak Check
     runs-on: ubuntu-latest

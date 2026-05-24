@@ -92,7 +92,7 @@ class InvitesController < ApplicationController
 
   def complete_signup
     pending = session[:webauthn_signup]
-    if pending.blank? || pending['invite_token'] != params[:token]
+    unless invite_token_matches?(pending)
       return render json: { error: 'No signup in progress' }, status: :unprocessable_content
     end
 
@@ -145,7 +145,7 @@ class InvitesController < ApplicationController
 
   def complete_passkey_reset
     pending = session[:webauthn_passkey_reset]
-    if pending.blank? || pending['invite_token'] != params[:token]
+    unless invite_token_matches?(pending)
       return render json: { error: 'No passkey reset in progress' }, status: :unprocessable_content
     end
 
@@ -190,6 +190,14 @@ class InvitesController < ApplicationController
     render json: { redirect_url: account_profile_path }
   rescue ActiveRecord::RecordInvalid => e
     render json: { error: e.record.errors.full_messages.join(', ') }, status: :unprocessable_content
+  end
+
+  def invite_token_matches?(pending)
+    return false if pending.blank?
+    session_token = pending['invite_token']
+    supplied = params[:token]
+    return false if session_token.blank? || supplied.blank?
+    ActiveSupport::SecurityUtils.secure_compare(session_token, supplied)
   end
 
   def signup_form_errors(username, full_name, email)

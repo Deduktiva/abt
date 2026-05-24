@@ -96,13 +96,7 @@ class InvitesController < ApplicationController
       return render json: { error: "No signup in progress" }, status: :unprocessable_content
     end
 
-    webauthn_credential = WebAuthn::Credential.from_create(params[:credential].to_unsafe_h)
-
-    begin
-      webauthn_credential.verify(pending["challenge"])
-    rescue WebAuthn::Error => e
-      return render json: { error: "Verification failed: #{e.message}" }, status: :unprocessable_content
-    end
+    webauthn_credential = verify_webauthn_create(pending["challenge"]) or return
 
     user = nil
     User.transaction do
@@ -151,13 +145,7 @@ class InvitesController < ApplicationController
     target = User.find_by(id: pending["target_user_id"])
     return render_invalid unless target
 
-    webauthn_credential = WebAuthn::Credential.from_create(params[:credential].to_unsafe_h)
-
-    begin
-      webauthn_credential.verify(pending["challenge"])
-    rescue WebAuthn::Error => e
-      return render json: { error: "Verification failed: #{e.message}" }, status: :unprocessable_content
-    end
+    webauthn_credential = verify_webauthn_create(pending["challenge"]) or return
 
     User.transaction do
       target.credentials.create!(

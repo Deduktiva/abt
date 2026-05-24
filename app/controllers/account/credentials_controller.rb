@@ -29,13 +29,7 @@ class Account::CredentialsController < ApplicationController
       return render json: { error: "No registration in progress" }, status: :unprocessable_content
     end
 
-    webauthn_credential = WebAuthn::Credential.from_create(params[:credential].to_unsafe_h)
-
-    begin
-      webauthn_credential.verify(pending["challenge"])
-    rescue WebAuthn::Error => e
-      return render json: { error: "Verification failed: #{e.message}" }, status: :unprocessable_content
-    end
+    webauthn_credential = verify_webauthn_create(pending["challenge"]) or return
 
     credential = current_user.credentials.create!(
       external_id: webauthn_credential.id,

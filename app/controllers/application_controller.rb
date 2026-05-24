@@ -76,6 +76,18 @@ class ApplicationController < ActionController::Base
     WebauthnPendingStore.consume(session: session, flow: flow)
   end
 
+  # Verifies a WebAuthn create-style assertion against the given challenge.
+  # Returns the credential on success; on WebAuthn::Error, renders a 422 JSON
+  # error and returns nil — callers should `return` on nil.
+  def verify_webauthn_create(challenge)
+    credential = WebAuthn::Credential.from_create(params[:credential].to_unsafe_h)
+    credential.verify(challenge)
+    credential
+  rescue WebAuthn::Error => e
+    render json: { error: "Verification failed: #{e.message}" }, status: :unprocessable_content
+    nil
+  end
+
   def sign_in_user!(user)
     session_record, plaintext = UserSession.create_for!(user: user, request: request)
     cookies.signed.permanent[AUTH_COOKIE] = {

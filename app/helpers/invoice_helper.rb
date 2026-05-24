@@ -1,7 +1,6 @@
 require 'jbuilder'
 
 module InvoiceHelper
-
   def json_lines(lines, options = {})
     res = Jbuilder.new do |json|
       json.array! lines do |line|
@@ -28,5 +27,4 @@ module InvoiceHelper
     end
     res.target!
   end
-
 end

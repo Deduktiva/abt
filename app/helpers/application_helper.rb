@@ -1,6 +1,4 @@
 module ApplicationHelper
-
-
   def current_currency
     @current_currency ||= IssuerCompany.get_the_issuer!&.currency || 'EUR'
   end

@@ -354,26 +354,8 @@ class DeliveryNotesControllerTest < ActionController::TestCase
   test "should send bulk email when multiple delivery notes for same customer" do
     customer = customers(:good_eu)
 
-    # Create two more delivery notes for the same customer
-    note1 = DeliveryNote.create!(
-      customer: customer,
-      project: projects(:one),
-      document_number: "DN-2025-002",
-      published: true,
-      date: Date.current,
-      cust_reference: "BULK-TEST-1",
-      delivery_start_date: Date.current
-    )
-
-    note2 = DeliveryNote.create!(
-      customer: customer,
-      project: projects(:one),
-      document_number: "DN-2025-003",
-      published: true,
-      date: Date.current,
-      cust_reference: "BULK-TEST-2",
-      delivery_start_date: Date.current
-    )
+    note1 = create_published_delivery_note(customer: customer, document_number: "DN-2025-002", cust_reference: "BULK-TEST-1")
+    note2 = create_published_delivery_note(customer: customer, document_number: "DN-2025-003", cust_reference: "BULK-TEST-2")
 
     post :bulk_send_emails, params: { delivery_note_ids: [note1.id, note2.id] }
     assert_redirected_to delivery_notes_path
@@ -382,20 +364,27 @@ class DeliveryNotesControllerTest < ActionController::TestCase
 
   test "should send individual emails when delivery notes are for different customers" do
     note1 = delivery_notes(:published_delivery_note)  # good_eu customer
-
-    # Create delivery note for different customer
-    note2 = DeliveryNote.create!(
-      customer: customers(:good_national),
-      project: projects(:one),
-      document_number: "DN-2025-004",
-      published: true,
-      date: Date.current,
-      cust_reference: "DIFF-CUSTOMER",
-      delivery_start_date: Date.current
-    )
+    note2 = create_published_delivery_note(customer: customers(:good_national), document_number: "DN-2025-004", cust_reference: "DIFF-CUSTOMER")
 
     post :bulk_send_emails, params: { delivery_note_ids: [note1.id, note2.id] }
     assert_redirected_to delivery_notes_path
     assert_match '2 emails queued for sending', flash[:notice]
+  end
+
+  private
+
+  def create_published_delivery_note(customer:, document_number:, cust_reference:)
+    DeliveryNote.new(
+      customer: customer,
+      project: projects(:one),
+      document_number: document_number,
+      published: true,
+      date: Date.current,
+      cust_reference: cust_reference,
+      delivery_start_date: Date.current,
+      delivery_note_lines_attributes: [
+        { type: 'item', title: 'Item', description: 'desc', quantity: 1.0, position: 1 }
+      ]
+    ).tap(&:save!)
   end
 end

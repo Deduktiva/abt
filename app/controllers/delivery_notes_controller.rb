@@ -202,6 +202,8 @@ class DeliveryNotesController < ApplicationController
         prelude: enhanced_prelude
       )
 
+      default_sales_tax_product_class_id = SalesTaxProductClass.first&.id
+
       ActiveRecord::Base.transaction do
         invoice.save!
         # Copy delivery note lines to invoice lines without triggering callbacks that cause issues
@@ -219,7 +221,7 @@ class DeliveryNotesController < ApplicationController
           if dn_line.type == 'item'
             attrs[:quantity] = (dn_line.quantity&.to_f || 1.0).to_f
             attrs[:rate] = 0.01 # Small non-zero rate
-            attrs[:sales_tax_product_class_id] = SalesTaxProductClass.first&.id
+            attrs[:sales_tax_product_class_id] = default_sales_tax_product_class_id
             attrs[:amount] = attrs[:rate] * attrs[:quantity] # Pre-calculate amount
           else
             attrs[:amount] = 0

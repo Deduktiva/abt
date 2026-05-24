@@ -8,7 +8,7 @@ class CustomersController < ApplicationController
                    Customer.all
     when "inactive"
                    Customer.inactive
-                 else
+    else
                    Customer.active
     end
 

@@ -9,7 +9,7 @@ class ProjectsController < ApplicationController
                    Project.all
     when "inactive"
                    Project.inactive
-                 else
+    else
                    Project.active
     end
 

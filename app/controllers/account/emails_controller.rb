@@ -14,12 +14,7 @@ class Account::EmailsController < ApplicationController
                               request: request,
                               metadata: { username: current_user.username, address: address })
 
-      confirmation_url = account_email_confirmation_url(
-        token: plaintext,
-        host: Settings.app.host,
-        protocol: Settings.app.protocol,
-        script_name: Settings.app.script_name
-      )
+      confirmation_url = AbsoluteUrl.account_email_confirmation(plaintext)
       UserMailer.email_confirmation(email, confirmation_url).deliver_later
 
       current_user.confirmed_emails.where.not(id: email.id).find_each do |existing|

@@ -18,6 +18,11 @@ class FopRenderer
     @rails_tmp = Rails.root.join('tmp')
     @template_path = Rails.root.join('lib', 'foptemplate')
     @fop_conf = @template_path.join('fop-conf.xml')
+    # Pin the font cache to tmp/. Otherwise FOP writes it relative to
+    # <base>.</base> in fop-conf.xml, which resolves to the cwd we set in
+    # build_fop_command (lib/foptemplate/), leaving an untracked .fop/
+    # directory in the source tree after every render.
+    @fop_cache = @rails_tmp.join('fop-fonts.cache')
   end
 
   def render_pdf_with_logo(xsl_template, logo_data = nil)
@@ -115,7 +120,8 @@ class FopRenderer
   def build_fop_command(fop_binary, xml_path, xsl_path, pdf_path)
     "cd \"#{@template_path}\" && " +
     "\"#{fop_binary}\" " +
-    "-xml \"#{xml_path}\" -xsl \"#{xsl_path}\" -pdf \"#{pdf_path}\" -c \"#{@fop_conf}\""
+    "-xml \"#{xml_path}\" -xsl \"#{xsl_path}\" -pdf \"#{pdf_path}\" -c \"#{@fop_conf}\" " +
+    "-cache \"#{@fop_cache}\""
   end
 
   # Write file with explicit permissions to work around restrictive umask

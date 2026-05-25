@@ -96,7 +96,8 @@ private
         :invoice_email_auto_to, :invoice_email_auto_subject_template, :invoice_email_auto_enabled, :invoice_email_auto_contact_mode, :active,
         :team_id,
         :offer_boilerplate, :offer_validity_days,
-        :offer_email_auto_to, :offer_email_auto_subject_template, :offer_email_auto_enabled, :offer_email_auto_contact_mode
+        :offer_email_auto_to, :offer_email_auto_subject_template, :offer_email_auto_enabled, :offer_email_auto_contact_mode,
+        :offer_milestone_split_threshold, :offer_milestone_split_first_ratio
     )
   end
 end

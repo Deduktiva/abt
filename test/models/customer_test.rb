@@ -187,4 +187,48 @@ class CustomerTest < ActiveSupport::TestCase
     customer = create_customer(offer_email_auto_contact_mode: "cc_contacts")
     assert_equal "Auto address in To, contacts in CC", customer.offer_email_auto_contact_mode_label
   end
+
+  test "offer_milestone_rule_configured? requires both threshold and ratio" do
+    customer = create_customer
+    assert_not customer.offer_milestone_rule_configured?
+
+    customer.update!(offer_milestone_split_threshold: 10000)
+    assert_not customer.offer_milestone_rule_configured?
+
+    customer.update!(offer_milestone_split_first_ratio: 0.5)
+    assert customer.offer_milestone_rule_configured?
+  end
+
+  test "scaffold_offer_milestones below threshold returns a single final-delivery milestone" do
+    customer = create_customer(
+      offer_milestone_split_threshold: 10_000,
+      offer_milestone_split_first_ratio: 0.5
+    )
+    milestones = customer.scaffold_offer_milestones(5_000)
+    assert_equal 1, milestones.size
+    assert_equal "Final delivery", milestones.first[:title]
+    assert_equal "on_acceptance", milestones.first[:trigger]
+    assert_equal BigDecimal("5000"), milestones.first[:net_amount]
+  end
+
+  test "scaffold_offer_milestones above threshold returns split milestones summing to total" do
+    customer = create_customer(
+      offer_milestone_split_threshold: 10_000,
+      offer_milestone_split_first_ratio: 0.5
+    )
+    milestones = customer.scaffold_offer_milestones(15_000)
+    assert_equal 2, milestones.size
+    assert_equal "Order entry",    milestones[0][:title]
+    assert_equal "on_order",       milestones[0][:trigger]
+    assert_equal "Final delivery", milestones[1][:title]
+    assert_equal "on_acceptance",  milestones[1][:trigger]
+    assert_equal BigDecimal("15000"), milestones.sum { |m| m[:net_amount] }
+  end
+
+  test "scaffold_offer_milestones falls back to a single milestone when rule is unconfigured" do
+    customer = create_customer
+    milestones = customer.scaffold_offer_milestones(50_000)
+    assert_equal 1, milestones.size
+    assert_equal "Final delivery", milestones.first[:title]
+  end
 end

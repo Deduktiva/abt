@@ -63,6 +63,34 @@ class Customer < ApplicationRecord
     customer_contacts.for_offers.select { |c| c.applies_to_project?(offer.project) }
   end
 
+  # Returns true when this customer has a configured rule for auto-splitting
+  # a scaffolded offer into milestones. When false, the edit page hides the
+  # "Apply customer rule" form.
+  def offer_milestone_rule_configured?
+    offer_milestone_split_threshold.present? && offer_milestone_split_first_ratio.present?
+  end
+
+  # Build milestone records (NOT saved) for an offer version totalling
+  # `total_amount`. Below threshold: a single "Final delivery" milestone.
+  # Above threshold: an order-entry milestone at first_ratio of the total,
+  # plus a final-delivery milestone for the remainder. Caller persists.
+  def scaffold_offer_milestones(total_amount)
+    total = BigDecimal(total_amount.to_s)
+    threshold = offer_milestone_split_threshold
+    ratio = offer_milestone_split_first_ratio
+
+    if threshold && ratio && total > threshold
+      first = (total * ratio).round(2)
+      second = total - first
+      [
+        { title: "Order entry",    trigger: "on_order",      net_amount: first,  position: 0 },
+        { title: "Final delivery", trigger: "on_acceptance", net_amount: second, position: 1 }
+      ]
+    else
+      [ { title: "Final delivery", trigger: "on_acceptance", net_amount: total, position: 0 } ]
+    end
+  end
+
   before_destroy :check_if_used
 
   # When a customer moves to a different team, cascade the change to every

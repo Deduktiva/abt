@@ -159,6 +159,46 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     assert_nil accepted_ms.invoice_id
   end
 
+  test "POST /milestones/scaffold applies the customer rule below threshold" do
+    customers(:good_eu).update!(
+      offer_milestone_split_threshold: 10_000,
+      offer_milestone_split_first_ratio: 0.5
+    )
+    offer = create_offer
+    assert_difference -> { OfferMilestone.count } => 1 do
+      post scaffold_offer_milestones_url(offer), params: { total_amount: 5_000 }
+    end
+    assert_redirected_to edit_offer_url(offer)
+    assert_equal "Final delivery", offer.current_version.offer_milestones.first.title
+  end
+
+  test "POST /milestones/scaffold splits when above threshold" do
+    customers(:good_eu).update!(
+      offer_milestone_split_threshold: 10_000,
+      offer_milestone_split_first_ratio: 0.5
+    )
+    offer = create_offer
+    assert_difference -> { OfferMilestone.count } => 2 do
+      post scaffold_offer_milestones_url(offer), params: { total_amount: 15_000 }
+    end
+    titles = offer.current_version.offer_milestones.order(:position).pluck(:title)
+    assert_equal [ "Order entry", "Final delivery" ], titles
+  end
+
+  test "POST /milestones/scaffold refuses when milestones already exist" do
+    customers(:good_eu).update!(
+      offer_milestone_split_threshold: 10_000,
+      offer_milestone_split_first_ratio: 0.5
+    )
+    offer = create_offer
+    offer.current_version.offer_milestones.create!(title: "Manual", trigger: "on_order", net_amount: 1)
+
+    assert_no_difference -> { OfferMilestone.count } do
+      post scaffold_offer_milestones_url(offer), params: { total_amount: 15_000 }
+    end
+    assert_redirected_to edit_offer_url(offer)
+  end
+
   test "milestone create refused when offer is not editable" do
     offer = create_offer
     offer.current_version.offer_milestones.create!(title: "M", trigger: "on_order", net_amount: 1)

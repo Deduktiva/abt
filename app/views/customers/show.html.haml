@@ -119,7 +119,7 @@
     .col-md-12
       .card
         .card-header
-          Automated Email Settings
+          Automated Invoice Email Settings
         .card-body
           .row.mb-2
             .col-sm-3
@@ -144,6 +144,58 @@
               %strong Contacts mode:
             .col-sm-9
               = @customer.invoice_email_auto_contact_mode_label
+
+- if @customer.offer_email_auto_enabled?
+  .row.mt-4
+    .col-md-12
+      .card
+        .card-header
+          Automated Offer Email Settings
+        .card-body
+          .row.mb-2
+            .col-sm-3
+              %strong Auto Email:
+            .col-sm-9
+              %span.badge.bg-success Enabled
+          .row.mb-2
+            .col-sm-3
+              %strong To:
+            .col-sm-9
+              = @customer.offer_email_auto_to
+          .row.mb-2
+            .col-sm-3
+              %strong Subject Template:
+            .col-sm-9
+              = @customer.offer_email_auto_subject_template
+          .row.mb-2
+            .col-sm-3
+              %strong Contacts mode:
+            .col-sm-9
+              = @customer.offer_email_auto_contact_mode_label
+
+- if @customer.offer_validity_days.present?
+  .row.mt-4
+    .col-md-12
+      .card
+        .card-header
+          Offer Settings
+        .card-body
+          .row.mb-2
+            .col-sm-3
+              %strong Validity:
+            .col-sm-9
+              = @customer.offer_validity_days
+              days
+
+- if @customer.offer_boilerplate.present?
+  .row.mt-4
+    .col-md-12
+      .card
+        .card-header
+          Offer Boilerplate
+        .card-body
+          %pre.mb-0
+            = @customer.offer_boilerplate
 
 = render "customers/contacts_table", customer: @customer
 

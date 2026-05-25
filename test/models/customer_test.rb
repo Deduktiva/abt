@@ -301,4 +301,27 @@ class CustomerTest < ActiveSupport::TestCase
     customer = build_customer(invoice_email_auto_to: "")
     assert customer.valid?, customer.errors.full_messages.inspect
   end
+
+  test "offer columns round-trip with sensible defaults" do
+    customer = create_customer
+    assert_nil customer.offer_boilerplate
+    assert_nil customer.offer_validity_days
+    assert_equal false, customer.offer_email_auto_enabled
+    assert_equal "", customer.offer_email_auto_to
+    assert_equal "", customer.offer_email_auto_subject_template
+    assert_equal "replace_contacts", customer.offer_email_auto_contact_mode
+  end
+
+  test "offer_email_auto_contact_mode predicates are prefixed to avoid collision with invoice enum" do
+    customer = create_customer(offer_email_auto_contact_mode: "cc_contacts")
+    assert customer.offer_cc_contacts?
+    assert_not customer.offer_replace_contacts?
+    # Invoice enum predicates remain unprefixed:
+    assert customer.replace_contacts?
+  end
+
+  test "offer_email_auto_contact_mode_label reads from the shared labels map" do
+    customer = create_customer(offer_email_auto_contact_mode: "cc_contacts")
+    assert_equal "Auto address in To, contacts in CC", customer.offer_email_auto_contact_mode_label
+  end
 end

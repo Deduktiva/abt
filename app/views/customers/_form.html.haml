@@ -75,6 +75,35 @@
         .form-text Applies only when "Auto. Invoice E-Mail" is on. Contacts always receive the email when auto is off.
     %hr
     .row.mb-3
+      = f.label :offer_email_auto_enabled, 'Auto. Offer E-Mail', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-lg-1.col-md-2.col-sm-2
+        .form-check
+          = f.input_field :offer_email_auto_enabled, as: :boolean, class: 'form-check-input'
+          = f.label :offer_email_auto_enabled, class: 'form-check-label', label: 'On'
+      .col-lg-4
+        = f.text_field :offer_email_auto_to, {:class => 'form-control', :placeholder => 'To:'}
+      .col-lg-4
+        = f.text_field :offer_email_auto_subject_template, {:class => 'form-control', :placeholder => 'Subject: XXXX $CUST_REF$ $CUST_ORDER$'}
+    .row.mb-3
+      = f.label :offer_email_auto_contact_mode, 'Contacts mode (offers)', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-lg-5
+        = f.select :offer_email_auto_contact_mode,
+                   Customer::OFFER_EMAIL_AUTO_CONTACT_MODE_LABELS.map { |value, label| [label, value] },
+                   {}, class: 'form-select'
+        .form-text Applies only when "Auto. Offer E-Mail" is on. Contacts always receive the email when auto is off.
+    %hr
+    .row.mb-3
+      = f.label :offer_validity_days, 'Offer validity (days)', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-lg-5.col-md-4
+        = f.number_field :offer_validity_days, :class => 'form-control', :min => 1, :max => 365
+        .form-text Days an offer stays valid after each send. Leave blank to use the issuer-wide default.
+    .row.mb-3
+      = f.label :offer_boilerplate, 'Offer boilerplate', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-lg-10.col-md-9
+        = f.text_area :offer_boilerplate, :class => 'form-control', :rows => 12
+        .form-text Per-customer text rendered before the milestones on every offer PDF. Plain text; written in this customer's language.
+    %hr
+    .row.mb-3
       = f.label :payment_terms_days, 'Payment terms (days)', class: 'col-lg-2 col-md-3 col-form-label'
       .col-lg-5.col-md-4
         = f.number_field :payment_terms_days, :class => 'form-control', :min => 1, :max => 365, :value => (@customer.payment_terms_days || 30)

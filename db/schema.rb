@@ -90,6 +90,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_23_171756) do
     t.string "matchcode", null: false
     t.text "name"
     t.text "notes"
+    t.text "offer_boilerplate"
+    t.string "offer_email_auto_contact_mode", default: "replace_contacts", null: false
+    t.boolean "offer_email_auto_enabled", default: false, null: false
+    t.string "offer_email_auto_subject_template", default: "", null: false
+    t.string "offer_email_auto_to", default: "", null: false
+    t.integer "offer_validity_days"
     t.integer "payment_terms_days", default: 30, null: false
     t.integer "sales_tax_customer_class_id"
     t.text "supplier_number"

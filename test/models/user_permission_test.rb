@@ -27,6 +27,38 @@ class UserPermissionTest < ActiveSupport::TestCase
     refute bob.permission?("groups.manage")
   end
 
+  test "User#permissions emits DISTINCT and dedupes across groups" do
+    bob = users(:bob)
+    overlap = Group.create!(name: "Overlap", description: "Test overlap group")
+    overlap.group_permissions.create!(permission: "customers.view")
+    overlap.group_permissions.create!(permission: "invoices.view")
+    bob.groups << groups(:sales)
+    bob.groups << overlap
+    bob.reload
+
+    assert bob.permission?("customers.view")
+    assert bob.permission?("invoices.view")
+
+    # Regression guard for #338: capture the SQL the production code
+    # actually issues and require it to deduplicate at the database
+    # level. Without DISTINCT, a user in two groups that both grant
+    # customers.view receives two rows for that key.
+    queries = []
+    callback = ->(_name, _start, _finish, _id, payload) {
+      sql = payload[:sql]
+      queries << sql if sql.include?("group_permissions") &&
+                        sql.include?("group_memberships")
+    }
+    ActiveSupport::Notifications.subscribed(callback, "sql.active_record") do
+      bob.instance_variable_set(:@permissions, nil)
+      bob.permissions
+    end
+
+    refute_empty queries, "expected User#permissions to query group_permissions"
+    assert queries.any? { |q| q =~ /SELECT\s+DISTINCT/i },
+           "User#permissions must emit SELECT DISTINCT; got: #{queries.inspect}"
+  end
+
   test "visible_team_ids returns all teams for bypass users" do
     assert_equal Team.pluck(:id).sort, users(:alice).visible_team_ids.sort
   end

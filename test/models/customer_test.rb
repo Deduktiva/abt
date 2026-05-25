@@ -148,12 +148,11 @@ class CustomerTest < ActiveSupport::TestCase
       customer: customers(:good_eu),
       project: projects(:two),
       attachment: attachments(:invoice_pdf),
-      document_number: "INV-PROJ2-FILTER",
-      published: true,
       date: Date.current,
-      due_date: 30.days.from_now,
-      sum_net: 100, sum_total: 121
+      due_date: 30.days.from_now
     )
+    project_two_invoice.invoice_lines.create!(type: "item", title: "X", quantity: 1.0, rate: 100.0, position: 1)
+    project_two_invoice.update!(published: true, document_number: "INV-PROJ2-FILTER", sum_net: 100, sum_total: 121)
 
     emails = project_two_invoice.customer.contacts_for_invoice(project_two_invoice).map(&:email)
     assert_includes emails, "customer@good-company.co.uk"

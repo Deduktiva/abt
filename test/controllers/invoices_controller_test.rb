@@ -102,14 +102,13 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
       customer: customers(:good_eu),
       project: projects(:test_project),
       cust_reference: "TEST",
-      published: true,
       document_number: "INV-TEST-UNIQUE",
       date: Date.current,
       sum_net: 200.0,
       sum_total: 238.0
     )
 
-    # Add invoice lines
+    # Add invoice lines (must exist before transitioning to published)
     invoice.invoice_lines.create!(
       type: "item",
       title: "Test Product",
@@ -119,6 +118,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
       sales_tax_product_class: sales_tax_product_classes(:standard),
       position: 1
     )
+    invoice.update!(published: true)
 
     # Add tax classes
     tax_class = invoice.invoice_tax_classes.build(

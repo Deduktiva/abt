@@ -63,6 +63,7 @@ class InvoiceBookerTest < ActiveSupport::TestCase
       cust_reference: "SNAPSHOT-2",
       date: Date.new(2024, 6, 1),
     )
+    invoice.invoice_lines.create!(type: "item", title: "X", quantity: 1.0, rate: 100.0, position: 1)
 
     # Lock in the snapshot the same way a booked invoice does
     invoice.update!(published: true)

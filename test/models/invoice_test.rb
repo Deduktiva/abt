@@ -174,16 +174,15 @@ class InvoiceTest < ActiveSupport::TestCase
       language: languages(:english),
       team: acme
     )
-    Invoice.create!(
+    invoice = Invoice.create!(
       customer: acme_customer,
       project: projects(:one),
       attachment: attachments(:invoice_pdf),
-      document_number: "INV-ACME-YEAR",
-      published: true,
       date: Date.new(2019, 1, 15),
-      due_date: Date.new(2019, 2, 15),
-      sum_net: 100, sum_total: 121
+      due_date: Date.new(2019, 2, 15)
     )
+    invoice.invoice_lines.create!(type: "item", title: "X", quantity: 1.0, rate: 100.0, position: 1)
+    invoice.update!(published: true, document_number: "INV-ACME-YEAR", sum_net: 100, sum_total: 121)
 
     # blocked_carol has no team membership; she should see no invoices and
     # therefore no years.
@@ -207,11 +206,10 @@ class InvoiceTest < ActiveSupport::TestCase
       customer: customers(:good_eu),
       project: projects(:two),
       attachment: attachments(:invoice_pdf),
-      document_number: "INV-UNSENT-FILTER",
-      published: true,
-      date: Date.current, due_date: 30.days.from_now,
-      sum_net: 100, sum_total: 121
+      date: Date.current, due_date: 30.days.from_now
     )
+    invoice.invoice_lines.create!(type: "item", title: "X", quantity: 1.0, rate: 100.0, position: 1)
+    invoice.update!(published: true, document_number: "INV-UNSENT-FILTER", sum_net: 100, sum_total: 121)
 
     assert_not_includes Invoice.email_unsent, invoice
     assert_not invoice.emailable?

@@ -30,13 +30,11 @@ class InvoiceMailerTest < ActionMailer::TestCase
       customer: customers(:good_eu),
       project: projects(:two),
       attachment: attachments(:invoice_pdf),
-      document_number: "INV-PROJ-FILTER",
-      published: true,
       date: Date.current,
-      due_date: 30.days.from_now,
-      sum_net: 100.00,
-      sum_total: 121.00
+      due_date: 30.days.from_now
     )
+    invoice.invoice_lines.create!(type: "item", title: "X", quantity: 1.0, rate: 100.0, position: 1)
+    invoice.update!(published: true, document_number: "INV-PROJ-FILTER", sum_net: 100.00, sum_total: 121.00)
 
     mail = InvoiceMailer.with(invoice: invoice).customer_email
     assert_equal [ "customer@good-company.co.uk" ], mail.to
@@ -142,15 +140,13 @@ class InvoiceMailerTest < ActionMailer::TestCase
       customer: customers(:auto_email_customer),
       project: projects(:one),
       attachment: attachments(:auto_email_pdf),
-      document_number: "INV-EMPTY",
-      published: true,
       date: Date.current,
       due_date: 30.days.from_now,
       cust_reference: "",
-      cust_order: "",
-      sum_net: 100.00,
-      sum_total: 121.00
+      cust_order: ""
     )
+    invoice.invoice_lines.create!(type: "item", title: "X", quantity: 1.0, rate: 100.0, position: 1)
+    invoice.update!(published: true, document_number: "INV-EMPTY", sum_net: 100.00, sum_total: 121.00)
 
     mail = InvoiceMailer.with(invoice: invoice).customer_email
     assert_equal "Invoice  - Ref: ", mail.subject
@@ -161,15 +157,13 @@ class InvoiceMailerTest < ActionMailer::TestCase
       customer: customers(:auto_email_customer),
       project: projects(:one),
       attachment: attachments(:auto_email_pdf),
-      document_number: "INV-NIL",
-      published: true,
       date: Date.current,
       due_date: 30.days.from_now,
       cust_reference: nil,
-      cust_order: nil,
-      sum_net: 100.00,
-      sum_total: 121.00
+      cust_order: nil
     )
+    invoice.invoice_lines.create!(type: "item", title: "X", quantity: 1.0, rate: 100.0, position: 1)
+    invoice.update!(published: true, document_number: "INV-NIL", sum_net: 100.00, sum_total: 121.00)
 
     mail = InvoiceMailer.with(invoice: invoice).customer_email
     assert_equal "Invoice  - Ref: ", mail.subject
@@ -185,13 +179,11 @@ class InvoiceMailerTest < ActionMailer::TestCase
       customer: customers(:good_eu),
       project: projects(:two),
       attachment: attachments(:invoice_pdf),
-      document_number: "INV-SALUT-1",
-      published: true,
       date: Date.current,
-      due_date: 30.days.from_now,
-      sum_net: 100.00,
-      sum_total: 121.00
+      due_date: 30.days.from_now
     )
+    invoice.invoice_lines.create!(type: "item", title: "X", quantity: 1.0, rate: 100.0, position: 1)
+    invoice.update!(published: true, document_number: "INV-SALUT-1", sum_net: 100.00, sum_total: 121.00)
 
     mail = InvoiceMailer.with(invoice: invoice).customer_email
 
@@ -207,13 +199,11 @@ class InvoiceMailerTest < ActionMailer::TestCase
       customer: customers(:good_eu),
       project: projects(:two),
       attachment: attachments(:invoice_pdf),
-      document_number: "INV-SALUT-NIL",
-      published: true,
       date: Date.current,
-      due_date: 30.days.from_now,
-      sum_net: 100.00,
-      sum_total: 121.00
+      due_date: 30.days.from_now
     )
+    invoice.invoice_lines.create!(type: "item", title: "X", quantity: 1.0, rate: 100.0, position: 1)
+    invoice.update!(published: true, document_number: "INV-SALUT-NIL", sum_net: 100.00, sum_total: 121.00)
 
     mail = InvoiceMailer.with(invoice: invoice).customer_email
 

@@ -1,0 +1,32 @@
+- url, method = milestone.persisted? ? [offer_milestones_path(offer, milestone), :patch] : [offer_milestones_path(offer), :post]
+= form_with model: milestone, url: url, method: method, scope: :offer_milestone, local: true, class: 'border rounded p-2 mb-2' do |f|
+  .row.gx-2.align-items-end
+    .col-md-1
+      = f.label :position, 'Pos', class: 'form-label small'
+      = f.number_field :position, class: 'form-control form-control-sm', value: milestone.position || 0
+    .col-md-3
+      = f.label :title, class: 'form-label small'
+      = f.text_field :title, class: 'form-control form-control-sm', required: true
+    .col-md-2
+      = f.label :trigger, class: 'form-label small'
+      = f.select :trigger, [["On order", "on_order"], ["On acceptance", "on_acceptance"], ["On date", "on_date"]], { include_blank: false, selected: milestone.trigger || "on_acceptance" }, class: 'form-select form-select-sm'
+    .col-md-2
+      = f.label :trigger_date, 'Date', class: 'form-label small'
+      = f.date_field :trigger_date, class: 'form-control form-control-sm'
+    .col-md-2
+      = f.label :net_amount, 'Net', class: 'form-label small'
+      = f.number_field :net_amount, step: 0.01, min: 0, class: 'form-control form-control-sm', required: true
+    .col-md-2.text-end
+      - if milestone.persisted?
+        = f.submit 'Save', class: 'btn btn-sm btn-primary'
+        = button_to '🗑', offer_milestones_path(offer, milestone), method: :delete, class: 'btn btn-sm btn-outline-danger', form: { style: 'display:inline', data: { turbo_confirm: 'Remove this milestone?' } }
+      - else
+        = f.submit 'Add', class: 'btn btn-sm btn-success'
+  .row.gx-2.mt-1
+    .col-md-9
+      = f.label :description, class: 'form-label small'
+      = f.text_area :description, class: 'form-control form-control-sm', rows: 1
+    .col-md-3
+      .form-check.mt-3
+        = f.check_box :skip_delivery_note, class: 'form-check-input'
+        = f.label :skip_delivery_note, 'Skip delivery note on convert', class: 'form-check-label small'

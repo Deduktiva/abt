@@ -1,0 +1,95 @@
+= page_header("Offer #{@offer.document_number || "Draft \##{@offer.id}"}")
+
+.row.mb-3
+  .col-md-8
+    %dl.row
+      %dt.col-sm-3 Slug
+      %dd.col-sm-9= @offer.matchcode
+
+      %dt.col-sm-3 Customer
+      %dd.col-sm-9= @offer.customer.name
+
+      - if @offer.project
+        %dt.col-sm-3 Project
+        %dd.col-sm-9= @offer.project.matchcode
+
+      %dt.col-sm-3 State
+      %dd.col-sm-9
+        %span.badge{class: case @offer.state
+                          when "accepted" then "bg-success"
+                          when "sent" then "bg-warning"
+                          when "rejected" then "bg-danger"
+                          when "expired" then "bg-dark"
+                          else "bg-secondary"
+                          end}
+          = @offer.state.titleize
+
+      - if @offer.expires_at
+        %dt.col-sm-3 Expires
+        %dd.col-sm-9= l(@offer.expires_at.to_date)
+
+      - if @offer.accepted_at
+        %dt.col-sm-3 Accepted
+        %dd.col-sm-9
+          = l(@offer.accepted_at.to_date)
+          %small.text-muted
+            (v#{@offer.accepted_version&.version_number})
+
+  .col-md-4.text-end
+    - if can?('offers.edit') && @offer.state_draft?
+      = link_to 'Edit current draft', edit_offer_path(@offer), class: 'btn btn-primary btn-sm'
+      = button_to 'Send', send_offer_path(@offer), method: :post, class: 'btn btn-warning btn-sm',
+                  data: { turbo_confirm: 'Send this offer to the customer?' },
+                  disabled: !(@offer.current_version&.offer_milestones&.any?)
+    - if can?('offers.edit') && @offer.state_sent?
+      = button_to 'Accept', accept_offer_path(@offer), method: :post, class: 'btn btn-success btn-sm',
+                  data: { turbo_confirm: 'Mark this offer as accepted by the customer?' }
+      = button_to 'Reject', reject_offer_path(@offer), method: :post, class: 'btn btn-outline-danger btn-sm',
+                  data: { turbo_confirm: 'Mark this offer as rejected?' }
+    - if can?('offers.edit') && @offer.state_accepted?
+      = button_to 'Reopen', reopen_offer_path(@offer), method: :post, class: 'btn btn-outline-warning btn-sm',
+                  data: { turbo_confirm: 'Reopen accepted offer for further edits?' }
+    - if can?('offers.edit') && @offer.state_draft?
+      = button_to '🗑 Delete', offer_path(@offer), method: :delete, class: 'btn btn-outline-danger btn-sm',
+                  data: { turbo_confirm: 'Delete this draft offer?' }
+
+- if @current_version
+  .card.mt-3
+    .card-header
+      %strong Current version
+      \—
+      v#{@current_version.version_number}
+      \—
+      %span.badge{class: @current_version.state_draft? ? "bg-secondary" : "bg-warning"}
+        = @current_version.state.titleize
+    .card-body
+      - if @current_version.offer_milestones.any?
+        %table.table.table-sm.mb-0
+          %tr
+            %th Position
+            %th Title
+            %th Trigger
+            %th Net amount
+          - @current_version.offer_milestones.each do |m|
+            %tr
+              %td= m.position
+              %td
+                = m.title
+                - if m.converted?
+                  %span.badge.bg-success.ms-1 Converted
+              %td= m.trigger.humanize
+              %td= format_currency(m.net_amount)
+      - else
+        %p.text-muted.mb-0 No milestones yet.
+
+- if @sent_versions.any?
+  .card.mt-3
+    .card-header
+      %strong Past versions
+    %ul.list-group.list-group-flush
+      - @sent_versions.each do |v|
+        %li.list-group-item
+          v#{v.version_number}
+          %span.badge.bg-light.text-dark.ms-2= v.state.titleize
+          - if v.sent_at
+            %small.text-muted.ms-2 sent #{l(v.sent_at.to_date)}

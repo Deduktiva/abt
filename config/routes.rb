@@ -88,6 +88,15 @@ Rails.application.routes.draw do
       post "bulk_send_emails"
     end
   end
+  resources :offers do
+    member do
+      post "send", action: :send_now, as: :send
+      post "accept"
+      post "reject"
+      post "reopen"
+    end
+    resources :offer_milestones, only: %i[create update destroy], path: "milestones", as: :milestones
+  end
   resources :products
   resources :projects
   resources :sales_tax_customer_classes

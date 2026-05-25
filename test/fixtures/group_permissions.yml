@@ -64,6 +64,15 @@ admin_teams_manage:
 admin_jobs_status_view:
   group: admin
   permission: jobs_status.view
+admin_offers_view:
+  group: admin
+  permission: offers.view
+admin_offers_edit:
+  group: admin
+  permission: offers.edit
+admin_offers_convert:
+  group: admin
+  permission: offers.convert
 
 sales_customers_view:
   group: sales

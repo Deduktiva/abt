@@ -10,6 +10,9 @@
       - if can?('projects.view')
         %li.nav-item
           = link_to('Projects', projects_path, :class => 'nav-link')
+      - if can?('offers.view')
+        %li.nav-item
+          = link_to('Offers', offers_path, :class => 'nav-link')
       - if can?('delivery_notes.view')
         %li.nav-item
           = link_to('Deliveries', delivery_notes_path, :class => 'nav-link')

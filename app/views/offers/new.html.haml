@@ -1,0 +1,40 @@
+= page_header('New offer')
+
+= simple_form_for(@offer, validation: true, html: { class: 'form-horizontal' }) do |f|
+  - if @offer.errors.any?
+    .alert.alert-danger
+      %h4
+        = pluralize(@offer.errors.count, 'error')
+        prohibited saving:
+      %ul
+        - @offer.errors.full_messages.each do |msg|
+          %li= msg
+
+  .form-inputs
+    .row.mb-3
+      = f.label :matchcode, label: 'Slug', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-md-5
+        = f.text_field :matchcode, class: 'form-control', required: true
+        .form-text Short identifier shown on the PDF cover and filename, e.g. "phase1-rollout". Stable across versions.
+
+    .row.mb-3
+      = f.label :customer_id, label: 'Customer', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-md-5
+        = f.collection_select :customer_id,
+                              Customer.visible_to(current_user).active.order(:matchcode),
+                              :id, :matchcode,
+                              { prompt: 'Select customer…' },
+                              class: 'form-select', required: true
+
+    .row.mb-3
+      = f.label :project_id, label: 'Project (optional)', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-md-5
+        = f.collection_select :project_id,
+                              Project.visible_to(current_user).where(active: true).order(:matchcode),
+                              :id, :matchcode,
+                              { prompt: '— none —' },
+                              class: 'form-select'
+
+  = action_buttons_wrapper do
+    = f.button :submit, 'Create draft', class: 'btn btn-primary'
+    = link_to 'Cancel', offers_path, class: 'btn btn-link'

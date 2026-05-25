@@ -48,6 +48,16 @@ class Invoice < ApplicationRecord
     customer.contacts_for_invoice(self).map(&:email).reject { |e| e.to_s.downcase.strip == auto_to }
   end
 
+  # The contact whose salutation_line should personalize this invoice's email,
+  # or nil to fall back to the I18n greeting. Returns the contact only when
+  # the To: line resolves to exactly one CustomerContact (i.e. auto-email is
+  # off and there's a single matching contact).
+  def email_salutation_contact
+    return nil if customer.invoice_email_auto_enabled?
+    contacts = customer.contacts_for_invoice(self)
+    contacts.size == 1 ? contacts.first : nil
+  end
+
   def emailable?
     email_recipients.any?
   end

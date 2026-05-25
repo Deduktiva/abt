@@ -77,7 +77,7 @@ class CustomerContactsController < ApplicationController
   end
 
   def contact_params
-    params.require(:customer_contact).permit(:name, :email, :receives_invoice_emails, :receives_delivery_note_emails)
+    params.require(:customer_contact).permit(:name, :email, :salutation_line, :receives_invoice_emails, :receives_delivery_note_emails)
   end
 
   # Server-side scope on project_ids: pick only IDs the user can see AND that

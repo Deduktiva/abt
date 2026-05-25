@@ -1,7 +1,10 @@
 - content_for :title, t('mailers.invoice.document_number', document_number: @invoice.document_number)
 
 .greeting
-  = t('mailers.invoice.greeting', customer_name: @invoice.customer.name)
+  - if @salutation.present?
+    = @salutation
+  - else
+    = t('mailers.invoice.greeting', customer_name: @invoice.customer.name)
 
 .main-message
   = t('mailers.invoice.main_message')

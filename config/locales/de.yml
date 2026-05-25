@@ -48,3 +48,6 @@ de:
         - "Bestätigung der Leistungserbringung"
         - "Rücksendung des unterfertigten Lieferscheins per E-Mail"
       closing: "Vielen Dank für Ihr Vertrauen. Wir freuen uns auf die weitere Zusammenarbeit."
+
+  customer_contacts:
+    salutation_line_hint: "In der Sprache des Kunden verfassen: %{language_name}"

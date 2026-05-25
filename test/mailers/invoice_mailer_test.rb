@@ -175,6 +175,82 @@ class InvoiceMailerTest < ActionMailer::TestCase
     assert_equal "Invoice  - Ref: ", mail.subject
   end
 
+  test "customer_email uses salutation_line when exactly one contact resolves as recipient" do
+    customer_contacts(:good_eu_accounting).update!(salutation_line: "Sehr geehrter Herr Huber,")
+
+    # Project `two` matches only good_eu_accounting (good_eu_project_one_lead
+    # is scoped to project `one`), so the To: line resolves to a single
+    # contact and its salutation_line wins.
+    invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:two),
+      attachment: attachments(:invoice_pdf),
+      document_number: "INV-SALUT-1",
+      published: true,
+      date: Date.current,
+      due_date: 30.days.from_now,
+      sum_net: 100.00,
+      sum_total: 121.00
+    )
+
+    mail = InvoiceMailer.with(invoice: invoice).customer_email
+
+    assert_equal [ "customer@good-company.co.uk" ], mail.to
+    assert_match "Sehr geehrter Herr Huber,", mail.text_part.body.to_s
+    assert_match "Sehr geehrter Herr Huber,", mail.html_part.body.to_s
+    assert_no_match(/Dear A Good Company B\.V\./, mail.text_part.body.to_s)
+    assert_no_match(/Dear A Good Company B\.V\./, mail.html_part.body.to_s)
+  end
+
+  test "customer_email falls back to greeting when the single resolved contact has no salutation_line" do
+    invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:two),
+      attachment: attachments(:invoice_pdf),
+      document_number: "INV-SALUT-NIL",
+      published: true,
+      date: Date.current,
+      due_date: 30.days.from_now,
+      sum_net: 100.00,
+      sum_total: 121.00
+    )
+
+    mail = InvoiceMailer.with(invoice: invoice).customer_email
+
+    assert_equal [ "customer@good-company.co.uk" ], mail.to
+    assert_match "Dear A Good Company B.V.,", mail.text_part.body.to_s
+    assert_match "Dear A Good Company B.V.,", mail.html_part.body.to_s
+  end
+
+  test "customer_email falls back to greeting when multiple contacts match, even if both have salutation_line set" do
+    customer_contacts(:good_eu_accounting).update!(salutation_line: "Sehr geehrter Herr A,")
+    customer_contacts(:good_eu_project_one_lead).update!(salutation_line: "Sehr geehrter Herr B,")
+
+    # published_invoice is on project `one` → both contacts match.
+    invoice = invoices(:published_invoice)
+    mail = InvoiceMailer.with(invoice: invoice).customer_email
+
+    assert_equal 2, mail.to.size
+    text_body = mail.text_part.body.to_s
+    assert_match "Dear A Good Company B.V.,", text_body
+    assert_no_match(/Sehr geehrter Herr A,/, text_body)
+    assert_no_match(/Sehr geehrter Herr B,/, text_body)
+  end
+
+  test "customer_email in auto-email replace_contacts mode falls back to greeting even with a single contact's salutation_line" do
+    customer = customers(:auto_email_customer)
+    customer.update!(invoice_email_auto_contact_mode: "replace_contacts")
+    customer_contacts(:auto_email_contact).update!(salutation_line: "Sehr geehrter Herr Auto,")
+
+    invoice = invoices(:auto_email_invoice)
+    mail = InvoiceMailer.with(invoice: invoice).customer_email
+
+    assert_equal [ "billing@autoemail.com" ], mail.to
+    text_body = mail.text_part.body.to_s
+    assert_no_match(/Sehr geehrter Herr Auto,/, text_body)
+    assert_match(/Auto Email Corp/, text_body)
+  end
+
   test "customer_email works in test environment without mailgun" do
     assert_equal :test, ActionMailer::Base.delivery_method
 

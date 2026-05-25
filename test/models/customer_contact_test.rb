@@ -83,6 +83,18 @@ class CustomerContactTest < ActiveSupport::TestCase
     assert_includes contact.errors[:customer_id], "must be a customer you can access"
   end
 
+  test "salutation_line round-trips when set, and is nil-allowed" do
+    contact = CustomerContact.create!(
+      customer: customers(:good_eu),
+      name: "Salutation Person",
+      email: "salutation@example.com"
+    )
+    assert_nil contact.salutation_line
+
+    contact.update!(salutation_line: "Sehr geehrter Herr Huber,")
+    assert_equal "Sehr geehrter Herr Huber,", contact.reload.salutation_line
+  end
+
   test "projects visibility check enforced when Current.user is set" do
     other_team = Team.create!(name: "Visibility Other")
     other_customer = Customer.create!(

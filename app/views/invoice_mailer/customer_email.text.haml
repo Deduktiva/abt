@@ -1,4 +1,7 @@
-#{t('mailers.invoice.greeting', customer_name: @invoice.customer.name)}
+- if @salutation.present?
+  #{@salutation}
+- else
+  #{t('mailers.invoice.greeting', customer_name: @invoice.customer.name)}
 \
 #{t('mailers.invoice.main_message')}
 \

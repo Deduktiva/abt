@@ -28,6 +28,14 @@ class DeliveryNote < ApplicationRecord
     customer.contacts_for_delivery_note(self).map(&:email)
   end
 
+  # The contact whose salutation_line should personalize this delivery note's
+  # email, or nil to fall back to the I18n greeting. Returns the contact only
+  # when the To: line resolves to exactly one CustomerContact.
+  def email_salutation_contact
+    contacts = customer.contacts_for_delivery_note(self)
+    contacts.size == 1 ? contacts.first : nil
+  end
+
   def emailable?
     email_recipients.any?
   end

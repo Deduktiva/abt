@@ -29,6 +29,10 @@ class ApplicationMailer < ActionMailer::Base
     )
   end
 
+  def with_customer_locale(customer, &block)
+    I18n.with_locale(customer.language.iso_code, &block)
+  end
+
   # Strip CR/LF from values interpolated into mail headers (e.g. Subject) to
   # prevent header injection. The mail gem strips CRLF too, but doing it
   # explicitly keeps us safe if that ever changes.

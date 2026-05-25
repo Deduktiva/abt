@@ -32,3 +32,10 @@ delivery_note:
   sequence: 0
   last_number: nil
   last_date: nil
+
+offer:
+  code: offer
+  format: '%{year}%<number>04d'
+  sequence: 0
+  last_number: nil
+  last_date: nil

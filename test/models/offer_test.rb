@@ -111,6 +111,118 @@ class OfferTest < ActiveSupport::TestCase
     assert_equal [ "auto@example.com" ], offer.email_recipients
   end
 
+  test "create_with_initial_version! builds offer + v1 draft atomically" do
+    offer = Offer.create_with_initial_version!(
+      matchcode: "init-test",
+      customer: customers(:good_eu)
+    )
+    assert_equal 1, offer.offer_versions.count
+    assert_equal 1, offer.current_version.version_number
+    assert offer.current_version.state_draft?
+  end
+
+  test "send_current_version! freezes the draft, assigns document_number, creates next draft" do
+    offer = Offer.create_with_initial_version!(
+      matchcode: "send-test",
+      customer: customers(:good_eu),
+      project: projects(:one)
+    )
+    offer.current_version.offer_milestones.create!(title: "Phase 1", trigger: "on_order", net_amount: 100)
+
+    sent = offer.send_current_version!
+
+    offer.reload
+    assert offer.state_sent?
+    assert_match(/\A\d{8}\z/, offer.document_number)
+    assert sent.state_sent?
+    assert_not_nil sent.sent_at
+    assert_not_nil offer.expires_at
+    assert_equal 2, offer.offer_versions.count
+    assert offer.current_version.state_draft?
+    assert_equal 2, offer.current_version.version_number
+  end
+
+  test "send_current_version! marks prior sent versions superseded" do
+    offer = Offer.create_with_initial_version!(matchcode: "ss-test", customer: customers(:good_eu))
+    offer.current_version.offer_milestones.create!(title: "M", trigger: "on_order", net_amount: 1)
+    v1 = offer.send_current_version!
+    offer.reload
+
+    # The just-created draft v2: edit its milestone, then send.
+    v2_draft = offer.current_version
+    v2_draft.offer_milestones.first.update!(net_amount: 2)
+    offer.send_current_version!
+    v1.reload
+    assert v1.state_superseded?
+  end
+
+  test "send_current_version! copies milestones into the new draft" do
+    offer = Offer.create_with_initial_version!(matchcode: "copy-test", customer: customers(:good_eu))
+    offer.current_version.offer_milestones.create!(title: "M1", trigger: "on_order", net_amount: 1)
+    offer.current_version.offer_milestones.create!(title: "M2", trigger: "on_acceptance", net_amount: 2)
+
+    offer.send_current_version!
+    offer.reload
+    new_draft = offer.current_version
+
+    titles = new_draft.offer_milestones.pluck(:title)
+    assert_equal [ "M1", "M2" ], titles.sort
+  end
+
+  test "send_current_version! refuses when state is not draft/sent" do
+    offer = Offer.create_with_initial_version!(matchcode: "guard", customer: customers(:good_eu))
+    offer.update!(state: "rejected")
+    assert_raises(RuntimeError) { offer.send_current_version! }
+  end
+
+  test "accept! sets state and discards any in-progress draft" do
+    offer = Offer.create_with_initial_version!(matchcode: "accept", customer: customers(:good_eu))
+    offer.current_version.offer_milestones.create!(title: "M", trigger: "on_order", net_amount: 1)
+    sent = offer.send_current_version!
+    offer.reload
+
+    assert_equal 2, offer.offer_versions.count
+    offer.accept!
+    offer.reload
+
+    assert offer.state_accepted?
+    assert_equal sent.id, offer.accepted_version_id
+    assert_not_nil offer.accepted_at
+    assert_equal 1, offer.offer_versions.count
+    assert_equal sent.id, offer.offer_versions.first.id
+  end
+
+  test "reject! sets state to rejected" do
+    offer = Offer.create_with_initial_version!(matchcode: "reject", customer: customers(:good_eu))
+    offer.current_version.offer_milestones.create!(title: "M", trigger: "on_order", net_amount: 1)
+    offer.send_current_version!
+    offer.reload
+
+    offer.reject!
+    assert offer.reload.state_rejected?
+    assert_not_nil offer.rejected_at
+  end
+
+  test "reopen! from accepted creates a new draft and reverts state" do
+    offer = Offer.create_with_initial_version!(matchcode: "reopen", customer: customers(:good_eu))
+    offer.current_version.offer_milestones.create!(title: "M1", trigger: "on_order", net_amount: 1)
+    sent = offer.send_current_version!
+    offer.reload
+    offer.accept!
+    offer.reload
+
+    offer.reopen!
+    offer.reload
+
+    assert offer.state_sent?, "expected state to revert to sent, got #{offer.state}"
+    assert_nil offer.accepted_at
+    assert_nil offer.accepted_version_id
+    assert_not_nil offer.reopened_at
+    assert_equal 2, offer.offer_versions.count
+    assert offer.current_version.state_draft?
+    assert_equal [ "M1" ], offer.current_version.offer_milestones.pluck(:title)
+  end
+
   test "email_cc_recipients respects offer_cc_contacts? mode" do
     customer = customers(:good_eu)
     customer.update!(

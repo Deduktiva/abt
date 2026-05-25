@@ -37,6 +37,12 @@
           - if @project.bill_to_customer_id.present? && selected_customer_team
             .form-text Locked to <strong>#{selected_customer_team.name}</strong> because the bill-to customer belongs to that team.
 
+    .row.mb-3
+      = f.label :department, class: 'col-lg-2 col-md-3 col-form-label'
+      .col-lg-5.col-md-4
+        = f.text_field :department, :class => 'form-control'
+        .form-text Used to compose the Client line on offers. Leave empty for shared projects.
+
   = action_buttons_wrapper do
     = f.button :submit, :class => 'btn btn-primary'
     = cancel_button(@project)

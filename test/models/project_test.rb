@@ -138,4 +138,18 @@ class ProjectTest < ActiveSupport::TestCase
     assert_respond_to project_without_customer, :bill_to_customer
     assert_equal "Project without customer", project_without_customer.display_name
   end
+
+  test "should persist department" do
+    @project.update!(department: "Example Dept.")
+    assert_equal "Example Dept.", @project.reload.department
+  end
+
+  test "department is optional even without bill_to_customer" do
+    project = Project.new(
+      matchcode: "REUSABLE_WITH_DEPT",
+      department: "Should be ignored at render time",
+      team: teams(:default)
+    )
+    assert project.valid?
+  end
 end

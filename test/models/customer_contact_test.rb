@@ -92,8 +92,8 @@ class CustomerContactTest < ActiveSupport::TestCase
     )
     assert_nil contact.salutation_line
 
-    contact.update!(salutation_line: "Sehr geehrter Herr Huber,")
-    assert_equal "Sehr geehrter Herr Huber,", contact.reload.salutation_line
+    contact.update!(salutation_line: "Hi tester,")
+    assert_equal "Hi tester,", contact.reload.salutation_line
   end
 
   test "projects visibility check enforced when Current.user is set" do

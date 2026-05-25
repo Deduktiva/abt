@@ -111,12 +111,12 @@ class CustomerContactsTest < ApplicationSystemTestCase
 
     within(row) { click_link "Edit" }
     within(row) do
-      fill_in "customer_contact[salutation_line]", with: "Sehr geehrter Herr Huber,"
+      fill_in "customer_contact[salutation_line]", with: "Hi tester,"
       click_button "Save"
     end
 
-    assert_selector "#{row}", text: "Sehr geehrter Herr Huber,"
-    assert_equal "Sehr geehrter Herr Huber,", @accounting.reload.salutation_line
+    assert_selector "#{row}", text: "Hi tester,"
+    assert_equal "Hi tester,", @accounting.reload.salutation_line
   end
 
   test "project picker only offers this customer's projects and unassigned projects" do

@@ -5,7 +5,7 @@ module EmailPreviewHelper
       to: mail.to&.join(", "),
       from: mail.from&.first,
       subject: mail.subject,
-      html_body: extract_html_body(mail),
+      has_html_body: extract_html_body(mail).present?,
       text_body: extract_text_body(mail),
       attachments: extract_attachments_info(mail)
     }

@@ -42,7 +42,7 @@ class InvoiceRenderer
         xml_recipient.address @invoice.customer_name + "\n" + @invoice.customer_address
         xml_recipient.tag! "account-no", @invoice.customer_account_number
         xml_recipient.tag! "vat-id", @invoice.customer_vat_id
-        xml_recipient.tag! "supplier-no", @invoice.customer_supplier_number
+        xml_recipient.tag! "supplier-no", @invoice.customer_supplier_number if @invoice.customer_supplier_number.present?
       end
 
       xml_root.currency "EUR"

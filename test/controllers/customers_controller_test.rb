@@ -144,4 +144,25 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     @customer.reload
     assert_not @customer.active?
   end
+
+  test "should persist supplier_number through the form" do
+    patch customer_url(@customer), params: {
+      customer: { supplier_number: "SUP-42" }
+    }
+    assert_redirected_to customer_url(@customer)
+    assert_equal "SUP-42", @customer.reload.supplier_number
+  end
+
+  test "show page renders supplier number row only when set" do
+    @customer.update!(supplier_number: nil)
+    get customer_url(@customer)
+    assert_response :success
+    assert_select "strong", text: "Supplier No.:", count: 0
+
+    @customer.update!(supplier_number: "SUP-99")
+    get customer_url(@customer)
+    assert_response :success
+    assert_select "strong", text: "Supplier No.:"
+    assert_select ".col-sm-8", text: /SUP-99/
+  end
 end

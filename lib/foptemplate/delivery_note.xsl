@@ -161,6 +161,23 @@
                                             </fo:block>
                                         </fo:table-cell>
                                     </fo:table-row>
+                                    <xsl:if test="/document/recipient/supplier-no">
+                                        <fo:table-row line-height="130%">
+                                            <fo:table-cell>
+                                                <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">
+                                                    <xsl:choose>
+                                                        <xsl:when test="/document/language = 'de'">Unsere Lieferantennr.:</xsl:when>
+                                                        <xsl:otherwise>Our Supplier No.:</xsl:otherwise>
+                                                    </xsl:choose>
+                                                </fo:block>
+                                            </fo:table-cell>
+                                            <fo:table-cell>
+                                                <fo:block>
+                                                    <xsl:value-of select="/document/recipient/supplier-no" />
+                                                </fo:block>
+                                            </fo:table-cell>
+                                        </fo:table-row>
+                                    </xsl:if>
                                 </fo:table-body>
                             </fo:table>
 

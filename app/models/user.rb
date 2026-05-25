@@ -41,6 +41,7 @@ class User < ApplicationRecord
     @permissions ||= GroupPermission
                       .joins(group: :group_memberships)
                       .where(group_memberships: { user_id: id })
+                      .distinct
                       .pluck(:permission)
                       .to_set
   end

@@ -201,4 +201,39 @@ class InvoiceTest < ActiveSupport::TestCase
     assert_not_includes Invoice.email_unsent, invoice
     assert_not invoice.emailable?
   end
+
+  test "emailable? is false when auto-email is enabled but auto_to is blank" do
+    customer = customers(:auto_email_customer)
+    customer.update_columns(invoice_email_auto_to: "")
+    customer.customer_contacts.destroy_all
+
+    invoice = invoices(:auto_email_invoice)
+    invoice.update_column(:email_sent_at, nil)
+
+    assert_not invoice.emailable?
+    assert_not_includes Invoice.email_unsent, invoice
+  end
+
+  test "emailable? is false in cc_contacts mode when auto_to is blank, even if contacts exist" do
+    customer = customers(:auto_email_customer)
+    customer.update_columns(invoice_email_auto_to: "", invoice_email_auto_contact_mode: "cc_contacts")
+
+    invoice = invoices(:auto_email_invoice)
+    invoice.update_column(:email_sent_at, nil)
+
+    assert_not invoice.emailable?
+    assert_not_includes Invoice.email_unsent, invoice
+  end
+
+  test "emailable? is false when auto_to is whitespace-only" do
+    customer = customers(:auto_email_customer)
+    customer.update_columns(invoice_email_auto_to: "   ")
+    customer.customer_contacts.destroy_all
+
+    invoice = invoices(:auto_email_invoice)
+    invoice.update_column(:email_sent_at, nil)
+
+    assert_not invoice.emailable?
+    assert_not_includes Invoice.email_unsent, invoice
+  end
 end

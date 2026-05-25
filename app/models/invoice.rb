@@ -8,18 +8,26 @@ class Invoice < ApplicationRecord
   validates :customer_id, presence: true
   default_scope { order(Arel.sql("id ASC")) }
 
+  # Mirror of emailable? in SQL — must agree.
+  # Auto-email branch needs a non-blank auto_to (the only To recipient).
+  # Contacts branch only applies when auto-email is OFF (when it's on, contacts
+  # go to CC, never To).
   scope :email_unsent, -> {
     where(email_sent_at: nil).where(<<~SQL.squish)
       EXISTS (
-        SELECT 1 FROM customer_contacts cc
-        LEFT JOIN customer_contact_projects ccp ON ccp.customer_contact_id = cc.id
-        WHERE cc.customer_id = invoices.customer_id
-          AND cc.receives_invoice_emails = TRUE
-          AND (ccp.project_id IS NULL OR ccp.project_id = invoices.project_id)
+        SELECT 1 FROM customers c
+        WHERE c.id = invoices.customer_id
+          AND c.invoice_email_auto_enabled = TRUE
+          AND COALESCE(TRIM(c.invoice_email_auto_to), '') <> ''
       )
       OR EXISTS (
-        SELECT 1 FROM customers c
-        WHERE c.id = invoices.customer_id AND c.invoice_email_auto_enabled = TRUE
+        SELECT 1 FROM customer_contacts cc
+        LEFT JOIN customer_contact_projects ccp ON ccp.customer_contact_id = cc.id
+        JOIN customers c ON c.id = cc.customer_id
+        WHERE cc.customer_id = invoices.customer_id
+          AND c.invoice_email_auto_enabled = FALSE
+          AND cc.receives_invoice_emails = TRUE
+          AND (ccp.project_id IS NULL OR ccp.project_id = invoices.project_id)
       )
     SQL
   }
@@ -41,8 +49,7 @@ class Invoice < ApplicationRecord
   end
 
   def emailable?
-    return true if customer.invoice_email_auto_enabled?
-    customer.contacts_for_invoice(self).any?
+    email_recipients.any?
   end
 
   def self.visible_to(user)

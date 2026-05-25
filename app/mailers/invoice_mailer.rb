@@ -9,7 +9,7 @@ class InvoiceMailer < ApplicationMailer
     customer = @invoice.customer
     to = cc = subject = nil
 
-    I18n.with_locale(customer.language.iso_code) do
+    with_customer_locale(customer) do
       if customer.invoice_email_auto_enabled
         subject = customer.invoice_email_auto_subject_template
                           .gsub("$CUST_ORDER$", sanitize_header_value(@invoice.cust_order))

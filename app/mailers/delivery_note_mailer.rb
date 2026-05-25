@@ -6,7 +6,7 @@ class DeliveryNoteMailer < ApplicationMailer
     customer = @delivery_note.customer
     to = subject = nil
 
-    I18n.with_locale(customer.language.iso_code) do
+    with_customer_locale(customer) do
       if customer.email.present?
         subject = I18n.t("mailers.delivery_note.subject", issuer_name: @issuer.short_name, document_number: @delivery_note.document_number)
         to = customer.email
@@ -25,7 +25,7 @@ class DeliveryNoteMailer < ApplicationMailer
     customer = @customer
     to = subject = nil
 
-    I18n.with_locale(customer.language.iso_code) do
+    with_customer_locale(customer) do
       if customer.email.present?
         document_numbers = @delivery_notes.map(&:document_number).join(", ")
         subject = I18n.t("mailers.delivery_note.bulk_subject", issuer_name: @issuer.short_name, document_numbers: document_numbers)

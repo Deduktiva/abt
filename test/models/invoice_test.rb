@@ -69,11 +69,13 @@ class InvoiceTest < ActiveSupport::TestCase
 
   test "update_customer copies customer fields to the draft invoice on save" do
     invoice = invoices(:draft_invoice)
+    invoice.customer.update!(supplier_number: "SUP-001")
     invoice.save!
     assert_equal invoice.customer.name, invoice.customer_name
     assert_equal invoice.customer.address, invoice.customer_address
     assert_equal invoice.customer.id, invoice.customer_account_number.to_i
     assert_equal invoice.customer.vat_id, invoice.customer_vat_id
+    assert_equal "SUP-001", invoice.customer_supplier_number
     assert_equal invoice.customer.payment_terms_days, invoice.payment_terms_days
     assert_equal invoice.customer.sales_tax_customer_class.invoice_note, invoice.tax_note
   end

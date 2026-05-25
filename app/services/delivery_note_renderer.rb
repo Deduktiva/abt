@@ -36,7 +36,7 @@ class DeliveryNoteRenderer
         xml_recipient.address @delivery_note.customer.name + "\n" + @delivery_note.customer.address
         xml_recipient.tag! "account-no", @delivery_note.customer.id
         xml_recipient.tag! "vat-id", @delivery_note.customer.vat_id
-        xml_recipient.tag! "supplier-no", @delivery_note.customer.supplier_number
+        xml_recipient.tag! "supplier-no", @delivery_note.customer.supplier_number if @delivery_note.customer.supplier_number.present?
       end
 
       xml_root.prelude @delivery_note.prelude

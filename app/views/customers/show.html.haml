@@ -39,6 +39,13 @@
           .col-sm-8
             = @customer.vat_id
 
+        - if @customer.supplier_number.present?
+          .row.mb-2
+            .col-sm-4
+              %strong Supplier No.:
+            .col-sm-8
+              = @customer.supplier_number
+
         .row.mb-2
           .col-sm-4
             %strong Sales Tax Class:

@@ -23,6 +23,20 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     assert_select "form"
   end
 
+  test "new customer form marks required fields and lets the browser validate them" do
+    get new_customer_url
+    assert_response :success
+
+    assert_select "form#new_customer:not([novalidate])"
+
+    assert_select "input#customer_matchcode[required]"
+    assert_select "textarea#customer_name[required]"
+
+    assert_select "label.required[for='customer_team_id']"
+    assert_select "label.required[for='customer_sales_tax_customer_class_id']"
+    assert_select "label.required[for='customer_language_id']"
+  end
+
   test "should create customer" do
     assert_difference("Customer.count") do
       post customers_url, params: {

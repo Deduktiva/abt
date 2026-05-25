@@ -61,6 +61,19 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "new project form marks required fields and lets the browser validate them" do
+    get new_project_url
+    assert_response :success
+
+    assert_select "form#new_project:not([novalidate])"
+
+    assert_select "input#project_matchcode[required]"
+    assert_select "select#project_team_id[required]"
+
+    assert_select "label.required[for='project_matchcode']"
+    assert_select "label.required[for='project_team_id']"
+  end
+
   test "should create project" do
     assert_difference("Project.count") do
       post projects_url, params: {

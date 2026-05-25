@@ -249,6 +249,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_25_120004) do
     t.boolean "active", default: true, null: false
     t.integer "bill_to_customer_id"
     t.datetime "created_at", null: false
+    t.string "department"
     t.text "description"
     t.string "matchcode"
     t.integer "team_id", null: false

@@ -109,7 +109,7 @@ class ProjectsController < ApplicationController
 
 private
   def projects_params
-    params.require(:project).permit(:bill_to_customer_id, :description, :matchcode, :active, :team_id)
+    params.require(:project).permit(:bill_to_customer_id, :description, :matchcode, :active, :team_id, :department)
   end
 
   def load_customer_options

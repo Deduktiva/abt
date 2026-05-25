@@ -6,7 +6,8 @@ class ProjectTest < ActiveSupport::TestCase
     @project = Project.create!(
       matchcode: "TEST_PROJECT",
       description: "Test project",
-      bill_to_customer: @customer
+      bill_to_customer: @customer,
+      team: @customer.team
     )
   end
 
@@ -23,7 +24,8 @@ class ProjectTest < ActiveSupport::TestCase
   test "should be active by default" do
     new_project = Project.new(
       matchcode: "NEW_PROJECT",
-      bill_to_customer: @customer
+      bill_to_customer: @customer,
+      team: @customer.team
     )
     assert new_project.active?
   end
@@ -33,13 +35,15 @@ class ProjectTest < ActiveSupport::TestCase
     active_project = Project.create!(
       matchcode: "ACTIVE",
       bill_to_customer: @customer,
-      active: true
+      active: true,
+      team: @customer.team
     )
 
     inactive_project = Project.create!(
       matchcode: "INACTIVE",
       bill_to_customer: @customer,
-      active: false
+      active: false,
+      team: @customer.team
     )
 
     assert_includes Project.active, active_project
@@ -106,7 +110,8 @@ class ProjectTest < ActiveSupport::TestCase
   test "should allow projects without bill_to_customer" do
     project_without_customer = Project.new(
       matchcode: "NO_CUSTOMER_PROJECT",
-      description: "Project without customer"
+      description: "Project without customer",
+      team: teams(:default)
     )
 
     assert project_without_customer.valid?

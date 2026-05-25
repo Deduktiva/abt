@@ -9,6 +9,13 @@ class DeliveryNotesController < ApplicationController
   publishable_document :delivery_note, label: "delivery note"
   document_with_lines line_class: DeliveryNoteLine
 
+  before_action -> { require_permission!("delivery_notes.view") }, only: %i[index show preview preview_email preview_email_raw pdf]
+  before_action -> { require_permission!("delivery_notes.edit") }, only: %i[
+    new create edit update destroy
+    publish unpublish send_email upload_acceptance delete_acceptance
+    convert_to_invoice bulk_send_emails
+  ]
+
   before_action :set_delivery_note, only: %i[show edit update destroy publish preview pdf unpublish upload_acceptance delete_acceptance convert_to_invoice preview_email preview_email_raw send_email]
 
   # Permit the inline <style> blocks and embedded data: images that the
@@ -38,7 +45,8 @@ class DeliveryNotesController < ApplicationController
     @selected_year = params[:year]&.to_i || Date.current.year
     @email_filter = params[:email_filter] || "all"
 
-    @delivery_notes = DeliveryNote.in_year(@selected_year, include_drafts: @selected_year == Date.current.year)
+    @delivery_notes = DeliveryNote.visible_to(current_user)
+                                  .in_year(@selected_year, include_drafts: @selected_year == Date.current.year)
                                   .reorder(Arel.sql("document_number DESC NULLS FIRST"))
 
     case @email_filter
@@ -46,7 +54,7 @@ class DeliveryNotesController < ApplicationController
       @delivery_notes = @delivery_notes.email_unsent.published
     end
 
-    @available_years = DeliveryNote.available_years
+    @available_years = DeliveryNote.visible_to(current_user).available_years
   end
 
   # GET /delivery_notes/1
@@ -311,7 +319,7 @@ class DeliveryNotesController < ApplicationController
 
 protected
   def set_delivery_note
-    @delivery_note = DeliveryNote.find(params[:id])
+    @delivery_note = DeliveryNote.visible_to(current_user).find(params[:id])
   end
 
   def delivery_note_params

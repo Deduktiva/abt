@@ -8,6 +8,12 @@ class InvoicesController < ApplicationController
   publishable_document :invoice, label: "invoice"
   document_with_lines line_class: InvoiceLine
 
+  before_action -> { require_permission!("invoices.view") }, only: %i[index show preview preview_email preview_email_raw]
+  before_action -> { require_permission!("invoices.edit") }, only: %i[
+    new create edit update destroy
+    book send_email mark_paid mark_unpaid bulk_send_emails
+  ]
+
   before_action :set_invoice, only: %i[show edit update destroy book preview preview_email preview_email_raw send_email mark_paid mark_unpaid]
 
   # Permit the inline <style> blocks and embedded data: images that the
@@ -36,7 +42,8 @@ class InvoicesController < ApplicationController
     @selected_year = params[:year]&.to_i || Date.current.year
     @filter = params[:filter] || "all"
 
-    @invoices = Invoice.in_year(@selected_year, include_drafts: @selected_year == Date.current.year)
+    @invoices = Invoice.visible_to(current_user)
+                       .in_year(@selected_year, include_drafts: @selected_year == Date.current.year)
                        .reorder(Arel.sql("document_number DESC NULLS FIRST"))
 
     case @filter
@@ -46,7 +53,7 @@ class InvoicesController < ApplicationController
       @invoices = @invoices.unpaid.published
     end
 
-    @available_years = Invoice.available_years
+    @available_years = Invoice.visible_to(current_user).available_years
   end
 
   # GET /invoices/1
@@ -211,7 +218,7 @@ class InvoicesController < ApplicationController
 
 protected
   def set_invoice
-    @invoice = Invoice.find(params[:id])
+    @invoice = Invoice.visible_to(current_user).find(params[:id])
   end
 
   def invoice_params

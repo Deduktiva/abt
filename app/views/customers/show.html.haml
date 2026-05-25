@@ -1,4 +1,4 @@
-= page_header_with_edit_button("Customer #{@customer.matchcode}", edit_customer_path(@customer))
+= page_header_with_edit_button("Customer #{@customer.matchcode}", edit_customer_path(@customer), permission: 'customers.edit')
 
 .row
   .col-md-6
@@ -50,6 +50,12 @@
             %strong Language:
           .col-sm-8
             = @customer.language&.title
+
+        .row.mb-2
+          .col-sm-4
+            %strong Team:
+          .col-sm-8
+            = @customer.team&.name
 
   .col-md-6
     .card
@@ -106,5 +112,5 @@
 
 = action_buttons_wrapper do
   = action_button 'Back', customers_path, :secondary
-  - unless @customer.used_in_invoices?
+  - if can?('customers.edit') && !@customer.used_in_invoices?
     = button_to 'Delete', @customer, method: :delete, class: 'btn btn-danger', data: { 'turbo-confirm': "Are you sure you want to delete customer \"#{@customer.matchcode}\" (#{@customer.name})?" }

@@ -15,7 +15,8 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
       address: "123 English Street\nLondon, UK",
       vat_id: "EN123456789",
       sales_tax_customer_class: sales_tax_customer_classes(:national),
-      language: languages(:english)
+      language: languages(:english),
+      team: teams(:default)
     )
 
     english_invoice = Invoice.create!(
@@ -47,7 +48,8 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
       address: "Musterstraße 123\n12345 Berlin, Deutschland",
       vat_id: "DE987654321",
       sales_tax_customer_class: sales_tax_customer_classes(:national),
-      language: languages(:german)
+      language: languages(:german),
+      team: teams(:default)
     )
 
     german_invoice = Invoice.create!(
@@ -77,14 +79,16 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
       name: "English Customer", matchcode: "ENG1", address: "English Address",
       vat_id: "EN111111111",
       sales_tax_customer_class: sales_tax_customer_classes(:national),
-      language: languages(:english)
+      language: languages(:english),
+      team: teams(:default)
     )
 
     german_customer = Customer.create!(
       name: "German Customer", matchcode: "GER1", address: "German Address",
       vat_id: "DE222222222",
       sales_tax_customer_class: sales_tax_customer_classes(:national),
-      language: languages(:german)
+      language: languages(:german),
+      team: teams(:default)
     )
 
     english_invoice = Invoice.create!(customer: english_customer, project: @project)
@@ -115,7 +119,8 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
       name: "Test Customer",
       matchcode: "TEST",
       address: "Test Address",
-      sales_tax_customer_class: sales_tax_customer_classes(:national)
+      sales_tax_customer_class: sales_tax_customer_classes(:national),
+      team: teams(:default)
     )
 
     assert_equal languages(:english), customer.language

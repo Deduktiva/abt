@@ -1,0 +1,31 @@
+= page_header_with_new_button('Groups', new_group_path)
+
+%p.text-muted
+  Groups bundle system-level permissions. A user inherits all permissions of every group they belong to.
+
+%table.table.table-striped.table-sm
+  %tr
+    %th Name
+    %th Description
+    %th Members
+    %th Permissions
+    %th Bypass team scoping
+    %th{width: "3%"}
+    %th{width: "3%"}
+
+  - @groups.each do |group|
+    %tr
+      %td
+        = link_to(group.name, group)
+        - if group.builtin?
+          %span.badge.bg-secondary.ms-1 built-in
+      %td= group.description
+      %td= group.member_count
+      %td= group.permission_count
+      %td= group.bypass_team_scoping? ? 'Yes' : 'No'
+      %td= list_action_link('Edit', edit_group_path(group), :edit)
+      %td
+        - if group.builtin?
+          %span.text-muted —
+        - else
+          = destroy_link(group, "Delete group \"#{group.name}\"?")

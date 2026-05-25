@@ -1,4 +1,4 @@
-= page_header_with_new_button('Listing products', new_product_path)
+= page_header_with_new_button('Listing products', new_product_path, permission: 'products.edit')
 
 %table.table.table-striped.table-sm
   %tr
@@ -13,5 +13,9 @@
       %td= link_to (product.title || "\##{product.id}"), product
       %td= format_currency(product.rate)
       %td= product.sales_tax_product_class && product.sales_tax_product_class.name
-      %td= list_action_link('Edit', edit_product_path(product), :edit)
-      %td= destroy_link(product, "Are you sure you want to delete product \"#{product.title}\"?")
+      %td
+        - if can?('products.edit')
+          = list_action_link('Edit', edit_product_path(product), :edit)
+      %td
+        - if can?('products.edit')
+          = destroy_link(product, "Are you sure you want to delete product \"#{product.title}\"?")

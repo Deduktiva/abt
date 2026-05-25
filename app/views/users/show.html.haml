@@ -86,6 +86,66 @@
         - if @sessions.empty?
           %li.list-group-item.text-muted No active sessions
 
+    .card.mb-3
+      .card-header
+        Groups
+        %span.badge.bg-secondary.ms-1= @user_groups.size
+      - if can?('groups.manage')
+        = form_with url: update_groups_user_path(@user), method: :patch, local: true do |f|
+          %ul.list-group.list-group-flush
+            - Group.ordered.each do |group|
+              %li.list-group-item
+                .form-check
+                  = check_box_tag 'group_ids[]', group.id, @user.group_ids.include?(group.id), id: "ug_#{group.id}", class: 'form-check-input'
+                  = label_tag "ug_#{group.id}", class: 'form-check-label' do
+                    = group.name
+                    - if group.builtin?
+                      %span.badge.bg-secondary.ms-1 built-in
+                    - if group.description.present?
+                      %span.text-muted.ms-2= group.description
+          .card-body
+            = f.submit 'Save groups', class: 'btn btn-primary btn-sm'
+      - else
+        %ul.list-group.list-group-flush
+          - if @user_groups.empty?
+            %li.list-group-item.text-muted No groups
+          - else
+            - @user_groups.each do |group|
+              %li.list-group-item
+                = group.name
+                - if group.builtin?
+                  %span.badge.bg-secondary.ms-1 built-in
+
+    .card.mb-3
+      .card-header
+        Teams
+        %span.badge.bg-secondary.ms-1= @user_teams.size
+      - if can?('teams.manage')
+        = form_with url: update_teams_user_path(@user), method: :patch, local: true do |f|
+          %ul.list-group.list-group-flush
+            - Team.ordered.each do |team|
+              %li.list-group-item
+                .form-check
+                  = check_box_tag 'team_ids[]', team.id, @user.team_ids.include?(team.id), id: "ut_#{team.id}", class: 'form-check-input'
+                  = label_tag "ut_#{team.id}", class: 'form-check-label' do
+                    = team.name
+                    - if team.builtin?
+                      %span.badge.bg-secondary.ms-1 built-in
+                    - if team.description.present?
+                      %span.text-muted.ms-2= team.description
+          .card-body
+            = f.submit 'Save teams', class: 'btn btn-primary btn-sm'
+      - else
+        %ul.list-group.list-group-flush
+          - if @user_teams.empty?
+            %li.list-group-item.text-muted No teams
+          - else
+            - @user_teams.each do |team|
+              %li.list-group-item
+                = team.name
+                - if team.builtin?
+                  %span.badge.bg-secondary.ms-1 built-in
+
 = action_buttons_wrapper do
   - if @user.blocked?
     = button_to 'Unblock', unblock_user_path(@user), method: :post,

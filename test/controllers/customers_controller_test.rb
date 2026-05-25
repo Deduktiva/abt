@@ -29,7 +29,8 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
         customer: {
           matchcode: "TEST123",
           name: "Test Company",
-          sales_tax_customer_class_id: @customer.sales_tax_customer_class_id
+          sales_tax_customer_class_id: @customer.sales_tax_customer_class_id,
+          team_id: teams(:default).id
         }
       }
     end
@@ -41,7 +42,8 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     unused_customer = Customer.create!(
       matchcode: "UNUSED",
       name: "Unused Customer",
-      sales_tax_customer_class: @customer.sales_tax_customer_class
+      sales_tax_customer_class: @customer.sales_tax_customer_class,
+      team: teams(:default)
     )
 
     assert_difference("Customer.count", -1) do
@@ -72,7 +74,8 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     unused_customer = Customer.create!(
       matchcode: "UNUSED2",
       name: "Another Unused Customer",
-      sales_tax_customer_class: @customer.sales_tax_customer_class
+      sales_tax_customer_class: @customer.sales_tax_customer_class,
+      team: teams(:default)
     )
     assert_not unused_customer.used_in_invoices?
 
@@ -87,7 +90,8 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
       matchcode: "INACTIVE",
       name: "Inactive Customer",
       active: false,
-      sales_tax_customer_class: @customer.sales_tax_customer_class
+      sales_tax_customer_class: @customer.sales_tax_customer_class,
+      team: teams(:default)
     )
 
     # Test all filter options in a single request cycle

@@ -1,12 +1,17 @@
 class HomeController < ApplicationController
+  # Dashboard. Data is already scoped to current_user via Invoice.visible_to.
+  allow_without_permission_check only: [ :index ]
+
   def index
     ytd_range = Date.current.beginning_of_year..Date.current
 
+    visible = Invoice.visible_to(current_user)
+
     @stats = {
-      invoices_current_year: Invoice.where(date: ytd_range).count,
-      invoices_ytd_total: Invoice.where(published: true, date: ytd_range).sum(:sum_total),
-      invoices_total_count: Invoice.where(published: true).count,
-      invoices_total_amount: Invoice.where(published: true).sum(:sum_total)
+      invoices_current_year: visible.where(date: ytd_range).count,
+      invoices_ytd_total: visible.where(published: true, date: ytd_range).sum(:sum_total),
+      invoices_total_count: visible.where(published: true).count,
+      invoices_total_amount: visible.where(published: true).sum(:sum_total)
     }
 
     @data = {}

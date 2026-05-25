@@ -1,0 +1,82 @@
+admin_customers_view:
+  group: admin
+  permission: customers.view
+admin_customers_edit:
+  group: admin
+  permission: customers.edit
+admin_projects_view:
+  group: admin
+  permission: projects.view
+admin_projects_edit:
+  group: admin
+  permission: projects.edit
+admin_invoices_view:
+  group: admin
+  permission: invoices.view
+admin_invoices_edit:
+  group: admin
+  permission: invoices.edit
+admin_delivery_notes_view:
+  group: admin
+  permission: delivery_notes.view
+admin_delivery_notes_edit:
+  group: admin
+  permission: delivery_notes.edit
+admin_products_view:
+  group: admin
+  permission: products.view
+admin_products_edit:
+  group: admin
+  permission: products.edit
+admin_sales_tax_view:
+  group: admin
+  permission: sales_tax.view
+admin_sales_tax_edit:
+  group: admin
+  permission: sales_tax.edit
+admin_issuer_company_view:
+  group: admin
+  permission: issuer_company.view
+admin_issuer_company_edit:
+  group: admin
+  permission: issuer_company.edit
+admin_users_view:
+  group: admin
+  permission: users.view
+admin_users_block:
+  group: admin
+  permission: users.block
+admin_users_reset_passkeys:
+  group: admin
+  permission: users.reset_passkeys
+admin_users_auto_confirm_email:
+  group: admin
+  permission: users.auto_confirm_email
+admin_user_invites_manage:
+  group: admin
+  permission: user_invites.manage
+admin_groups_manage:
+  group: admin
+  permission: groups.manage
+admin_teams_manage:
+  group: admin
+  permission: teams.manage
+admin_jobs_status_view:
+  group: admin
+  permission: jobs_status.view
+
+sales_customers_view:
+  group: sales
+  permission: customers.view
+
+sales_customers_edit:
+  group: sales
+  permission: customers.edit
+
+sales_invoices_view:
+  group: sales
+  permission: invoices.view
+
+sales_invoices_edit:
+  group: sales
+  permission: invoices.edit

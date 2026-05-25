@@ -1,4 +1,4 @@
-= page_header_with_new_button('Listing invoices', new_invoice_path)
+= page_header_with_new_button('Listing invoices', new_invoice_path, permission: 'invoices.edit')
 
 
 .bulk-select-container{data: { controller: 'bulk-select' }}
@@ -86,5 +86,5 @@
           %td
             - if invoice.published? and not invoice.attachment.nil?
               = link_to 'PDF', attachment_path(invoice.attachment), target: '_blank', data: { turbo: false }, class: 'btn btn-sm btn-outline-success py-0'
-            - else
+            - elsif can?('invoices.edit')
               = list_action_link('Edit', edit_invoice_path(invoice), :edit)

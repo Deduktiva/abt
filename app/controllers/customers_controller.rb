@@ -1,15 +1,19 @@
 class CustomersController < ApplicationController
+  before_action -> { require_permission!("customers.view") }, only: [ :index, :show ]
+  before_action -> { require_permission!("customers.edit") }, only: [ :new, :create, :edit, :update, :destroy ]
+
   # GET /customers
   def index
     # Show active customers by default
     params[:filter] ||= "active"
+    base = Customer.visible_to(current_user)
     @customers = case params[:filter]
     when "all"
-      Customer.all
+      base
     when "inactive"
-      Customer.inactive
+      base.where(active: false)
     else
-      Customer.active
+      base.where(active: true)
     end
 
     @customers = @customers.order(:matchcode)
@@ -17,22 +21,35 @@ class CustomersController < ApplicationController
     respond_to do |format|
       format.html # index.html.erb
       format.turbo_stream { render :filter_options }
+      format.json {
+        render json: @customers.map { |c|
+          {
+            id: c.id,
+            matchcode: c.matchcode,
+            name: c.name,
+            team_id: c.team_id,
+            team_name: c.team&.name
+          }
+        }
+      }
     end
   end
 
   # GET /customers/1
   def show
-    @customer = Customer.find(params[:id])
+    @customer = Customer.visible_to(current_user).find(params[:id])
   end
 
   # GET /customers/new
   def new
     @customer = Customer.new
+    teams_available = available_teams
+    @customer.team_id = teams_available.first&.id if teams_available.size == 1
   end
 
   # GET /customers/1/edit
   def edit
-    @customer = Customer.find(params[:id])
+    @customer = Customer.visible_to(current_user).find(params[:id])
   end
 
   # POST /customers
@@ -48,7 +65,7 @@ class CustomersController < ApplicationController
 
   # PUT /customers/1
   def update
-    @customer = Customer.find(params[:id])
+    @customer = Customer.visible_to(current_user).find(params[:id])
 
     if @customer.update(customers_params)
       redirect_to @customer, notice: "Customer was successfully updated."
@@ -59,7 +76,7 @@ class CustomersController < ApplicationController
 
   # DELETE /customers/1
   def destroy
-    @customer = Customer.find(params[:id])
+    @customer = Customer.visible_to(current_user).find(params[:id])
 
     if @customer.destroy
       redirect_to customers_url, notice: "Customer was successfully deleted."
@@ -72,7 +89,8 @@ private
   def customers_params
     params.require(:customer).permit(
         :matchcode, :name, :address, :email, :vat_id, :notes, :sales_tax_customer_class_id, :language_id, :payment_terms_days,
-        :invoice_email_auto_to, :invoice_email_auto_subject_template, :invoice_email_auto_enabled, :active
+        :invoice_email_auto_to, :invoice_email_auto_subject_template, :invoice_email_auto_enabled, :active,
+        :team_id
     )
   end
 end

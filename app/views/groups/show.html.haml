@@ -1,0 +1,53 @@
+= page_header_with_edit_button("Group \"#{@group.name}\"", edit_group_path(@group))
+
+.row
+  .col-md-8
+    .card.mb-3
+      .card-header Information
+      .card-body
+        .row.mb-2
+          .col-sm-3
+            %strong Name:
+          .col-sm-9
+            = @group.name
+            - if @group.builtin?
+              %span.badge.bg-secondary.ms-1 built-in
+        .row.mb-2
+          .col-sm-3
+            %strong Description:
+          .col-sm-9
+            = @group.description
+        .row.mb-2
+          .col-sm-3
+            %strong Bypass team scoping:
+          .col-sm-9
+            = @group.bypass_team_scoping? ? 'Yes' : 'No'
+
+    .card.mb-3
+      .card-header
+        Permissions
+        %span.badge.bg-secondary.ms-1= @permissions.size
+      .card-body
+        - if @permissions.empty?
+          .text-muted No permissions
+        - else
+          %ul.list-unstyled.mb-0
+            - @permissions.each do |key|
+              %li
+                %code= key
+                %span.text-muted.ms-2= Permission.label_for(key)
+
+    .card
+      .card-header
+        Members
+        %span.badge.bg-secondary.ms-1= @members.size
+      .card-body
+        - if @members.empty?
+          .text-muted No members
+        - else
+          %ul.list-unstyled.mb-0
+            - @members.each do |user|
+              %li= link_to(user.username, user_path(user))
+
+= action_buttons_wrapper do
+  = action_button 'Back', groups_path, :secondary

@@ -166,22 +166,23 @@
               %td.text-end
                 %strong= format_currency(@invoice.sum_total)
 
-.email-preview-wrapper{"data-controller" => "generic-email-preview", "data-generic-email-preview-preview-url-value" => preview_email_invoice_path(@invoice), "data-generic-email-preview-raw-preview-url-value" => preview_email_raw_invoice_path(@invoice), "data-generic-email-preview-send-url-value" => send_email_invoice_path(@invoice)}
+.email-preview-wrapper{"data-controller" => "generic-email-preview", "data-generic-email-preview-preview-url-value" => preview_email_invoice_path(@invoice), "data-generic-email-preview-send-url-value" => send_email_invoice_path(@invoice)}
+  - can_edit_invoice = can?('invoices.edit')
   = action_buttons_wrapper do
     = action_button 'Back', invoices_path, :secondary
-    - unless @invoice.published
+    - if !@invoice.published && can_edit_invoice
       = action_button 'Edit', edit_invoice_path(@invoice), :primary
     - if @invoice.attachment
       = action_button 'PDF', @invoice.attachment, :success, { target: '_blank', data: { turbo: false } }
-      - if @invoice.customer&.email.present? || (@invoice.customer&.invoice_email_auto_enabled && @invoice.customer&.invoice_email_auto_to.present?)
+      - if can_edit_invoice && (@invoice.customer&.email.present? || (@invoice.customer&.invoice_email_auto_enabled && @invoice.customer&.invoice_email_auto_to.present?))
         %button.btn.btn-warning{"data-action" => "click->generic-email-preview#open"}
           Send E-Mail
     - else
       = action_button 'Preview', preview_invoice_path(@invoice), :info, { target: '_blank', data: { turbo: false } }
-    - unless @invoice.published
+    - if !@invoice.published && can_edit_invoice
       = button_to 'Test Booking', book_invoice_path(@invoice, :save => false), method: :post, class: 'btn btn-warning'
       = destroy_link(@invoice, "Are you sure you want to delete invoice \"#{@invoice.document_number || "##{@invoice.id}"}\"?")
-    - if @invoice.published?
+    - if @invoice.published? && can_edit_invoice
       - if @invoice.paid?
         = button_to 'Mark Unpaid', mark_unpaid_invoice_path(@invoice), method: :post, class: 'btn btn-outline-secondary', data: { 'turbo-confirm': 'Mark this invoice as unpaid?' }
       - else

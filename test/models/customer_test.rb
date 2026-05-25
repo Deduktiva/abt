@@ -7,6 +7,7 @@ class CustomerTest < ActiveSupport::TestCase
       name: "Test Customer",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
+      team: teams(:default),
       active: true
     }.merge(overrides))
   end
@@ -68,6 +69,29 @@ class CustomerTest < ActiveSupport::TestCase
     inactive = create_customer(active: false)
     assert_includes Customer.active, customers(:good_eu)
     assert_not_includes Customer.active, inactive
+  end
+
+  # Without this cascade, projects billing to the customer would be left
+  # with team_id pointing at the old team — instantly violating
+  # Project#team_must_match_customer (no save possible) and invisible to
+  # members of the new team because TeamOwned#visible_to filters by team_id.
+  test "changing a customer's team cascades to projects billing that customer" do
+    customer = create_customer(team: teams(:default))
+    project = Project.create!(matchcode: "P1", bill_to_customer: customer, team: teams(:default))
+
+    customer.update!(team: teams(:acme))
+
+    assert_equal teams(:acme).id, project.reload.team_id
+  end
+
+  test "changing a customer's team leaves unrelated projects alone" do
+    customer = create_customer(team: teams(:default))
+    other_customer = create_customer(matchcode: "OTHER", team: teams(:default))
+    project = Project.create!(matchcode: "P2", bill_to_customer: other_customer, team: teams(:default))
+
+    customer.update!(team: teams(:acme))
+
+    assert_equal teams(:default).id, project.reload.team_id
   end
 
   test "inactive scope returns only inactive customers" do

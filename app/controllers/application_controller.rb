@@ -4,12 +4,25 @@ class ApplicationController < ActionController::Base
   AUTH_COOKIE = :abt_auth
 
   before_action :authenticate
+  after_action  :verify_permission_check_performed
 
-  helper_method :current_user, :current_user_session
+  helper_method :current_user, :current_user_session, :available_teams
+
+  class PermissionDenied < StandardError; end
+  class MissingPermissionCheck < StandardError; end
+  rescue_from PermissionDenied, with: :deny_permission
 
   class << self
     def allow_unauthenticated_access(**options)
       skip_before_action :authenticate, **options
+      skip_after_action :verify_permission_check_performed, **options
+    end
+
+    # Mark actions as intentionally not requiring a permission check.
+    # Use for self-service surfaces (account/*) and the dashboard where the
+    # data is already scoped to the current user.
+    def allow_without_permission_check(**options)
+      skip_after_action :verify_permission_check_performed, **options
     end
   end
 
@@ -19,6 +32,59 @@ class ApplicationController < ActionController::Base
 
   def current_user_session
     Current.session
+  end
+
+  def require_permission!(key)
+    @_permission_check_performed = true
+    raise PermissionDenied, key unless current_user&.permission?(key)
+  end
+
+  def deny_permission(exception)
+    Rails.logger.info "Permission denied for user #{current_user&.username.inspect} key=#{exception.message}"
+    respond_to do |format|
+      format.html { redirect_to root_path, alert: "You don't have permission to access that page." }
+      format.json { render json: { error: "permission_denied" }, status: :forbidden }
+      format.turbo_stream { redirect_to root_path, alert: "You don't have permission to access that page." }
+      format.any  { head :forbidden }
+    end
+  end
+
+  # Fails the response if the action never called require_permission!. Any
+  # controller action that handles authenticated user data must either gate
+  # on a permission or explicitly opt out via allow_without_permission_check.
+  # This catches "forgot to add a before_action" bugs at request time rather
+  # than at code review.
+  def verify_permission_check_performed
+    return if @_permission_check_performed
+    msg = "No permission check performed for #{self.class.name}##{action_name}. " \
+          "Add `before_action -> { require_permission!('...') }` or " \
+          "`allow_without_permission_check only: [:#{action_name}]` if intentional."
+    Rails.logger.error "[authorization] #{msg}"
+    raise MissingPermissionCheck, msg
+  end
+
+  # Teams the current user may assign records to. Bypass-scoping users see
+  # every team; everyone else sees only the teams they're a member of.
+  # Used by the customer and project forms.
+  def available_teams
+    @available_teams ||= if current_user&.bypass_team_scoping?
+                           Team.ordered.to_a
+    else
+                           current_user ? current_user.teams.ordered.to_a : []
+    end
+  end
+
+  # Record a privilege-change audit event with the current actor and request.
+  # Used by GroupsController/TeamsController/UsersController to log group
+  # CRUD, team CRUD, and membership changes.
+  def audit_privilege_change!(action, user: nil, metadata: {})
+    UserAuditEvent.record!(
+      action: action,
+      user: user,
+      actor: current_user,
+      request: request,
+      metadata: metadata
+    )
   end
 
   private

@@ -23,7 +23,8 @@ class SalesTaxCustomerClassTest < ActiveSupport::TestCase
       matchcode: "STC_TEST",
       name: "Test Customer",
       sales_tax_customer_class: klass,
-      language: languages(:english)
+      language: languages(:english),
+      team: teams(:default)
     )
     assert_raises(ActiveRecord::DeleteRestrictionError) { klass.destroy }
   end

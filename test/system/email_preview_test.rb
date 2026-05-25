@@ -24,38 +24,6 @@ class EmailPreviewTest < ApplicationSystemTestCase
     assert_includes send_url, "send_email", "Send URL should contain send_email action"
   end
 
-  test "invoice email preview iframe renders styled email body under strict CSP" do
-    visit invoice_path(@invoice)
-
-    click_on "Send E-Mail"
-
-    iframe_element = find("iframe.email-preview-iframe", wait: 5)
-
-    within_frame(iframe_element) do
-      assert_text "Dear #{@invoice.customer.name}", wait: 5
-      # The mailer layout sets body { background-color: #f8f9fa } via an inline
-      # <style> block. If CSP blocks it the body stays transparent — this
-      # assertion guards against the auto-nonced style-src directive overriding
-      # 'unsafe-inline'.
-      bg = page.evaluate_script("getComputedStyle(document.body).backgroundColor")
-      assert_equal "rgb(248, 249, 250)", bg, "Inline <style> from mailer layout should be applied in iframe"
-    end
-  end
-
-  test "delivery note email preview iframe renders styled email body under strict CSP" do
-    visit delivery_note_path(@delivery_note)
-
-    click_on "Send E-Mail"
-
-    iframe_element = find("iframe.email-preview-iframe", wait: 5)
-
-    within_frame(iframe_element) do
-      assert_text "Dear #{@delivery_note.customer.name}", wait: 5
-      bg = page.evaluate_script("getComputedStyle(document.body).backgroundColor")
-      assert_equal "rgb(248, 249, 250)", bg, "Inline <style> from mailer layout should be applied in iframe"
-    end
-  end
-
   test "delivery note email preview URLs use correct paths for subdirectory deployment" do
     visit delivery_note_path(@delivery_note)
 

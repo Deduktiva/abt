@@ -1,4 +1,10 @@
 module ApplicationHelper
+  # Permission check helper for views. Uses current_user via the controller
+  # (already defined as a helper_method in ApplicationController).
+  def can?(key)
+    !!Current.user&.permission?(key)
+  end
+
   def current_currency
     @current_currency ||= IssuerCompany.get_the_issuer!&.currency || "EUR"
   end
@@ -26,17 +32,23 @@ module ApplicationHelper
     end
   end
 
-  def page_header_with_new_button(title, new_path)
+  # If `permission:` is given, the +New / Edit button is hidden unless the
+  # current user holds that key. The header itself always renders so users
+  # with .view-only access still see the page heading. Controllers gate the
+  # actual action server-side; this just keeps the UI honest.
+  def page_header_with_new_button(title, new_path, permission: nil)
     content_tag :div, class: "d-flex justify-content-between align-items-center mb-3" do
-      content_tag(:h1, title, class: "page-header mb-0") +
-      link_to("+ New", new_path, class: "btn btn-info")
+      header = content_tag(:h1, title, class: "page-header mb-0")
+      button = (permission.nil? || can?(permission)) ? link_to("+ New", new_path, class: "btn btn-info") : "".html_safe
+      header + button
     end
   end
 
-  def page_header_with_edit_button(title, edit_path)
+  def page_header_with_edit_button(title, edit_path, permission: nil)
     content_tag :div, class: "d-flex justify-content-between align-items-center mb-3" do
-      content_tag(:h1, title, class: "page-header mb-0") +
-      link_to("Edit", edit_path, class: "btn btn-primary")
+      header = content_tag(:h1, title, class: "page-header mb-0")
+      button = (permission.nil? || can?(permission)) ? link_to("Edit", edit_path, class: "btn btn-primary") : "".html_safe
+      header + button
     end
   end
 

@@ -4,6 +4,23 @@
 # Essential data needed for all environments
 puts "🌱 Creating essential data..."
 
+# Built-in Admin group (all permissions, bypasses team scoping). Idempotent for
+# fresh installs that loaded schema.rb without running the migration's seed.
+admin_group = Group.find_or_create_by!(builtin: true, name: Group::ADMIN_NAME) do |g|
+  g.description = "Built-in administrator group with all permissions"
+  g.bypass_team_scoping = true
+end
+Permission::ALL_KEYS.each do |perm|
+  admin_group.group_permissions.find_or_create_by!(permission: perm)
+end
+
+# Built-in Default team. Every newly-created User auto-joins this team
+# (lookup goes through Team.default, which uses the `default: true` flag).
+Team.find_or_create_by!(builtin: true, name: Team::DEFAULT_NAME) do |t|
+  t.description = "Built-in default team. Every new user starts here."
+  t.default = true
+end
+
 # Languages (required for customer language selection)
 english = Language.find_or_create_by(iso_code: 'en') do |lang|
   lang.title = 'English'
@@ -108,6 +125,8 @@ if Rails.env.development?
     puts "📊 Loaded example logos for issuer company"
   end
 
+  default_team = Team.default || raise("Built-in Default team missing; run db:migrate first")
+
   # Sample customers
   good_company = Customer.find_or_create_by(matchcode: 'GOODEU') do |customer|
     customer.name = 'Good Company Poland B.V.'
@@ -121,6 +140,7 @@ if Rails.env.development?
     customer.notes = 'Long-term client, monthly invoicing'
     customer.sales_tax_customer_class = eu_class
     customer.language = english
+    customer.team = default_team
   end
 
   local_company = Customer.find_or_create_by(matchcode: 'LOCALNAT') do |customer|
@@ -135,6 +155,7 @@ if Rails.env.development?
     customer.notes = 'Project-based work'
     customer.sales_tax_customer_class = national_class
     customer.language = german
+    customer.team = default_team
   end
 
   export_company = Customer.find_or_create_by(matchcode: 'USACORP') do |customer|
@@ -148,38 +169,45 @@ if Rails.env.development?
     customer.notes = 'US-based client, quarterly invoicing'
     customer.sales_tax_customer_class = export_class
     customer.language = english
+    customer.team = default_team
   end
 
   # Sample projects
   webapp_project = Project.find_or_create_by(matchcode: 'WEBAPP') do |project|
     project.description = 'Web Application Development'
     project.bill_to_customer = good_company
+    project.team = default_team
   end
 
   consulting_project = Project.find_or_create_by(matchcode: 'CONSULT') do |project|
     project.description = 'IT Consulting Services'
     project.bill_to_customer = local_company
+    project.team = default_team
   end
 
   api_project = Project.find_or_create_by(matchcode: 'APIDEV') do |project|
     project.description = 'API Development and Integration'
     project.bill_to_customer = export_company
+    project.team = default_team
   end
 
   # Reusable projects (no customer assigned)
   training_project = Project.find_or_create_by(matchcode: 'TRAINING') do |project|
     project.description = 'Technical Training & Workshops'
     project.bill_to_customer = nil  # Reusable project
+    project.team = default_team
   end
 
   Project.find_or_create_by(matchcode: 'MAINT') do |project|
     project.description = 'System Maintenance & Support'
     project.bill_to_customer = nil  # Reusable project
+    project.team = default_team
   end
 
   Project.find_or_create_by(matchcode: 'RESEARCH') do |project|
     project.description = 'R&D and Technology Research'
     project.bill_to_customer = nil  # Reusable project
+    project.team = default_team
   end
 
   # Sample products

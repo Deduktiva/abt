@@ -1,0 +1,44 @@
+= page_header_with_edit_button("Team \"#{@team.name}\"", edit_team_path(@team))
+
+.row
+  .col-md-8
+    .card.mb-3
+      .card-header Information
+      .card-body
+        .row.mb-2
+          .col-sm-3
+            %strong Name:
+          .col-sm-9
+            = @team.name
+            - if @team.builtin?
+              %span.badge.bg-secondary.ms-1 built-in
+        .row.mb-2
+          .col-sm-3
+            %strong Description:
+          .col-sm-9
+            = @team.description
+        .row.mb-2
+          .col-sm-3
+            %strong Customers:
+          .col-sm-9
+            = @customer_count
+        .row.mb-2
+          .col-sm-3
+            %strong Projects:
+          .col-sm-9
+            = @project_count
+
+    .card
+      .card-header
+        Members
+        %span.badge.bg-secondary.ms-1= @members.size
+      .card-body
+        - if @members.empty?
+          .text-muted No members
+        - else
+          %ul.list-unstyled.mb-0
+            - @members.each do |user|
+              %li= link_to(user.username, user_path(user))
+
+= action_buttons_wrapper do
+  = action_button 'Back', teams_path, :secondary

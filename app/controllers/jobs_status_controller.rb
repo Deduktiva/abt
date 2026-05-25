@@ -1,4 +1,6 @@
 class JobsStatusController < ApplicationController
+  before_action -> { require_permission!("jobs_status.view") }
+
   STALE_HEARTBEAT_THRESHOLD = 1.minute
   RECENT_FAILED_LIMIT = 20
   RECENT_FINISHED_LIMIT = 10

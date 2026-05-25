@@ -18,7 +18,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
       matchcode: "INACTIVE",
       description: "Inactive project",
       active: false,
-      bill_to_customer: @customer
+      bill_to_customer: @customer,
+      team: teams(:default)
     )
 
     # Test all filter options in a single request cycle
@@ -67,7 +68,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
           matchcode: "NEW_PROJECT",
           description: "New project",
           bill_to_customer_id: @customer.id,
-          active: true
+          active: true,
+          team_id: @customer.team_id
         }
       }
     end
@@ -83,7 +85,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
           matchcode: "NO_CUSTOMER_PROJECT",
           description: "Project without customer for reuse",
           bill_to_customer_id: "", # Empty customer ID
-          active: true
+          active: true,
+          team_id: teams(:default).id
         }
       }
     end
@@ -119,7 +122,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     unused_project = Project.create!(
       matchcode: "UNUSED",
       description: "Unused project",
-      bill_to_customer: @customer
+      bill_to_customer: @customer,
+      team: teams(:default)
     )
 
     assert_difference("Project.count", -1) do
@@ -135,7 +139,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     used_project = Project.create!(
       matchcode: "USED",
       description: "Used project",
-      bill_to_customer: @customer
+      bill_to_customer: @customer,
+      team: teams(:default)
     )
 
     Invoice.create!(
@@ -156,7 +161,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     unused_project = Project.create!(
       matchcode: "UNUSED",
       description: "Unused project",
-      bill_to_customer: @customer
+      bill_to_customer: @customer,
+      team: teams(:default)
     )
 
     # Verify it's not used
@@ -175,7 +181,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     used_project = Project.create!(
       matchcode: "USED",
       description: "Used project",
-      bill_to_customer: @customer
+      bill_to_customer: @customer,
+      team: teams(:default)
     )
 
     Invoice.create!(
@@ -202,7 +209,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
       matchcode: "NO_CUSTOMER",
       description: "Project without customer",
       bill_to_customer: nil,
-      active: true
+      active: true,
+      team: teams(:default)
     )
 
     get project_url(project_without_customer)
@@ -216,7 +224,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
       matchcode: "NO_CUSTOMER",
       description: "Project without customer",
       bill_to_customer: nil,
-      active: true
+      active: true,
+      team: teams(:default)
     )
 
     get edit_project_url(project_without_customer)
@@ -253,14 +262,16 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
       matchcode: "CUST_A",
       description: "Project for Customer A",
       bill_to_customer: customer_a,
-      active: true
+      active: true,
+      team: teams(:default)
     )
 
     project_b = Project.create!(
       matchcode: "CUST_B",
       description: "Project for Customer B",
       bill_to_customer: customer_b,
-      active: true
+      active: true,
+      team: teams(:default)
     )
 
     get projects_url(format: :json, customer_id: customer_a.id)
@@ -279,7 +290,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
       matchcode: "REUSABLE",
       description: "Reusable project",
       bill_to_customer: nil,
-      active: true
+      active: true,
+      team: teams(:default)
     )
 
     get projects_url(format: :json, include_reusable: "true")
@@ -301,7 +313,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
       matchcode: "ASSIGNED",
       description: "Project assigned to customer",
       bill_to_customer: customer,
-      active: true
+      active: true,
+      team: teams(:default)
     )
 
     # Create reusable project
@@ -309,7 +322,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
       matchcode: "REUSABLE",
       description: "Reusable project",
       bill_to_customer: nil,
-      active: true
+      active: true,
+      team: teams(:default)
     )
 
     # Create project for different customer
@@ -318,7 +332,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
       matchcode: "OTHER",
       description: "Project for other customer",
       bill_to_customer: other_customer,
-      active: true
+      active: true,
+      team: teams(:default)
     )
 
     get projects_url(format: :json, customer_id: customer.id, include_reusable: "true")
@@ -356,14 +371,16 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
       matchcode: "WITH_CUST",
       description: "With customer",
       bill_to_customer: customers(:good_eu),
-      active: true
+      active: true,
+      team: teams(:default)
     )
 
     without_customer = Project.create!(
       matchcode: "NO_CUST",
       description: "Without customer",
       bill_to_customer: nil,
-      active: true
+      active: true,
+      team: teams(:default)
     )
 
     get projects_url(format: :json, filter: "active")

@@ -1,4 +1,4 @@
-= page_header_with_new_button('Listing Sales Tax - Product Classes', new_sales_tax_product_class_path)
+= page_header_with_new_button('Listing Sales Tax - Product Classes', new_sales_tax_product_class_path, permission: 'sales_tax.edit')
 
 %table.table.table-striped.table-sm
   %tr
@@ -15,5 +15,9 @@
       %td
         - if sales_tax_product_class.is_default?
           %span.badge.bg-success Default
-      %td= list_action_link('Edit', edit_sales_tax_product_class_path(sales_tax_product_class), :edit)
-      %td= destroy_link(sales_tax_product_class, "Are you sure you want to delete product class \"#{sales_tax_product_class.name}\"?")
+      %td
+        - if can?('sales_tax.edit')
+          = list_action_link('Edit', edit_sales_tax_product_class_path(sales_tax_product_class), :edit)
+      %td
+        - if can?('sales_tax.edit')
+          = destroy_link(sales_tax_product_class, "Are you sure you want to delete product class \"#{sales_tax_product_class.name}\"?")

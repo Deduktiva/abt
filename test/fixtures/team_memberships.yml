@@ -1,0 +1,11 @@
+alice_in_default:
+  team: default
+  user: alice
+
+bob_in_default:
+  team: default
+  user: bob
+
+bob_in_acme:
+  team: acme
+  user: bob

@@ -1,16 +1,21 @@
 class ProjectsController < ApplicationController
+  before_action -> { require_permission!("projects.view") }, only: [ :index, :show ]
+  before_action -> { require_permission!("projects.edit") }, only: [ :new, :create, :edit, :update, :destroy ]
+  before_action :load_customer_options, only: [ :new, :create, :edit, :update ]
+
   # GET /projects
   # GET /projects.json
   def index
     params[:filter] ||= "active"
 
+    base = Project.visible_to(current_user)
     @projects = case params[:filter]
     when "all"
-      Project.all
+      base
     when "inactive"
-      Project.inactive
+      base.where(active: false)
     else
-      Project.active
+      base.where(active: true)
     end
 
     # Filters for AJAX requests
@@ -39,7 +44,9 @@ class ProjectsController < ApplicationController
             name: project.display_name,
             matchcode: project.matchcode,
             description: project.description,
-            is_reusable: project.bill_to_customer_id.nil?
+            is_reusable: project.bill_to_customer_id.nil?,
+            team_id: project.team_id,
+            team_name: project.team&.name
           }
         }
       }
@@ -48,17 +55,19 @@ class ProjectsController < ApplicationController
 
   # GET /projects/1
   def show
-    @project = Project.find(params[:id])
+    @project = Project.visible_to(current_user).find(params[:id])
   end
 
   # GET /projects/new
   def new
     @project = Project.new
+    teams_available = available_teams
+    @project.team_id = teams_available.first&.id if teams_available.size == 1
   end
 
   # GET /projects/1/edit
   def edit
-    @project = Project.find(params[:id])
+    @project = Project.visible_to(current_user).find(params[:id])
   end
 
   # POST /projects
@@ -74,7 +83,7 @@ class ProjectsController < ApplicationController
 
   # PUT /projects/1
   def update
-    @project = Project.find(params[:id])
+    @project = Project.visible_to(current_user).find(params[:id])
 
     if @project.update(projects_params)
       redirect_to @project, notice: "Project was successfully updated."
@@ -85,7 +94,7 @@ class ProjectsController < ApplicationController
 
   # DELETE /projects/1
   def destroy
-    @project = Project.find(params[:id])
+    @project = Project.visible_to(current_user).find(params[:id])
 
     if @project.destroy
       redirect_to projects_url, notice: "Project was successfully deleted."
@@ -96,6 +105,10 @@ class ProjectsController < ApplicationController
 
 private
   def projects_params
-    params.require(:project).permit(:bill_to_customer_id, :description, :matchcode, :active)
+    params.require(:project).permit(:bill_to_customer_id, :description, :matchcode, :active, :team_id)
+  end
+
+  def load_customer_options
+    @customer_options = Customer.visible_to(current_user).order(:name).to_a
   end
 end

@@ -23,10 +23,19 @@
       = f.label :description, class: 'col-lg-2 col-md-3 col-form-label'
       .col-lg-9
         = f.text_area :description, :class => 'form-control', :rows => 3
-    .row.mb-3
-      = f.label :bill_to_customer_id, 'Bill to customer', class: 'col-lg-2 col-md-3 col-form-label'
-      .col-lg-5.col-md-4
-        = f.collection_select :bill_to_customer_id, Customer.order(:name), :id, :name, { prompt: 'Select customer...', include_blank: 'No customer (reusable project)' }, {:class => 'form-select'}
+    %div{"data-controller" => "project-team"}
+      .row.mb-3
+        = f.label :bill_to_customer_id, 'Bill to customer', class: 'col-lg-2 col-md-3 col-form-label'
+        .col-lg-5.col-md-4
+          - selected_customer_team = @customer_options.find { |c| c.id == @project.bill_to_customer_id }&.team
+          = f.collection_select :bill_to_customer_id, @customer_options, :id, :name, { prompt: 'Select customer...', include_blank: 'No customer (reusable project)' }, {:class => 'form-select', "data-project-team-target" => "customer", "data-customer-team-map" => @customer_options.to_h { |c| [c.id, { team_id: c.team_id, team_name: c.team&.name }] }.to_json}
+
+      .row.mb-3{"data-project-team-target" => "teamRow"}
+        = f.label :team_id, 'Team', class: 'col-lg-2 col-md-3 col-form-label'
+        .col-sm-5
+          = f.collection_select :team_id, available_teams, :id, :name, { prompt: 'Select team...' }, {:class => 'form-select', :required => true, "data-project-team-target" => "teamSelect"}
+          - if @project.bill_to_customer_id.present? && selected_customer_team
+            .form-text Locked to <strong>#{selected_customer_team.name}</strong> because the bill-to customer belongs to that team.
 
   = action_buttons_wrapper do
     = f.button :submit, :class => 'btn btn-primary'

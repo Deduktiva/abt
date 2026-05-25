@@ -1,4 +1,4 @@
-= page_header_with_new_button('Listing customers', new_customer_path)
+= page_header_with_new_button('Listing customers', new_customer_path, permission: 'customers.edit')
 
 .mb-3
   .btn-toolbar.mb-3{:role=>"toolbar", "aria-label"=>"List toolbar"}
@@ -12,6 +12,7 @@
     %th{:width => "10%"} Matchcode
     %th{:width => "7%"} Status
     %th Name
+    %th{:width => "10%"} Team
     %th{:width => "3%"}
     %th{:width => "3%"}
 
@@ -24,7 +25,10 @@
         - else
           %span.badge.bg-secondary Inactive
       %td= customer.name
-      %td= list_action_link('Edit', edit_customer_path(customer), :edit)
+      %td= customer.team&.name
       %td
-        - if !customer.used_in_invoices?
+        - if can?('customers.edit')
+          = list_action_link('Edit', edit_customer_path(customer), :edit)
+      %td
+        - if can?('customers.edit') && !customer.used_in_invoices?
           = destroy_link(customer, "Are you sure you want to delete customer \"#{customer.matchcode}\" (#{customer.name})?")

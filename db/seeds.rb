@@ -140,6 +140,10 @@ if Rails.env.development?
     customer.sales_tax_customer_class = eu_class
     customer.language = english
     customer.team = default_team
+    customer.invoice_email_auto_enabled = true
+    customer.invoice_email_auto_to = 'invoices-good-eu@example.com'
+    customer.invoice_email_auto_subject_template = 'Invoice $CUST_REF$ ($CUST_ORDER$)'
+    customer.invoice_email_auto_contact_mode = 'cc_contacts'
   end
 
   local_company = Customer.find_or_create_by(matchcode: 'LOCALNAT') do |customer|

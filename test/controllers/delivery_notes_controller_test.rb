@@ -337,6 +337,24 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert json_response.key?("has_html_body")
   end
 
+  test "send_email returns 200 for JSON requests and marks email sent" do
+    note = delivery_notes(:published_delivery_note)
+    note.update_column(:email_sent_at, nil)
+
+    post send_email_delivery_note_url(note),
+         headers: { "Accept" => "application/json" }
+
+    assert_response :success
+    assert_not_nil note.reload.email_sent_at
+  end
+
+  test "send_email redirects for HTML requests" do
+    note = delivery_notes(:published_delivery_note)
+    post send_email_delivery_note_url(note)
+    assert_redirected_to delivery_note_url(note)
+    assert_match "E-Mail queued for sending.", flash[:notice]
+  end
+
   test "should bulk send emails to selected delivery notes" do
     published_note = delivery_notes(:published_delivery_note)
 

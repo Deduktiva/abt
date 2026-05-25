@@ -118,6 +118,17 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     assert_redirected_to invoice_path(invoice)
   end
 
+  test "send_email returns 200 for JSON requests" do
+    invoice = invoices(:published_invoice)
+
+    assert_enqueued_emails 1 do
+      post send_email_invoice_path(invoice), headers: { "Accept" => "application/json" }
+    end
+
+    assert_response :success
+    assert_not_nil invoice.reload.email_sent_at
+  end
+
   test "bulk_send_emails queues jobs for selected invoices" do
     invoice1 = invoices(:published_invoice)
     invoice2 = invoices(:auto_email_invoice)

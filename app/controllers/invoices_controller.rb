@@ -175,7 +175,10 @@ class InvoicesController < ApplicationController
   def send_email
     InvoiceMailer.with(invoice: @invoice).customer_email.deliver_later
     @invoice.update_column(:email_sent_at, Time.current)
-    redirect_to @invoice, notice: "E-Mail queued for sending."
+    respond_to do |format|
+      format.html { redirect_to @invoice, notice: "E-Mail queued for sending." }
+      format.json { head :ok }
+    end
   end
 
   def mark_paid

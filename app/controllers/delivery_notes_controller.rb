@@ -283,7 +283,10 @@ class DeliveryNotesController < ApplicationController
   def send_email
     DeliveryNoteMailer.with(delivery_note: @delivery_note).customer_email.deliver_later
     @delivery_note.update_column(:email_sent_at, Time.current)
-    redirect_to @delivery_note, notice: "E-Mail queued for sending."
+    respond_to do |format|
+      format.html { redirect_to @delivery_note, notice: "E-Mail queued for sending." }
+      format.json { head :ok }
+    end
   end
 
   def bulk_send_emails

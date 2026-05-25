@@ -36,7 +36,8 @@ class Invoice < ApplicationRecord
 
   def email_cc_recipients
     return [] unless customer.invoice_email_auto_enabled? && customer.cc_contacts?
-    customer.contacts_for_invoice(self).map(&:email) - [ customer.invoice_email_auto_to ].compact_blank
+    auto_to = customer.invoice_email_auto_to.to_s.downcase.strip
+    customer.contacts_for_invoice(self).map(&:email).reject { |e| e.to_s.downcase.strip == auto_to }
   end
 
   def emailable?

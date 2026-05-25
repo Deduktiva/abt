@@ -60,6 +60,19 @@ class InvoiceMailerTest < ActionMailer::TestCase
     assert mail.cc.blank?, "expected mail.cc to be blank, got #{mail.cc.inspect}"
   end
 
+  test "customer_email with auto + cc_contacts deduplicates a contact whose email matches the auto address case-insensitively" do
+    customer = customers(:auto_email_customer)
+    customer.customer_contacts.create!(name: "Shouty", email: customer.invoice_email_auto_to.upcase, receives_invoice_emails: true)
+    invoice = invoices(:auto_email_invoice)
+
+    mail = InvoiceMailer.with(invoice: invoice).customer_email
+
+    assert_equal [ "billing@autoemail.com" ], mail.to
+    # backup@autoemail.com (from the auto_email_contact fixture) survives;
+    # the BILLING@AUTOEMAIL.COM contact was dropped from CC.
+    assert_equal [ "backup@autoemail.com" ], mail.cc
+  end
+
   test "customer_email with auto + cc_contacts but no matching contact omits cc" do
     customers(:auto_email_customer).customer_contacts.destroy_all
     invoice = invoices(:auto_email_invoice)

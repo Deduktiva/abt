@@ -136,7 +136,6 @@ if Rails.env.development?
       Poland
     ADDRESS
     customer.vat_id = 'PL0123456789'
-    customer.email = 'accounting-goodeu@example.com'
     customer.notes = 'Long-term client, monthly invoicing'
     customer.sales_tax_customer_class = eu_class
     customer.language = english
@@ -151,7 +150,6 @@ if Rails.env.development?
       Netherlands
     ADDRESS
     customer.vat_id = 'NL123456789B01'
-    customer.email = 'accounting-localnat@example.com'
     customer.notes = 'Project-based work'
     customer.sales_tax_customer_class = national_class
     customer.language = german
@@ -165,7 +163,6 @@ if Rails.env.development?
       New York, NY 10001
       United States
     ADDRESS
-    customer.email = 'ap-us@example.com'
     customer.notes = 'US-based client, quarterly invoicing'
     customer.sales_tax_customer_class = export_class
     customer.language = english
@@ -209,6 +206,56 @@ if Rails.env.development?
     project.bill_to_customer = nil  # Reusable project
     project.team = default_team
   end
+
+  # Two extra projects for GOODEU to demonstrate project-scoped contacts.
+  audit_project = Project.find_or_create_by(matchcode: 'AUDIT2026') do |project|
+    project.description = 'Audit 2026'
+    project.bill_to_customer = good_company
+    project.team = default_team
+  end
+
+  migration_project = Project.find_or_create_by(matchcode: 'MIGR2026') do |project|
+    project.description = 'Migration 2026'
+    project.bill_to_customer = good_company
+    project.team = default_team
+  end
+
+  # Customer contacts.
+  # GOODEU: three contacts demonstrating the project-scoping rules.
+  unless good_company.customer_contacts.exists?
+    good_company.customer_contacts.create!(
+      name: 'Accounting',
+      email: 'accounting-goodeu@example.com',
+      receives_invoice_emails: true,
+      receives_delivery_note_emails: true
+    )
+    good_company.customer_contacts.create!(
+      name: 'Audit Lead',
+      email: 'audit-lead@example.com',
+      receives_invoice_emails: true,
+      receives_delivery_note_emails: false,
+      projects: [ audit_project, migration_project ]
+    )
+    good_company.customer_contacts.create!(
+      name: 'Migration PM',
+      email: 'pm-migration@example.com',
+      receives_invoice_emails: false,
+      receives_delivery_note_emails: true,
+      projects: [ migration_project ]
+    )
+  end
+
+  unless local_company.customer_contacts.exists?
+    local_company.customer_contacts.create!(
+      name: 'Buchhaltung',
+      email: 'accounting-localnat@example.com',
+      receives_invoice_emails: true,
+      receives_delivery_note_emails: true
+    )
+  end
+
+  # USACORP is intentionally left without contacts to exercise the
+  # "no recipient" UX path.
 
   # Sample products
   Product.find_or_create_by(title: 'Software Development') do |product|

@@ -1,0 +1,3 @@
+good_eu_project_one_lead_to_one:
+  customer_contact_id: <%= ActiveRecord::FixtureSet.identify(:good_eu_project_one_lead) %>
+  project_id: <%= ActiveRecord::FixtureSet.identify(:one) %>

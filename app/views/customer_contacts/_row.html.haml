@@ -1,0 +1,25 @@
+= turbo_frame_tag dom_id(contact), class: "contact-row d-block border-bottom py-2" do
+  .row.align-items-center.gx-2
+    .col-md-2.fw-medium= contact.name
+    .col-md-3= mail_to contact.email
+    .col-md-1.text-center
+      - if contact.receives_invoice_emails?
+        %span.badge.bg-success Inv
+      - else
+        %span.text-muted —
+    .col-md-1.text-center
+      - if contact.receives_delivery_note_emails?
+        %span.badge.bg-success DN
+      - else
+        %span.text-muted —
+    .col-md-3
+      - if contact.projects.any?
+        - contact.projects.each do |p|
+          %span.badge.bg-secondary.me-1= p.matchcode
+      - else
+        %span.text-muted All projects
+    .col-md-2.text-end
+      - if can?('customers.edit')
+        = list_action_link "Edit", edit_customer_contact_path(contact), :edit
+        = link_to "🗑", customer_contact_path(contact), class: "btn btn-sm btn-outline-danger py-0",
+                  data: { 'turbo-method': :delete, 'turbo-confirm': "Delete contact \"#{contact.name}\"?" }

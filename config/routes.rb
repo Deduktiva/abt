@@ -51,7 +51,10 @@ Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
   resources :attachments, only: [ :show ]
-  resources :customers
+  resources :customers do
+    resources :customer_contacts, only: [ :new, :create ]
+  end
+  resources :customer_contacts, only: [ :show, :edit, :update, :destroy ]
   resources :invoices do
     member do
       get "preview"

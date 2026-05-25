@@ -11,6 +11,13 @@ class Customer < ApplicationRecord
   belongs_to :language
   has_many :sales_tax_rates, through: :sales_tax_customer_class
   has_many :invoices
+  has_many :customer_contacts, dependent: :destroy
+
+  enum :invoice_email_auto_contact_mode, {
+    replace_contacts: "replace_contacts",
+    cc_contacts: "cc_contacts",
+    additional: "additional"
+  }
 
   # Scopes for filtering
   scope :active, -> { where(active: true) }
@@ -18,6 +25,14 @@ class Customer < ApplicationRecord
 
   def used_in_invoices?
     invoices.exists?
+  end
+
+  def contacts_for_invoice(invoice)
+    customer_contacts.for_invoices.select { |c| c.applies_to_project?(invoice.project) }
+  end
+
+  def contacts_for_delivery_note(delivery_note)
+    customer_contacts.for_delivery_notes.select { |c| c.applies_to_project?(delivery_note.project) }
   end
 
   before_destroy :check_if_used

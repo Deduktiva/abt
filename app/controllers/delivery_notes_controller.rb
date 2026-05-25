@@ -281,6 +281,9 @@ class DeliveryNotesController < ApplicationController
   end
 
   def send_email
+    unless @delivery_note.emailable?
+      redirect_to @delivery_note, alert: "No recipient configured for this delivery note." and return
+    end
     DeliveryNoteMailer.with(delivery_note: @delivery_note).customer_email.deliver_later
     @delivery_note.update_column(:email_sent_at, Time.current)
     respond_to do |format|
@@ -298,26 +301,32 @@ class DeliveryNotesController < ApplicationController
       return
     end
 
-    delivery_notes = DeliveryNote.where(id: delivery_note_ids, published: true)
-
-    # Group delivery notes by customer
-    grouped_by_customer = delivery_notes.group_by(&:customer)
+    delivery_notes = DeliveryNote.visible_to(current_user).where(id: delivery_note_ids, published: true)
     queued_count = 0
+    skipped_count = 0
     now = Time.current
 
-    grouped_by_customer.each do |customer, customer_delivery_notes|
-      next unless customer.email.present?
-
-      if customer_delivery_notes.length == 1
-        DeliveryNoteMailer.with(delivery_note: customer_delivery_notes.first).customer_email.deliver_later
-      else
-        DeliveryNoteMailer.with(delivery_notes: customer_delivery_notes).bulk_customer_email.deliver_later
+    # Partition by [customer_id, resolved-recipient-set]. Two DNs to the same
+    # customer with different project-scoped contacts must NOT be combined,
+    # otherwise we leak DN A's recipients onto DN B.
+    delivery_notes.group_by { |dn| [ dn.customer_id, dn.email_recipients.sort ] }.each do |(_cid, recipients), dns|
+      if recipients.empty?
+        skipped_count += dns.length
+        next
       end
-      DeliveryNote.where(id: customer_delivery_notes.map(&:id)).update_all(email_sent_at: now)
-      queued_count += customer_delivery_notes.length
+
+      if dns.length == 1
+        DeliveryNoteMailer.with(delivery_note: dns.first).customer_email.deliver_later
+      else
+        DeliveryNoteMailer.with(delivery_notes: dns, recipients: recipients).bulk_customer_email.deliver_later
+      end
+      DeliveryNote.where(id: dns.map(&:id)).update_all(email_sent_at: now)
+      queued_count += dns.length
     end
 
-    redirect_to delivery_notes_path, notice: "#{queued_count} emails queued for sending."
+    notice = "#{queued_count} emails queued for sending."
+    notice += " #{skipped_count} skipped (no recipients)." if skipped_count > 0
+    redirect_to delivery_notes_path, notice: notice
   end
 
 protected

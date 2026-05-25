@@ -48,10 +48,6 @@
         = f.collection_select :language_id, Language.all, :id, :title, { prompt: 'Select language...' }, {:class => 'form-select', :required => true}
     %hr
     .row.mb-3
-      = f.label :email, 'E-Mail', class: 'col-lg-2 col-md-3 col-form-label'
-      .col-lg-5
-        = f.text_field :email, :class => 'form-control'
-    .row.mb-3
       = f.label :invoice_email_auto_enabled, 'Auto. Invoice E-Mail', class: 'col-lg-2 col-md-3 col-form-label'
       .col-lg-1.col-md-2.col-sm-2
         .form-check
@@ -61,6 +57,15 @@
         = f.text_field :invoice_email_auto_to, {:class => 'form-control', :placeholder => 'To:'}
       .col-lg-4
         = f.text_field :invoice_email_auto_subject_template, {:class => 'form-control', :placeholder => 'Subject: XXXX $CUST_REF$ $CUST_ORDER$'}
+    .row.mb-3
+      = f.label :invoice_email_auto_contact_mode, 'Contacts mode', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-lg-5
+        = f.select :invoice_email_auto_contact_mode,
+                   [['Replace contacts (To: auto only — current behaviour)', 'replace_contacts'],
+                    ['CC contacts (To: auto, CC: matching contacts)', 'cc_contacts'],
+                    ['Additional (To: auto + matching contacts)', 'additional']],
+                   {}, class: 'form-select'
+        .form-text Applies only when "Auto. Invoice E-Mail" is on. Contacts always receive the email when auto is off.
     %hr
     .row.mb-3
       = f.label :payment_terms_days, 'Payment terms (days)', class: 'col-lg-2 col-md-3 col-form-label'

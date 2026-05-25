@@ -1,0 +1,19 @@
+.card.mt-4#customer_contacts
+  .card-header Contacts
+  .card-body.pt-2
+    .row.gx-2.pb-2.border-bottom.text-muted.small.fw-bold
+      .col-md-2 Name
+      .col-md-3 Email
+      .col-md-1.text-center Inv.
+      .col-md-1.text-center DN
+      .col-md-3 Projects
+      .col-md-2.text-end &nbsp;
+
+    %div#customer_contacts_tbody
+      - if customer.customer_contacts.any?
+        = render partial: "customer_contacts/row", collection: customer.customer_contacts.includes(:projects), as: :contact
+      - else
+        .text-muted.py-2.small No contacts configured. The customer will not receive any emails unless an Automated Email is configured.
+
+    - if can?('customers.edit')
+      = render "customer_contacts/add_link", customer: customer

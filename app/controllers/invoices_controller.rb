@@ -173,6 +173,9 @@ class InvoicesController < ApplicationController
   end
 
   def send_email
+    unless @invoice.emailable?
+      redirect_to @invoice, alert: "No recipient configured for this invoice." and return
+    end
     InvoiceMailer.with(invoice: @invoice).customer_email.deliver_later
     @invoice.update_column(:email_sent_at, Time.current)
     respond_to do |format|
@@ -204,19 +207,24 @@ class InvoicesController < ApplicationController
       return
     end
 
-    invoices = Invoice.where(id: invoice_ids, published: true)
+    invoices = Invoice.visible_to(current_user).where(id: invoice_ids, published: true)
     queued_count = 0
+    skipped_count = 0
     now = Time.current
 
     invoices.each do |invoice|
-      if invoice.customer.email.present? || invoice.customer.invoice_email_auto_enabled
+      if invoice.emailable?
         InvoiceMailer.with(invoice: invoice).customer_email.deliver_later
         invoice.update_column(:email_sent_at, now)
         queued_count += 1
+      else
+        skipped_count += 1
       end
     end
 
-    redirect_to invoices_path, notice: "#{queued_count} emails queued for sending."
+    notice = "#{queued_count} emails queued for sending."
+    notice += " #{skipped_count} skipped (no recipients)." if skipped_count > 0
+    redirect_to invoices_path, notice: notice
   end
 
 protected

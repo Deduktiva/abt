@@ -88,8 +88,8 @@ class CustomersController < ApplicationController
 private
   def customers_params
     params.require(:customer).permit(
-        :matchcode, :name, :address, :email, :vat_id, :notes, :sales_tax_customer_class_id, :language_id, :payment_terms_days,
-        :invoice_email_auto_to, :invoice_email_auto_subject_template, :invoice_email_auto_enabled, :active,
+        :matchcode, :name, :address, :vat_id, :notes, :sales_tax_customer_class_id, :language_id, :payment_terms_days,
+        :invoice_email_auto_to, :invoice_email_auto_subject_template, :invoice_email_auto_enabled, :invoice_email_auto_contact_mode, :active,
         :team_id
     )
   end

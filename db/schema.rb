@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_25_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_25_120004) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -20,11 +20,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_25_120000) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "customer_contact_projects", force: :cascade do |t|
+    t.integer "customer_contact_id", null: false
+    t.integer "project_id", null: false
+    t.index ["customer_contact_id", "project_id"], name: "index_customer_contact_projects_uniq", unique: true
+    t.index ["customer_contact_id"], name: "index_customer_contact_projects_on_customer_contact_id"
+    t.index ["project_id"], name: "index_customer_contact_projects_on_project_id"
+  end
+
+  create_table "customer_contacts", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "customer_id", null: false
+    t.string "email", null: false
+    t.string "name", null: false
+    t.boolean "receives_delivery_note_emails", default: false, null: false
+    t.boolean "receives_invoice_emails", default: false, null: false
+    t.datetime "updated_at", null: false
+    t.index ["customer_id"], name: "index_customer_contacts_on_customer_id"
+  end
+
   create_table "customers", force: :cascade do |t|
     t.boolean "active", default: true, null: false
     t.text "address"
     t.datetime "created_at", null: false
-    t.string "email"
+    t.string "invoice_email_auto_contact_mode", default: "replace_contacts", null: false
     t.boolean "invoice_email_auto_enabled", default: false, null: false
     t.string "invoice_email_auto_subject_template", default: "", null: false
     t.string "invoice_email_auto_to", default: "", null: false
@@ -372,6 +391,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_25_120000) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
+  add_foreign_key "customer_contact_projects", "customer_contacts"
+  add_foreign_key "customer_contact_projects", "projects"
+  add_foreign_key "customer_contacts", "customers"
   add_foreign_key "customers", "languages"
   add_foreign_key "customers", "teams"
   add_foreign_key "delivery_note_lines", "delivery_notes"

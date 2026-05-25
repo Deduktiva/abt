@@ -4,34 +4,28 @@ class DeliveryNoteMailer < ApplicationMailer
     attach_pdf(@delivery_note) unless params[:skip_attachments]
 
     customer = @delivery_note.customer
-    to = subject = nil
+    to = @delivery_note.email_recipients
 
     with_customer_locale(customer) do
-      if customer.email.present?
-        subject = I18n.t("mailers.delivery_note.subject", issuer_name: @issuer.short_name, document_number: @delivery_note.document_number)
-        to = customer.email
-      end
-
+      subject = I18n.t("mailers.delivery_note.subject", issuer_name: @issuer.short_name, document_number: @delivery_note.document_number)
       document_mail(to: to, subject: subject)
     end
   end
 
+  # Caller must ensure every delivery note in @delivery_notes resolves to the
+  # same `recipients` set, otherwise we'd leak one DN's recipients onto
+  # another. DeliveryNotesController#bulk_send_emails partitions accordingly
+  # by [customer_id, sorted recipient list].
   def bulk_customer_email
     @delivery_notes = params[:delivery_notes]
     @customer = @delivery_notes.first.customer
+    to = params[:recipients] || @customer.contacts_for_delivery_note(@delivery_notes.first).map(&:email)
 
     @delivery_notes.each { |dn| attach_pdf(dn) }
 
-    customer = @customer
-    to = subject = nil
-
-    with_customer_locale(customer) do
-      if customer.email.present?
-        document_numbers = @delivery_notes.map(&:document_number).join(", ")
-        subject = I18n.t("mailers.delivery_note.bulk_subject", issuer_name: @issuer.short_name, document_numbers: document_numbers)
-        to = customer.email
-      end
-
+    with_customer_locale(@customer) do
+      document_numbers = @delivery_notes.map(&:document_number).join(", ")
+      subject = I18n.t("mailers.delivery_note.bulk_subject", issuer_name: @issuer.short_name, document_numbers: document_numbers)
       document_mail(to: to, subject: subject)
     end
   end

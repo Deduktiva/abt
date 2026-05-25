@@ -12,11 +12,25 @@ class DeliveryNote < ApplicationRecord
   default_scope { order(Arel.sql("id ASC")) }
 
   scope :email_unsent, -> {
-    joins(:customer)
-    .where(email_sent_at: nil)
-    .where("customers.email IS NOT NULL AND customers.email != ''")
+    where(email_sent_at: nil).where(<<~SQL.squish)
+      EXISTS (
+        SELECT 1 FROM customer_contacts cc
+        LEFT JOIN customer_contact_projects ccp ON ccp.customer_contact_id = cc.id
+        WHERE cc.customer_id = delivery_notes.customer_id
+          AND cc.receives_delivery_note_emails = TRUE
+          AND (ccp.project_id IS NULL OR ccp.project_id = delivery_notes.project_id)
+      )
+    SQL
   }
   scope :published, -> { where(published: true) }
+
+  def email_recipients
+    customer.contacts_for_delivery_note(self).map(&:email)
+  end
+
+  def emailable?
+    customer.contacts_for_delivery_note(self).any?
+  end
 
   def self.visible_to(user)
     return none if user.nil?

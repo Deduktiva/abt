@@ -64,9 +64,11 @@
       .card-body
         .row.mb-2
           .col-sm-4
-            %strong Email:
+            %strong Contacts:
           .col-sm-8
-            = @customer.email
+            = pluralize(@customer.customer_contacts.size, 'contact')
+            - if @customer.customer_contacts.any?
+              = link_to '(manage)', '#customer_contacts'
 
         .row.mb-2
           .col-sm-4
@@ -100,6 +102,14 @@
               %strong Subject Template:
             .col-sm-9
               = @customer.invoice_email_auto_subject_template
+
+          .row.mb-2
+            .col-sm-3
+              %strong Contacts mode:
+            .col-sm-9
+              = @customer.invoice_email_auto_contact_mode.humanize
+
+= render "customers/contacts_table", customer: @customer
 
 - if @customer.notes.present?
   .row.mt-4

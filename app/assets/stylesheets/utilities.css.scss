@@ -121,3 +121,9 @@
   max-width: 480px;
   word-break: break-word;
 }
+
+// --- Customer contacts form ---
+// Caps the multi-select's height so it doesn't grow with the project list.
+.customer-contact-projects-select {
+  max-height: 7rem;
+}

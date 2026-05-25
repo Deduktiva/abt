@@ -19,8 +19,7 @@
                   options_from_collection_for_select(eligible_projects, :id, :matchcode, contact.project_ids),
                   { include_hidden: false },
                   multiple: true, size: [eligible_projects.size, 4].min.clamp(2, 6),
-                  class: "form-select form-select-sm",
-                  style: "max-height: 7rem"
+                  class: "form-select form-select-sm customer-contact-projects-select"
     - if contact.errors[:projects].any?
       .invalid-feedback.d-block= contact.errors[:projects].to_sentence
   .col-md-2.text-end

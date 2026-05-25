@@ -276,7 +276,7 @@ class DeliveryNotesController < ApplicationController
   end
 
   def preview_email_raw
-    mail = DeliveryNoteMailer.with(delivery_note: @delivery_note).customer_email
+    mail = DeliveryNoteMailer.with(delivery_note: @delivery_note, skip_attachments: true).customer_email
     render html: extract_html_body(mail).to_s.html_safe, layout: false
   end
 

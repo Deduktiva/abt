@@ -1,7 +1,7 @@
 class DeliveryNoteMailer < ApplicationMailer
   def customer_email
     @delivery_note = params[:delivery_note]
-    attach_pdf(@delivery_note)
+    attach_pdf(@delivery_note) unless params[:skip_attachments]
 
     customer = @delivery_note.customer
     to = subject = nil

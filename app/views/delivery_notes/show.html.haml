@@ -142,7 +142,7 @@
                     - else
                       = simple_format(line.description)
 
-.email-delivery_note-preview-wrapper{"data-controller" => "generic-email-preview", "data-generic-email-preview-preview-url-value" => preview_email_delivery_note_path(@delivery_note), "data-generic-email-preview-send-url-value" => send_email_delivery_note_path(@delivery_note)}
+.email-delivery_note-preview-wrapper{"data-controller" => "generic-email-preview", "data-generic-email-preview-preview-url-value" => preview_email_delivery_note_path(@delivery_note), "data-generic-email-preview-raw-preview-url-value" => preview_email_raw_delivery_note_path(@delivery_note), "data-generic-email-preview-send-url-value" => send_email_delivery_note_path(@delivery_note)}
   - can_edit_dn = can?('delivery_notes.edit')
   = action_buttons_wrapper do
     = action_button 'Back', delivery_notes_path, :secondary

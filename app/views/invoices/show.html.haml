@@ -166,7 +166,7 @@
               %td.text-end
                 %strong= format_currency(@invoice.sum_total)
 
-.email-preview-wrapper{"data-controller" => "generic-email-preview", "data-generic-email-preview-preview-url-value" => preview_email_invoice_path(@invoice), "data-generic-email-preview-send-url-value" => send_email_invoice_path(@invoice)}
+.email-preview-wrapper{"data-controller" => "generic-email-preview", "data-generic-email-preview-preview-url-value" => preview_email_invoice_path(@invoice), "data-generic-email-preview-raw-preview-url-value" => preview_email_raw_invoice_path(@invoice), "data-generic-email-preview-send-url-value" => send_email_invoice_path(@invoice)}
   - can_edit_invoice = can?('invoices.edit')
   = action_buttons_wrapper do
     = action_button 'Back', invoices_path, :secondary

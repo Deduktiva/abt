@@ -30,7 +30,6 @@
       = link_to "Cancel", new_customer_customer_contact_path(customer, cancel: 1), class: "btn btn-sm btn-link"
 .row.align-items-start.gx-2.mt-2
   .col-md-5
-    = form.text_field :salutation_line, class: "form-control form-control-sm",
-                      placeholder: "Dear Mr. Huber,"
+    = form.text_field :salutation_line, class: "form-control form-control-sm"
     .form-text.small
       = t("customer_contacts.salutation_line_hint", language_name: customer.language.title)

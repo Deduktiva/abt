@@ -242,8 +242,8 @@
                                             <fo:table-cell>
                                                 <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">
                                                     <xsl:choose>
-                                                        <xsl:when test="/document/language = 'de'">Unsere Lieferantennr.:</xsl:when>
-                                                        <xsl:otherwise>Our Supplier No.:</xsl:otherwise>
+                                                        <xsl:when test="/document/language = 'de'">Kreditorennr.:</xsl:when>
+                                                        <xsl:otherwise>Supplier No.:</xsl:otherwise>
                                                     </xsl:choose>
                                                 </fo:block>
                                             </fo:table-cell>

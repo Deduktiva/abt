@@ -1,7 +1,7 @@
 class Customer < ApplicationRecord
   include TeamOwned
 
-  validates :matchcode, presence: true
+  validates :matchcode, presence: true, uniqueness: { case_sensitive: false }
   validates :name, presence: true
 
   # Set default language (English) for new customers

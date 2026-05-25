@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_24_221140) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_25_120000) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -38,6 +38,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_221140) do
     t.integer "team_id", null: false
     t.datetime "updated_at", null: false
     t.text "vat_id"
+    t.index "LOWER(matchcode)", name: "index_customers_on_lower_matchcode", unique: true
     t.index ["language_id"], name: "index_customers_on_language_id"
     t.index ["name"], name: "index_customers_on_name"
     t.index ["team_id"], name: "index_customers_on_team_id"
@@ -233,7 +234,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_221140) do
     t.string "matchcode"
     t.integer "team_id", null: false
     t.datetime "updated_at", null: false
-    t.index ["matchcode"], name: "index_projects_on_matchcode"
+    t.index "LOWER(matchcode)", name: "index_projects_on_lower_matchcode", unique: true
     t.index ["team_id"], name: "index_projects_on_team_id"
   end
 

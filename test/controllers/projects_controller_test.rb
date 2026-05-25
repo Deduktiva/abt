@@ -13,15 +13,6 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should filter projects by active status and handle index properly" do
-    # Create inactive project
-    Project.create!(
-      matchcode: "INACTIVE",
-      description: "Inactive project",
-      active: false,
-      bill_to_customer: @customer,
-      team: teams(:default)
-    )
-
     # Test all filter options in a single request cycle
     [ "active", "inactive", "all" ].each do |filter_type|
       get projects_url(filter: filter_type)
@@ -300,7 +291,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   test "should include reusable projects when include_reusable is true" do
     # Create a reusable project (no customer)
     reusable_project = Project.create!(
-      matchcode: "REUSABLE",
+      matchcode: "REUSABLE_INC",
       description: "Reusable project",
       bill_to_customer: nil,
       active: true,
@@ -332,7 +323,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
 
     # Create reusable project
     reusable_project = Project.create!(
-      matchcode: "REUSABLE",
+      matchcode: "REUSABLE_FILT",
       description: "Reusable project",
       bill_to_customer: nil,
       active: true,

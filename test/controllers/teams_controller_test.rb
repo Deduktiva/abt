@@ -35,6 +35,7 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
     Customer.create!(
       matchcode: "IN_USE_TEAM",
       name: "In Use",
+      vat_id: "EU151515151",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: teams(:acme)

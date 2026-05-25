@@ -3,6 +3,7 @@ class Customer < ApplicationRecord
 
   validates :matchcode, presence: true, uniqueness: { case_sensitive: false }
   validates :name, presence: true
+  validates :vat_id, presence: true, if: -> { sales_tax_customer_class&.vat_id_required? }
 
   # Set default language (English) for new customers
   before_validation :set_default_language, on: :create

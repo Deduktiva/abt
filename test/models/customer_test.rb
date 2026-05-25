@@ -5,6 +5,7 @@ class CustomerTest < ActiveSupport::TestCase
     Customer.new({
       matchcode: "TEST",
       name: "Test Customer",
+      vat_id: "EU000000000",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: teams(:default),
@@ -26,6 +27,17 @@ class CustomerTest < ActiveSupport::TestCase
     customer = build_customer(name: nil)
     assert_not customer.valid?
     assert_includes customer.errors[:name], "can't be blank"
+  end
+
+  test "requires vat_id when its sales_tax_customer_class requires one" do
+    customer = build_customer(vat_id: nil, sales_tax_customer_class: sales_tax_customer_classes(:eu))
+    assert_not customer.valid?
+    assert_includes customer.errors[:vat_id], "can't be blank"
+  end
+
+  test "allows blank vat_id when its sales_tax_customer_class does not require one" do
+    customer = build_customer(vat_id: nil, sales_tax_customer_class: sales_tax_customer_classes(:restoftheworld))
+    assert customer.valid?, customer.errors.full_messages.inspect
   end
 
   test "matchcode must be globally unique across all teams" do

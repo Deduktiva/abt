@@ -25,6 +25,7 @@ class TeamTest < ActiveSupport::TestCase
     Customer.create!(
       matchcode: "INUSE",
       name: "In Use Co.",
+      vat_id: "EU999999999",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: team

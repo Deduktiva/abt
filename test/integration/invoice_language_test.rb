@@ -114,11 +114,38 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
     assert_valid_pdf_response
   end
 
+  def test_pdf_generation_for_export_customer_without_vat_id
+    # Customers in tax classes that don't require a VAT ID (export / non-EU /
+    # B2C) must be able to render an invoice PDF. Regression test for the
+    # invoice_booker check that previously rejected any blank customer_vat_id.
+    export_customer = Customer.create!(
+      name: "USA Corporation Inc.",
+      matchcode: "USACORP_TEST",
+      address: "123 Business Ave\nNew York, NY 10001\nUnited States",
+      sales_tax_customer_class: sales_tax_customer_classes(:restoftheworld),
+      language: languages(:english),
+      team: teams(:default)
+    )
+    assert_nil export_customer.vat_id
+
+    invoice = Invoice.create!(customer: export_customer, project: @project)
+    invoice.invoice_lines.create!(
+      type: "item", title: "Service", quantity: 1, rate: 100.00,
+      sales_tax_product_class_id: sales_tax_product_classes(:standard).id
+    )
+
+    get preview_invoice_path(invoice)
+    assert_response :success
+    assert_equal "application/pdf", response.content_type
+    assert_valid_pdf_response
+  end
+
   def test_customer_language_assignment_defaults_to_english
     customer = Customer.create!(
       name: "Test Customer",
       matchcode: "TEST",
       address: "Test Address",
+      vat_id: "EN111111111",
       sales_tax_customer_class: sales_tax_customer_classes(:national),
       team: teams(:default)
     )

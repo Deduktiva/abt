@@ -5,6 +5,7 @@ class ProjectTeamScopingTest < ActiveSupport::TestCase
     acme_customer = Customer.create!(
       matchcode: "ACME_CUST",
       name: "Acme Co.",
+      vat_id: "EU666666666",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: teams(:acme)
@@ -39,6 +40,7 @@ class ProjectTeamScopingTest < ActiveSupport::TestCase
     acme_customer = Customer.create!(
       matchcode: "ACME_CUST2",
       name: "Acme 2",
+      vat_id: "EU777777777",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: teams(:acme)

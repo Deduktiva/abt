@@ -35,7 +35,9 @@ class InvoiceBooker
 
     error "no customer name" if empty_or_nil @invoice.customer_name
     error "no customer address" if empty_or_nil @invoice.customer_address
-    error "no customer vat id" if empty_or_nil @invoice.customer_vat_id
+    if @invoice.customer.sales_tax_customer_class.vat_id_required?
+      error "no customer vat id" if empty_or_nil @invoice.customer_vat_id
+    end
     @log << "Customer: #{@invoice.customer_name}, #{@invoice.customer_address.gsub("\n", ', ').gsub("\r", '')}"
     @log << "  VATID: #{@invoice.customer_vat_id}"
     @log << "Customer Order No: #{@invoice.cust_order}, Cust. Reference: #{@invoice.cust_reference}"

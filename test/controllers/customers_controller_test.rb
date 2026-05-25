@@ -43,6 +43,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
         customer: {
           matchcode: "TEST123",
           name: "Test Company",
+          vat_id: "EU181818181",
           sales_tax_customer_class_id: @customer.sales_tax_customer_class_id,
           team_id: teams(:default).id
         }
@@ -56,6 +57,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     unused_customer = Customer.create!(
       matchcode: "UNUSED",
       name: "Unused Customer",
+      vat_id: "EU191919191",
       sales_tax_customer_class: @customer.sales_tax_customer_class,
       team: teams(:default)
     )
@@ -88,6 +90,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     unused_customer = Customer.create!(
       matchcode: "UNUSED2",
       name: "Another Unused Customer",
+      vat_id: "EU202020202",
       sales_tax_customer_class: @customer.sales_tax_customer_class,
       team: teams(:default)
     )
@@ -103,6 +106,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     Customer.create!(
       matchcode: "INACTIVE",
       name: "Inactive Customer",
+      vat_id: "EU212121212",
       active: false,
       sales_tax_customer_class: @customer.sales_tax_customer_class,
       team: teams(:default)

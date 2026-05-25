@@ -207,21 +207,23 @@
                                             </fo:block>
                                         </fo:table-cell>
                                     </fo:table-row>
-                                    <fo:table-row line-height="130%">
-                                        <fo:table-cell>
-                                            <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">
-                                                <xsl:choose>
-                                                    <xsl:when test="/document/language = 'de'">Ihre USt-IdNr.:</xsl:when>
-                                                    <xsl:otherwise>Your VAT ID:</xsl:otherwise>
-                                                </xsl:choose>
-                                            </fo:block>
-                                        </fo:table-cell>
-                                        <fo:table-cell>
-                                            <fo:block>
-                                                <xsl:value-of select="/document/recipient/vat-id" />
-                                            </fo:block>
-                                        </fo:table-cell>
-                                    </fo:table-row>
+                                    <xsl:if test="normalize-space(/document/recipient/vat-id) != ''">
+                                        <fo:table-row line-height="130%">
+                                            <fo:table-cell>
+                                                <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">
+                                                    <xsl:choose>
+                                                        <xsl:when test="/document/language = 'de'">Ihre USt-IdNr.:</xsl:when>
+                                                        <xsl:otherwise>Your VAT ID:</xsl:otherwise>
+                                                    </xsl:choose>
+                                                </fo:block>
+                                            </fo:table-cell>
+                                            <fo:table-cell>
+                                                <fo:block>
+                                                    <xsl:value-of select="/document/recipient/vat-id" />
+                                                </fo:block>
+                                            </fo:table-cell>
+                                        </fo:table-row>
+                                    </xsl:if>
                                     <fo:table-row line-height="130%">
                                         <fo:table-cell>
                                             <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">

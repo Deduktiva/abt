@@ -57,6 +57,7 @@ end
 
 export_class = SalesTaxCustomerClass.find_or_create_by(name: 'EXPORT') do |stcc|
   stcc.invoice_note = 'EXPORT TO NON-EU COUNTRY'
+  stcc.vat_id_required = false
 end
 
 # Sales tax product classes

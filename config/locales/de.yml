@@ -24,6 +24,17 @@ de:
         due_date: "Fällig:"
         days_overdue: "%{days} Tage überfällig"
 
+    expiring_offers:
+      subject: "[%{issuer_name}] %{count} abgelaufene(s) Angebot(e)"
+      heading: "Abgelaufene Angebote am %{date}"
+      main_message: "%{count} Angebot(e) sind ohne Annahme abgelaufen."
+      short:
+        document_number: "Angebotsnr."
+        matchcode: "Kurzbez."
+        customer: "Kunde"
+        expired: "Abgelaufen"
+        days: "%{days}T"
+
     invoice:
       subject: "%{issuer_name} Rechnung %{document_number}"
       greeting: "Sehr geehrte Damen und Herren,"

@@ -1,0 +1,22 @@
+- content_for :title, t('mailers.expiring_offers.heading', date: l(@today))
+
+.greeting
+  = t('mailers.expiring_offers.main_message', count: @offers.size)
+
+%table.expiring-offers-table{style: "border-collapse: collapse; width: 100%; margin-top: 12px;"}
+  %thead
+    %tr
+      %th{style: "text-align:left; border-bottom: 1px solid #ccc; padding: 4px 8px;"}= t('mailers.expiring_offers.short.document_number')
+      %th{style: "text-align:left; border-bottom: 1px solid #ccc; padding: 4px 8px;"}= t('mailers.expiring_offers.short.matchcode')
+      %th{style: "text-align:left; border-bottom: 1px solid #ccc; padding: 4px 8px;"}= t('mailers.expiring_offers.short.customer')
+      %th{style: "text-align:left; border-bottom: 1px solid #ccc; padding: 4px 8px;"}= t('mailers.expiring_offers.short.expired')
+      %th{style: "text-align:right; border-bottom: 1px solid #ccc; padding: 4px 8px;"}= t('mailers.expiring_offers.short.days')
+  %tbody
+    - @offers.each do |offer|
+      - days_expired = ((@today.to_time - offer.expires_at) / 1.day).to_i
+      %tr
+        %td{style: "padding: 4px 8px;"}= offer.document_number
+        %td{style: "padding: 4px 8px;"}= offer.matchcode
+        %td{style: "padding: 4px 8px;"}= offer.customer.matchcode
+        %td{style: "padding: 4px 8px;"}= l(offer.expires_at.to_date)
+        %td{style: "padding: 4px 8px; text-align: right;"}= days_expired

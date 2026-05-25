@@ -25,3 +25,7 @@ production:
     class: VatVerificationsReportJob
     queue: default
     schedule: every day at 11:00
+  expiring_offers_report:
+    class: ExpiringOffersReportJob
+    queue: default
+    schedule: "0 8 */2 * *"

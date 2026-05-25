@@ -101,13 +101,17 @@
       = f.label :offer_milestone_split_threshold, 'Milestone split threshold', class: 'col-lg-2 col-md-3 col-form-label'
       .col-lg-3.col-md-4
         = f.number_field :offer_milestone_split_threshold, step: 0.01, min: 0, class: 'form-control'
-      = f.label :offer_milestone_split_first_ratio, 'First milestone ratio', class: 'col-lg-2 col-form-label'
-      .col-lg-2.col-md-3
-        = f.number_field :offer_milestone_split_first_ratio, step: 0.01, min: 0, max: 1, class: 'form-control'
-        .form-text Between 0 and 1.
+        .form-text Optional. Offers totalling above this use the "above-threshold" template list; at-or-below use the "below-threshold" list.
     .row.mb-3
-      .col-lg-10.offset-lg-2.col-md-9.offset-md-3
-        .form-text Optional. When set, the offer edit page offers an "Apply customer rule" button: above the threshold, milestones split into "Order entry" (first ratio) + "Final delivery" (remainder); below or equal, a single "Final delivery" milestone. Admins can still edit milestones manually after scaffolding.
+      = f.label :offer_milestone_templates_below, 'Below threshold', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-lg-10.col-md-9
+        = f.text_area :offer_milestone_templates_below, class: 'form-control font-monospace', rows: 3, placeholder: "Final delivery|on_acceptance|1.0"
+        .form-text One milestone per line, format <code>Title|trigger|ratio</code>. Trigger is on_order / on_acceptance / on_date. Ratios should sum to 1.0; the last row absorbs rounding.
+    .row.mb-3
+      = f.label :offer_milestone_templates_above, 'Above threshold', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-lg-10.col-md-9
+        = f.text_area :offer_milestone_templates_above, class: 'form-control font-monospace', rows: 5, placeholder: "Order entry|on_order|0.5\nFinal delivery|on_acceptance|0.5"
+        .form-text Same format as above; admins can list any number of milestones.
     .row.mb-3
       = f.label :offer_boilerplate, 'Offer boilerplate', class: 'col-lg-2 col-md-3 col-form-label'
       .col-lg-10.col-md-9

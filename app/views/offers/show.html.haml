@@ -88,15 +88,15 @@
                     Invoice
                     = link_to(m.invoice.document_number || "##{m.invoice_id}", invoice_path(m.invoice_id))
                     - if m.delivery_note_id
-                      , DN
+                      , delivery note
                       = link_to(m.delivery_note.document_number || "##{m.delivery_note_id}", delivery_note_path(m.delivery_note_id))
                     - if can?('offers.convert')
                       = button_to 'Unlink', reopen_offer_milestone_path(@offer, m), method: :post,
                                   class: 'btn btn-sm btn-outline-warning',
-                                  data: { turbo_confirm: 'Unlink the converted invoice/DN from this milestone? Lets you convert again.' }
+                                  data: { turbo_confirm: 'Unlink the linked invoice and delivery note from this milestone so it can be converted again?' }
                   - elsif can?('offers.convert')
-                    = button_to "Convert (skip DN)", convert_offer_milestone_path(@offer, m, skip_delivery_note: true), method: :post, class: 'btn btn-sm btn-outline-primary me-1'
-                    = button_to "Convert (with DN)", convert_offer_milestone_path(@offer, m, skip_delivery_note: false), method: :post, class: 'btn btn-sm btn-primary'
+                    = button_to "Convert (invoice only)", convert_offer_milestone_path(@offer, m, skip_delivery_note: true), method: :post, class: 'btn btn-sm btn-outline-primary me-1'
+                    = button_to "Convert (with delivery note)", convert_offer_milestone_path(@offer, m, skip_delivery_note: false), method: :post, class: 'btn btn-sm btn-primary'
       - else
         %p.text-muted.mb-0 No milestones yet.
 

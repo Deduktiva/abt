@@ -78,7 +78,7 @@
                             @offer.customer.customer_contacts.order(:name),
                             :id, :name,
                             { prompt: 'Select contact...' }, class: 'form-select'
-      .form-text The salutation_line of this contact is used to personalize the offer.
+      .form-text The salutation set on this contact is used to personalize the offer.
 
   = fields_for "offer[version]", @version do |vf|
     .row.mb-3
@@ -107,7 +107,7 @@
       = vf.label :salutation_override, label: 'Salutation override', class: 'col-lg-2 col-md-3 col-form-label'
       .col-md-5
         = vf.text_field :salutation_override, class: 'form-control'
-        .form-text If blank, the addressed_to_contact's salutation_line is used.
+        .form-text If blank, the addressed contact's salutation is used.
 
     .row.mb-3
       = vf.label :client_line_override, label: 'Client line override', class: 'col-lg-2 col-md-3 col-form-label'

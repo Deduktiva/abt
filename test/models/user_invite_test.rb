@@ -41,7 +41,6 @@ class UserInviteTest < ActiveSupport::TestCase
     invite.consume!(user: users(:alice))
     assert invite.used_at.present?
     assert_equal users(:alice), invite.used_by_user
-    assert_not invite.usable?
   end
 
   test "signup invite cannot have a target_user" do

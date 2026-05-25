@@ -21,10 +21,6 @@ class Project < ApplicationRecord
     !used_in_invoices?
   end
 
-  def can_be_deactivated?
-    used_in_invoices?
-  end
-
   def display_name
     if description.present?
       description

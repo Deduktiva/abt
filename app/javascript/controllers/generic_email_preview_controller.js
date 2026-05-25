@@ -69,7 +69,7 @@ export default class extends Controller {
 
       if (response.ok) {
         // Success - show feedback and close modal
-        sendButton.textContent = 'Sent!'
+        sendButton.textContent = 'Queued!'
         sendButton.classList.remove('btn-success')
         sendButton.classList.add('btn-outline-success')
 

@@ -35,9 +35,10 @@ class CspInlineHandlersStructureTest < ActionDispatch::IntegrationTest
   test "layout theme script carries a CSP nonce" do
     get root_path
     body = @response.body
+    expected_nonce = csp_nonce(@response)
 
-    assert_match(/<script[^>]*\bnonce=['"][^'"]+['"][^>]*>[\s\S]*?prefers-color-scheme/, body,
-      "theme detection inline script must have a CSP nonce")
+    assert_match(/<script[^>]*\bnonce=['"]#{Regexp.escape(expected_nonce)}['"][^>]*>[\s\S]*?prefers-color-scheme/, body,
+      "theme detection inline script must carry the same nonce as the CSP header (got something else, e.g. 'true')")
   end
 
   test "Content-Security-Policy header is present and strict" do
@@ -72,17 +73,21 @@ class CspInlineHandlersStructureTest < ActionDispatch::IntegrationTest
   test "issuer_companies/show carries no inline style attribute and emits nonced accent-color block" do
     get issuer_company_path
     body = @response.body
+    expected_nonce = csp_nonce(@response)
 
     assert_no_match(/\bstyle=['"]/, body, "no inline style attributes allowed on issuer companies show")
-    assert_match(/<style[^>]*\bnonce=['"][^'"]+['"][^>]*>[\s\S]*?--issuer-accent-color/, body,
-      "expected a nonced <style> block setting --issuer-accent-color when accent color is configured")
+    assert_match(/<style[^>]*\bnonce=['"]#{Regexp.escape(expected_nonce)}['"][^>]*>[\s\S]*?--issuer-accent-color/, body,
+      "accent-color <style> block must carry the same nonce as the CSP header (`nonce: true` literal is a known regression)")
   end
 
   test "home dashboard carries no inline style attribute" do
     get root_path
     body = @response.body
+    expected_nonce = csp_nonce(@response)
 
     assert_no_match(/\bstyle=['"]/, body, "no inline style attributes allowed on the dashboard")
+    assert_match(/<style[^>]*\bnonce=['"]#{Regexp.escape(expected_nonce)}['"][^>]*>[\s\S]*?--issuer-accent-color/, body,
+      "accent-color <style> block must carry the same nonce as the CSP header")
   end
 
   test "invoices show carries no inline style attribute" do
@@ -104,5 +109,14 @@ class CspInlineHandlersStructureTest < ActionDispatch::IntegrationTest
     body = @response.body
 
     assert_no_match(/\bstyle=['"]/, body, "no inline style attributes allowed on users show")
+  end
+
+  private
+
+  def csp_nonce(response)
+    csp = response.headers["Content-Security-Policy"].to_s
+    match = csp.match(/'nonce-([^']+)'/)
+    flunk "CSP header has no nonce: #{csp.inspect}" unless match
+    match[1]
   end
 end

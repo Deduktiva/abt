@@ -23,3 +23,7 @@
         = list_action_link "Edit", edit_customer_contact_path(contact), :edit
         = link_to "🗑", customer_contact_path(contact), class: "btn btn-sm btn-outline-danger py-0",
                   data: { 'turbo-method': :delete, 'turbo-confirm': "Delete contact \"#{contact.name}\"?" }
+  - if contact.salutation_line.present?
+    .row.gx-2
+      .col-md-10.offset-md-2.small.text-muted.fst-italic
+        = contact.salutation_line

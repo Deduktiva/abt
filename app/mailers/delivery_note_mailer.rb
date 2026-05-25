@@ -7,6 +7,8 @@ class DeliveryNoteMailer < ApplicationMailer
     to = @delivery_note.email_recipients
 
     with_customer_locale(customer) do
+      @salutation = @delivery_note.email_salutation_contact&.salutation_line.presence
+
       subject = I18n.t("mailers.delivery_note.subject",
                        issuer_name: sanitize_header_value(@issuer.short_name),
                        document_number: sanitize_header_value(@delivery_note.document_number))

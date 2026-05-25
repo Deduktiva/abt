@@ -105,6 +105,20 @@ class CustomerContactsTest < ApplicationSystemTestCase
     assert_nil CustomerContact.find_by(id: @accounting.id)
   end
 
+  test "salutation_line persists from the edit form and renders in the row" do
+    visit customer_path(@customer)
+    row = "##{ActionView::RecordIdentifier.dom_id(@accounting)}"
+
+    within(row) { click_link "Edit" }
+    within(row) do
+      fill_in "customer_contact[salutation_line]", with: "Sehr geehrter Herr Huber,"
+      click_button "Save"
+    end
+
+    assert_selector "#{row}", text: "Sehr geehrter Herr Huber,"
+    assert_equal "Sehr geehrter Herr Huber,", @accounting.reload.salutation_line
+  end
+
   test "project picker only offers this customer's projects and unassigned projects" do
     visit customer_path(@customer)
     click_link "+ Add contact"

@@ -11,6 +11,8 @@ class InvoiceMailer < ApplicationMailer
     cc = @invoice.email_cc_recipients
 
     with_customer_locale(customer) do
+      @salutation = @invoice.email_salutation_contact&.salutation_line.presence
+
       if customer.invoice_email_auto_enabled
         subject = customer.invoice_email_auto_subject_template
                           .gsub("$CUST_ORDER$", sanitize_header_value(@invoice.cust_order))

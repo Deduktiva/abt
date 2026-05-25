@@ -4,8 +4,9 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["modal", "content"]
   static values = {
-    previewUrl: String,  // URL to fetch preview data
-    sendUrl: String      // URL to send email
+    previewUrl: String,     // URL to fetch preview metadata as JSON
+    rawPreviewUrl: String,  // URL serving the raw email HTML for the iframe
+    sendUrl: String         // URL to send email
   }
 
   connect() {
@@ -192,9 +193,6 @@ export default class extends Controller {
       </div>
     ` : ''
 
-    // Create isolated iframe content
-    const iframeContent = data.html_body ? `data:text/html;charset=utf-8,${encodeURIComponent(data.html_body)}` : ''
-
     return `
       <div class="row">
         <div class="col-md-12">
@@ -265,8 +263,8 @@ export default class extends Controller {
               <h5>Content</h5>
             </div>
             <div class="card-body email-preview-content" data-format-content="html">
-              ${data.html_body ? `
-                <iframe class="email-preview-iframe" src="${iframeContent}"></iframe>
+              ${data.has_html_body ? `
+                <iframe class="email-preview-iframe" sandbox="allow-same-origin" src="${this.rawPreviewUrlValue}"></iframe>
               ` : '<p class="text-muted"><i>No HTML content available</i></p>'}
             </div>
 

@@ -329,17 +329,12 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert_match "Acceptance Document: signed_acceptance.pdf", published_note.invoice.prelude
   end
 
-  test "should get email preview" do
-    get preview_email_delivery_note_url(delivery_notes(:published_delivery_note))
-    assert_response :success
-  end
-
   test "should get email preview json" do
     get preview_email_delivery_note_url(delivery_notes(:published_delivery_note), format: :json)
     assert_response :success
     json_response = JSON.parse(response.body)
     assert json_response.key?("subject")
-    assert json_response.key?("html_body")
+    assert json_response.key?("has_html_body")
   end
 
   test "should bulk send emails to selected delivery notes" do

@@ -8,7 +8,26 @@ class InvoicesController < ApplicationController
   publishable_document :invoice, label: "invoice"
   document_with_lines line_class: InvoiceLine
 
-  before_action :set_invoice, only: %i[show edit update destroy book preview preview_email send_email mark_paid mark_unpaid]
+  before_action :set_invoice, only: %i[show edit update destroy book preview preview_email preview_email_raw send_email mark_paid mark_unpaid]
+
+  # Permit the inline <style> blocks and embedded data: images that the
+  # mailer layout produces. Scoped strictly to the iframe response so the
+  # parent app's strict CSP remains intact.
+  content_security_policy(only: :preview_email_raw) do |policy|
+    policy.default_src     :none
+    policy.style_src       :unsafe_inline
+    policy.img_src         :self, :data
+    policy.font_src        :none
+    policy.script_src      :none
+    policy.connect_src     :none
+    policy.frame_ancestors :self
+  end
+
+  # The global nonce_directives setting auto-injects nonces into script-src
+  # and style-src. With both 'unsafe-inline' and a nonce present, the CSP
+  # spec tells browsers to ignore 'unsafe-inline' — which would re-block the
+  # mailer's inline <style> tags. Strip the nonce list for this action.
+  before_action(only: :preview_email_raw) { request.content_security_policy_nonce_directives = [] }
   before_action :require_unpublished, only: %i[edit update destroy preview]
   before_action :require_published, only: %i[send_email mark_paid mark_unpaid]
 
@@ -138,15 +157,13 @@ class InvoicesController < ApplicationController
 
   def preview_email
     mail = InvoiceMailer.with(invoice: @invoice).customer_email
-
-    email_data = extract_email_preview_data(mail)
-
-    respond_to do |format|
-      format.html { render layout: "application" }
-      format.json { render json: email_data }
-    end
+    render json: extract_email_preview_data(mail)
   end
 
+  def preview_email_raw
+    mail = InvoiceMailer.with(invoice: @invoice).customer_email
+    render html: extract_html_body(mail).to_s.html_safe, layout: false
+  end
 
   def send_email
     InvoiceMailer.with(invoice: @invoice).customer_email.deliver_later

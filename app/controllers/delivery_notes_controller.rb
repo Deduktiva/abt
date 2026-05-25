@@ -9,7 +9,26 @@ class DeliveryNotesController < ApplicationController
   publishable_document :delivery_note, label: "delivery note"
   document_with_lines line_class: DeliveryNoteLine
 
-  before_action :set_delivery_note, only: %i[show edit update destroy publish preview pdf unpublish upload_acceptance delete_acceptance convert_to_invoice preview_email send_email]
+  before_action :set_delivery_note, only: %i[show edit update destroy publish preview pdf unpublish upload_acceptance delete_acceptance convert_to_invoice preview_email preview_email_raw send_email]
+
+  # Permit the inline <style> blocks and embedded data: images that the
+  # mailer layout produces. Scoped strictly to the iframe response so the
+  # parent app's strict CSP remains intact.
+  content_security_policy(only: :preview_email_raw) do |policy|
+    policy.default_src     :none
+    policy.style_src       :unsafe_inline
+    policy.img_src         :self, :data
+    policy.font_src        :none
+    policy.script_src      :none
+    policy.connect_src     :none
+    policy.frame_ancestors :self
+  end
+
+  # The global nonce_directives setting auto-injects nonces into script-src
+  # and style-src. With both 'unsafe-inline' and a nonce present, the CSP
+  # spec tells browsers to ignore 'unsafe-inline' — which would re-block the
+  # mailer's inline <style> tags. Strip the nonce list for this action.
+  before_action(only: :preview_email_raw) { request.content_security_policy_nonce_directives = [] }
   before_action :require_unpublished, only: %i[edit update publish preview]
   before_action :require_published, only: %i[pdf unpublish upload_acceptance delete_acceptance convert_to_invoice send_email]
   before_action :require_item_line, only: %i[publish preview preview_email]
@@ -245,13 +264,12 @@ class DeliveryNotesController < ApplicationController
 
   def preview_email
     mail = DeliveryNoteMailer.with(delivery_note: @delivery_note).customer_email
+    render json: extract_email_preview_data(mail)
+  end
 
-    email_data = extract_email_preview_data(mail)
-
-    respond_to do |format|
-      format.html { render layout: "application" }
-      format.json { render json: email_data }
-    end
+  def preview_email_raw
+    mail = DeliveryNoteMailer.with(delivery_note: @delivery_note).customer_email
+    render html: extract_html_body(mail).to_s.html_safe, layout: false
   end
 
   def send_email

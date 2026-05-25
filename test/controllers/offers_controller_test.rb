@@ -122,6 +122,42 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to edit_offer_url(offer)
   end
 
+  test "POST /milestones/:id/convert builds an invoice and redirects" do
+    offer = create_offer(project: projects(:one))
+    milestone = offer.current_version.offer_milestones.create!(
+      title: "Phase 1", trigger: "on_order", net_amount: 100
+    )
+    offer.send_current_version!
+    offer.reload
+    offer.accept!
+    offer.reload
+    accepted_ms = offer.accepted_version.offer_milestones.find(milestone.id)
+
+    assert_difference -> { Invoice.count } => 1 do
+      post convert_offer_milestone_url(offer, accepted_ms), params: { skip_delivery_note: true }
+    end
+    assert_response :redirect
+    assert accepted_ms.reload.converted?
+  end
+
+  test "POST /milestones/:id/reopen clears conversion links" do
+    offer = create_offer(project: projects(:one))
+    milestone = offer.current_version.offer_milestones.create!(
+      title: "Phase 1", trigger: "on_order", net_amount: 100
+    )
+    offer.send_current_version!
+    offer.reload
+    offer.accept!
+    offer.reload
+    accepted_ms = offer.accepted_version.offer_milestones.find(milestone.id)
+    accepted_ms.convert!(skip_delivery_note: true)
+
+    post reopen_offer_milestone_url(offer, accepted_ms)
+    assert_response :redirect
+    accepted_ms.reload
+    assert_nil accepted_ms.invoice_id
+  end
+
   test "milestone create refused when offer is not editable" do
     offer = create_offer
     offer.current_version.offer_milestones.create!(title: "M", trigger: "on_order", net_amount: 1)

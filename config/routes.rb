@@ -95,7 +95,12 @@ Rails.application.routes.draw do
       post "reject"
       post "reopen"
     end
-    resources :offer_milestones, only: %i[create update destroy], path: "milestones", as: :milestones
+    resources :offer_milestones, only: %i[create update destroy], path: "milestones", as: :milestones do
+      member do
+        post "convert"
+        post "reopen"
+      end
+    end
   end
   resources :products
   resources :projects

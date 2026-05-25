@@ -2,7 +2,7 @@ class OfferMilestonesController < ApplicationController
   before_action -> { require_permission!("offers.edit") }, except: %i[convert reopen]
   before_action -> { require_permission!("offers.convert") }, only: %i[convert reopen]
   before_action :set_offer
-  before_action :ensure_editable, only: %i[create update destroy]
+  before_action :ensure_editable, only: %i[create update destroy scaffold]
   before_action :set_milestone, only: %i[update destroy convert reopen]
 
   def create
@@ -25,6 +25,28 @@ class OfferMilestonesController < ApplicationController
   def destroy
     @milestone.destroy
     redirect_to edit_offer_path(@offer), notice: "Milestone removed."
+  end
+
+  # POST /offers/:offer_id/milestones/scaffold
+  # Builds milestones for the current draft from the customer's offer
+  # milestone rule. Refuses if the draft already has milestones (the rule
+  # is a scaffold, not a destructive replace).
+  def scaffold
+    if current_version.offer_milestones.any?
+      redirect_to edit_offer_path(@offer),
+                  alert: "Milestones already exist. Remove them before applying the rule." and return
+    end
+
+    total = BigDecimal(params[:total_amount].to_s)
+    if total <= 0
+      redirect_to edit_offer_path(@offer),
+                  alert: "Enter a positive total amount." and return
+    end
+
+    @offer.customer.scaffold_offer_milestones(total).each do |attrs|
+      current_version.offer_milestones.create!(attrs)
+    end
+    redirect_to edit_offer_path(@offer), notice: "Milestones scaffolded from customer rule."
   end
 
   # POST /offers/:offer_id/milestones/:id/convert

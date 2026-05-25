@@ -123,6 +123,23 @@
 
 %h4 Milestones (v#{@version.version_number})
 
+- if @version.offer_milestones.none? && @offer.customer.offer_milestone_rule_configured?
+  .card.bg-light.mb-3
+    .card-body
+      %h5.card-title Apply customer rule
+      %p.small.mb-2
+        Customer's milestone rule splits at
+        %strong= format_currency(@offer.customer.offer_milestone_split_threshold)
+        \. First-milestone ratio:
+        %strong= @offer.customer.offer_milestone_split_first_ratio
+        \.
+      = form_with url: scaffold_offer_milestones_path(@offer), method: :post, local: true, class: 'row gx-2 align-items-end' do |sf|
+        .col-md-4
+          %label.form-label.small Total amount
+          = sf.number_field :total_amount, step: 0.01, min: 0, class: 'form-control form-control-sm', required: true
+        .col-md-3
+          = sf.submit 'Scaffold milestones', class: 'btn btn-sm btn-secondary'
+
 - @version.offer_milestones.order(:position, :id).each do |m|
   = render 'milestone_row', offer: @offer, milestone: m
 

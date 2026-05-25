@@ -111,6 +111,9 @@ Rails.application.routes.draw do
       post "reopen"
     end
     resources :offer_milestones, only: %i[create update destroy], path: "milestones", as: :milestones do
+      collection do
+        post "scaffold"
+      end
       member do
         post "convert"
         post "reopen"

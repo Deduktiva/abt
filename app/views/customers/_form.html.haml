@@ -98,6 +98,17 @@
         = f.number_field :offer_validity_days, :class => 'form-control', :min => 1, :max => 365
         .form-text Days an offer stays valid after each send. Leave blank to use the issuer-wide default.
     .row.mb-3
+      = f.label :offer_milestone_split_threshold, 'Milestone split threshold', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-lg-3.col-md-4
+        = f.number_field :offer_milestone_split_threshold, step: 0.01, min: 0, class: 'form-control'
+      = f.label :offer_milestone_split_first_ratio, 'First milestone ratio', class: 'col-lg-2 col-form-label'
+      .col-lg-2.col-md-3
+        = f.number_field :offer_milestone_split_first_ratio, step: 0.01, min: 0, max: 1, class: 'form-control'
+        .form-text Between 0 and 1.
+    .row.mb-3
+      .col-lg-10.offset-lg-2.col-md-9.offset-md-3
+        .form-text Optional. When set, the offer edit page offers an "Apply customer rule" button: above the threshold, milestones split into "Order entry" (first ratio) + "Final delivery" (remainder); below or equal, a single "Final delivery" milestone. Admins can still edit milestones manually after scaffolding.
+    .row.mb-3
       = f.label :offer_boilerplate, 'Offer boilerplate', class: 'col-lg-2 col-md-3 col-form-label'
       .col-lg-10.col-md-9
         = f.text_area :offer_boilerplate, :class => 'form-control', :rows => 12

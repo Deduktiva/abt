@@ -28,6 +28,20 @@ class CustomerTest < ActiveSupport::TestCase
     assert_includes customer.errors[:name], "can't be blank"
   end
 
+  test "matchcode must be globally unique across all teams" do
+    create_customer(matchcode: "DUPE", team: teams(:default))
+    duplicate = build_customer(matchcode: "DUPE", team: teams(:acme))
+    assert_not duplicate.valid?
+    assert_includes duplicate.errors[:matchcode], "has already been taken"
+  end
+
+  test "matchcode uniqueness is case-insensitive" do
+    create_customer(matchcode: "Dupe", team: teams(:default))
+    duplicate = build_customer(matchcode: "DUPE", team: teams(:default))
+    assert_not duplicate.valid?
+    assert_includes duplicate.errors[:matchcode], "has already been taken"
+  end
+
   test "set_default_language assigns English on create when language is not set" do
     customer = build_customer(language: nil)
     customer.valid?

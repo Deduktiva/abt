@@ -21,6 +21,20 @@ class ProjectTest < ActiveSupport::TestCase
     assert_not_nil @project.errors[:matchcode]
   end
 
+  test "matchcode must be globally unique across all teams" do
+    Project.create!(matchcode: "DUPE", team: teams(:default))
+    duplicate = Project.new(matchcode: "DUPE", team: teams(:acme))
+    assert_not duplicate.valid?
+    assert_includes duplicate.errors[:matchcode], "has already been taken"
+  end
+
+  test "matchcode uniqueness is case-insensitive" do
+    Project.create!(matchcode: "Dupe", team: teams(:default))
+    duplicate = Project.new(matchcode: "DUPE", team: teams(:default))
+    assert_not duplicate.valid?
+    assert_includes duplicate.errors[:matchcode], "has already been taken"
+  end
+
   test "should be active by default" do
     new_project = Project.new(
       matchcode: "NEW_PROJECT",
@@ -40,7 +54,7 @@ class ProjectTest < ActiveSupport::TestCase
     )
 
     inactive_project = Project.create!(
-      matchcode: "INACTIVE",
+      matchcode: "INACTIVE_SCOPE",
       bill_to_customer: @customer,
       active: false,
       team: @customer.team

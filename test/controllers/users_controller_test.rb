@@ -22,6 +22,41 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "show hides admin action affordances for users without the matching permissions" do
+    viewer = Group.create!(name: "Viewer")
+    viewer.permissions = %w[users.view]
+    bob = users(:bob)
+    bob.groups.clear
+    bob.groups << viewer
+    sign_in_as(bob)
+
+    get user_path(users(:blocked_carol))
+    assert_response :success
+    # No Reset passkeys / Unblock buttons.
+    assert_select "form[action=?]", reset_passkeys_user_path(users(:blocked_carol)), count: 0
+    assert_select "form[action=?]", unblock_user_path(users(:blocked_carol)), count: 0
+    # No email management UI.
+    assert_select "form[action=?]", user_emails_path(users(:blocked_carol)), count: 0
+    # No Block form on a non-blocked user.
+    get user_path(users(:alice))
+    assert_response :success
+    assert_select "form[action=?]", block_user_path(users(:alice)), count: 0
+  end
+
+  test "show exposes admin action affordances when the user has the matching permissions" do
+    sign_in_as(users(:alice))
+
+    get user_path(users(:blocked_carol))
+    assert_response :success
+    assert_select "form[action=?]", reset_passkeys_user_path(users(:blocked_carol))
+    assert_select "form[action=?]", unblock_user_path(users(:blocked_carol))
+    assert_select "form[action=?]", user_emails_path(users(:blocked_carol))
+
+    get user_path(users(:bob))
+    assert_response :success
+    assert_select "form[action=?]", block_user_path(users(:bob))
+  end
+
   test "block requires reason" do
     sign_in_as(users(:alice))
     post block_user_path(users(:bob))

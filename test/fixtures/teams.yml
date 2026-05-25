@@ -1,0 +1,11 @@
+default:
+  name: Default
+  description: Built-in default team
+  builtin: true
+  default: true
+
+acme:
+  name: Acme
+  description: Test team for scoping tests
+  builtin: false
+  default: false

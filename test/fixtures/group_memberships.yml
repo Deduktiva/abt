@@ -1,0 +1,3 @@
+alice_in_admin:
+  group: admin
+  user: alice

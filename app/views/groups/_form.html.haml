@@ -1,0 +1,71 @@
+.fieldset
+  = simple_form_for(@group, :validation => true, :html => {:class => 'form-horizontal'}) do |f|
+    - if @group.errors.any?
+      .alert.alert-danger
+        %h4
+          = pluralize(@group.errors.count, 'error')
+          prohibited saving:
+        %ul
+          - @group.errors.full_messages.each do |msg|
+            %li= msg
+
+    .form-inputs
+      .row.mb-3
+        = f.label :name, class: 'col-lg-2 col-md-3 col-form-label'
+        .col-sm-6
+          = f.text_field :name, {:class => 'form-control', :required => true, :readonly => @group.builtin?}
+          - if @group.builtin?
+            .form-text Built-in group names cannot be edited.
+
+      .row.mb-3
+        = f.label :description, class: 'col-lg-2 col-md-3 col-form-label'
+        .col-sm-9
+          = f.text_field :description, {:class => 'form-control'}
+
+      - if @group.bypass_team_scoping?
+        .row.mb-3
+          .col-lg-2.col-md-3
+            %strong Bypass team scoping:
+          .col-sm-9
+            Yes
+            .form-text This group's members see every customer and project regardless of team membership. The flag is set in a migration and cannot be edited from the UI.
+
+      - unless @group.builtin?
+        .row.mb-3{"data-controller" => "permission-pair"}
+          = label_tag nil, 'Permissions', class: 'col-lg-2 col-md-3 col-form-label'
+          .col-sm-9
+            - selected = @group.permissions
+            - Permission.grouped.each do |category, entries|
+              .card.mb-2
+                .card-header.py-1
+                  %strong= category
+                .card-body.py-2
+                  - entries.reject(&:admin_only).each do |entry|
+                    .form-check
+                      = check_box_tag 'group[permission_keys][]', entry.key, selected.include?(entry.key), id: "perm_#{entry.key.gsub('.', '_')}", class: 'form-check-input'
+                      %label.form-check-label.ms-1{for: "perm_#{entry.key.gsub('.', '_')}"}
+                        %code.me-1= entry.key
+                        = entry.label
+      - else
+        .row.mb-3
+          .col-lg-2.col-md-3
+            %strong Permissions:
+          .col-sm-9
+            .text-muted
+              Built-in group permissions cannot be edited.
+              The Admin group always holds every permission.
+
+      .row.mb-3
+        = label_tag nil, 'Members', class: 'col-lg-2 col-md-3 col-form-label'
+        .col-sm-9
+          - current_member_ids = @group.user_ids
+          - User.order(:username).each do |user|
+            .form-check
+              = check_box_tag 'group[user_ids][]', user.id, current_member_ids.include?(user.id), id: "group_user_#{user.id}", class: 'form-check-input'
+              = label_tag "group_user_#{user.id}", user.username, class: 'form-check-label'
+
+    %br
+
+    = action_buttons_wrapper do
+      = f.button :submit, :class => 'btn btn-primary'
+      = cancel_button(@group)

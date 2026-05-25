@@ -1,4 +1,4 @@
-= page_header_with_new_button('Listing projects', new_project_path)
+= page_header_with_new_button('Listing projects', new_project_path, permission: 'projects.edit')
 
 .mb-3
   .btn-toolbar.mb-3{:role=>"toolbar", "aria-label"=>"List toolbar"}
@@ -13,6 +13,7 @@
     %th{:width => "7%"} Status
     %th Name
     %th Bill to customer
+    %th{:width => "10%"} Team
     %th{:width => "3%"}
     %th{:width => "3%"}
 
@@ -26,7 +27,10 @@
           %span.badge.bg-secondary Inactive
       %td= project.description
       %td= project.bill_to_customer.try(:matchcode)
-      %td= list_action_link('Edit', edit_project_path(project), :edit)
+      %td= project.team&.name
       %td
-        - if project.can_be_deleted?
+        - if can?('projects.edit')
+          = list_action_link('Edit', edit_project_path(project), :edit)
+      %td
+        - if can?('projects.edit') && project.can_be_deleted?
           = destroy_link(project, "Are you sure you want to delete project \"#{project.matchcode}\"?")

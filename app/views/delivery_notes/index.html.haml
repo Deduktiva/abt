@@ -1,4 +1,4 @@
-= page_header_with_new_button('Listing delivery notes', new_delivery_note_path)
+= page_header_with_new_button('Listing delivery notes', new_delivery_note_path, permission: 'delivery_notes.edit')
 
 
 .bulk-select-container{data: { controller: 'bulk-select' }}
@@ -72,5 +72,5 @@
           %td= delivery_note.cust_reference
           %td= delivery_note.cust_order
           %td
-            - unless delivery_note.published?
+            - if !delivery_note.published? && can?('delivery_notes.edit')
               = list_action_link('Edit', edit_delivery_note_path(delivery_note), :edit)

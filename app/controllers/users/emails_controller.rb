@@ -1,4 +1,10 @@
 class Users::EmailsController < ApplicationController
+  # Admin-only: this controller adds/replaces emails with confirmed_at set
+  # to Time.current — no out-of-band verification. That's a credential-
+  # issuance primitive (combined with reset_passkeys it's full account
+  # takeover), so it sits behind users.auto_confirm_email which only the
+  # Admin group can hold.
+  before_action -> { require_permission!("users.auto_confirm_email") }
   before_action :load_user
 
   def create

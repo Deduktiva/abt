@@ -1,4 +1,7 @@
 class Account::SessionsController < ApplicationController
+  # Self-service: every action operates on current_user's own sessions.
+  allow_without_permission_check
+
   def index
     @sessions = current_user.sessions.active.order(last_seen_at: :desc)
   end

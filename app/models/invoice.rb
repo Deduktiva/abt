@@ -1,6 +1,7 @@
 class Invoice < ApplicationRecord
   include YearFilterable
   include HasLineItems
+  include ScopedThroughCustomer
 
   has_line_items :invoice_lines
 
@@ -14,6 +15,12 @@ class Invoice < ApplicationRecord
   }
   scope :published, -> { where(published: true) }
   scope :unpaid, -> { where(paid_at: nil) }
+
+  def self.visible_to(user)
+    return none if user.nil?
+    return all if user.bypass_team_scoping?
+    where(customer_id: Customer.visible_to(user).select(:id))
+  end
 
   after_initialize :set_defaults
 

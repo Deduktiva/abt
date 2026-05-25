@@ -20,6 +20,13 @@
           = f.label :active, class: 'form-check-label'
 
     .row.mb-3
+      = f.label :team_id, 'Team', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-sm-5
+        = f.collection_select :team_id, available_teams, :id, :name, { prompt: 'Select team...' }, {:class => 'form-select', :required => true}
+        - if available_teams.empty?
+          .form-text.text-danger You are not a member of any team. Ask an admin to add you to a team before creating customers.
+
+    .row.mb-3
       = f.label :name, class: 'col-lg-2 col-md-3 col-form-label'
       .col-lg-5
         = f.text_area :name, :class => 'form-control', :rows => 2

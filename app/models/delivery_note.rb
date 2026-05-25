@@ -1,6 +1,7 @@
 class DeliveryNote < ApplicationRecord
   include YearFilterable
   include HasLineItems
+  include ScopedThroughCustomer
 
   has_line_items :delivery_note_lines
 
@@ -16,6 +17,12 @@ class DeliveryNote < ApplicationRecord
     .where("customers.email IS NOT NULL AND customers.email != ''")
   }
   scope :published, -> { where(published: true) }
+
+  def self.visible_to(user)
+    return none if user.nil?
+    return all if user.bypass_team_scoping?
+    where(customer_id: Customer.visible_to(user).select(:id))
+  end
 
   belongs_to :customer
   belongs_to :project

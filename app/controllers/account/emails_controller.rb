@@ -1,4 +1,7 @@
 class Account::EmailsController < ApplicationController
+  # Self-service: every action operates on current_user's own emails.
+  allow_without_permission_check
+
   def index
     @emails = current_user.emails.order(:created_at)
   end

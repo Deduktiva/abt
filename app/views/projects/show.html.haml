@@ -1,4 +1,4 @@
-= page_header_with_edit_button("Project #{@project.matchcode}", edit_project_path(@project))
+= page_header_with_edit_button("Project #{@project.matchcode}", edit_project_path(@project), permission: 'projects.edit')
 
 .row
   .col-md-8
@@ -37,6 +37,12 @@
               %span.badge.bg-success Active
             - else
               %span.badge.bg-secondary Inactive
+
+        .row.mb-2
+          .col-sm-3
+            %strong Team:
+          .col-sm-9
+            = @project.team&.name
 
 = action_buttons_wrapper do
   = action_button 'Back', projects_path, :secondary

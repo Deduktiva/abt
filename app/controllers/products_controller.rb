@@ -1,4 +1,7 @@
 class ProductsController < ApplicationController
+  before_action -> { require_permission!("products.view") }, only: [ :index, :show ]
+  before_action -> { require_permission!("products.edit") }, only: [ :new, :create, :edit, :update, :destroy ]
+
   # GET /products
   def index
     @products = Product.order(:title)

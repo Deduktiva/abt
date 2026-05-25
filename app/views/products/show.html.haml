@@ -1,4 +1,4 @@
-= page_header_with_edit_button("Product \"#{@product.title}\"", edit_product_path(@product))
+= page_header_with_edit_button("Product \"#{@product.title}\"", edit_product_path(@product), permission: 'products.edit')
 
 .row
   .col-md-8

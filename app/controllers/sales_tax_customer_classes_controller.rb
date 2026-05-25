@@ -1,4 +1,7 @@
 class SalesTaxCustomerClassesController < ApplicationController
+  before_action -> { require_permission!("sales_tax.view") }, only: [ :index, :show ]
+  before_action -> { require_permission!("sales_tax.edit") }, only: [ :new, :create, :edit, :update, :destroy ]
+
   # GET /sales_tax_customer_classes
   def index
     @sales_tax_customer_classes = SalesTaxCustomerClass.all

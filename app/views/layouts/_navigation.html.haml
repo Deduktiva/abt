@@ -4,14 +4,18 @@
     %span.navbar-toggler-icon
   .collapse.navbar-collapse{"data-navbar-target" => "menu"}
     %ul.navbar-nav.me-auto
-      %li.nav-item
-        = link_to('Customers', customers_path, :class => 'nav-link')
-      %li.nav-item
-        = link_to('Projects', projects_path, :class => 'nav-link')
-      %li.nav-item
-        = link_to('Deliveries', delivery_notes_path, :class => 'nav-link')
-      %li.nav-item
-        = link_to('Invoices', invoices_path, :class => 'nav-link')
+      - if can?('customers.view')
+        %li.nav-item
+          = link_to('Customers', customers_path, :class => 'nav-link')
+      - if can?('projects.view')
+        %li.nav-item
+          = link_to('Projects', projects_path, :class => 'nav-link')
+      - if can?('delivery_notes.view')
+        %li.nav-item
+          = link_to('Deliveries', delivery_notes_path, :class => 'nav-link')
+      - if can?('invoices.view')
+        %li.nav-item
+          = link_to('Invoices', invoices_path, :class => 'nav-link')
     %ul.navbar-nav
       %li.nav-item.dropdown.initially-hidden{"data-controller" => "error-notification", "data-error-notification-max-errors-value" => "5", "data-error-notification-target" => "icon"}
         %a.nav-link{:href => "#", :role => "button", :"data-action" => "click->error-notification#toggle"}
@@ -24,26 +28,42 @@
           %li
             %hr.dropdown-divider
           %ul.list-unstyled.mb-0{"data-error-notification-target" => "list"}
-      %li.nav-item.dropdown{"data-controller" => "navbar"}
-        %a.nav-link.dropdown-toggle{:href => "#", :role => "button", :"data-navbar-target" => "toggle", :"data-action" => "click->navbar#toggle"}
-          Configuration
-        %ul.dropdown-menu.dropdown-menu-end{"data-navbar-target" => "menu"}
-          %li
-            = link_to('Issuer Company', issuer_company_path, :class => 'dropdown-item')
-          %li
-            %hr.dropdown-divider
-          %li
-            = link_to('Product Catalog', products_path, :class => 'dropdown-item')
-          %li
-            = link_to('Sales Tax', sales_tax_rates_path, :class => 'dropdown-item')
-          %li
-            %hr.dropdown-divider
-          %li
-            = link_to('Users', users_path, :class => 'dropdown-item')
-          %li
-            %hr.dropdown-divider
-          %li
-            = link_to('Background Jobs', jobs_status_path, :class => 'dropdown-item')
+      - config_perms = %w[issuer_company.view products.view sales_tax.view users.view jobs_status.view groups.manage teams.manage]
+      - show_config = config_perms.any? { |p| can?(p) }
+      - if show_config
+        %li.nav-item.dropdown{"data-controller" => "navbar"}
+          %a.nav-link.dropdown-toggle{:href => "#", :role => "button", :"data-navbar-target" => "toggle", :"data-action" => "click->navbar#toggle"}
+            Configuration
+          %ul.dropdown-menu.dropdown-menu-end{"data-navbar-target" => "menu"}
+            - if can?('issuer_company.view')
+              %li
+                = link_to('Issuer Company', issuer_company_path, :class => 'dropdown-item')
+              %li
+                %hr.dropdown-divider
+            - if can?('products.view')
+              %li
+                = link_to('Product Catalog', products_path, :class => 'dropdown-item')
+            - if can?('sales_tax.view')
+              %li
+                = link_to('Sales Tax', sales_tax_rates_path, :class => 'dropdown-item')
+            - if can?('products.view') || can?('sales_tax.view')
+              %li
+                %hr.dropdown-divider
+            - if can?('users.view')
+              %li
+                = link_to('Users', users_path, :class => 'dropdown-item')
+            - if can?('groups.manage')
+              %li
+                = link_to('Groups', groups_path, :class => 'dropdown-item')
+            - if can?('teams.manage')
+              %li
+                = link_to('Teams', teams_path, :class => 'dropdown-item')
+            - if can?('users.view') || can?('groups.manage') || can?('teams.manage')
+              %li
+                %hr.dropdown-divider
+            - if can?('jobs_status.view')
+              %li
+                = link_to('Background Jobs', jobs_status_path, :class => 'dropdown-item')
       %li.nav-item.dropdown{"data-controller" => "navbar"}
         %a.nav-link.dropdown-toggle{:href => "#", :role => "button", :"data-navbar-target" => "toggle", :"data-action" => "click->navbar#toggle"}
           = Current.user.username

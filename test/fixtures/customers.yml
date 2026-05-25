@@ -11,6 +11,7 @@ good_eu:
   sales_tax_customer_class: eu
   language: english
   active: true
+  team: default
 
 good_national:
   matchcode: GOODNAT
@@ -25,6 +26,7 @@ good_national:
   sales_tax_customer_class: national
   language: german
   active: true
+  team: default
 
 auto_email_customer:
   matchcode: AUTOEMAIL
@@ -41,6 +43,7 @@ auto_email_customer:
   sales_tax_customer_class: national
   language: english
   active: true
+  team: default
 
 no_email_customer:
   matchcode: NOEMAIL
@@ -53,3 +56,4 @@ no_email_customer:
   sales_tax_customer_class: eu
   language: english
   active: true
+  team: default

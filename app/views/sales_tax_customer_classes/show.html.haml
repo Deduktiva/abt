@@ -6,5 +6,6 @@
   = @sales_tax_customer_class.invoice_note
 
 = action_buttons_wrapper do
-  = action_button 'Edit', edit_sales_tax_customer_class_path(@sales_tax_customer_class), :primary
+  - if can?('sales_tax.edit')
+    = action_button 'Edit', edit_sales_tax_customer_class_path(@sales_tax_customer_class), :primary
   = action_button 'Back', sales_tax_customer_classes_path, :secondary

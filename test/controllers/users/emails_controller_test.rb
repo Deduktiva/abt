@@ -32,7 +32,7 @@ class Users::EmailsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "admin can remove a non-last email" do
-    sign_in_as(users(:bob))
+    sign_in_as(users(:alice))
     alice = users(:alice)
     secondary = alice.emails.find_by(address: "alice.alt@example.com")
     delete user_email_path(user_id: alice, id: secondary)

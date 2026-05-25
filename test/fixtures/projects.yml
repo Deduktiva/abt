@@ -3,27 +3,32 @@ one:
   description: Main test project
   bill_to_customer: good_eu
   active: true
+  team: default
 
 two:
   matchcode: PROJ002
   description: Secondary test project
   bill_to_customer: good_national
   active: true
+  team: default
 
 test_project:
   matchcode: TEST
   description: Test project for PDF generation tests
   bill_to_customer: good_eu
   active: true
+  team: default
 
 reusable_project:
   matchcode: REUSABLE
   description: Reusable project without customer
   bill_to_customer:
   active: true
+  team: default
 
 inactive_project:
   matchcode: INACTIVE
   description: Inactive project for filtering tests
   bill_to_customer: good_eu
   active: false
+  team: default

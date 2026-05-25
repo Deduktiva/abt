@@ -1,0 +1,31 @@
+= page_header_with_new_button('Teams', new_team_path)
+
+%p.text-muted
+  Teams control which customers and projects a user can see. Every customer and project belongs to exactly one team.
+
+%table.table.table-striped.table-sm
+  %tr
+    %th Name
+    %th Description
+    %th Members
+    %th Customers
+    %th Projects
+    %th{width: "3%"}
+    %th{width: "3%"}
+
+  - @teams.each do |team|
+    %tr
+      %td
+        = link_to(team.name, team)
+        - if team.builtin?
+          %span.badge.bg-secondary.ms-1 built-in
+      %td= team.description
+      %td= team.member_count
+      %td= team.customer_count
+      %td= team.project_count
+      %td= list_action_link('Edit', edit_team_path(team), :edit)
+      %td
+        - if team.builtin?
+          %span.text-muted —
+        - else
+          = destroy_link(team, "Delete team \"#{team.name}\"?")

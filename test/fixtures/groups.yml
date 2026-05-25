@@ -1,0 +1,11 @@
+admin:
+  name: Admin
+  description: Built-in administrator group with all permissions
+  builtin: true
+  bypass_team_scoping: true
+
+sales:
+  name: Sales
+  description: Test group with restricted permissions
+  builtin: false
+  bypass_team_scoping: false

@@ -9,6 +9,11 @@ class User < ApplicationRecord
   has_many :audit_events_as_actor, class_name: "UserAuditEvent",
            foreign_key: :actor_user_id, dependent: :nullify
 
+  has_many :group_memberships, dependent: :destroy
+  has_many :groups, through: :group_memberships
+  has_many :team_memberships, dependent: :destroy
+  has_many :teams, through: :team_memberships
+
   belongs_to :blocked_by_user, class_name: "User", optional: true
 
   attribute :webauthn_id, default: -> { WebAuthn.generate_user_id }
@@ -21,8 +26,43 @@ class User < ApplicationRecord
 
   normalizes :username, with: ->(v) { v.strip.downcase }
 
+  after_create_commit :auto_promote_first_user
+  after_create_commit :join_default_team
+
   scope :active, -> { where(blocked_at: nil) }
   scope :blocked, -> { where.not(blocked_at: nil) }
+
+  # Memoized per User instance. Fine for the request/response cycle (each
+  # request rebuilds current_user). If a long-running job ever reuses the
+  # same User object across permission mutations, call `user.reload` (or
+  # rebuild it) to get fresh permissions; this method does not invalidate
+  # on group/group_permission/group_membership changes.
+  def permissions
+    @permissions ||= GroupPermission
+                      .joins(group: :group_memberships)
+                      .where(group_memberships: { user_id: id })
+                      .pluck(:permission)
+                      .to_set
+  end
+
+  def permission?(key)
+    permissions.include?(key)
+  end
+
+  # Same per-instance memoization caveat as #permissions — reload the user
+  # if you mutate group memberships and need to re-check on the same object.
+  def bypass_team_scoping?
+    return @bypass_team_scoping if defined?(@bypass_team_scoping)
+    @bypass_team_scoping = groups.where(bypass_team_scoping: true).exists?
+  end
+
+  def visible_team_ids
+    if bypass_team_scoping?
+      Team.pluck(:id)
+    else
+      team_ids
+    end
+  end
 
   def blocked?
     blocked_at.present?
@@ -81,5 +121,20 @@ class User < ApplicationRecord
       )
       [ invite, plaintext ]
     end
+  end
+
+  private
+
+  def auto_promote_first_user
+    return unless User.count == 1
+    admin = Group.admin
+    return unless admin
+    GroupMembership.find_or_create_by!(group: admin, user: self)
+  end
+
+  def join_default_team
+    default_team = Team.default
+    return unless default_team
+    TeamMembership.find_or_create_by!(team: default_team, user: self)
   end
 end

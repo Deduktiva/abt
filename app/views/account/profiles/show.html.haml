@@ -58,6 +58,32 @@
             .small.text-muted Last seen: #{l(s.last_seen_at)}
     .card.mb-3
       .card-header
+        Groups
+        %span.badge.bg-secondary.ms-1= @user_groups.size
+      %ul.list-group.list-group-flush
+        - if @user_groups.empty?
+          %li.list-group-item.text-muted No groups
+        - else
+          - @user_groups.each do |group|
+            %li.list-group-item
+              = group.name
+              - if group.builtin?
+                %span.badge.bg-secondary.ms-1 built-in
+    .card.mb-3
+      .card-header
+        Teams
+        %span.badge.bg-secondary.ms-1= @user_teams.size
+      %ul.list-group.list-group-flush
+        - if @user_teams.empty?
+          %li.list-group-item.text-muted No teams
+        - else
+          - @user_teams.each do |team|
+            %li.list-group-item
+              = team.name
+              - if team.builtin?
+                %span.badge.bg-secondary.ms-1 built-in
+    .card.mb-3
+      .card-header
         .d-flex.justify-content-between.align-items-center
           %span Recent activity
           = link_to 'View all', account_audit_events_path, class: 'btn btn-sm btn-outline-primary'

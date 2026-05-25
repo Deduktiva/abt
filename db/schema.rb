@@ -35,10 +35,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_221140) do
     t.integer "payment_terms_days", default: 30, null: false
     t.integer "sales_tax_customer_class_id"
     t.text "supplier_number"
+    t.integer "team_id", null: false
     t.datetime "updated_at", null: false
     t.text "vat_id"
     t.index ["language_id"], name: "index_customers_on_language_id"
     t.index ["name"], name: "index_customers_on_name"
+    t.index ["team_id"], name: "index_customers_on_team_id"
   end
 
   create_table "delivery_note_lines", force: :cascade do |t|
@@ -87,6 +89,35 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_221140) do
     t.string "last_number"
     t.integer "sequence"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "group_memberships", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "group_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["group_id", "user_id"], name: "index_group_memberships_on_group_id_and_user_id", unique: true
+    t.index ["group_id"], name: "index_group_memberships_on_group_id"
+    t.index ["user_id"], name: "index_group_memberships_on_user_id"
+  end
+
+  create_table "group_permissions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "group_id", null: false
+    t.string "permission", null: false
+    t.datetime "updated_at", null: false
+    t.index ["group_id", "permission"], name: "index_group_permissions_on_group_id_and_permission", unique: true
+    t.index ["group_id"], name: "index_group_permissions_on_group_id"
+  end
+
+  create_table "groups", force: :cascade do |t|
+    t.boolean "builtin", default: false, null: false
+    t.boolean "bypass_team_scoping", default: false, null: false
+    t.datetime "created_at", null: false
+    t.string "description"
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_groups_on_name", unique: true
   end
 
   create_table "invoice_lines", force: :cascade do |t|
@@ -200,8 +231,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_221140) do
     t.datetime "created_at", null: false
     t.text "description"
     t.string "matchcode"
+    t.integer "team_id", null: false
     t.datetime "updated_at", null: false
     t.index ["matchcode"], name: "index_projects_on_matchcode"
+    t.index ["team_id"], name: "index_projects_on_team_id"
   end
 
   create_table "sales_tax_customer_classes", force: :cascade do |t|
@@ -226,6 +259,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_221140) do
     t.integer "sales_tax_customer_class_id"
     t.integer "sales_tax_product_class_id"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "team_memberships", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "team_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["team_id", "user_id"], name: "index_team_memberships_on_team_id_and_user_id", unique: true
+    t.index ["team_id"], name: "index_team_memberships_on_team_id"
+    t.index ["user_id"], name: "index_team_memberships_on_user_id"
+  end
+
+  create_table "teams", force: :cascade do |t|
+    t.boolean "builtin", default: false, null: false
+    t.datetime "created_at", null: false
+    t.boolean "default", default: false, null: false
+    t.string "description"
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["default"], name: "index_teams_unique_default", unique: true, where: "\"default\""
+    t.index ["name"], name: "index_teams_on_name", unique: true
   end
 
   create_table "user_audit_events", force: :cascade do |t|
@@ -318,11 +372,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_221140) do
   end
 
   add_foreign_key "customers", "languages"
+  add_foreign_key "customers", "teams"
   add_foreign_key "delivery_note_lines", "delivery_notes"
   add_foreign_key "delivery_notes", "attachments", column: "acceptance_attachment_id"
   add_foreign_key "delivery_notes", "customers"
   add_foreign_key "delivery_notes", "invoices"
   add_foreign_key "delivery_notes", "projects"
+  add_foreign_key "group_memberships", "groups"
+  add_foreign_key "group_memberships", "users"
+  add_foreign_key "group_permissions", "groups"
+  add_foreign_key "projects", "teams"
+  add_foreign_key "team_memberships", "teams"
+  add_foreign_key "team_memberships", "users"
   add_foreign_key "user_audit_events", "users", column: "actor_user_id", on_delete: :nullify
   add_foreign_key "user_audit_events", "users", on_delete: :nullify
   add_foreign_key "user_credentials", "users"

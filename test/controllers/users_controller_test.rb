@@ -86,4 +86,30 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "code", text: "login_success"
   end
+
+  # The takeover chain is: add attacker email -> block target -> reset passkeys.
+  # Each of those three primitives must require a different, increasingly
+  # restricted permission. A bearer of only users.block must not be able to
+  # issue passkey-reset invites or add emails.
+  test "users.block alone cannot reset passkeys or manage emails" do
+    helpdesk = Group.create!(name: "Helpdesk")
+    helpdesk.permissions = %w[users.view users.block]
+    bob = users(:bob)
+    bob.groups << helpdesk
+    sign_in_as(bob)
+
+    carol = users(:blocked_carol)
+    # Has users.block, can unblock.
+    post unblock_user_path(carol)
+    assert_redirected_to user_path(carol)
+
+    # Lacks users.reset_passkeys.
+    carol.update!(blocked_at: Time.current, blocked_reason: "test")
+    post reset_passkeys_user_path(carol)
+    assert_redirected_to root_path
+
+    # Lacks users.auto_confirm_email.
+    post user_emails_path(carol), params: { user_email: { address: "evil@example.com" } }
+    assert_redirected_to root_path
+  end
 end

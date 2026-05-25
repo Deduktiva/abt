@@ -1,5 +1,7 @@
 class SessionsController < ApplicationController
   allow_unauthenticated_access only: [ :new, :options, :verify ]
+  # destroy: signed-in user terminating their own session.
+  allow_without_permission_check only: [ :destroy ]
 
   def new
   end

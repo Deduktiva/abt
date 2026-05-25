@@ -1,4 +1,6 @@
 class UserInvitesController < ApplicationController
+  before_action -> { require_permission!("user_invites.manage") }
+
   def index
     @invites = UserInvite.where(purpose: UserInvite::PURPOSE_SIGNUP)
                          .order(created_at: :desc).limit(50)

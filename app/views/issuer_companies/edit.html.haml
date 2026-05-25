@@ -116,6 +116,19 @@
             = form.label :invoice_footer, 'Invoice Footer', class: 'form-label'
             = form.text_area :invoice_footer, rows: 6, class: 'form-control'
 
+      .card.mt-4
+        .card-header
+          Offer Defaults
+        .card-body
+          .mb-3
+            = form.label :offer_validity_days, 'Offer Validity (days)', class: 'form-label'
+            = form.number_field :offer_validity_days, class: 'form-control', min: 1, max: 365
+            %small.form-text.text-muted Default lifetime of an offer after each send. Each customer can override this.
+
+          .mb-3
+            = form.label :offer_footer, 'Offer Footer', class: 'form-label'
+            = form.text_area :offer_footer, rows: 4, class: 'form-control'
+
   .mt-4
     = action_buttons_wrapper do
       = form.submit 'Update Issuer Company', class: 'btn btn-primary'

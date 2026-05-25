@@ -43,4 +43,10 @@ class IssuerCompanyTest < ActiveSupport::TestCase
     issuer_companies(:one).update!(active: false)
     assert_nil IssuerCompany.get_the_issuer!
   end
+
+  test "offer_validity_days defaults to 30 and offer_footer is nullable" do
+    company = IssuerCompany.new(short_name: "X", legal_name: "Y")
+    assert_equal 30, company.offer_validity_days
+    assert_nil company.offer_footer
+  end
 end

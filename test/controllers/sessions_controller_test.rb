@@ -32,4 +32,20 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_path
     assert cookies[ApplicationController::AUTH_COOKIE].blank?
   end
+
+  test "destroy clears the framework session" do
+    # Seed a webauthn login nonce in the framework session — simulates an
+    # abandoned login flow that left state behind, exactly the scenario
+    # issue #339 describes.
+    post options_session_path, params: { username: "alice" }, as: :json
+    assert_response :success
+    assert session[:webauthn_login_nonce].present?,
+      "options should have stashed a login nonce in the framework session"
+
+    sign_in_as(users(:alice))
+    delete session_path
+    assert_redirected_to new_session_path
+    assert session[:webauthn_login_nonce].blank?,
+      "logout must clear the framework session"
+  end
 end

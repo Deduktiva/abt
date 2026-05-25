@@ -16,7 +16,9 @@ class InvoiceMailer < ApplicationMailer
                           .gsub("$CUST_ORDER$", sanitize_header_value(@invoice.cust_order))
                           .gsub("$CUST_REF$", sanitize_header_value(@invoice.cust_reference))
       else
-        subject = I18n.t("mailers.invoice.subject", issuer_name: @issuer.short_name, document_number: @invoice.document_number)
+        subject = I18n.t("mailers.invoice.subject",
+                         issuer_name: sanitize_header_value(@issuer.short_name),
+                         document_number: sanitize_header_value(@invoice.document_number))
       end
 
       document_mail(to: to, cc: cc, subject: subject)

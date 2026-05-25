@@ -7,7 +7,9 @@ class DeliveryNoteMailer < ApplicationMailer
     to = @delivery_note.email_recipients
 
     with_customer_locale(customer) do
-      subject = I18n.t("mailers.delivery_note.subject", issuer_name: @issuer.short_name, document_number: @delivery_note.document_number)
+      subject = I18n.t("mailers.delivery_note.subject",
+                       issuer_name: sanitize_header_value(@issuer.short_name),
+                       document_number: sanitize_header_value(@delivery_note.document_number))
       document_mail(to: to, subject: subject)
     end
   end
@@ -24,8 +26,10 @@ class DeliveryNoteMailer < ApplicationMailer
     @delivery_notes.each { |dn| attach_pdf(dn) }
 
     with_customer_locale(@customer) do
-      document_numbers = @delivery_notes.map(&:document_number).join(", ")
-      subject = I18n.t("mailers.delivery_note.bulk_subject", issuer_name: @issuer.short_name, document_numbers: document_numbers)
+      document_numbers = @delivery_notes.map { |dn| sanitize_header_value(dn.document_number) }.join(", ")
+      subject = I18n.t("mailers.delivery_note.bulk_subject",
+                       issuer_name: sanitize_header_value(@issuer.short_name),
+                       document_numbers: document_numbers)
       document_mail(to: to, subject: subject)
     end
   end

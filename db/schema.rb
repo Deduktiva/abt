@@ -274,6 +274,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_23_171756) do
     t.string "invoice_footer"
     t.string "legal_name"
     t.integer "money_decimal_places", default: 2, null: false
+    t.string "offer_footer"
+    t.integer "offer_validity_days", default: 30, null: false
     t.binary "pdf_logo"
     t.string "pdf_logo_height"
     t.string "pdf_logo_width"

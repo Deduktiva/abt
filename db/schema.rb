@@ -51,6 +51,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_23_171756) do
     t.string "name", null: false
     t.boolean "receives_delivery_note_emails", default: false, null: false
     t.boolean "receives_invoice_emails", default: false, null: false
+    t.boolean "receives_offer_emails", default: false, null: false
     t.string "salutation_line"
     t.datetime "updated_at", null: false
     t.index ["customer_id"], name: "index_customer_contacts_on_customer_id"

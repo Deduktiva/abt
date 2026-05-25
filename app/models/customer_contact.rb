@@ -12,6 +12,7 @@ class CustomerContact < ApplicationRecord
 
   scope :for_invoices,       -> { where(receives_invoice_emails: true) }
   scope :for_delivery_notes, -> { where(receives_delivery_note_emails: true) }
+  scope :for_offers,         -> { where(receives_offer_emails: true) }
 
   # No projects assigned == applies to all projects of this customer.
   def applies_to_project?(project)

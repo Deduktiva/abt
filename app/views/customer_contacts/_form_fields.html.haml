@@ -14,7 +14,10 @@
   .col-md-1.text-center
     .form-check.d-inline-block
       = form.check_box :receives_delivery_note_emails, class: "form-check-input"
-  .col-md-3
+  .col-md-1.text-center
+    .form-check.d-inline-block
+      = form.check_box :receives_offer_emails, class: "form-check-input"
+  .col-md-2
     = form.select :project_ids,
                   options_from_collection_for_select(eligible_projects, :id, :matchcode, contact.project_ids),
                   { include_hidden: false },

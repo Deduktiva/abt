@@ -20,7 +20,11 @@ class CustomersController < ApplicationController
 
     respond_to do |format|
       format.html # index.html.erb
-      format.turbo_stream { render :filter_options }
+      # Only the searchable_dropdown Stimulus controller hits this branch; it sets
+      # X-Requested-With explicitly. Turbo's navigation Accept also lists turbo_stream,
+      # so without this guard the post-delete redirect would render dropdown options
+      # into a missing target and leave the index page stale.
+      format.turbo_stream { render :filter_options } if request.xhr?
       format.json {
         render json: @customers.map { |c|
           {

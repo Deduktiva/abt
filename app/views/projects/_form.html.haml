@@ -13,7 +13,7 @@
     .row.mb-3
       = f.label :matchcode, class: 'col-lg-2 col-md-3 col-form-label'
       .col-lg-3
-        = f.text_field :matchcode, :class => 'form-control'
+        = f.text_field :matchcode, :class => 'form-control', :required => true
       .col-lg-6
         .form-check
           = f.input_field :active, as: :boolean, class: 'form-check-input'
@@ -31,7 +31,7 @@
           = f.collection_select :bill_to_customer_id, @customer_options, :id, :name, { prompt: 'Select customer...', include_blank: 'No customer (reusable project)' }, {:class => 'form-select', "data-project-team-target" => "customer", "data-customer-team-map" => @customer_options.to_h { |c| [c.id, { team_id: c.team_id, team_name: c.team&.name }] }.to_json}
 
       .row.mb-3{"data-project-team-target" => "teamRow"}
-        = f.label :team_id, 'Team', class: 'col-lg-2 col-md-3 col-form-label'
+        = f.label :team_id, label: 'Team', required: true, class: 'col-lg-2 col-md-3 col-form-label'
         .col-sm-5
           = f.collection_select :team_id, available_teams, :id, :name, { prompt: 'Select team...' }, {:class => 'form-select', :required => true, "data-project-team-target" => "teamSelect"}
           - if @project.bill_to_customer_id.present? && selected_customer_team

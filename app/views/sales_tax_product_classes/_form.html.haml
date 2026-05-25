@@ -12,11 +12,11 @@
     .row.mb-3
       = f.label :name, class: 'col-sm-3 col-form-label'
       .col-sm-9
-        = f.text_field :name, :class => 'form-control', :placeholder => "Standard goods"
+        = f.text_field :name, :class => 'form-control', :placeholder => "Standard goods", :required => true
     .row.mb-3
       = f.label :indicator_code, class: 'col-sm-3 col-form-label'
       .col-sm-9
-        = f.text_field :indicator_code, :class => 'form-control', :placeholder => "A"
+        = f.text_field :indicator_code, :class => 'form-control', :placeholder => "A", :required => true
     .row.mb-3
       .col-sm-9.offset-sm-3
         .form-check

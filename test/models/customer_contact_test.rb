@@ -96,6 +96,19 @@ class CustomerContactTest < ActiveSupport::TestCase
     assert_equal "Sehr geehrter Herr Huber,", contact.reload.salutation_line
   end
 
+  test "receives_offer_emails defaults to false and is scoped via for_offers" do
+    contact = CustomerContact.create!(
+      customer: customers(:good_eu),
+      name: "Offer Receiver",
+      email: "offers@example.com"
+    )
+    assert_equal false, contact.receives_offer_emails
+    assert_not_includes CustomerContact.for_offers, contact
+
+    contact.update!(receives_offer_emails: true)
+    assert_includes CustomerContact.for_offers, contact
+  end
+
   test "projects visibility check enforced when Current.user is set" do
     other_team = Team.create!(name: "Visibility Other")
     other_customer = Customer.create!(

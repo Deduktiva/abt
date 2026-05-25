@@ -12,7 +12,12 @@
         %span.badge.bg-success Del.Note
       - else
         %span.text-muted —
-    .col-md-3
+    .col-md-1.text-center
+      - if contact.receives_offer_emails?
+        %span.badge.bg-success Offer
+      - else
+        %span.text-muted —
+    .col-md-2
       - if contact.projects.any?
         - contact.projects.each do |p|
           %span.badge.bg-secondary.me-1= p.matchcode

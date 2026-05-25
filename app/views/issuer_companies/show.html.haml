@@ -103,7 +103,7 @@
             %strong Accent Color:
           .col-sm-8
             - if @issuer_company.document_accent_color.present?
-              = tag.style ":root { --issuer-accent-color: #{@issuer_company.document_accent_color}; }".html_safe, nonce: true
+              = tag.style ":root { --issuer-accent-color: #{@issuer_company.document_accent_color}; }".html_safe, nonce: content_security_policy_nonce
               %span.badge.badge-issuer-accent
                 = @issuer_company.document_accent_color
             - else

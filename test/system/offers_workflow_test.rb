@@ -61,6 +61,34 @@ class OffersWorkflowTest < ApplicationSystemTestCase
     assert_current_path(%r{/invoices/\d+})
   end
 
+  test "milestone description + skip_delivery_note round-trip from the add form" do
+    # Regression for: the saved-row delete used to be a button_to whose
+    # nested <form> would terminate the outer milestone form, orphaning the
+    # description + skip_delivery_note inputs underneath it. Driving the add
+    # path here proves the inputs sit inside the form and reach the server.
+    offer = Offer.create_with_initial_version!(
+      matchcode: "round-trip",
+      customer: customers(:good_eu),
+      project: projects(:one),
+      state: "draft"
+    )
+    visit edit_offer_path(offer)
+
+    within(all("form[action$='/milestones']").last) do
+      fill_in "offer_milestone[title]",       with: "All-fields"
+      select  "On acceptance",                from: "offer_milestone[trigger]"
+      fill_in "offer_milestone[net_amount]",  with: "200"
+      fill_in "offer_milestone[description]", with: "Detailed scope here"
+      check   "offer_milestone[skip_delivery_note]"
+      click_button "Add"
+    end
+
+    assert_text "Milestone added."
+    milestone = offer.current_version.offer_milestones.find_by!(title: "All-fields")
+    assert_equal "Detailed scope here", milestone.description
+    assert milestone.skip_delivery_note
+  end
+
   test "send button refuses when there are no milestones yet" do
     offer = Offer.create_with_initial_version!(
       matchcode: "no-milestones",

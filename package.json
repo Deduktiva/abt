@@ -4,9 +4,13 @@
   "description": "ABT Invoice Management System",
   "main": "app/javascript/application.js",
   "scripts": {
-    "lint": "node stimulus-controller-linter.js"
+    "lint": "eslint app/javascript"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.18.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0"
   }
 }

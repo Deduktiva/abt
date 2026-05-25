@@ -17,6 +17,10 @@ export default class extends Controller {
   connect() {
     this.boundDocumentClickHandler = this.handleDocumentClick.bind(this)
     this.boundDependentChangedHandler = this.dependentChanged.bind(this)
+    this.boundFilterOptions = this.filterOptions.bind(this)
+    this.boundHandleKeyNavigation = this.handleKeyNavigation.bind(this)
+    this.boundToggleDropdown = this.toggleDropdown.bind(this)
+    this.boundHandleOptionClick = this.handleOptionClick.bind(this)
 
     // If no dependent param is specified, this is a standalone dropdown
     if (!this.dependentParamValue) {
@@ -34,6 +38,17 @@ export default class extends Controller {
   disconnect() {
     // Remove document event listener
     document.removeEventListener('click', this.boundDocumentClickHandler)
+
+    // Remove search target listeners
+    if (this.hasSearchTarget) {
+      this.searchTarget.removeEventListener('input', this.boundFilterOptions)
+      this.searchTarget.removeEventListener('keydown', this.boundHandleKeyNavigation)
+    }
+
+    // Remove select target toggle listener
+    if (this.hasSelectTarget) {
+      this.selectTarget.removeEventListener('click', this.boundToggleDropdown)
+    }
 
     // Remove dependent field event listeners
     if (this.hasDependentFieldTarget) {
@@ -67,12 +82,12 @@ export default class extends Controller {
 
     // Setup search functionality
     if (this.hasSearchTarget) {
-      this.searchTarget.addEventListener('input', this.filterOptions.bind(this))
-      this.searchTarget.addEventListener('keydown', this.handleKeyNavigation.bind(this))
+      this.searchTarget.addEventListener('input', this.boundFilterOptions)
+      this.searchTarget.addEventListener('keydown', this.boundHandleKeyNavigation)
     }
 
     // Setup dropdown toggle
-    this.selectTarget.addEventListener('click', this.toggleDropdown.bind(this))
+    this.selectTarget.addEventListener('click', this.boundToggleDropdown)
 
     // Close dropdown when clicking outside
     document.addEventListener('click', this.boundDocumentClickHandler)
@@ -172,18 +187,16 @@ export default class extends Controller {
       // Remove any existing listeners by cloning the node
       const newOption = option.cloneNode(true)
       option.parentNode.replaceChild(newOption, option)
+      newOption.addEventListener('click', this.boundHandleOptionClick)
+    })
+  }
 
-      const itemId = parseInt(newOption.dataset.itemId)
-      const itemName = newOption.querySelector('.fw-normal').textContent
-      const itemSubtext = newOption.querySelector('.small').textContent.trim()
-
-      newOption.addEventListener('click', () => {
-        this.selectItem({
-          id: itemId,
-          name: itemName,
-          subtext: itemSubtext
-        })
-      })
+  handleOptionClick(event) {
+    const node = event.currentTarget
+    this.selectItem({
+      id: parseInt(node.dataset.itemId),
+      name: node.querySelector('.fw-normal').textContent,
+      subtext: node.querySelector('.small').textContent.trim()
     })
   }
 
@@ -197,8 +210,8 @@ export default class extends Controller {
         searchInput.parentNode.replaceChild(newSearchInput, searchInput)
 
         // Re-attach event listeners
-        newSearchInput.addEventListener('input', this.filterOptions.bind(this))
-        newSearchInput.addEventListener('keydown', this.handleKeyNavigation.bind(this))
+        newSearchInput.addEventListener('input', this.boundFilterOptions)
+        newSearchInput.addEventListener('keydown', this.boundHandleKeyNavigation)
       }
     }
   }

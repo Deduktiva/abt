@@ -4,7 +4,7 @@ require "application_system_test_case"
 # send → accept → convert. Drives the same UI an admin uses, including the
 # state-transition buttons on the show page and the milestone form on edit.
 class OffersWorkflowTest < ApplicationSystemTestCase
-  test "create draft, add milestone, send, accept, convert (skip DN)" do
+  test "create draft, add milestone, send, accept, convert (invoice only)" do
     visit "/offers"
     assert_text "Listing offers"
     click_link "+ New"
@@ -55,8 +55,8 @@ class OffersWorkflowTest < ApplicationSystemTestCase
     assert_text "Offer accepted."
     assert_selector ".badge", text: "Accepted"
 
-    # Convert (skip DN) — lands on the new invoice draft.
-    click_button "Convert (skip DN)"
+    # Convert (invoice only) — lands on the new invoice draft.
+    click_button "Convert (invoice only)"
     assert_text "Invoice draft created from milestone."
     assert_current_path(%r{/invoices/\d+})
   end

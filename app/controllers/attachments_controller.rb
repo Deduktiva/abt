@@ -11,24 +11,4 @@ class AttachmentsController < ApplicationController
               type: served_type,
               disposition: disposition
   end
-
-  def create
-    return if params[:attachment].blank? or params[:attachment][:attachment].blank?
-
-    @attachment = Attachment.new
-    @attachment.uploaded_file = params[:attachment][:attachment]
-    @attachment.title = params[:attachment][:title]
-
-    if @attachment.save
-      flash[:notice] = "Attachment created."
-      redirect_to action: "index"  # FIXME: do something useful
-    else
-      flash[:error] = "Saving attachment failed: #{@attachment.errors.full_messages.join(', ')}"
-      render action: "new"
-    end
-  end
-
-  def new
-    @attachment = Attachment.new
-  end
 end

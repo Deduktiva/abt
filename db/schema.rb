@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_25_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_25_150000) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -52,6 +52,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_25_140000) do
     t.string "matchcode"
     t.text "name"
     t.text "notes"
+    t.text "offer_boilerplate"
+    t.string "offer_email_auto_contact_mode", default: "replace_contacts", null: false
+    t.boolean "offer_email_auto_enabled", default: false, null: false
+    t.string "offer_email_auto_subject_template", default: "", null: false
+    t.string "offer_email_auto_to", default: "", null: false
+    t.integer "offer_validity_days"
     t.integer "payment_terms_days", default: 30, null: false
     t.integer "sales_tax_customer_class_id"
     t.text "supplier_number"

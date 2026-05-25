@@ -19,16 +19,28 @@ class Customer < ApplicationRecord
     cc_contacts: "cc_contacts"
   }
 
-  # Human-readable labels for the invoice_email_auto_contact_mode values.
-  # Single source of truth: customer form select + customer show page both
-  # read from here. Order matters: the form select uses it positionally.
-  INVOICE_EMAIL_AUTO_CONTACT_MODE_LABELS = {
+  enum :offer_email_auto_contact_mode, {
+    replace_contacts: "replace_contacts",
+    cc_contacts: "cc_contacts"
+  }, prefix: :offer
+
+  # Human-readable labels for the *_email_auto_contact_mode values.
+  # Both document types use the same semantic options, so we share one map.
+  # Single source of truth: customer form selects + customer show page read
+  # from here. Order matters: the form select uses it positionally.
+  EMAIL_AUTO_CONTACT_MODE_LABELS = {
     "replace_contacts" => "Only auto address (ignore contacts)",
     "cc_contacts"      => "Auto address in To, contacts in CC"
   }.freeze
+  INVOICE_EMAIL_AUTO_CONTACT_MODE_LABELS = EMAIL_AUTO_CONTACT_MODE_LABELS
+  OFFER_EMAIL_AUTO_CONTACT_MODE_LABELS   = EMAIL_AUTO_CONTACT_MODE_LABELS
 
   def invoice_email_auto_contact_mode_label
-    INVOICE_EMAIL_AUTO_CONTACT_MODE_LABELS[invoice_email_auto_contact_mode]
+    EMAIL_AUTO_CONTACT_MODE_LABELS[invoice_email_auto_contact_mode]
+  end
+
+  def offer_email_auto_contact_mode_label
+    EMAIL_AUTO_CONTACT_MODE_LABELS[offer_email_auto_contact_mode]
   end
 
   # Scopes for filtering

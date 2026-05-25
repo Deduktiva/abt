@@ -5,6 +5,7 @@ class OfferVersionTest < ActiveSupport::TestCase
     @offer ||= Offer.create!(
       matchcode: "ver-test",
       customer: customers(:good_eu),
+      project: projects(:one),
       state: "draft"
     )
   end

@@ -5,6 +5,7 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     Offer.create_with_initial_version!({
       matchcode: "ctrl-test-#{SecureRandom.hex(3)}",
       customer: customers(:good_eu),
+      project: projects(:one),
       state: "draft"
     }.merge(overrides))
   end
@@ -24,7 +25,7 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
   test "POST /offers creates an offer with v1 draft and redirects to edit" do
     assert_difference -> { Offer.count } => 1, -> { OfferVersion.count } => 1 do
       post offers_url, params: {
-        offer: { matchcode: "via-controller", customer_id: customers(:good_eu).id }
+        offer: { matchcode: "via-controller", customer_id: customers(:good_eu).id, project_id: projects(:one).id }
       }
     end
     offer = Offer.order(:created_at).last

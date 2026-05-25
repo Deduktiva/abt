@@ -15,26 +15,66 @@
       = f.label :matchcode, label: 'Slug', class: 'col-lg-2 col-md-3 col-form-label'
       .col-md-5
         = f.text_field :matchcode, class: 'form-control', required: true
-        .form-text Short identifier shown on the PDF cover and filename, e.g. "phase1-rollout". Stable across versions.
+        .form-text Short identifier shown on the PDF cover and filename, stable across versions.
 
     .row.mb-3
-      = f.label :customer_id, label: 'Customer', class: 'col-lg-2 col-md-3 col-form-label'
+      %label.col-lg-2.col-md-3.col-form-label Customer
       .col-md-5
-        = f.collection_select :customer_id,
-                              Customer.visible_to(current_user).active.order(:matchcode),
-                              :id, :matchcode,
-                              { prompt: 'Select customer…' },
-                              class: 'form-select', required: true
+        %div{ data: {
+            controller: 'searchable-dropdown',
+            searchable_dropdown_current_item_id_value: @offer.customer_id,
+            searchable_dropdown_url_value: customers_path,
+            searchable_dropdown_item_name_value: 'customer',
+            searchable_dropdown_item_id_param_value: 'customer_id',
+            searchable_dropdown_select_prompt_value: 'Select customer...'
+          } }
+          = f.hidden_field :customer_id, id: 'offer_customer_id'
+          .dropdown.searchable-dropdown.customer-dropdown
+            %button.btn.btn-outline-secondary.form-control.text-start.d-flex.justify-content-between.align-items-center{ type: 'button', data: { searchable_dropdown_target: 'select' } }
+              .select-display
+                - if @offer.customer
+                  .fw-normal= @offer.customer.name
+                  .small.text-muted= @offer.customer.matchcode
+                - else
+                  %span.text-muted Select customer...
+              %span.text-muted ▼
+            .dropdown-menu{ id: 'customer-dropdown-menu', data: { searchable_dropdown_target: 'dropdown' } }
+              .p-2.border-bottom
+                %input.form-control.form-control-sm{ type: 'text', placeholder: 'Search customers...', data: { searchable_dropdown_target: 'search' } }
+              .dropdown-content
+                .dropdown-item.text-muted Loading...
 
     .row.mb-3
-      = f.label :project_id, label: 'Project (optional)', class: 'col-lg-2 col-md-3 col-form-label'
+      %label.col-lg-2.col-md-3.col-form-label Project
       .col-md-5
-        = f.collection_select :project_id,
-                              Project.visible_to(current_user).where(active: true).order(:matchcode),
-                              :id, :matchcode,
-                              { prompt: '— none —' },
-                              class: 'form-select'
+        %div{ data: {
+            controller: 'searchable-dropdown',
+            searchable_dropdown_current_dependent_id_value: @offer.customer_id,
+            searchable_dropdown_current_item_id_value: @offer.project_id,
+            searchable_dropdown_url_value: projects_path,
+            searchable_dropdown_dependent_param_value: 'customer_id',
+            searchable_dropdown_item_name_value: 'project',
+            searchable_dropdown_item_id_param_value: 'project_id',
+            searchable_dropdown_select_prompt_value: 'Select project...',
+            searchable_dropdown_dependent_select_prompt_value: 'Select customer first...',
+            searchable_dropdown_dependent_field_selector_value: '#offer_customer_id'
+          } }
+          = f.hidden_field :project_id
+          .dropdown.searchable-dropdown.project-dropdown
+            %button.btn.btn-outline-secondary.form-control.text-start.d-flex.justify-content-between.align-items-center{ type: 'button', data: { searchable_dropdown_target: 'select' } }
+              .select-display
+                - if @offer.project && @offer.project.id
+                  .fw-normal= @offer.project.display_name
+                  .small.text-muted= @offer.project.matchcode
+                - else
+                  %span.text-muted Select project...
+              %span.text-muted ▼
+            .dropdown-menu{ id: 'project-dropdown-menu', data: { searchable_dropdown_target: 'dropdown' } }
+              .p-2.border-bottom
+                %input.form-control.form-control-sm{ type: 'text', placeholder: 'Search projects...', data: { searchable_dropdown_target: 'search' } }
+              .dropdown-content
+                .dropdown-item.text-muted Loading...
 
   = action_buttons_wrapper do
-    = f.button :submit, 'Create draft', class: 'btn btn-primary'
-    = link_to 'Cancel', offers_path, class: 'btn btn-link'
+    = f.submit 'Save', class: 'btn btn-primary'
+    = cancel_button(@offer)

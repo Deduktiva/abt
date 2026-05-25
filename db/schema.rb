@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_25_160001) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_25_160002) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -291,7 +291,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_25_160001) do
     t.string "document_number"
     t.datetime "expires_at"
     t.string "matchcode", null: false
-    t.integer "project_id"
+    t.integer "project_id", null: false
     t.datetime "rejected_at"
     t.datetime "reopened_at"
     t.datetime "reported_expired_at"

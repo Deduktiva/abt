@@ -14,7 +14,11 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     if File.executable?(ENV["BROWSER_PATH"])
       cuprite_options[:browser_path] = ENV["BROWSER_PATH"]
     else
+      # Ferrum reads ENV["BROWSER_PATH"] directly (ferrum/browser/command.rb)
+      # even when :browser_path is not passed, so the fallback only takes
+      # effect if we clear the env var here.
       warn "WARNING: BROWSER_PATH=#{ENV['BROWSER_PATH']} is not executable; falling back to cuprite's default chrome lookup."
+      ENV.delete("BROWSER_PATH")
     end
   end
   if Process.uid.zero? || ENV["CHROME_NO_SANDBOX"] == "1"

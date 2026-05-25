@@ -1,0 +1,7 @@
+= t('mailers.expiring_offers.heading', date: l(@today))
+\
+= t('mailers.expiring_offers.main_message', count: @offers.size)
+\
+- @offers.each do |offer|
+  - days_expired = ((@today.to_time - offer.expires_at) / 1.day).to_i
+  = "#{offer.document_number}  #{offer.matchcode}  #{offer.customer.matchcode}  #{t('mailers.expiring_offers.short.expired')} #{l(offer.expires_at.to_date)}  #{t('mailers.expiring_offers.short.days', days: days_expired)}"

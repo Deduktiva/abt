@@ -17,3 +17,7 @@ production:
     class: OverdueInvoicesReportJob
     queue: default
     schedule: "0 8 */2 * *"
+  expiring_offers_report:
+    class: ExpiringOffersReportJob
+    queue: default
+    schedule: "0 8 */2 * *"

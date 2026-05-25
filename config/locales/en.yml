@@ -63,6 +63,17 @@ en:
         due_date: "Due:"
         days_overdue: "%{days} days overdue"
 
+    expiring_offers:
+      subject: "[%{issuer_name}] %{count} expired offer(s)"
+      heading: "Expired offers as of %{date}"
+      main_message: "%{count} offer(s) have passed their validity window without being accepted."
+      short:
+        document_number: "Offer no."
+        matchcode: "Slug"
+        customer: "Customer"
+        expired: "Expired"
+        days: "%{days}d"
+
     invoice:
       subject: "%{issuer_name} Invoice %{document_number}"
       greeting: "Dear %{customer_name},"

@@ -10,7 +10,6 @@ class DeliveryNote < ApplicationRecord
   validate :must_have_item_line_for_publish
   default_scope { order(Arel.sql("id ASC")) }
 
-  scope :email_sent, -> { where.not(email_sent_at: nil) }
   scope :email_unsent, -> {
     joins(:customer)
     .where(email_sent_at: nil)

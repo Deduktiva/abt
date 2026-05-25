@@ -13,14 +13,6 @@ class DeliveryNoteTest < ActiveSupport::TestCase
     assert_includes delivery_note.errors[:delivery_start_date], "can't be blank"
   end
 
-  test "email_sent scope returns delivery notes with email_sent_at" do
-    delivery_note = delivery_notes(:published_delivery_note)
-    delivery_note.update_column(:email_sent_at, Time.current)
-
-    sent_notes = DeliveryNote.email_sent
-    assert_includes sent_notes, delivery_note
-  end
-
   test "email_unsent scope returns delivery notes without email_sent_at that have customer email" do
     delivery_note = delivery_notes(:published_delivery_note)
     delivery_note.update_column(:email_sent_at, nil)

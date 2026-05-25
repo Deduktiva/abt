@@ -119,8 +119,14 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  # Tears down all browser-side auth state: the signed auth cookie AND the
+  # Rails framework session (`_abt_session`). Rotating the framework session
+  # ensures WebAuthn pending-state nonces — and any other session-stored
+  # keys — cannot leak across users sharing a browser. Every caller wants
+  # both; do not split.
   def reset_auth_cookie
     cookies.delete(AUTH_COOKIE)
+    reset_session
   end
 
   def read_auth_token
@@ -158,7 +164,12 @@ class ApplicationController < ActionController::Base
     nil
   end
 
+  # Rotates the framework session on every successful authentication.
+  # Defends against session fixation and clears any pending-state keys
+  # left by prior WebAuthn flows. Callers MUST finish reading any
+  # session-tied state (e.g. webauthn_consume) BEFORE calling this.
   def sign_in_user!(user)
+    reset_session
     session_record, plaintext = UserSession.create_for!(user: user, request: request)
     cookies.signed.permanent[AUTH_COOKIE] = {
       value: plaintext,

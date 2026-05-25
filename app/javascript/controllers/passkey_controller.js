@@ -14,7 +14,10 @@ export default class extends Controller {
   }
 
   connect() {
+    this.cachedPublicKey = null
     this.conditionalAbortController = null
+    this.boundOnPageShow = this.onPageShow.bind(this)
+    window.addEventListener("pageshow", this.boundOnPageShow)
     if (this.autoAuthenticateValue) {
       this.startConditionalMediation()
     }
@@ -22,6 +25,22 @@ export default class extends Controller {
 
   disconnect() {
     this.abortConditional()
+    if (this.boundOnPageShow) {
+      window.removeEventListener("pageshow", this.boundOnPageShow)
+      this.boundOnPageShow = null
+    }
+  }
+
+  // Safari bfcache freezes JS state on navigation away and resumes it on
+  // back-navigation. cachedPublicKey would point at a nonce the server
+  // consumed (or expired) during the previous page life — clear it and
+  // re-arm conditional mediation with a fresh nonce.
+  onPageShow(event) {
+    if (!event.persisted) return
+    this.cachedPublicKey = null
+    if (this.autoAuthenticateValue) {
+      this.startConditionalMediation()
+    }
   }
 
   abortConditional() {
@@ -31,22 +50,36 @@ export default class extends Controller {
     this.conditionalAbortController = null
   }
 
-  // Each call mints a fresh nonce server-side (WebauthnPendingStore.write).
-  // Don't cache the result: the nonce is single-use and consumed on every
-  // /session/verify, so reusing a stale publicKey produces "No login in
-  // progress" on the next attempt (e.g. button click after a conditional-
-  // mediation /verify already burned the nonce).
+  // Cache the parsed publicKey so the click handler can reach
+  // navigator.credentials.get() synchronously: Safari rejects modal
+  // get() calls that cross an `await fetch()` boundary, losing the
+  // transient user activation from the click. Callers MUST clear the
+  // cache (`this.cachedPublicKey = null`) before POSTing /session/verify
+  // — the server's nonce is single-use, so a reused publicKey on the
+  // next ceremony hits "No login in progress".
   async fetchOptions() {
+    if (this.cachedPublicKey) return this.cachedPublicKey
     const optionsJSON = await this.postJSON(this.optionsUrlValue, {})
-    return this.parseRequestOptions(optionsJSON)
+    this.cachedPublicKey = this.parseRequestOptions(optionsJSON)
+    return this.cachedPublicKey
   }
 
   async startConditionalMediation() {
-    if (!window.PublicKeyCredential) return
-    if (typeof PublicKeyCredential.isConditionalMediationAvailable !== "function") return
+    if (!window.PublicKeyCredential) {
+      console.info("passkey: PublicKeyCredential unsupported; skipping conditional mediation")
+      return
+    }
+    if (typeof PublicKeyCredential.isConditionalMediationAvailable !== "function") {
+      console.info("passkey: isConditionalMediationAvailable() not exposed; skipping conditional mediation")
+      return
+    }
     try {
-      if (!(await PublicKeyCredential.isConditionalMediationAvailable())) return
-    } catch (_) {
+      if (!(await PublicKeyCredential.isConditionalMediationAvailable())) {
+        console.info("passkey: conditional mediation reported unavailable; skipping")
+        return
+      }
+    } catch (e) {
+      console.warn("passkey: isConditionalMediationAvailable() threw", e)
       return
     }
 
@@ -72,6 +105,7 @@ export default class extends Controller {
       return this.showError(`Passkey sign-in failed: ${e.message || e}`)
     }
 
+    this.cachedPublicKey = null
     let result
     try {
       result = await this.postJSON(this.verifyUrlValue, {
@@ -150,6 +184,7 @@ export default class extends Controller {
       return this.showError(`Passkey sign-in failed: ${e.message || e}`)
     }
 
+    this.cachedPublicKey = null
     let result
     try {
       result = await this.postJSON(this.verifyUrlValue, {

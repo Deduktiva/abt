@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_25_150002) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_25_160001) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -245,6 +245,65 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_25_150002) do
     t.index ["iso_code"], name: "index_languages_on_iso_code", unique: true
   end
 
+  create_table "offer_milestones", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "delivery_note_id"
+    t.text "description"
+    t.integer "invoice_id"
+    t.decimal "net_amount", precision: 12, scale: 2, null: false
+    t.integer "offer_version_id", null: false
+    t.integer "position", default: 0, null: false
+    t.boolean "skip_delivery_note", null: false
+    t.string "title", null: false
+    t.string "trigger", null: false
+    t.date "trigger_date"
+    t.datetime "updated_at", null: false
+    t.index ["delivery_note_id"], name: "index_offer_milestones_on_delivery_note_id", unique: true, where: "delivery_note_id IS NOT NULL"
+    t.index ["invoice_id"], name: "index_offer_milestones_on_invoice_id", unique: true, where: "invoice_id IS NOT NULL"
+    t.index ["offer_version_id"], name: "index_offer_milestones_on_offer_version_id"
+  end
+
+  create_table "offer_versions", force: :cascade do |t|
+    t.string "client_line_override"
+    t.datetime "created_at", null: false
+    t.date "delivery_end_date"
+    t.date "delivery_start_date"
+    t.integer "offer_id", null: false
+    t.integer "pdf_attachment_id"
+    t.text "prelude"
+    t.integer "sales_tax_product_class_id"
+    t.string "salutation_override"
+    t.datetime "sent_at"
+    t.string "state", default: "draft", null: false
+    t.datetime "updated_at", null: false
+    t.integer "version_number", null: false
+    t.index ["offer_id", "version_number"], name: "index_offer_versions_on_offer_id_and_version_number", unique: true
+    t.index ["offer_id"], name: "index_offer_versions_on_offer_id"
+    t.index ["sales_tax_product_class_id"], name: "index_offer_versions_on_sales_tax_product_class_id"
+  end
+
+  create_table "offers", force: :cascade do |t|
+    t.datetime "accepted_at"
+    t.integer "accepted_version_id"
+    t.integer "addressed_to_contact_id"
+    t.datetime "created_at", null: false
+    t.integer "customer_id", null: false
+    t.string "document_number"
+    t.datetime "expires_at"
+    t.string "matchcode", null: false
+    t.integer "project_id"
+    t.datetime "rejected_at"
+    t.datetime "reopened_at"
+    t.datetime "reported_expired_at"
+    t.string "state", default: "draft", null: false
+    t.datetime "updated_at", null: false
+    t.index ["addressed_to_contact_id"], name: "index_offers_on_addressed_to_contact_id"
+    t.index ["customer_id", "matchcode"], name: "index_offers_on_customer_id_and_matchcode_lower", unique: true
+    t.index ["customer_id"], name: "index_offers_on_customer_id"
+    t.index ["document_number"], name: "index_offers_on_document_number", unique: true
+    t.index ["project_id"], name: "index_offers_on_project_id"
+  end
+
   create_table "products", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "description"
@@ -416,6 +475,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_25_150002) do
   add_foreign_key "group_memberships", "groups"
   add_foreign_key "group_memberships", "users"
   add_foreign_key "group_permissions", "groups"
+  add_foreign_key "offer_milestones", "delivery_notes"
+  add_foreign_key "offer_milestones", "invoices"
+  add_foreign_key "offer_milestones", "offer_versions"
+  add_foreign_key "offer_versions", "attachments", column: "pdf_attachment_id"
+  add_foreign_key "offer_versions", "offers"
+  add_foreign_key "offer_versions", "sales_tax_product_classes"
+  add_foreign_key "offers", "customer_contacts", column: "addressed_to_contact_id"
+  add_foreign_key "offers", "customers"
+  add_foreign_key "offers", "offer_versions", column: "accepted_version_id"
+  add_foreign_key "offers", "projects"
   add_foreign_key "projects", "teams"
   add_foreign_key "team_memberships", "teams"
   add_foreign_key "team_memberships", "users"

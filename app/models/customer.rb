@@ -59,6 +59,10 @@ class Customer < ApplicationRecord
     customer_contacts.for_delivery_notes.select { |c| c.applies_to_project?(delivery_note.project) }
   end
 
+  def contacts_for_offer(offer)
+    customer_contacts.for_offers.select { |c| c.applies_to_project?(offer.project) }
+  end
+
   before_destroy :check_if_used
 
   # When a customer moves to a different team, cascade the change to every

@@ -16,6 +16,9 @@ module Permission
     Entry.new(key: "invoices.edit",       label: "Create / book / send invoices", category: "Operations"),
     Entry.new(key: "delivery_notes.view", label: "View delivery notes",     category: "Operations"),
     Entry.new(key: "delivery_notes.edit", label: "Create / publish / send delivery notes", category: "Operations"),
+    Entry.new(key: "offers.view",         label: "View offers",             category: "Operations"),
+    Entry.new(key: "offers.edit",         label: "Create / send / accept offers", category: "Operations"),
+    Entry.new(key: "offers.convert",      label: "Convert offer milestones to invoices / delivery notes", category: "Operations"),
 
     # Catalog & tax
     Entry.new(key: "products.view", label: "View product catalog",          category: "Catalog & tax"),

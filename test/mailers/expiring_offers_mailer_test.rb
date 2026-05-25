@@ -5,6 +5,7 @@ class ExpiringOffersMailerTest < ActionMailer::TestCase
     offer = Offer.create_with_initial_version!(
       matchcode: "exp-mailer-#{SecureRandom.hex(3)}",
       customer: customers(:good_eu),
+      project: projects(:one),
       state: "draft"
     )
     offer.current_version.offer_milestones.create!(title: "M", trigger: "on_order", net_amount: 1)

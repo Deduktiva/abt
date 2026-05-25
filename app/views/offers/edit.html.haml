@@ -16,15 +16,60 @@
   .row.mb-3
     %label.col-lg-2.col-md-3.col-form-label Customer
     .col-md-5
-      .form-control-plaintext= @offer.customer.name
+      %div{ data: {
+          controller: 'searchable-dropdown',
+          searchable_dropdown_current_item_id_value: @offer.customer_id,
+          searchable_dropdown_url_value: customers_path,
+          searchable_dropdown_item_name_value: 'customer',
+          searchable_dropdown_item_id_param_value: 'customer_id',
+          searchable_dropdown_select_prompt_value: 'Select customer...'
+        } }
+        = f.hidden_field :customer_id, id: 'offer_customer_id'
+        .dropdown.searchable-dropdown.customer-dropdown
+          %button.btn.btn-outline-secondary.form-control.text-start.d-flex.justify-content-between.align-items-center{ type: 'button', data: { searchable_dropdown_target: 'select' } }
+            .select-display
+              - if @offer.customer
+                .fw-normal= @offer.customer.name
+                .small.text-muted= @offer.customer.matchcode
+              - else
+                %span.text-muted Select customer...
+            %span.text-muted ▼
+          .dropdown-menu{ id: 'customer-dropdown-menu', data: { searchable_dropdown_target: 'dropdown' } }
+            .p-2.border-bottom
+              %input.form-control.form-control-sm{ type: 'text', placeholder: 'Search customers...', data: { searchable_dropdown_target: 'search' } }
+            .dropdown-content
+              .dropdown-item.text-muted Loading...
 
   .row.mb-3
-    = f.label :project_id, label: 'Project', class: 'col-lg-2 col-md-3 col-form-label'
+    %label.col-lg-2.col-md-3.col-form-label Project
     .col-md-5
-      = f.collection_select :project_id,
-                            Project.visible_to(current_user).where("bill_to_customer_id = ? OR bill_to_customer_id IS NULL", @offer.customer_id).order(:matchcode),
-                            :id, :matchcode,
-                            { prompt: '— none —' }, class: 'form-select'
+      %div{ data: {
+          controller: 'searchable-dropdown',
+          searchable_dropdown_current_dependent_id_value: @offer.customer_id,
+          searchable_dropdown_current_item_id_value: @offer.project_id,
+          searchable_dropdown_url_value: projects_path,
+          searchable_dropdown_dependent_param_value: 'customer_id',
+          searchable_dropdown_item_name_value: 'project',
+          searchable_dropdown_item_id_param_value: 'project_id',
+          searchable_dropdown_select_prompt_value: 'Select project...',
+          searchable_dropdown_dependent_select_prompt_value: 'Select customer first...',
+          searchable_dropdown_dependent_field_selector_value: '#offer_customer_id'
+        } }
+        = f.hidden_field :project_id
+        .dropdown.searchable-dropdown.project-dropdown
+          %button.btn.btn-outline-secondary.form-control.text-start.d-flex.justify-content-between.align-items-center{ type: 'button', data: { searchable_dropdown_target: 'select' } }
+            .select-display
+              - if @offer.project && @offer.project.id
+                .fw-normal= @offer.project.display_name
+                .small.text-muted= @offer.project.matchcode
+              - else
+                %span.text-muted Select project...
+            %span.text-muted ▼
+          .dropdown-menu{ id: 'project-dropdown-menu', data: { searchable_dropdown_target: 'dropdown' } }
+            .p-2.border-bottom
+              %input.form-control.form-control-sm{ type: 'text', placeholder: 'Search projects...', data: { searchable_dropdown_target: 'search' } }
+            .dropdown-content
+              .dropdown-item.text-muted Loading...
 
   .row.mb-3
     = f.label :addressed_to_contact_id, label: 'Addressed to', class: 'col-lg-2 col-md-3 col-form-label'
@@ -32,7 +77,7 @@
       = f.collection_select :addressed_to_contact_id,
                             @offer.customer.customer_contacts.order(:name),
                             :id, :name,
-                            { prompt: '— none —' }, class: 'form-select'
+                            { prompt: 'Select contact...' }, class: 'form-select'
       .form-text The salutation_line of this contact is used to personalize the offer.
 
   = fields_for "offer[version]", @version do |vf|
@@ -56,7 +101,7 @@
         = vf.collection_select :sales_tax_product_class_id,
                                SalesTaxProductClass.all.order(:name),
                                :id, :name,
-                               { prompt: 'Use default' }, class: 'form-select'
+                               { prompt: 'Select tax class...' }, class: 'form-select'
 
     .row.mb-3
       = vf.label :salutation_override, label: 'Salutation override', class: 'col-lg-2 col-md-3 col-form-label'
@@ -71,8 +116,8 @@
         .form-text If blank, the line is composed from customer + project department.
 
   = action_buttons_wrapper do
-    = f.button :submit, 'Save offer', class: 'btn btn-primary'
-    = link_to 'Back', @offer, class: 'btn btn-link'
+    = f.submit 'Save', class: 'btn btn-primary'
+    = cancel_button(@offer)
 
 %hr.mt-4
 

@@ -36,22 +36,23 @@
             (v#{@offer.accepted_version&.version_number})
 
   .col-md-4.text-end
-    - if can?('offers.edit') && @offer.state_draft?
-      = link_to 'Edit current draft', edit_offer_path(@offer), class: 'btn btn-primary btn-sm'
-      = button_to 'Send', send_offer_path(@offer), method: :post, class: 'btn btn-warning btn-sm',
-                  data: { turbo_confirm: 'Send this offer to the customer?' },
-                  disabled: !(@offer.current_version&.offer_milestones&.any?)
-    - if can?('offers.edit') && @offer.state_sent?
-      = button_to 'Accept', accept_offer_path(@offer), method: :post, class: 'btn btn-success btn-sm',
-                  data: { turbo_confirm: 'Mark this offer as accepted by the customer?' }
-      = button_to 'Reject', reject_offer_path(@offer), method: :post, class: 'btn btn-outline-danger btn-sm',
-                  data: { turbo_confirm: 'Mark this offer as rejected?' }
-    - if can?('offers.edit') && @offer.state_accepted?
-      = button_to 'Reopen', reopen_offer_path(@offer), method: :post, class: 'btn btn-outline-warning btn-sm',
-                  data: { turbo_confirm: 'Reopen accepted offer for further edits?' }
-    - if can?('offers.edit') && @offer.state_draft?
-      = button_to '🗑 Delete', offer_path(@offer), method: :delete, class: 'btn btn-outline-danger btn-sm',
-                  data: { turbo_confirm: 'Delete this draft offer?' }
+    - can_edit_offer = can?('offers.edit')
+    = action_buttons_wrapper do
+      = action_button 'Back', offers_path, :secondary
+      - if @offer.state_draft? && can_edit_offer
+        = action_button 'Edit', edit_offer_path(@offer), :primary
+        = button_to 'Send', send_offer_path(@offer), method: :post, class: 'btn btn-warning',
+                    data: { turbo_confirm: 'Send this offer to the customer?' },
+                    disabled: !(@offer.current_version&.offer_milestones&.any?)
+        = destroy_link(@offer, "Delete this draft offer?")
+      - if @offer.state_sent? && can_edit_offer
+        = button_to 'Accept', accept_offer_path(@offer), method: :post, class: 'btn btn-success',
+                    data: { turbo_confirm: 'Mark this offer as accepted by the customer?' }
+        = button_to 'Reject', reject_offer_path(@offer), method: :post, class: 'btn btn-outline-danger',
+                    data: { turbo_confirm: 'Mark this offer as rejected?' }
+      - if @offer.state_accepted? && can_edit_offer
+        = button_to 'Reopen', reopen_offer_path(@offer), method: :post, class: 'btn btn-outline-warning',
+                    data: { turbo_confirm: 'Reopen accepted offer for further edits?' }
 
 - if @current_version
   .card.mt-3

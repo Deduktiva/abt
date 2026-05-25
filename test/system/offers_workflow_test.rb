@@ -10,15 +10,27 @@ class OffersWorkflowTest < ApplicationSystemTestCase
     click_link "+ New"
 
     fill_in "offer[matchcode]", with: "happy-path"
-    select customers(:good_eu).matchcode, from: "offer[customer_id]"
-    select projects(:one).matchcode,      from: "offer[project_id]"
-    click_button "Create draft"
+
+    # Customer + project pickers are searchable-dropdowns (same widget the
+    # invoice and delivery-note forms use). Drive them by opening the
+    # button and clicking the loaded option.
+    within(".customer-dropdown") do
+      find('[data-searchable-dropdown-target="select"]').click
+      assert_selector ".searchable-option", wait: 10
+      find(".searchable-option", text: customers(:good_eu).name).click
+    end
+    within(".project-dropdown") do
+      find('[data-searchable-dropdown-target="select"]').click
+      assert_selector ".searchable-option", wait: 10
+      find(".searchable-option", text: projects(:one).matchcode).click
+    end
+
+    click_button "Save"
 
     # Lands on edit page for the new draft.
     assert_text "Edit offer Draft"
-
-    # Add a milestone via the inline new-milestone form (the trailing
-    # _milestone_row partial with no persisted record).
+    offer = Offer.find_by!(matchcode: "happy-path")
+    assert_equal projects(:one).id, offer.project_id
     within(all("form[action$='/milestones']").last) do
       fill_in "offer_milestone[title]", with: "Phase 1"
       select "On order",                from: "offer_milestone[trigger]"

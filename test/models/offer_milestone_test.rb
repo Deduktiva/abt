@@ -111,7 +111,7 @@ class OfferMilestoneTest < ActiveSupport::TestCase
     invoice = invoices(:published_invoice)
     @version.offer_milestones.create!(title: "A", trigger: "on_order", net_amount: 1, invoice: invoice)
 
-    other_offer = Offer.create!(matchcode: "ms-other", customer: customers(:good_eu), state: "draft")
+    other_offer = Offer.create!(matchcode: "ms-other", customer: customers(:good_eu), project: projects(:one), state: "draft")
     other_version = other_offer.offer_versions.create!
     duplicate = other_version.offer_milestones.build(title: "B", trigger: "on_order", net_amount: 1, invoice: invoice)
 

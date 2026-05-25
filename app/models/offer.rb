@@ -2,7 +2,7 @@ class Offer < ApplicationRecord
   include ScopedThroughCustomer
 
   belongs_to :customer
-  belongs_to :project, optional: true
+  belongs_to :project
   belongs_to :addressed_to_contact, class_name: "CustomerContact", optional: true
   belongs_to :accepted_version, class_name: "OfferVersion", optional: true
   has_many :offer_versions, dependent: :destroy

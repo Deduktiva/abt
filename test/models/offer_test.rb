@@ -114,7 +114,8 @@ class OfferTest < ActiveSupport::TestCase
   test "create_with_initial_version! builds offer + v1 draft atomically" do
     offer = Offer.create_with_initial_version!(
       matchcode: "init-test",
-      customer: customers(:good_eu)
+      customer: customers(:good_eu),
+      project: projects(:one)
     )
     assert_equal 1, offer.offer_versions.count
     assert_equal 1, offer.current_version.version_number
@@ -143,7 +144,7 @@ class OfferTest < ActiveSupport::TestCase
   end
 
   test "send_current_version! marks prior sent versions superseded" do
-    offer = Offer.create_with_initial_version!(matchcode: "ss-test", customer: customers(:good_eu))
+    offer = Offer.create_with_initial_version!(matchcode: "ss-test", customer: customers(:good_eu), project: projects(:one))
     offer.current_version.offer_milestones.create!(title: "M", trigger: "on_order", net_amount: 1)
     v1 = offer.send_current_version!
     offer.reload
@@ -157,7 +158,7 @@ class OfferTest < ActiveSupport::TestCase
   end
 
   test "send_current_version! copies milestones into the new draft" do
-    offer = Offer.create_with_initial_version!(matchcode: "copy-test", customer: customers(:good_eu))
+    offer = Offer.create_with_initial_version!(matchcode: "copy-test", customer: customers(:good_eu), project: projects(:one))
     offer.current_version.offer_milestones.create!(title: "M1", trigger: "on_order", net_amount: 1)
     offer.current_version.offer_milestones.create!(title: "M2", trigger: "on_acceptance", net_amount: 2)
 
@@ -170,13 +171,13 @@ class OfferTest < ActiveSupport::TestCase
   end
 
   test "send_current_version! refuses when state is not draft/sent" do
-    offer = Offer.create_with_initial_version!(matchcode: "guard", customer: customers(:good_eu))
+    offer = Offer.create_with_initial_version!(matchcode: "guard", customer: customers(:good_eu), project: projects(:one))
     offer.update!(state: "rejected")
     assert_raises(RuntimeError) { offer.send_current_version! }
   end
 
   test "accept! sets state and discards any in-progress draft" do
-    offer = Offer.create_with_initial_version!(matchcode: "accept", customer: customers(:good_eu))
+    offer = Offer.create_with_initial_version!(matchcode: "accept", customer: customers(:good_eu), project: projects(:one))
     offer.current_version.offer_milestones.create!(title: "M", trigger: "on_order", net_amount: 1)
     sent = offer.send_current_version!
     offer.reload
@@ -193,7 +194,7 @@ class OfferTest < ActiveSupport::TestCase
   end
 
   test "reject! sets state to rejected" do
-    offer = Offer.create_with_initial_version!(matchcode: "reject", customer: customers(:good_eu))
+    offer = Offer.create_with_initial_version!(matchcode: "reject", customer: customers(:good_eu), project: projects(:one))
     offer.current_version.offer_milestones.create!(title: "M", trigger: "on_order", net_amount: 1)
     offer.send_current_version!
     offer.reload
@@ -204,7 +205,7 @@ class OfferTest < ActiveSupport::TestCase
   end
 
   test "reopen! from accepted creates a new draft and reverts state" do
-    offer = Offer.create_with_initial_version!(matchcode: "reopen", customer: customers(:good_eu))
+    offer = Offer.create_with_initial_version!(matchcode: "reopen", customer: customers(:good_eu), project: projects(:one))
     offer.current_version.offer_milestones.create!(title: "M1", trigger: "on_order", net_amount: 1)
     sent = offer.send_current_version!
     offer.reload

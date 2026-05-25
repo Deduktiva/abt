@@ -1,0 +1,84 @@
+= page_header("Edit offer #{@offer.document_number || "Draft \##{@offer.id}"}")
+
+= simple_form_for(@offer, url: offer_path(@offer), method: :patch, validation: true, html: { class: 'form-horizontal' }) do |f|
+  - if @offer.errors.any?
+    .alert.alert-danger
+      %h4 #{pluralize(@offer.errors.count, 'error')} prohibited saving:
+      %ul
+        - @offer.errors.full_messages.each do |msg|
+          %li= msg
+
+  .row.mb-3
+    = f.label :matchcode, label: 'Slug', class: 'col-lg-2 col-md-3 col-form-label'
+    .col-md-5
+      = f.text_field :matchcode, class: 'form-control', required: true
+
+  .row.mb-3
+    %label.col-lg-2.col-md-3.col-form-label Customer
+    .col-md-5
+      .form-control-plaintext= @offer.customer.name
+
+  .row.mb-3
+    = f.label :project_id, label: 'Project', class: 'col-lg-2 col-md-3 col-form-label'
+    .col-md-5
+      = f.collection_select :project_id,
+                            Project.visible_to(current_user).where("bill_to_customer_id = ? OR bill_to_customer_id IS NULL", @offer.customer_id).order(:matchcode),
+                            :id, :matchcode,
+                            { prompt: '— none —' }, class: 'form-select'
+
+  .row.mb-3
+    = f.label :addressed_to_contact_id, label: 'Addressed to', class: 'col-lg-2 col-md-3 col-form-label'
+    .col-md-5
+      = f.collection_select :addressed_to_contact_id,
+                            @offer.customer.customer_contacts.order(:name),
+                            :id, :name,
+                            { prompt: '— none —' }, class: 'form-select'
+      .form-text The salutation_line of this contact is used to personalize the offer.
+
+  = fields_for "offer[version]", @version do |vf|
+    .row.mb-3
+      = vf.label :prelude, label: 'Prelude', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-md-10
+        = vf.text_area :prelude, class: 'form-control', rows: 10
+        .form-text Long-form description of the work, rendered before the milestones.
+
+    .row.mb-3
+      = vf.label :delivery_start_date, label: 'Delivery start', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-md-3
+        = vf.date_field :delivery_start_date, class: 'form-control'
+      = vf.label :delivery_end_date, label: 'Delivery end', class: 'col-lg-2 col-form-label'
+      .col-md-3
+        = vf.date_field :delivery_end_date, class: 'form-control'
+
+    .row.mb-3
+      = vf.label :sales_tax_product_class_id, label: 'Tax class', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-md-5
+        = vf.collection_select :sales_tax_product_class_id,
+                               SalesTaxProductClass.all.order(:name),
+                               :id, :name,
+                               { prompt: 'Use default' }, class: 'form-select'
+
+    .row.mb-3
+      = vf.label :salutation_override, label: 'Salutation override', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-md-5
+        = vf.text_field :salutation_override, class: 'form-control'
+        .form-text If blank, the addressed_to_contact's salutation_line is used.
+
+    .row.mb-3
+      = vf.label :client_line_override, label: 'Client line override', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-md-5
+        = vf.text_field :client_line_override, class: 'form-control'
+        .form-text If blank, the line is composed from customer + project department.
+
+  = action_buttons_wrapper do
+    = f.button :submit, 'Save offer', class: 'btn btn-primary'
+    = link_to 'Back', @offer, class: 'btn btn-link'
+
+%hr.mt-4
+
+%h4 Milestones (v#{@version.version_number})
+
+- @version.offer_milestones.order(:position, :id).each do |m|
+  = render 'milestone_row', offer: @offer, milestone: m
+
+= render 'milestone_row', offer: @offer, milestone: @version.offer_milestones.build(net_amount: 0)

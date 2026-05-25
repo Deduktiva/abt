@@ -1,0 +1,39 @@
+= page_header_with_new_button('Listing offers', new_offer_path, permission: 'offers.edit')
+
+%table.table.table-striped.table-sm
+  %tr
+    %th Document#
+    %th Slug
+    %th Customer
+    %th Project
+    %th Status
+    %th Latest Version
+    %th Expires
+    %th{:width => "3%"}
+  - @offers.each do |offer|
+    %tr
+      %td= link_to(offer.document_number || "Draft \##{offer.id}", offer)
+      %td= offer.matchcode
+      %td= offer.customer.name
+      %td= offer.project && offer.project.matchcode
+      %td
+        - case offer.state
+        - when "draft"
+          %span.badge.bg-secondary Draft
+        - when "sent"
+          %span.badge.bg-warning Sent
+        - when "accepted"
+          %span.badge.bg-success Accepted
+        - when "rejected"
+          %span.badge.bg-danger Rejected
+        - when "expired"
+          %span.badge.bg-dark Expired
+      %td
+        - if offer.current_version
+          v#{offer.current_version.version_number}
+      %td
+        - if offer.expires_at
+          = l(offer.expires_at.to_date)
+      %td
+        - if can?('offers.edit')
+          = list_action_link('Edit', edit_offer_path(offer), :edit) if offer.state_draft?

@@ -61,9 +61,9 @@
       = f.label :invoice_email_auto_contact_mode, 'Contacts mode', class: 'col-lg-2 col-md-3 col-form-label'
       .col-lg-5
         = f.select :invoice_email_auto_contact_mode,
-                   [['Replace contacts (To: auto only — current behaviour)', 'replace_contacts'],
-                    ['CC contacts (To: auto, CC: matching contacts)', 'cc_contacts'],
-                    ['Additional (To: auto + matching contacts)', 'additional']],
+                   [['Only auto address (ignore contacts)', 'replace_contacts'],
+                    ['Auto address in To, contacts in CC', 'cc_contacts'],
+                    ['Auto address and contacts both in To', 'additional']],
                    {}, class: 'form-select'
         .form-text Applies only when "Auto. Invoice E-Mail" is on. Contacts always receive the email when auto is off.
     %hr

@@ -111,6 +111,22 @@ class CspInlineHandlersStructureTest < ActionDispatch::IntegrationTest
     assert_no_match(/\bstyle=['"]/, body, "no inline style attributes allowed on users show")
   end
 
+  test "customer_contacts new form carries no inline style attribute" do
+    get new_customer_customer_contact_path(customers(:good_eu))
+    assert_response :success
+    body = @response.body
+
+    assert_no_match(/\bstyle=['"]/, body, "no inline style attributes allowed on the new customer-contact form")
+  end
+
+  test "customer_contacts edit form carries no inline style attribute" do
+    get edit_customer_contact_path(customer_contacts(:good_eu_accounting))
+    assert_response :success
+    body = @response.body
+
+    assert_no_match(/\bstyle=['"]/, body, "no inline style attributes allowed on the edit customer-contact form")
+  end
+
   private
 
   def csp_nonce(response)

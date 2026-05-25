@@ -60,8 +60,7 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
     assert @invoice.invoice_lines.any? { |line| line.amount.present? if line.type == "item" }
   end
 
-  def test_pdf_generation_with_missing_data
-    # Create invoice with minimal data to test error handling
+  def test_preview_of_an_empty_invoice_redirects_with_a_flash
     minimal_invoice = Invoice.create!(
       customer: @customer,
       project: @project
@@ -69,8 +68,47 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
 
     get preview_invoice_path(minimal_invoice)
 
-    # Should either generate PDF or return error, but not crash
-    assert_response :success, "Should handle invoices with minimal data gracefully"
+    assert_redirected_to invoice_path(minimal_invoice)
+    assert_match(/no item lines/i, flash[:error])
+  end
+
+  def test_booking_an_empty_invoice_is_blocked
+    empty = Invoice.create!(
+      customer: @customer,
+      project: @project
+    )
+
+    post book_invoice_path(empty), params: { save: "true" }
+
+    assert_redirected_to invoice_path(empty)
+    assert_match(/no item lines/i, flash[:error])
+    assert_not empty.reload.published?
+  end
+
+  def test_booking_an_invoice_with_only_non_item_lines_is_blocked
+    inv = Invoice.create!(
+      customer: @customer,
+      project: @project
+    )
+    inv.invoice_lines.create!(type: "text", title: "Note", description: "no items here", position: 1)
+    inv.invoice_lines.create!(type: "subheading", title: "Section", position: 2)
+
+    post book_invoice_path(inv), params: { save: "true" }
+
+    assert_redirected_to invoice_path(inv)
+    assert_match(/no item lines/i, flash[:error])
+    assert_not inv.reload.published?
+  end
+
+  def test_model_rejects_setting_published_true_on_an_empty_invoice
+    inv = Invoice.create!(
+      customer: @customer,
+      project: @project
+    )
+
+    inv.published = true
+    refute inv.valid?
+    assert_includes inv.errors[:base].join, "item line"
   end
 
   def test_pdf_generation_with_logo

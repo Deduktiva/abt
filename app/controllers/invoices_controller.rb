@@ -36,6 +36,9 @@ class InvoicesController < ApplicationController
   before_action(only: :preview_email_raw) { request.content_security_policy_nonce_directives = [] }
   before_action :require_unpublished, only: %i[edit update destroy preview]
   before_action :require_published, only: %i[send_email mark_paid mark_unpaid]
+  # preview_email reads from a pre-rendered @invoice.attachment, so it never
+  # invokes FOP. The guard belongs on the actions that actually book/render.
+  before_action :require_item_line, only: %i[book preview]
 
   # GET /invoices
   def index

@@ -6,6 +6,7 @@ class Invoice < ApplicationRecord
   has_line_items :invoice_lines
 
   validates :customer_id, presence: true
+  validate :must_have_item_line_for_publish
   default_scope { order(Arel.sql("id ASC")) }
 
   # Mirror of emailable? in SQL — must agree.
@@ -129,6 +130,13 @@ class Invoice < ApplicationRecord
   end
 
 private
+  def must_have_item_line_for_publish
+    return unless will_save_change_to_published? && published?
+    return if has_items?
+
+    errors.add(:base, "must have at least one item line before it can be published")
+  end
+
   def update_sums
     return if self.published?
 

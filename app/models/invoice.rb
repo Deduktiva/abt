@@ -9,12 +9,41 @@ class Invoice < ApplicationRecord
   default_scope { order(Arel.sql("id ASC")) }
 
   scope :email_unsent, -> {
-    joins(:customer)
-    .where(email_sent_at: nil)
-    .where("customers.email IS NOT NULL AND customers.email != '' OR customers.invoice_email_auto_enabled = true")
+    where(email_sent_at: nil).where(<<~SQL.squish)
+      EXISTS (
+        SELECT 1 FROM customer_contacts cc
+        LEFT JOIN customer_contact_projects ccp ON ccp.customer_contact_id = cc.id
+        WHERE cc.customer_id = invoices.customer_id
+          AND cc.receives_invoice_emails = TRUE
+          AND (ccp.project_id IS NULL OR ccp.project_id = invoices.project_id)
+      )
+      OR EXISTS (
+        SELECT 1 FROM customers c
+        WHERE c.id = invoices.customer_id AND c.invoice_email_auto_enabled = TRUE
+      )
+    SQL
   }
   scope :published, -> { where(published: true) }
   scope :unpaid, -> { where(paid_at: nil) }
+
+  # Recipients for a real outbound send. Honors invoice_email_auto_contact_mode
+  # when the customer's auto-email feature is on. Returns an array of email
+  # strings; callers compose them into mail.to / mail.cc.
+  def email_recipients
+    return customer.contacts_for_invoice(self).map(&:email) unless customer.invoice_email_auto_enabled?
+    [ customer.invoice_email_auto_to ].compact_blank
+  end
+
+  def email_cc_recipients
+    return [] unless customer.invoice_email_auto_enabled? && customer.cc_contacts?
+    auto_to = customer.invoice_email_auto_to.to_s.downcase.strip
+    customer.contacts_for_invoice(self).map(&:email).reject { |e| e.to_s.downcase.strip == auto_to }
+  end
+
+  def emailable?
+    return true if customer.invoice_email_auto_enabled?
+    customer.contacts_for_invoice(self).any?
+  end
 
   def self.visible_to(user)
     return none if user.nil?

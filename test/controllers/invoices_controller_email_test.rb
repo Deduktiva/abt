@@ -25,7 +25,7 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     # Check that email was delivered with PDF attachment and timestamp was set
     assert_equal 1, ActionMailer::Base.deliveries.size
     delivered_mail = ActionMailer::Base.deliveries.last
-    assert_equal [ "customer@good-company.co.uk" ], delivered_mail.to
+    assert_equal [ "customer@good-company.co.uk", "proj001-lead@good-company.co.uk" ].sort, delivered_mail.to.sort
     assert_equal "My Example Invoice INV-2024-001", delivered_mail.subject
     assert_equal 1, delivered_mail.attachments.size
     assert_equal "test_invoice.pdf", delivered_mail.attachments.first.filename
@@ -57,27 +57,18 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     assert_not_nil auto_invoice.email_sent_at
   end
 
-  test "send_email handles customer without email gracefully" do
+  test "send_email refuses to enqueue when no recipient is configured" do
     invoice = invoices(:no_email_invoice)
 
-    # Should still enqueue the job even if no email will be sent
-    assert_enqueued_emails 1 do
+    assert_enqueued_emails 0 do
       post send_email_invoice_path(invoice)
     end
 
     assert_redirected_to invoice
-    assert_equal "E-Mail queued for sending.", flash[:notice]
+    assert_equal "No recipient configured for this invoice.", flash[:alert]
 
-    # Process the enqueued job
-    perform_enqueued_jobs
-
-    # No email should be delivered for customer without email
-    # The mailer returns NullMail which doesn't get delivered
-    assert_equal 0, ActionMailer::Base.deliveries.size
-
-    # But email_sent_at should still be set (job completed successfully)
     invoice.reload
-    assert_not_nil invoice.email_sent_at
+    assert_nil invoice.email_sent_at
   end
 
   test "send_email only works for published invoices" do

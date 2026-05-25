@@ -1,0 +1,3 @@
+= turbo_frame_tag :new_customer_contact, class: "d-block border-bottom py-2 bg-light" do
+  = form_with model: [@customer, @contact] do |form|
+    = render "customer_contacts/form_fields", form: form, contact: @contact, customer: @customer

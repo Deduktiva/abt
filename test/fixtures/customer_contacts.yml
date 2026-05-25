@@ -1,0 +1,27 @@
+good_eu_accounting:
+  customer: good_eu
+  name: GOOD Accounting
+  email: customer@good-company.co.uk
+  receives_invoice_emails: true
+  receives_delivery_note_emails: true
+
+good_eu_project_one_lead:
+  customer: good_eu
+  name: PROJ001 Lead
+  email: proj001-lead@good-company.co.uk
+  receives_invoice_emails: true
+  receives_delivery_note_emails: false
+
+good_national_main:
+  customer: good_national
+  name: GOODNAT AP
+  email: billing@local-company.com
+  receives_invoice_emails: true
+  receives_delivery_note_emails: true
+
+auto_email_contact:
+  customer: auto_email_customer
+  name: Auto Email Backup
+  email: backup@autoemail.com
+  receives_invoice_emails: true
+  receives_delivery_note_emails: false

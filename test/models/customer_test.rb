@@ -113,4 +113,43 @@ class CustomerTest < ActiveSupport::TestCase
     assert_includes Customer.inactive, inactive
     assert_not_includes Customer.inactive, customers(:good_eu)
   end
+
+  test "destroying a customer cascades to its customer contacts" do
+    customer = create_customer
+    customer.customer_contacts.create!(name: "X", email: "x@example.com")
+    contact_id = customer.customer_contacts.first.id
+
+    assert customer.destroy
+    assert_nil CustomerContact.find_by(id: contact_id)
+  end
+
+  test "contacts_for_invoice picks up no-project and matching-project contacts" do
+    invoice = invoices(:published_invoice)
+    contacts = invoice.customer.contacts_for_invoice(invoice)
+
+    assert_includes contacts.map(&:email), "customer@good-company.co.uk"      # no projects
+    assert_includes contacts.map(&:email), "proj001-lead@good-company.co.uk"  # project: one
+  end
+
+  test "contacts_for_invoice excludes contacts whose projects do not match" do
+    project_two_invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:two),
+      attachment: attachments(:invoice_pdf),
+      document_number: "INV-PROJ2-FILTER",
+      published: true,
+      date: Date.current,
+      due_date: 30.days.from_now,
+      sum_net: 100, sum_total: 121
+    )
+
+    emails = project_two_invoice.customer.contacts_for_invoice(project_two_invoice).map(&:email)
+    assert_includes emails, "customer@good-company.co.uk"
+    assert_not_includes emails, "proj001-lead@good-company.co.uk"
+  end
+
+  test "contacts_for_invoice excludes contacts with receives_invoice_emails=false" do
+    customers(:good_eu).customer_contacts.update_all(receives_invoice_emails: false)
+    assert_empty customers(:good_eu).reload.contacts_for_invoice(invoices(:published_invoice))
+  end
 end

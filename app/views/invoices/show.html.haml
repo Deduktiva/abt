@@ -41,10 +41,10 @@
             .col-sm-8
               - if @invoice.email_sent_at
                 %span.badge.bg-success Sent #{l(@invoice.email_sent_at)}
-              - elsif @invoice.customer.email.present? || @invoice.customer.invoice_email_auto_enabled
+              - elsif @invoice.emailable?
                 %span.badge.bg-warning Unsent
               - else
-                %span.badge.bg-secondary No Email Address
+                %span.badge.bg-secondary No Recipient
 
           .row.mb-2
             .col-sm-4
@@ -174,9 +174,14 @@
       = action_button 'Edit', edit_invoice_path(@invoice), :primary
     - if @invoice.attachment
       = action_button 'PDF', @invoice.attachment, :success, { target: '_blank', data: { turbo: false } }
-      - if can_edit_invoice && (@invoice.customer&.email.present? || (@invoice.customer&.invoice_email_auto_enabled && @invoice.customer&.invoice_email_auto_to.present?))
-        %button.btn.btn-warning{"data-action" => "click->generic-email-preview#open"}
-          Send E-Mail
+      - if can_edit_invoice
+        - if @invoice.emailable?
+          %button.btn.btn-warning{"data-action" => "click->generic-email-preview#open"}
+            Send E-Mail
+        - else
+          %span{data: { 'bs-toggle': 'tooltip' }, title: 'No contact is configured to receive this invoice. Add a contact on the customer, or enable Automated E-Mail.'}
+            %button.btn.btn-warning{disabled: true}
+              Send E-Mail
     - else
       = action_button 'Preview', preview_invoice_path(@invoice), :info, { target: '_blank', data: { turbo: false } }
     - if !@invoice.published && can_edit_invoice

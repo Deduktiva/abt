@@ -161,4 +161,44 @@ class InvoiceTest < ActiveSupport::TestCase
     assert_includes years, 2022
     assert_not_includes years, nil
   end
+
+  # email_unsent + emailable? must agree (one is SQL, the other is Ruby).
+  test "email_unsent includes invoices whose customer has a matching contact" do
+    invoice = invoices(:published_invoice)
+    invoice.update_column(:email_sent_at, nil)
+    assert_includes Invoice.email_unsent, invoice
+    assert invoice.emailable?
+  end
+
+  test "email_unsent excludes invoices whose only contacts are project-scoped to a different project" do
+    customers(:good_eu).customer_contacts.where.not(id: customer_contacts(:good_eu_project_one_lead).id).destroy_all
+    invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:two),
+      attachment: attachments(:invoice_pdf),
+      document_number: "INV-UNSENT-FILTER",
+      published: true,
+      date: Date.current, due_date: 30.days.from_now,
+      sum_net: 100, sum_total: 121
+    )
+
+    assert_not_includes Invoice.email_unsent, invoice
+    assert_not invoice.emailable?
+  end
+
+  test "email_unsent includes invoices whose customer has auto-email enabled even without contacts" do
+    customers(:auto_email_customer).customer_contacts.destroy_all
+    invoice = invoices(:auto_email_invoice)
+    invoice.update_column(:email_sent_at, nil)
+
+    assert_includes Invoice.email_unsent, invoice
+    assert invoice.emailable?
+  end
+
+  test "email_unsent excludes invoices with no contacts and no auto-email" do
+    invoice = invoices(:no_email_invoice)
+    invoice.update_column(:email_sent_at, nil)
+    assert_not_includes Invoice.email_unsent, invoice
+    assert_not invoice.emailable?
+  end
 end

@@ -141,10 +141,16 @@ class ApplicationController < ActionController::Base
   end
 
   # Verifies a WebAuthn create-style assertion against the given challenge.
-  # Returns the credential on success; on WebAuthn::Error, renders a 422 JSON
-  # error and returns nil — callers should `return` on nil.
+  # Returns the credential on success; on a missing/malformed credential
+  # payload or WebAuthn::Error, renders a 422 JSON error and returns nil —
+  # callers should `return` on nil.
   def verify_webauthn_create(challenge)
-    credential = WebAuthn::Credential.from_create(params[:credential].to_unsafe_h)
+    payload = params[:credential]
+    unless payload.is_a?(ActionController::Parameters)
+      render json: { error: "Verification failed: missing credential payload" }, status: :unprocessable_content
+      return nil
+    end
+    credential = WebAuthn::Credential.from_create(payload.to_unsafe_h)
     credential.verify(challenge)
     credential
   rescue WebAuthn::Error => e

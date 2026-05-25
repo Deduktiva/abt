@@ -120,6 +120,17 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     assert_not_nil invoice.reload.email_sent_at
   end
 
+  test "send_email returns an error status for JSON when no recipient is configured" do
+    invoice = invoices(:no_email_invoice)
+
+    assert_enqueued_emails 0 do
+      post send_email_invoice_path(invoice), headers: { "Accept" => "application/json" }
+    end
+
+    assert_response :unprocessable_content
+    assert_nil invoice.reload.email_sent_at
+  end
+
   test "bulk_send_emails queues jobs for selected invoices" do
     invoice1 = invoices(:published_invoice)
     invoice2 = invoices(:auto_email_invoice)

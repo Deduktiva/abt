@@ -9,9 +9,8 @@ class OverdueInvoicesMailer < ApplicationMailer
     I18n.with_locale(I18n.default_locale) do
       mail(
         to: recipient,
-        from: "\"#{@issuer.short_name}\" <#{@issuer.document_email_from}>",
         subject: I18n.t("mailers.overdue_invoices.subject",
-                        issuer_name: @issuer.short_name,
+                        issuer_name: sanitize_header_value(@issuer.short_name),
                         count: @invoices.size)
       )
     end

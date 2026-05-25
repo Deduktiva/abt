@@ -41,4 +41,27 @@ class InvitesControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_content
     assert_match(/taken/i, JSON.parse(response.body)["error"])
   end
+
+  test "verify endpoint returns 422 (not 500) when credential payload is missing" do
+    post options_invite_path(token: "pending-signup-token"),
+         params: { username: "newuser", full_name: "New User", email: "newuser@example.com" },
+         as: :json
+    assert_response :success
+
+    post verify_invite_path(token: "pending-signup-token"), params: {}, as: :json
+    assert_response :unprocessable_content
+    assert_match(/credential|verification/i, JSON.parse(response.body)["error"])
+  end
+
+  test "verify endpoint returns 422 (not 500) when credential payload is a string" do
+    post options_invite_path(token: "pending-signup-token"),
+         params: { username: "newuser2", full_name: "New User", email: "newuser2@example.com" },
+         as: :json
+    assert_response :success
+
+    post verify_invite_path(token: "pending-signup-token"),
+         params: { credential: "not-a-hash" },
+         as: :json
+    assert_response :unprocessable_content
+  end
 end

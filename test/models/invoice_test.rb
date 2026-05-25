@@ -162,6 +162,34 @@ class InvoiceTest < ActiveSupport::TestCase
     assert_not_includes years, nil
   end
 
+  test "available_years honors the surrounding scope (no cross-team year leak)" do
+    acme = teams(:acme)
+    acme_customer = Customer.create!(
+      matchcode: "ACME_YEAR_LEAK",
+      name: "Acme Year Leak",
+      sales_tax_customer_class: sales_tax_customer_classes(:eu),
+      language: languages(:english),
+      team: acme
+    )
+    Invoice.create!(
+      customer: acme_customer,
+      project: projects(:one),
+      attachment: attachments(:invoice_pdf),
+      document_number: "INV-ACME-YEAR",
+      published: true,
+      date: Date.new(2019, 1, 15),
+      due_date: Date.new(2019, 2, 15),
+      sum_net: 100, sum_total: 121
+    )
+
+    # blocked_carol has no team membership; she should see no invoices and
+    # therefore no years.
+    assert_empty Invoice.visible_to(users(:blocked_carol)).available_years
+
+    # Unscoped, the year shows up (sanity check that the fixture took).
+    assert_includes Invoice.available_years, 2019
+  end
+
   # email_unsent + emailable? must agree (one is SQL, the other is Ruby).
   test "email_unsent includes invoices whose customer has a matching contact" do
     invoice = invoices(:published_invoice)
@@ -200,5 +228,40 @@ class InvoiceTest < ActiveSupport::TestCase
     invoice.update_column(:email_sent_at, nil)
     assert_not_includes Invoice.email_unsent, invoice
     assert_not invoice.emailable?
+  end
+
+  test "emailable? is false when auto-email is enabled but auto_to is blank" do
+    customer = customers(:auto_email_customer)
+    customer.update_columns(invoice_email_auto_to: "")
+    customer.customer_contacts.destroy_all
+
+    invoice = invoices(:auto_email_invoice)
+    invoice.update_column(:email_sent_at, nil)
+
+    assert_not invoice.emailable?
+    assert_not_includes Invoice.email_unsent, invoice
+  end
+
+  test "emailable? is false in cc_contacts mode when auto_to is blank, even if contacts exist" do
+    customer = customers(:auto_email_customer)
+    customer.update_columns(invoice_email_auto_to: "", invoice_email_auto_contact_mode: "cc_contacts")
+
+    invoice = invoices(:auto_email_invoice)
+    invoice.update_column(:email_sent_at, nil)
+
+    assert_not invoice.emailable?
+    assert_not_includes Invoice.email_unsent, invoice
+  end
+
+  test "emailable? is false when auto_to is whitespace-only" do
+    customer = customers(:auto_email_customer)
+    customer.update_columns(invoice_email_auto_to: "   ")
+    customer.customer_contacts.destroy_all
+
+    invoice = invoices(:auto_email_invoice)
+    invoice.update_column(:email_sent_at, nil)
+
+    assert_not invoice.emailable?
+    assert_not_includes Invoice.email_unsent, invoice
   end
 end

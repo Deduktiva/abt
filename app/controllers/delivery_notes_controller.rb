@@ -282,7 +282,11 @@ class DeliveryNotesController < ApplicationController
 
   def send_email
     unless @delivery_note.emailable?
-      redirect_to @delivery_note, alert: "No recipient configured for this delivery note." and return
+      respond_to do |format|
+        format.html { redirect_to @delivery_note, alert: "No recipient configured for this delivery note." }
+        format.json { render json: { error: "No recipient configured for this delivery note." }, status: :unprocessable_content }
+      end
+      return
     end
     DeliveryNoteMailer.with(delivery_note: @delivery_note).customer_email.deliver_later
     @delivery_note.update_column(:email_sent_at, Time.current)

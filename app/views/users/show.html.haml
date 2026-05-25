@@ -30,6 +30,7 @@
             %dt.col-sm-4 Blocked by
             %dd.col-sm-8= @user.blocked_by_user&.username || '—'
 
+    - can_manage_emails = can?('users.auto_confirm_email')
     .card.mb-3
       .card-header Emails
       %ul.list-group.list-group-flush
@@ -42,23 +43,26 @@
                   %span.badge.bg-success.ms-2 Confirmed
                 - else
                   %span.badge.bg-warning.ms-2 Pending
-              %div.btn-group
-                %button.btn.btn-sm.btn-outline-secondary{type: 'button', data: { action: 'click->toggle-visibility#toggle' }} Replace…
-                - if !(email.confirmed? && @user.confirmed_emails.count <= 1)
-                  = button_to 'Remove', user_email_path(user_id: @user, id: email), method: :delete,
-                      data: { turbo_confirm: "Remove email #{email.address}?" },
-                      class: 'btn btn-sm btn-outline-danger'
-            .mt-2.d-none{id: "replace-email-#{email.id}", data: { 'toggle-visibility-target': 'panel' }}
-              = form_with url: user_email_path(user_id: @user, id: email), method: :put, scope: :user_email, local: true do |f|
-                .input-group.input-group-sm
-                  = f.email_field :address, class: 'form-control', placeholder: 'replacement@example.com', required: true
-                  = f.submit 'Replace', class: 'btn btn-primary'
-      .card-body
-        = form_with url: user_emails_path(@user), method: :post, scope: :user_email, local: true do |f|
-          .input-group.input-group-sm
-            = f.email_field :address, class: 'form-control', placeholder: 'add@example.com', required: true
-            = f.submit 'Add email', class: 'btn btn-outline-primary'
-        .form-text Admin-added emails are confirmed immediately (no email verification needed).
+              - if can_manage_emails
+                %div.btn-group
+                  %button.btn.btn-sm.btn-outline-secondary{type: 'button', data: { action: 'click->toggle-visibility#toggle' }} Replace…
+                  - if !(email.confirmed? && @user.confirmed_emails.count <= 1)
+                    = button_to 'Remove', user_email_path(user_id: @user, id: email), method: :delete,
+                        data: { turbo_confirm: "Remove email #{email.address}?" },
+                        class: 'btn btn-sm btn-outline-danger'
+            - if can_manage_emails
+              .mt-2.d-none{id: "replace-email-#{email.id}", data: { 'toggle-visibility-target': 'panel' }}
+                = form_with url: user_email_path(user_id: @user, id: email), method: :put, scope: :user_email, local: true do |f|
+                  .input-group.input-group-sm
+                    = f.email_field :address, class: 'form-control', placeholder: 'replacement@example.com', required: true
+                    = f.submit 'Replace', class: 'btn btn-primary'
+      - if can_manage_emails
+        .card-body
+          = form_with url: user_emails_path(@user), method: :post, scope: :user_email, local: true do |f|
+            .input-group.input-group-sm
+              = f.email_field :address, class: 'form-control', placeholder: 'add@example.com', required: true
+              = f.submit 'Add email', class: 'btn btn-outline-primary'
+          .form-text Admin-added emails are confirmed immediately (no email verification needed).
 
   .col-md-6
     .card.mb-3
@@ -148,13 +152,15 @@
 
 = action_buttons_wrapper do
   - if @user.blocked?
-    = button_to 'Unblock', unblock_user_path(@user), method: :post,
-        data: { turbo_confirm: "Unblock #{@user.username}?" },
-        class: 'btn btn-success'
-    = button_to 'Reset passkeys', reset_passkeys_user_path(@user), method: :post,
-        data: { turbo_confirm: "Delete all of #{@user.username}'s passkeys and email them an invite to register a new one?" },
-        class: 'btn btn-warning'
-  - elsif @user.id != current_user.id
+    - if can?('users.block')
+      = button_to 'Unblock', unblock_user_path(@user), method: :post,
+          data: { turbo_confirm: "Unblock #{@user.username}?" },
+          class: 'btn btn-success'
+    - if can?('users.reset_passkeys')
+      = button_to 'Reset passkeys', reset_passkeys_user_path(@user), method: :post,
+          data: { turbo_confirm: "Delete all of #{@user.username}'s passkeys and email them an invite to register a new one?" },
+          class: 'btn btn-warning'
+  - elsif @user.id != current_user.id && can?('users.block')
     = form_with url: block_user_path(@user), method: :post, local: true, class: 'd-inline-flex' do |f|
       .input-group.w-fixed-400
         = f.text_field :reason, class: 'form-control', placeholder: 'Reason (required)', required: true

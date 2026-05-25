@@ -29,7 +29,7 @@ class DeliveryNote < ApplicationRecord
   end
 
   def emailable?
-    customer.contacts_for_delivery_note(self).any?
+    email_recipients.any?
   end
 
   def self.visible_to(user)

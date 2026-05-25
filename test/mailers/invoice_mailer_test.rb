@@ -127,6 +127,16 @@ class InvoiceMailerTest < ActionMailer::TestCase
     assert_no_match(/[\r\n]/, mail.subject)
   end
 
+  test "customer_email strips CRLF from issuer-controlled short_name in subject and From" do
+    IssuerCompany.get_the_issuer!.update!(short_name: "Evil\r\nX-Injected: yes")
+    invoice = invoices(:published_invoice)
+    mail = InvoiceMailer.with(invoice: invoice).customer_email
+
+    assert_no_match(/[\r\n]/, mail.subject)
+    assert_no_match(/[\r\n]/, mail.from.join)
+    assert_no_match(/[\r\n]/, mail["from"].decoded)
+  end
+
   test "customer_email subject template handles empty substitution values" do
     invoice = Invoice.create!(
       customer: customers(:auto_email_customer),

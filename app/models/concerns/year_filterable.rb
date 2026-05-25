@@ -14,8 +14,10 @@ module YearFilterable
     end
 
     # Distinct years for which records with a `date` exist, newest first.
+    # Honors the current scope — callers chain visible_to(user) so the year
+    # chips don't leak years from teams the user can't see.
     def available_years
-      unscoped.where.not(date: nil).pluck(:date).map(&:year).uniq.sort.reverse
+      where.not(date: nil).pluck(:date).map(&:year).uniq.sort.reverse
     end
   end
 end

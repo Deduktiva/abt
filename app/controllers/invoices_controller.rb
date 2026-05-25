@@ -174,7 +174,11 @@ class InvoicesController < ApplicationController
 
   def send_email
     unless @invoice.emailable?
-      redirect_to @invoice, alert: "No recipient configured for this invoice." and return
+      respond_to do |format|
+        format.html { redirect_to @invoice, alert: "No recipient configured for this invoice." }
+        format.json { render json: { error: "No recipient configured for this invoice." }, status: :unprocessable_content }
+      end
+      return
     end
     InvoiceMailer.with(invoice: @invoice).customer_email.deliver_later
     @invoice.update_column(:email_sent_at, Time.current)

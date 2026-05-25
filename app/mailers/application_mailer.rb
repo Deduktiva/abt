@@ -14,7 +14,7 @@ class ApplicationMailer < ActionMailer::Base
   end
 
   def build_default_from
-    "\"#{@issuer.short_name}\" <#{@issuer.document_email_from}>"
+    "\"#{sanitize_header_value(@issuer.short_name)}\" <#{sanitize_header_value(@issuer.document_email_from)}>"
   end
 
   # Send the standard document email envelope. From comes from the default

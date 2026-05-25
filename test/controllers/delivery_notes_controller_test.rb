@@ -355,6 +355,18 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert_match "E-Mail queued for sending.", flash[:notice]
   end
 
+  test "send_email returns an error status for JSON when no recipient is configured" do
+    note = delivery_notes(:published_delivery_note)
+    note.customer.customer_contacts.destroy_all
+    note.update_column(:email_sent_at, nil)
+
+    post send_email_delivery_note_url(note),
+         headers: { "Accept" => "application/json" }
+
+    assert_response :unprocessable_content
+    assert_nil note.reload.email_sent_at
+  end
+
   test "should bulk send emails to selected delivery notes" do
     published_note = delivery_notes(:published_delivery_note)
 

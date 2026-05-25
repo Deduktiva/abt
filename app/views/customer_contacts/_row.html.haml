@@ -4,12 +4,12 @@
     .col-md-3= mail_to contact.email
     .col-md-1.text-center
       - if contact.receives_invoice_emails?
-        %span.badge.bg-success Inv
+        %span.badge.bg-success Invoice
       - else
         %span.text-muted —
     .col-md-1.text-center
       - if contact.receives_delivery_note_emails?
-        %span.badge.bg-success DN
+        %span.badge.bg-success Del.Note
       - else
         %span.text-muted —
     .col-md-3

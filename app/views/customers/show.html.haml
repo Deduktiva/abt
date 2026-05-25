@@ -107,7 +107,7 @@
             .col-sm-3
               %strong Contacts mode:
             .col-sm-9
-              = @customer.invoice_email_auto_contact_mode.humanize
+              = @customer.invoice_email_auto_contact_mode_label
 
 = render "customers/contacts_table", customer: @customer
 

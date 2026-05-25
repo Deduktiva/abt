@@ -18,6 +18,18 @@ class Customer < ApplicationRecord
     cc_contacts: "cc_contacts"
   }
 
+  # Human-readable labels for the invoice_email_auto_contact_mode values.
+  # Single source of truth: customer form select + customer show page both
+  # read from here. Order matters: the form select uses it positionally.
+  INVOICE_EMAIL_AUTO_CONTACT_MODE_LABELS = {
+    "replace_contacts" => "Only auto address (ignore contacts)",
+    "cc_contacts"      => "Auto address in To, contacts in CC"
+  }.freeze
+
+  def invoice_email_auto_contact_mode_label
+    INVOICE_EMAIL_AUTO_CONTACT_MODE_LABELS[invoice_email_auto_contact_mode]
+  end
+
   # Scopes for filtering
   scope :active, -> { where(active: true) }
   scope :inactive, -> { where(active: false) }

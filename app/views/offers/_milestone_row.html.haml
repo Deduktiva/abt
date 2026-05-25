@@ -1,5 +1,6 @@
 - url, method = milestone.persisted? ? [offer_milestones_path(offer, milestone), :patch] : [offer_milestones_path(offer), :post]
-= form_with model: milestone, url: url, method: method, scope: :offer_milestone, local: true, class: 'border rounded p-2 mb-2' do |f|
+- form_id = milestone.persisted? ? "edit_offer_milestone_#{milestone.id}" : "new_offer_milestone"
+= form_with model: milestone, url: url, method: method, scope: :offer_milestone, id: form_id, local: true, class: 'border rounded p-2 mb-2' do |f|
   .row.gx-2.align-items-end
     .col-md-1
       = f.label :position, 'Pos', class: 'form-label small'
@@ -19,7 +20,11 @@
     .col-md-2.text-end
       - if milestone.persisted?
         = f.submit 'Save', class: 'btn btn-sm btn-primary'
-        = button_to '🗑', offer_milestones_path(offer, milestone), method: :delete, class: 'btn btn-sm btn-outline-danger', form: { style: 'display:inline', data: { turbo_confirm: 'Remove this milestone?' } }
+        / link_to (not button_to) so the delete request isn't wrapped in a
+        / nested <form> that the browser would use to close the outer
+        / milestone form, orphaning the description + skip-delivery-note
+        / fields below.
+        = link_to '🗑', offer_milestones_path(offer, milestone), class: 'btn btn-sm btn-outline-danger', data: { turbo_method: :delete, turbo_confirm: 'Remove this milestone?' }
       - else
         = f.submit 'Add', class: 'btn btn-sm btn-success'
   .row.gx-2.mt-1

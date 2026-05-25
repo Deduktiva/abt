@@ -9,3 +9,4 @@ eu:
 restoftheworld:
   name: EXPORT
   invoice_note: 'EXPORT TO NON-EU COUNTRY'
+  vat_id_required: false

@@ -10,6 +10,7 @@ class CustomerTeamScopingTest < ActiveSupport::TestCase
     acme_customer = Customer.create!(
       matchcode: "ACME_ONLY",
       name: "Acme Only",
+      vat_id: "EU111111111",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: teams(:acme)
@@ -30,6 +31,7 @@ class CustomerTeamScopingTest < ActiveSupport::TestCase
       customer = Customer.new(
         matchcode: "AS_BOB",
         name: "Bob Customer",
+        vat_id: "EU222222222",
         sales_tax_customer_class: sales_tax_customer_classes(:eu),
         language: languages(:english),
         team: teams(:acme)
@@ -43,6 +45,7 @@ class CustomerTeamScopingTest < ActiveSupport::TestCase
       customer2 = Customer.new(
         matchcode: "BAD_BOB",
         name: "Bob Bad",
+        vat_id: "EU333333333",
         sales_tax_customer_class: sales_tax_customer_classes(:eu),
         language: languages(:english),
         team: other_team
@@ -60,6 +63,7 @@ class CustomerTeamScopingTest < ActiveSupport::TestCase
       customer = Customer.new(
         matchcode: "AS_ALICE",
         name: "Alice Customer",
+        vat_id: "EU444444444",
         sales_tax_customer_class: sales_tax_customer_classes(:eu),
         language: languages(:english),
         team: other_team
@@ -75,6 +79,7 @@ class CustomerTeamScopingTest < ActiveSupport::TestCase
     customer = Customer.new(
       matchcode: "SYS",
       name: "System Customer",
+      vat_id: "EU555555555",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: other_team

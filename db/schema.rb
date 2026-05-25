@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_25_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_25_140000) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -264,6 +264,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_25_130000) do
     t.text "invoice_note"
     t.string "name"
     t.datetime "updated_at", null: false
+    t.boolean "vat_id_required", default: true, null: false
   end
 
   create_table "sales_tax_product_classes", force: :cascade do |t|

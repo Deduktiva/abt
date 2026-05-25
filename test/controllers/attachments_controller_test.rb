@@ -38,6 +38,7 @@ class AttachmentsControllerTest < ActionDispatch::IntegrationTest
     outside_customer = Customer.create!(
       matchcode: "OUT",
       name: "Outside Co.",
+      vat_id: "EU141414141",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: other_team

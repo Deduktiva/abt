@@ -76,6 +76,33 @@ class InvoiceBookerTest < ActiveSupport::TestCase
     assert_equal 30, invoice.payment_terms_days
   end
 
+  test "booker requires a customer vat_id when the class requires one" do
+    customer = customers(:good_eu)
+    customer.update_columns(vat_id: nil)
+
+    invoice = Invoice.create!(customer: customer, project: projects(:test_project), cust_reference: "NOVATID-EU")
+
+    booker = InvoiceBooker.new(invoice, issuer_companies(:one))
+    booker.book(false)
+
+    assert_includes booker.log, "E: no customer vat id"
+  end
+
+  test "booker does not require a customer vat_id when the class does not require one" do
+    customer = customers(:good_eu)
+    customer.update_columns(
+      sales_tax_customer_class_id: sales_tax_customer_classes(:restoftheworld).id,
+      vat_id: nil
+    )
+
+    invoice = Invoice.create!(customer: customer, project: projects(:test_project), cust_reference: "NOVATID-EXPORT")
+
+    booker = InvoiceBooker.new(invoice, issuer_companies(:one))
+    booker.book(false)
+
+    assert_not_includes booker.log, "E: no customer vat id"
+  end
+
   test "booker derives due_date from invoice's persisted payment_terms_days" do
     customer = customers(:good_eu)
     customer.update!(payment_terms_days: 21)

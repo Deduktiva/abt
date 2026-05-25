@@ -18,6 +18,12 @@
       .col-sm-9
         = f.text_area :invoice_note, :class => 'form-control', :rows => 3
         %small.form-text.text-muted Appears on every invoice.
+    .row.mb-3
+      .col-sm-9.offset-sm-3
+        .form-check
+          = f.check_box :vat_id_required, class: 'form-check-input'
+          = f.label :vat_id_required, 'Customers in this class must have a VAT ID', class: 'form-check-label'
+        %small.form-text.text-muted Uncheck for export / non-EU / B2C classes where a VAT ID is not applicable.
 
   %br
 

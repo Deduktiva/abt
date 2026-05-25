@@ -13,6 +13,7 @@ class ScopedThroughCustomerTest < ActiveSupport::TestCase
     @other_customer = Customer.create!(
       matchcode: "OTHER",
       name: "Other Co",
+      vat_id: "EU888888888",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: @other_team

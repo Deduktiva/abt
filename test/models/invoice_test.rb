@@ -167,6 +167,7 @@ class InvoiceTest < ActiveSupport::TestCase
     acme_customer = Customer.create!(
       matchcode: "ACME_YEAR_LEAK",
       name: "Acme Year Leak",
+      vat_id: "EU161616161",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: acme

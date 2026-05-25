@@ -24,7 +24,8 @@ class SalesTaxCustomerClassTest < ActiveSupport::TestCase
       name: "Test Customer",
       sales_tax_customer_class: klass,
       language: languages(:english),
-      team: teams(:default)
+      team: teams(:default),
+      vat_id: "EU171717171"
     )
     assert_raises(ActiveRecord::DeleteRestrictionError) { klass.destroy }
   end
@@ -32,5 +33,10 @@ class SalesTaxCustomerClassTest < ActiveSupport::TestCase
   test "destroy succeeds when no rates or customers reference the class" do
     klass = SalesTaxCustomerClass.create!(name: "Test Region")
     assert klass.destroy
+  end
+
+  test "vat_id_required defaults to true for new classes" do
+    klass = SalesTaxCustomerClass.new(name: "Defaults")
+    assert klass.vat_id_required?
   end
 end

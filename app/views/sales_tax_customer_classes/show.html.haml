@@ -4,6 +4,9 @@
 %p
   %b Invoice note:
   = @sales_tax_customer_class.invoice_note
+%p
+  %b VAT ID required:
+  = @sales_tax_customer_class.vat_id_required? ? 'Yes' : 'No'
 
 = action_buttons_wrapper do
   - if can?('sales_tax.edit')

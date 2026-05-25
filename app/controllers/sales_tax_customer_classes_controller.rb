@@ -53,6 +53,6 @@ class SalesTaxCustomerClassesController < ApplicationController
 
 private
   def sales_tax_customer_classes_params
-    params.require(:sales_tax_customer_class).permit(:name, :invoice_note)
+    params.require(:sales_tax_customer_class).permit(:name, :invoice_note, :vat_id_required)
   end
 end

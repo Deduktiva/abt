@@ -40,7 +40,7 @@
             = image_tag png_logo_issuer_company_path, alt: @data[:issuer_company].legal_name, class: 'dashboard-issuer-logo'
 
         - if @data[:issuer_company].document_accent_color.present?
-          = tag.style ":root { --issuer-accent-color: #{@data[:issuer_company].document_accent_color}; }".html_safe, nonce: true
+          = tag.style ":root { --issuer-accent-color: #{@data[:issuer_company].document_accent_color}; }".html_safe, nonce: content_security_policy_nonce
           %h6.text-issuer-accent
             = @data[:issuer_company].legal_name
         - else

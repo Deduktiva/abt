@@ -14,7 +14,6 @@ export default class extends Controller {
   }
 
   connect() {
-    this.cachedPublicKey = null
     this.conditionalAbortController = null
     if (this.autoAuthenticateValue) {
       this.startConditionalMediation()
@@ -32,11 +31,14 @@ export default class extends Controller {
     this.conditionalAbortController = null
   }
 
+  // Each call mints a fresh nonce server-side (WebauthnPendingStore.write).
+  // Don't cache the result: the nonce is single-use and consumed on every
+  // /session/verify, so reusing a stale publicKey produces "No login in
+  // progress" on the next attempt (e.g. button click after a conditional-
+  // mediation /verify already burned the nonce).
   async fetchOptions() {
-    if (this.cachedPublicKey) return this.cachedPublicKey
     const optionsJSON = await this.postJSON(this.optionsUrlValue, {})
-    this.cachedPublicKey = this.parseRequestOptions(optionsJSON)
-    return this.cachedPublicKey
+    return this.parseRequestOptions(optionsJSON)
   }
 
   async startConditionalMediation() {

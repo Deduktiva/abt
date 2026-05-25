@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_25_160003) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_25_160004) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -58,8 +58,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_25_160003) do
     t.boolean "offer_email_auto_enabled", default: false, null: false
     t.string "offer_email_auto_subject_template", default: "", null: false
     t.string "offer_email_auto_to", default: "", null: false
-    t.decimal "offer_milestone_split_first_ratio", precision: 5, scale: 4
     t.decimal "offer_milestone_split_threshold", precision: 12, scale: 2
+    t.text "offer_milestone_templates_above"
+    t.text "offer_milestone_templates_below"
     t.integer "offer_validity_days"
     t.integer "payment_terms_days", default: 30, null: false
     t.integer "sales_tax_customer_class_id"

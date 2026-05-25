@@ -188,47 +188,77 @@ class CustomerTest < ActiveSupport::TestCase
     assert_equal "Auto address in To, contacts in CC", customer.offer_email_auto_contact_mode_label
   end
 
-  test "offer_milestone_rule_configured? requires both threshold and ratio" do
+  test "offer_milestone_rule_configured? requires threshold plus at least one templates list" do
     customer = create_customer
     assert_not customer.offer_milestone_rule_configured?
 
-    customer.update!(offer_milestone_split_threshold: 10000)
+    customer.update!(offer_milestone_split_threshold: 10_000)
     assert_not customer.offer_milestone_rule_configured?
 
-    customer.update!(offer_milestone_split_first_ratio: 0.5)
+    customer.update!(offer_milestone_templates_below: "Wrap-up|on_acceptance|1.0")
     assert customer.offer_milestone_rule_configured?
   end
 
-  test "scaffold_offer_milestones below threshold returns a single final-delivery milestone" do
+  test "scaffold_offer_milestones below threshold parses the below-templates list" do
     customer = create_customer(
       offer_milestone_split_threshold: 10_000,
-      offer_milestone_split_first_ratio: 0.5
+      offer_milestone_templates_below: "Wrap-up|on_acceptance|1.0"
     )
     milestones = customer.scaffold_offer_milestones(5_000)
     assert_equal 1, milestones.size
-    assert_equal "Final delivery", milestones.first[:title]
+    assert_equal "Wrap-up", milestones.first[:title]
     assert_equal "on_acceptance", milestones.first[:trigger]
     assert_equal BigDecimal("5000"), milestones.first[:net_amount]
   end
 
-  test "scaffold_offer_milestones above threshold returns split milestones summing to total" do
+  test "scaffold_offer_milestones above threshold supports any number of milestones" do
     customer = create_customer(
       offer_milestone_split_threshold: 10_000,
-      offer_milestone_split_first_ratio: 0.5
+      offer_milestone_templates_above: <<~TEMPLATES.strip
+        Kick-off|on_order|0.30
+        Mid-point|on_acceptance|0.30
+        Final delivery|on_acceptance|0.40
+      TEMPLATES
     )
-    milestones = customer.scaffold_offer_milestones(15_000)
-    assert_equal 2, milestones.size
-    assert_equal "Order entry",    milestones[0][:title]
-    assert_equal "on_order",       milestones[0][:trigger]
-    assert_equal "Final delivery", milestones[1][:title]
-    assert_equal "on_acceptance",  milestones[1][:trigger]
-    assert_equal BigDecimal("15000"), milestones.sum { |m| m[:net_amount] }
+    milestones = customer.scaffold_offer_milestones(20_000)
+    assert_equal 3, milestones.size
+    assert_equal [ "Kick-off", "Mid-point", "Final delivery" ], milestones.map { |m| m[:title] }
+    assert_equal [ "on_order", "on_acceptance", "on_acceptance" ], milestones.map { |m| m[:trigger] }
+    assert_equal BigDecimal("20000"), milestones.sum { |m| m[:net_amount] }
   end
 
-  test "scaffold_offer_milestones falls back to a single milestone when rule is unconfigured" do
+  test "scaffold_offer_milestones absorbs rounding into the last row so amounts sum to total" do
+    customer = create_customer(
+      offer_milestone_split_threshold: 10_000,
+      offer_milestone_templates_above: <<~TEMPLATES.strip
+        A|on_order|0.3333
+        B|on_acceptance|0.3333
+        C|on_acceptance|0.3334
+      TEMPLATES
+    )
+    milestones = customer.scaffold_offer_milestones(100)
+    assert_equal BigDecimal("100"), milestones.sum { |m| m[:net_amount] }
+  end
+
+  test "scaffold_offer_milestones falls back to a placeholder when no templates parse" do
     customer = create_customer
     milestones = customer.scaffold_offer_milestones(50_000)
     assert_equal 1, milestones.size
-    assert_equal "Final delivery", milestones.first[:title]
+    assert_equal "Milestone", milestones.first[:title]
+  end
+
+  test "scaffold_offer_milestones silently skips malformed template lines" do
+    customer = create_customer(
+      offer_milestone_split_threshold: 10_000,
+      offer_milestone_templates_below: <<~TEMPLATES
+        broken-line-without-three-parts
+        empty|trigger|
+        Bad|not_a_trigger|1.0
+        Wrap-up|on_acceptance|1.0
+      TEMPLATES
+    )
+    milestones = customer.scaffold_offer_milestones(1_000)
+    assert_equal 1, milestones.size
+    assert_equal "Wrap-up", milestones.first[:title]
   end
 end

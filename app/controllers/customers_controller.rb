@@ -97,7 +97,8 @@ private
         :team_id,
         :offer_boilerplate, :offer_validity_days,
         :offer_email_auto_to, :offer_email_auto_subject_template, :offer_email_auto_enabled, :offer_email_auto_contact_mode,
-        :offer_milestone_split_threshold, :offer_milestone_split_first_ratio
+        :offer_milestone_split_threshold,
+        :offer_milestone_templates_below, :offer_milestone_templates_above
     )
   end
 end

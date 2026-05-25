@@ -63,31 +63,37 @@ class Customer < ApplicationRecord
     customer_contacts.for_offers.select { |c| c.applies_to_project?(offer.project) }
   end
 
-  # Returns true when this customer has a configured rule for auto-splitting
-  # a scaffolded offer into milestones. When false, the edit page hides the
-  # "Apply customer rule" form.
+  # Returns true when this customer has a usable rule for auto-scaffolding
+  # offer milestones. Requires a threshold and at least one parsed template
+  # in at least one of the two template lists.
   def offer_milestone_rule_configured?
-    offer_milestone_split_threshold.present? && offer_milestone_split_first_ratio.present?
+    offer_milestone_split_threshold.present? &&
+      (offer_milestone_templates_above.to_s.strip.present? ||
+       offer_milestone_templates_below.to_s.strip.present?)
   end
 
   # Build milestone records (NOT saved) for an offer version totalling
-  # `total_amount`. Below threshold: a single "Final delivery" milestone.
-  # Above threshold: an order-entry milestone at first_ratio of the total,
-  # plus a final-delivery milestone for the remainder. Caller persists.
+  # `total_amount`. Picks the template list by comparing the total against
+  # the threshold; parses the chosen list as `Title|trigger|ratio` lines;
+  # distributes total_amount across the templates by ratio, with the last
+  # row absorbing the rounding remainder so the amounts sum to the total.
+  #
+  # Falls back to a single placeholder "Milestone" line if no templates
+  # parse — the admin then edits the row.
   def scaffold_offer_milestones(total_amount)
     total = BigDecimal(total_amount.to_s)
-    threshold = offer_milestone_split_threshold
-    ratio = offer_milestone_split_first_ratio
-
-    if threshold && ratio && total > threshold
-      first = (total * ratio).round(2)
-      second = total - first
-      [
-        { title: "Order entry",    trigger: "on_order",      net_amount: first,  position: 0 },
-        { title: "Final delivery", trigger: "on_acceptance", net_amount: second, position: 1 }
-      ]
+    raw = if offer_milestone_split_threshold && total > offer_milestone_split_threshold
+      offer_milestone_templates_above
     else
-      [ { title: "Final delivery", trigger: "on_acceptance", net_amount: total, position: 0 } ]
+      offer_milestone_templates_below
+    end
+    templates = parse_offer_milestone_templates(raw)
+    return [ { title: "Milestone", trigger: "on_acceptance", net_amount: total, position: 0 } ] if templates.empty?
+
+    amounts = templates.map { |t| (total * t[:ratio]).round(2) }
+    amounts[-1] = total - amounts[0..-2].sum
+    templates.each_with_index.map do |t, i|
+      { title: t[:title], trigger: t[:trigger], net_amount: amounts[i], position: i }
     end
   end
 
@@ -103,6 +109,21 @@ class Customer < ApplicationRecord
   after_update :sync_project_teams, if: :saved_change_to_team_id?
 
   private
+
+  # "Title|trigger|ratio" per non-blank line. Robust to whitespace; silently
+  # skips malformed lines.
+  def parse_offer_milestone_templates(raw)
+    return [] if raw.blank?
+    valid_triggers = OfferMilestone.triggers.keys.to_set
+    raw.each_line.filter_map do |line|
+      parts = line.strip.split("|").map(&:strip)
+      next if parts.size < 3 || parts.any?(&:empty?)
+      next unless valid_triggers.include?(parts[1])
+      ratio = Float(parts[2]) rescue nil
+      next if ratio.nil? || ratio <= 0
+      { title: parts[0], trigger: parts[1], ratio: BigDecimal(ratio.to_s) }
+    end
+  end
 
   def set_default_language
     self.language ||= Language.find_by(iso_code: "en")

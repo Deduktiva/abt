@@ -91,7 +91,7 @@ class CreateGroupsAndTeams < ActiveRecord::Migration[8.1]
     # Seed built-in Default team and backfill memberships. Literal mirrored
     # by Team::DEFAULT_NAME in the application layer. `default: true` marks
     # this row as the new-user join target (see Team.default).
-    everyone_team_id = execute_insert(
+    default_team_id = execute_insert(
       'teams',
       name: 'Default',
       description: 'Built-in default team. All pre-existing users, customers and projects belong here.',
@@ -104,15 +104,15 @@ class CreateGroupsAndTeams < ActiveRecord::Migration[8.1]
     User.find_each do |user|
       execute_insert(
         'team_memberships',
-        team_id: everyone_team_id,
+        team_id: default_team_id,
         user_id: user.id,
         created_at: now,
         updated_at: now
       )
     end
 
-    execute "UPDATE customers SET team_id = #{everyone_team_id} WHERE team_id IS NULL"
-    execute "UPDATE projects  SET team_id = #{everyone_team_id} WHERE team_id IS NULL"
+    execute "UPDATE customers SET team_id = #{default_team_id} WHERE team_id IS NULL"
+    execute "UPDATE projects  SET team_id = #{default_team_id} WHERE team_id IS NULL"
 
     change_column_null :customers, :team_id, false
     change_column_null :projects,  :team_id, false

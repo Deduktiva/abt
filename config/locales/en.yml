@@ -37,6 +37,14 @@ en:
     formats:
       default: "%d.%m.%Y %H:%M"
 
+  # Override Rails' default belongs_to required message ("must exist"),
+  # which reads as a database/lookup error to end users. Required
+  # belongs_to fields render as <select> dropdowns in our forms, so
+  # phrase the failure as a selection problem instead.
+  errors:
+    messages:
+      required: "must be selected"
+
   mailers:
     overdue_invoices:
       subject: "[%{issuer_name}] %{count} overdue invoice(s)"

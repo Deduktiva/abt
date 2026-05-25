@@ -46,10 +46,6 @@ class UserInvite < ApplicationRecord
     usable.where(token_digest: digest_token(plaintext)).first
   end
 
-  def usable?
-    used_at.nil? && expires_at > Time.current
-  end
-
   def consume!(user:)
     update!(used_at: Time.current, used_by_user: user)
   end

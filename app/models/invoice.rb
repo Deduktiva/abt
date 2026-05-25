@@ -7,14 +7,12 @@ class Invoice < ApplicationRecord
   validates :customer_id, presence: true
   default_scope { order(Arel.sql("id ASC")) }
 
-  scope :email_sent, -> { where.not(email_sent_at: nil) }
   scope :email_unsent, -> {
     joins(:customer)
     .where(email_sent_at: nil)
     .where("customers.email IS NOT NULL AND customers.email != '' OR customers.invoice_email_auto_enabled = true")
   }
   scope :published, -> { where(published: true) }
-  scope :paid, -> { where.not(paid_at: nil) }
   scope :unpaid, -> { where(paid_at: nil) }
 
   after_initialize :set_defaults

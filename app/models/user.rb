@@ -32,10 +32,6 @@ class User < ApplicationRecord
     emails.where.not(confirmed_at: nil)
   end
 
-  def primary_email
-    confirmed_emails.order(:created_at).first
-  end
-
   def block!(reason:, actor:, request: nil)
     transaction do
       update!(

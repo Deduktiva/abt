@@ -27,10 +27,6 @@ class UserSession < ApplicationRecord
     active.where(token_digest: digest_token(plaintext)).first
   end
 
-  def active?
-    terminated_at.nil? && last_seen_at > EXPIRY.ago
-  end
-
   def terminate!(reason:, actor:, request: nil)
     return if terminated_at.present?
 

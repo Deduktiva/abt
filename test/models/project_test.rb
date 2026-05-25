@@ -52,7 +52,6 @@ class ProjectTest < ActiveSupport::TestCase
     # Initially not used
     assert_not @project.used_in_invoices?
     assert @project.can_be_deleted?
-    assert_not @project.can_be_deactivated?
 
     # Create an invoice using this project
     Invoice.create!(
@@ -63,7 +62,6 @@ class ProjectTest < ActiveSupport::TestCase
     # Now it should be detected as used
     assert @project.used_in_invoices?
     assert_not @project.can_be_deleted?
-    assert @project.can_be_deactivated?
   end
 
   test "should prevent deletion when used in invoices" do

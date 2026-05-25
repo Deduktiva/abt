@@ -43,8 +43,6 @@ class ApplicationController < ActionController::Base
 
     Current.user = user
     Current.session = session_record
-    Current.request_ip = request.remote_ip
-    Current.user_agent = request.user_agent
   end
 
   def redirect_to_login(alert: "You must sign in to continue.")

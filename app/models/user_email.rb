@@ -11,9 +11,6 @@ class UserEmail < ApplicationRecord
 
   normalizes :address, with: ->(v) { v.strip.downcase }
 
-  scope :confirmed, -> { where.not(confirmed_at: nil) }
-  scope :pending, -> { where(confirmed_at: nil) }
-
   def confirmed?
     confirmed_at.present?
   end

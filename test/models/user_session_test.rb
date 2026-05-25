@@ -33,7 +33,6 @@ class UserSessionTest < ActiveSupport::TestCase
     end
     assert session.terminated_at.present?
     assert_equal "logout", session.termination_reason
-    assert_not session.active?
   end
 
   test "touch_seen! updates last_seen_at" do

@@ -60,15 +60,6 @@ class InvoiceMailerTest < ActionMailer::TestCase
     assert mail.cc.blank?, "expected mail.cc to be blank, got #{mail.cc.inspect}"
   end
 
-  test "customer_email with auto + additional mode puts auto and contacts both in To:" do
-    customers(:auto_email_customer).update!(invoice_email_auto_contact_mode: "additional")
-    invoice = invoices(:auto_email_invoice)
-    mail = InvoiceMailer.with(invoice: invoice).customer_email
-
-    assert_equal [ "billing@autoemail.com", "backup@autoemail.com" ].sort, mail.to.sort
-    assert mail.cc.blank?, "expected mail.cc to be blank, got #{mail.cc.inspect}"
-  end
-
   test "customer_email with auto + cc_contacts but no matching contact omits cc" do
     customers(:auto_email_customer).customer_contacts.destroy_all
     invoice = invoices(:auto_email_invoice)

@@ -30,16 +30,8 @@ class Invoice < ApplicationRecord
   # when the customer's auto-email feature is on. Returns an array of email
   # strings; callers compose them into mail.to / mail.cc.
   def email_recipients
-    contacts = customer.contacts_for_invoice(self).map(&:email)
-    return contacts unless customer.invoice_email_auto_enabled?
-
-    auto = [ customer.invoice_email_auto_to ].compact_blank
-    case customer.invoice_email_auto_contact_mode
-    when "replace_contacts" then auto
-    when "additional"       then (auto + contacts).uniq
-    when "cc_contacts"      then auto # contacts go to cc, not to: — see InvoiceMailer
-    else auto
-    end
+    return customer.contacts_for_invoice(self).map(&:email) unless customer.invoice_email_auto_enabled?
+    [ customer.invoice_email_auto_to ].compact_blank
   end
 
   def email_cc_recipients

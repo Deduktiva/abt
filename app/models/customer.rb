@@ -15,8 +15,7 @@ class Customer < ApplicationRecord
 
   enum :invoice_email_auto_contact_mode, {
     replace_contacts: "replace_contacts",
-    cc_contacts: "cc_contacts",
-    additional: "additional"
+    cc_contacts: "cc_contacts"
   }
 
   # Scopes for filtering

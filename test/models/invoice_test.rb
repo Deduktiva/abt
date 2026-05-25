@@ -1,6 +1,17 @@
 require "test_helper"
 
 class InvoiceTest < ActiveSupport::TestCase
+  # license_invoice fixture has 2 item lines (15000 + 3000) but no product class
+  # assigned. Tax classes get set up via the customer's sales_tax_rates on save.
+  def license_invoice_with_tax_config
+    invoice = invoices(:license_invoice)
+    invoice.invoice_lines.where(type: "item").update_all(
+      sales_tax_product_class_id: sales_tax_product_classes(:standard).id
+    )
+    invoice.reload.save!
+    invoice.reload
+  end
+
   test "requires customer_id" do
     invoice = Invoice.new
     assert_not invoice.valid?
@@ -76,11 +87,7 @@ class InvoiceTest < ActiveSupport::TestCase
   end
 
   test "update_sums computes net and total from item lines on a draft" do
-    invoice = invoices(:license_invoice) # good_national (rate 20%), 2 item lines: 15000 + 3000
-    invoice.invoice_lines.where(type: "item").update_all(
-      sales_tax_product_class_id: sales_tax_product_classes(:standard).id
-    )
-    invoice.reload.save!
+    invoice = license_invoice_with_tax_config # good_national (20%), items 15000 + 3000
     assert_equal 18000, invoice.sum_net
     assert_in_delta 21600.0, invoice.sum_total, 0.0001
   end
@@ -89,17 +96,9 @@ class InvoiceTest < ActiveSupport::TestCase
     invoice = invoices(:published_invoice)
     invoice.update_columns(sum_net: 999.99, sum_total: 1234.56)
     invoice.touch
-    assert_equal 999.99, invoice.reload.sum_net
-    assert_equal 1234.56, invoice.reload.sum_total
-  end
-
-  def license_invoice_with_tax_config
-    invoice = invoices(:license_invoice)
-    invoice.invoice_lines.where(type: "item").update_all(
-      sales_tax_product_class_id: sales_tax_product_classes(:standard).id
-    )
-    invoice.reload.save!
     invoice.reload
+    assert_equal 999.99, invoice.sum_net
+    assert_equal 1234.56, invoice.sum_total
   end
 
   test "validate_lines_for_booking returns success for a valid line set" do

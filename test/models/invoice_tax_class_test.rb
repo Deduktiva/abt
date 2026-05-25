@@ -28,7 +28,7 @@ class InvoiceTaxClassTest < ActiveSupport::TestCase
   end
 
   test "net= computes value and total from rate" do
-    itc = build_tax_class(rate: 20)
+    itc = build_tax_class
     itc.net = 100
     assert_equal 100, itc.net
     assert_in_delta 20.0, itc.value, 0.0001
@@ -36,7 +36,7 @@ class InvoiceTaxClassTest < ActiveSupport::TestCase
   end
 
   test "net= recomputes value and total on reassignment" do
-    itc = build_tax_class(rate: 20)
+    itc = build_tax_class
     itc.net = 100
     itc.net = 50
     assert_equal 50, itc.net

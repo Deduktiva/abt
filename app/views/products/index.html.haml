@@ -1,4 +1,4 @@
-= page_header_with_new_button('Listing products', new_product_path, permission: 'products.edit')
+= page_header('Listing products', action: action_button('+ New', new_product_path, :info, permission: 'products.edit'))
 
 %table.table.table-striped.table-sm
   %tr

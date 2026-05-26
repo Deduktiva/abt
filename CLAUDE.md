@@ -134,6 +134,17 @@ For testing against PostgreSQL (matches production environment):
 - Stimulus controllers for interactive components (bulk-select, email-preview)
 - European-style date/time formatting throughout
 - Strict Content Security Policy — no inline styles in views. Put styling in CSS/SCSS files and apply via classes. Inline `style="..."` attributes are only allowed in email templates (rendered HTML email, not subject to the app CSP).
+- Bootstrap's JavaScript is NOT bundled — only its CSS. JS-driven components (modals, popovers, dropdowns, collapses, JS tooltips) require a custom Stimulus controller; `data-bs-toggle` / `data-bs-target` attributes do nothing on their own.
+- Established pattern: manually toggle `d-none`/`show` classes from a Stimulus controller (see `app/javascript/controllers/generic_email_preview_controller.js` and `app/javascript/controllers/modal_controller.js`).
+
+### Status Badges
+- **Show only the deviation from the healthy default.** No badge means "normal."
+  - Customer/Project Inactive, User Blocked → badge. Active state → nothing.
+  - Invoice/Delivery Note lifecycle (Draft, Booked, Paid, Overdue, Sent) all get header badges — there's no implicit "good" lifecycle, every state is noteworthy.
+- **Hide superseded badges.** On invoices, the header drops "Booked" once a more specific state (Sent/Paid/Overdue) applies. Sent stacks with Paid/Overdue (email and payment are independent).
+- **In detail grids and list columns, healthy data renders as plain text, not a badge.** Paid (with date), Sent (with timestamp) → plain text. Problem states (Unpaid, Unsent, Overdue, No Recipient) keep their badges.
+- **Hide the status column entirely when a list is filtered to a single state.** On the customers and projects lists, the Status column is only rendered when the filter is "All"; when filtered to Active or Inactive the column would be redundant (every row identical or empty), so the header and cells are omitted.
+- Use `fs-6` when a badge sits inline with an H1, otherwise it inflates to heading size.
 
 ## Development Best Practices
 
@@ -167,11 +178,11 @@ For testing against PostgreSQL (matches production environment):
 - To render a `datetime` column as date-only (e.g. `email_sent_at` in compact list rows), call `l(value.to_date)` — `l` on a `Time`/`DateTime` produces the time format.
 
 ### UI Helper Methods
-- `action_buttons_wrapper` - Container for action button groups
-- `action_button(text, path, type)` - Styled buttons (primary, secondary, success, info, warning, danger)
-- `destroy_link(resource, confirm_text)` - Smart delete links (trashcan on index, "Delete" on detail pages)
-- `list_action_link(text, path, type)` - Compact buttons for table actions
-- `page_header_with_new_button` - Standard page headers with + New button
+- `page_header(title, action: nil, &status_block)` - The page-header row. Title left, optional inline status badges via block, optional right-aligned action. Build the action with `action_button(...)` — when its permission check fails it returns nil, which `page_header` renders as no action area.
+- `action_button(text, path, type = :primary, permission: nil, target: nil, data: nil)` - Styled buttons (primary, secondary, success, info, warning, danger). Returns `nil` when `permission:` is given and the current user lacks it.
+- `action_buttons_wrapper` - Container for the bottom-of-page workflow action row (Back, PDF, Send E-Mail, Publish, Delete, etc.).
+- `destroy_link(resource, confirm_text)` - Smart delete links (trashcan on index, "Delete" on detail pages).
+- `list_action_link(text, path, type)` - Compact buttons for in-table row actions.
 
 ### JavaScript/Stimulus Controllers
 - **ALWAYS implement `disconnect()` method** in Stimulus controllers that add event listeners

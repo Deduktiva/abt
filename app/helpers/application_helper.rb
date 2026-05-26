@@ -32,28 +32,21 @@ module ApplicationHelper
     end
   end
 
-  # If `permission:` is given, the +New / Edit button is hidden unless the
-  # current user holds that key. The header itself always renders so users
-  # with .view-only access still see the page heading. Controllers gate the
-  # actual action server-side; this just keeps the UI honest.
-  def page_header_with_new_button(title, new_path, permission: nil)
-    content_tag :div, class: "d-flex justify-content-between align-items-center mb-3" do
-      header = content_tag(:h1, title, class: "page-header mb-0")
-      button = (permission.nil? || can?(permission)) ? link_to("+ New", new_path, class: "btn btn-info") : "".html_safe
-      header + button
+  # Renders the page header row: title (left), optional inline status badges
+  # (left, via the block), optional action button (right).
+  #
+  # action: a pre-rendered button (use action_button with permission: to get a
+  #   nil-when-denied result), or nil for no action area.
+  # status_block: yields zero or more inline badges next to the title.
+  def page_header(title, action: nil, &status_block)
+    content_tag :div, class: "d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" do
+      title_area = content_tag(:div, class: "d-flex align-items-center flex-wrap gap-2") do
+        header = content_tag(:h1, title, class: "page-header mb-0")
+        status = status_block ? capture(&status_block) : "".html_safe
+        header + status
+      end
+      title_area + (action || "".html_safe)
     end
-  end
-
-  def page_header_with_edit_button(title, edit_path, permission: nil)
-    content_tag :div, class: "d-flex justify-content-between align-items-center mb-3" do
-      header = content_tag(:h1, title, class: "page-header mb-0")
-      button = (permission.nil? || can?(permission)) ? link_to("Edit", edit_path, class: "btn btn-primary") : "".html_safe
-      header + button
-    end
-  end
-
-  def page_header(title)
-    content_tag(:h1, title, class: "page-header mb-3")
   end
 
   def list_action_link(text, path, type = :default, options = {})
@@ -98,7 +91,8 @@ module ApplicationHelper
     content_tag :div, class: "d-flex gap-2 mb-3 mt-3", &block
   end
 
-  def action_button(text, path, type = :primary, options = {})
+  def action_button(text, path, type = :primary, permission: nil, target: nil, data: nil)
+    return nil if permission && !can?(permission)
     css_class = case type
     when :primary
       "btn btn-primary"
@@ -116,7 +110,7 @@ module ApplicationHelper
       "btn btn-primary"
     end
 
-    link_to(text, path, options.merge(class: css_class))
+    link_to(text, path, class: css_class, target: target, data: data)
   end
 
   def cancel_button(resource)
@@ -138,5 +132,18 @@ module ApplicationHelper
 
   def app_version
     Rails.application.config.x.app_version
+  end
+
+  # Stimulus data attributes that wire an element up to the
+  # generic-email-preview controller for a given Invoice or DeliveryNote.
+  # Relies on the routes following the {action}_{resource}_path convention.
+  def email_preview_data(resource)
+    prefix = resource.class.name.underscore
+    {
+      controller: "generic-email-preview",
+      "generic-email-preview-preview-url-value" => send("preview_email_#{prefix}_path", resource),
+      "generic-email-preview-raw-preview-url-value" => send("preview_email_raw_#{prefix}_path", resource),
+      "generic-email-preview-send-url-value" => send("send_email_#{prefix}_path", resource)
+    }
   end
 end

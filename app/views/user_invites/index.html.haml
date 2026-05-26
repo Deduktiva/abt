@@ -1,6 +1,6 @@
 - content_for :title, 'Invites'
 
-= page_header_with_new_button('Invites', new_user_invite_path)
+= page_header('Invites', action: action_button('+ New', new_user_invite_path, :info))
 
 %table.table.table-striped.table-sm
   %thead

@@ -136,14 +136,15 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
   test "active customer shows no inactive badge on show page" do
     get customer_url(@customer)
     assert_response :success
-    assert_select ".card-header .badge", count: 0
+    assert_select ".page-header ~ .badge", count: 0
+    assert_select ".badge", text: "Inactive", count: 0
   end
 
   test "inactive customer shows inactive badge on show page" do
     @customer.update!(active: false)
     get customer_url(@customer)
     assert_response :success
-    assert_select ".card-header .badge.bg-secondary", text: "Inactive"
+    assert_select ".badge.bg-secondary", text: "Inactive"
   end
 
   test "should allow updating customer active status" do

@@ -1,5 +1,3 @@
-%h1.page-header
-  Editing product
-  = @product.title
+= page_header("Editing product #{@product.title}")
 
 = render 'form'

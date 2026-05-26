@@ -1,14 +1,10 @@
 - content_for :title, "User #{@user.username}"
 
-.d-flex.justify-content-between.align-items-center.mb-3
-  .d-flex.align-items-center.gap-2
-    %h1.page-header.mb-0= @user.username
-    - if @user.id == current_user.id
-      %span.badge.bg-info.fs-6 This is you
+= page_header(@user.username) do
   - if @user.blocked?
     %span.badge.bg-danger.fs-6 Blocked
-  - else
-    %span.badge.bg-success.fs-6 Active
+  - if @user.id == current_user.id
+    %span.badge.bg-info.fs-6 This is you
 
 .row
   .col-md-6

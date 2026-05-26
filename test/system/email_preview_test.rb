@@ -9,7 +9,7 @@ class EmailPreviewTest < ApplicationSystemTestCase
   test "email preview URLs use correct paths for subdirectory deployment" do
     visit invoice_path(@invoice)
 
-    email_wrapper = find(".email-preview-wrapper")
+    email_wrapper = find("[data-controller='generic-email-preview']")
 
     preview_url = email_wrapper["data-generic-email-preview-preview-url-value"]
     raw_preview_url = email_wrapper["data-generic-email-preview-raw-preview-url-value"]
@@ -63,7 +63,7 @@ class EmailPreviewTest < ApplicationSystemTestCase
   test "delivery note email preview URLs use correct paths for subdirectory deployment" do
     visit delivery_note_path(@delivery_note)
 
-    email_wrapper = find(".email-delivery_note-preview-wrapper")
+    email_wrapper = find("[data-controller='generic-email-preview']")
 
     preview_url = email_wrapper["data-generic-email-preview-preview-url-value"]
     raw_preview_url = email_wrapper["data-generic-email-preview-raw-preview-url-value"]

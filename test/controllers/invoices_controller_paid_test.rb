@@ -80,9 +80,10 @@ class InvoicesControllerPaidTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".badge.bg-warning", text: "Unpaid"
-    assert_select "form[action=\"#{mark_paid_invoice_path(invoice)}\"]"
-    assert_select "input[type='date'][name='paid_at']"
-    assert_select 'input[type="submit"][value="Mark Paid"]'
+    assert_select "button", text: /Mark Paid/
+    assert_select ".mark-paid-modal form[action=?]", mark_paid_invoice_path(invoice)
+    assert_select ".mark-paid-modal input[type='date'][name='paid_at']"
+    assert_select ".mark-paid-modal input[type='submit'][value='Mark Paid']"
   end
 
   test "show page exposes paid status with mark unpaid button when paid" do
@@ -93,7 +94,8 @@ class InvoicesControllerPaidTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".badge.bg-success", text: /Paid/
-    assert_select "form[action=\"#{mark_unpaid_invoice_path(invoice)}\"]"
+    assert_select "form[action=?]", mark_unpaid_invoice_path(invoice)
+    assert_select "form[action=?] button[type='submit']", mark_unpaid_invoice_path(invoice), text: "Mark Unpaid"
   end
 
   test "show page does not show payment status for draft invoices" do

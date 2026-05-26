@@ -174,6 +174,23 @@ if Rails.env.development?
     customer.team = default_team
   end
 
+  # Former customer, kept for historical invoice references but no longer
+  # billable. Demonstrates the Inactive state in the UI.
+  Customer.find_or_create_by(matchcode: 'OLDCLIENT') do |customer|
+    customer.name = 'Old Client GmbH'
+    customer.address = <<~ADDRESS.strip
+      Hauptstraße 1
+      1010 Wien
+      Austria
+    ADDRESS
+    customer.vat_id = 'ATU99999999'
+    customer.notes = 'Engagement ended 2024'
+    customer.sales_tax_customer_class = eu_class
+    customer.language = german
+    customer.team = default_team
+    customer.active = false
+  end
+
   # Sample projects
   webapp_project = Project.find_or_create_by(matchcode: 'WEBAPP') do |project|
     project.description = 'Web Application Development'
@@ -223,6 +240,15 @@ if Rails.env.development?
     project.description = 'Migration 2026'
     project.bill_to_customer = good_company
     project.team = default_team
+  end
+
+  # Discontinued reusable project, kept for historical reference. Demonstrates
+  # the Inactive state.
+  Project.find_or_create_by(matchcode: 'LEGACY') do |project|
+    project.description = 'Legacy System (decommissioned)'
+    project.bill_to_customer = nil
+    project.team = default_team
+    project.active = false
   end
 
   # Customer contacts.
@@ -788,13 +814,84 @@ if Rails.env.development?
     delivery_note_de.update!(published: true, document_number: 'LN20250001')
   end
 
+  # Delivery note that has been converted to an invoice. Pairs with the
+  # API-DEV-2025-Q1 draft invoice above (same customer/project), so the
+  # Invoice link on the dn detail page and the Source link on the invoice
+  # detail page both render.
+  unless DeliveryNote.exists?(customer: export_company, project: api_project)
+    converted_dn = DeliveryNote.create!(
+      customer: export_company,
+      project: api_project,
+      cust_reference: 'API-DEV-2025-Q1',
+      cust_order: 'PO-API-5589',
+      prelude: 'Delivery of completed API development work — phases 1 through 3',
+      date: 3.days.ago.to_date,
+      delivery_start_date: 6.weeks.ago.to_date,
+      delivery_end_date: 3.days.ago.to_date,
+      published: false
+    )
+
+    converted_dn.delivery_note_lines.create!(
+      type: 'subheading',
+      title: 'Phase 1: Setup and Planning',
+      position: 1
+    )
+
+    converted_dn.delivery_note_lines.create!(
+      type: 'item',
+      title: 'Repository, CI/CD, and API design',
+      description: 'Project scaffolding, OpenAPI specification, deployment pipelines',
+      quantity: 1,
+      position: 2
+    )
+
+    converted_dn.delivery_note_lines.create!(
+      type: 'subheading',
+      title: 'Phase 2: Core Development',
+      position: 3
+    )
+
+    converted_dn.delivery_note_lines.create!(
+      type: 'item',
+      title: 'Authentication and CRUD endpoints',
+      description: 'JWT, role-based access, validation, error handling',
+      quantity: 1,
+      position: 4
+    )
+
+    converted_dn.delivery_note_lines.create!(
+      type: 'subheading',
+      title: 'Phase 3: Integration and Testing',
+      position: 5
+    )
+
+    converted_dn.delivery_note_lines.create!(
+      type: 'item',
+      title: 'Integration tests and project handover',
+      description: 'End-to-end tests, third-party integrations, delivery coordination',
+      quantity: 1,
+      position: 6
+    )
+
+    converted_dn.delivery_note_lines.create!(
+      type: 'text',
+      title: 'All deliverables accepted by the client.',
+      position: 7
+    )
+
+    converted_dn.update!(published: true, document_number: 'LN20250002')
+
+    api_invoice = Invoice.find_by(customer: export_company, project: api_project, cust_reference: 'API-DEV-2025-Q1')
+    converted_dn.update!(invoice: api_invoice) if api_invoice
+  end
+
   # Update document number sequence for delivery notes
   dn_delivery = DocumentNumber.find_by_code('delivery_note')
   if dn_delivery && dn_delivery.last_date.nil?
     # Initialize the sequence with the seeded delivery note numbers
-    dn_delivery.last_date = 5.days.ago.to_date
-    dn_delivery.sequence = 1 # Next number after LN20250001 would be LN20250002
-    dn_delivery.last_number = 'LN20250001'
+    dn_delivery.last_date = 3.days.ago.to_date
+    dn_delivery.sequence = 2 # Next number after LN20250002 would be LN20250003
+    dn_delivery.last_number = 'LN20250002'
     dn_delivery.save!
   end
 

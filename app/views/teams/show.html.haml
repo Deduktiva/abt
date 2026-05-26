@@ -1,4 +1,4 @@
-= page_header_with_edit_button("Team \"#{@team.name}\"", edit_team_path(@team))
+= page_header("Team \"#{@team.name}\"", action: action_button('Edit', edit_team_path(@team)))
 
 .row
   .col-md-8

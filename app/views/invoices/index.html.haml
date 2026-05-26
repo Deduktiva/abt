@@ -1,4 +1,4 @@
-= page_header_with_new_button('Listing invoices', new_invoice_path, permission: 'invoices.edit')
+= page_header('Listing invoices', action: action_button('+ New', new_invoice_path, :info, permission: 'invoices.edit'))
 
 
 .bulk-select-container{data: { controller: 'bulk-select' }}
@@ -89,7 +89,7 @@
           %td
             - if invoice.published?
               - if invoice.paid?
-                %span.badge.bg-success Paid #{l(invoice.paid_at)}
+                = l(invoice.paid_at.to_date)
               - elsif invoice.overdue?
                 %span.badge.bg-danger Overdue
               - else

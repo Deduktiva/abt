@@ -37,14 +37,14 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   test "should show project" do
     get project_url(@project)
     assert_response :success
-    assert_select ".card-header .badge", count: 0
+    assert_select ".badge", text: "Inactive", count: 0
   end
 
   test "should show inactive badge on project page" do
     @project.update!(active: false)
     get project_url(@project)
     assert_response :success
-    assert_select ".card-header .badge.bg-secondary", text: "Inactive"
+    assert_select ".badge.bg-secondary", text: "Inactive"
   end
 
   test "should get new" do

@@ -23,9 +23,11 @@
       %td= group.member_count
       %td= group.permission_count
       %td= group.bypass_team_scoping? ? 'Yes' : 'No'
-      %td= list_action_link('Edit', edit_group_path(group), :edit)
       %td
-        - if group.builtin?
+        - if can?('groups.manage')
+          = list_action_link('Edit', edit_group_path(group), :edit)
+      %td
+        - if can?('groups.manage') && !group.builtin?
+          = destroy_link(group, "Are you sure you want to delete group \"#{group.name}\"?")
+        - elsif group.builtin?
           %span.text-muted —
-        - else
-          = destroy_link(group, "Delete group \"#{group.name}\"?")

@@ -23,9 +23,11 @@
       %td= team.member_count
       %td= team.customer_count
       %td= team.project_count
-      %td= list_action_link('Edit', edit_team_path(team), :edit)
       %td
-        - if team.builtin?
+        - if can?('teams.manage')
+          = list_action_link('Edit', edit_team_path(team), :edit)
+      %td
+        - if can?('teams.manage') && !team.builtin?
+          = destroy_link(team, "Are you sure you want to delete team \"#{team.name}\"?")
+        - elsif team.builtin?
           %span.text-muted —
-        - else
-          = destroy_link(team, "Delete team \"#{team.name}\"?")

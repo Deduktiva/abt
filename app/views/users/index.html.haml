@@ -18,8 +18,6 @@
         %td
           - if user.blocked?
             %span.badge.bg-danger Blocked
-          - else
-            %span.badge.bg-success Active
         %td= l(user.created_at)
         %td= list_action_link('View', user_path(user), :show)
 

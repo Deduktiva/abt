@@ -21,18 +21,44 @@
             %strong Customer:
           .col-sm-8
             = link_to(@invoice.customer_name || @invoice.customer.name, @invoice.customer)
-        .row.mb-2
-          .col-sm-4
-            %strong Payment Terms:
-          .col-sm-8
-            = @invoice.payment_terms_days
-            days net
+        - if @invoice.project_id.present?
+          .row.mb-2
+            .col-sm-4
+              %strong Project:
+            .col-sm-8
+              - if @invoice.project
+                = link_to @invoice.project.display_name, @invoice.project
+              - else
+                %em (Project ##{@invoice.project_id} - not found)
+        - if @invoice.cust_order.present?
+          .row.mb-2
+            .col-sm-4
+              %strong Order No:
+            .col-sm-8
+              = @invoice.cust_order
+        - if @invoice.cust_reference.present?
+          .row.mb-2
+            .col-sm-4
+              %strong Reference:
+            .col-sm-8
+              = @invoice.cust_reference
+
+    .col-md-6
+      .document-details.mt-md-5
         - if @invoice.due_date
           .row.mb-2
             .col-sm-4
               %strong Due Date:
             .col-sm-8
               = l(@invoice.due_date)
+              %span.text-muted.ms-2 (#{@invoice.payment_terms_days} days net)
+        - else
+          .row.mb-2
+            .col-sm-4
+              %strong Payment Terms:
+            .col-sm-8
+              = @invoice.payment_terms_days
+              days net
 
         - if @invoice.published?
           .row.mb-2
@@ -63,36 +89,6 @@
               %strong Source:
             .col-sm-8
               = link_to "Delivery Note #{@invoice.delivery_note.document_number || "##{@invoice.delivery_note.id}"}", @invoice.delivery_note
-
-    .col-md-6
-      .document-details.mt-md-5
-        - if @invoice.project_id.present?
-          .row.mb-2
-            .col-sm-4
-              %strong Project:
-            .col-sm-8
-              - if @invoice.project
-                = link_to @invoice.project.display_name, @invoice.project
-              - else
-                %em (Project ##{@invoice.project_id} - not found)
-        - if @invoice.cust_reference.present?
-          .row.mb-2
-            .col-sm-4
-              %strong Reference:
-            .col-sm-8
-              = @invoice.cust_reference
-        - if @invoice.cust_order.present?
-          .row.mb-2
-            .col-sm-4
-              %strong Order No:
-            .col-sm-8
-              = @invoice.cust_order
-        - if @invoice.token.present?
-          .row.mb-2
-            .col-sm-4
-              %strong Token:
-            .col-sm-8
-              .small.text-muted= @invoice.token
 
   - if @invoice.prelude.present?
     .document-prelude.mb-4

@@ -56,7 +56,7 @@ echo "🎉 FOP setup complete!"
 echo ""
 
 echo "🧪 Testing Rails<->FOP integration..."
-if bundle exec rails test test/system/fop_installation_test.rb; then
+if bundle exec rails test test/integration/fop_installation_test.rb; then
   echo "✅ Rails<->FOP integration looks good."
 else
   echo "❌ Rails<->FOP integration needs checking."

@@ -110,16 +110,11 @@ class DeliveryNotesController < ApplicationController
   end
 
   def publish
-    begin
-      @delivery_note.publish!
-      flash[:notice] = "Delivery Note #{@delivery_note.document_number} has been published."
-    rescue StandardError => e
-      flash[:error] = "Failed to publish delivery note: #{e.message}"
-    end
-
-    respond_to do |format|
-      format.html { redirect_to @delivery_note }
-    end
+    @delivery_note.publish!
+    redirect_to delivery_note_path(@delivery_note, published: 1)
+  rescue StandardError => e
+    flash[:error] = "Failed to publish delivery note: #{e.message}"
+    redirect_to @delivery_note
   end
 
   def preview

@@ -8,6 +8,16 @@
   - else
     %span.badge.bg-success Booked
 
+- if params[:published] == '1' && @delivery_note.published?
+  .alert.alert-success.mb-3{data: {controller: 'auto-download'}}
+    %h4.alert-heading.mb-2= "Delivery Note #{@delivery_note.document_number} published."
+    %p.mb-3 Download the PDF and send it to your customer.
+    .d-flex.gap-2{data: email_preview_data(@delivery_note)}
+      = link_to 'Download PDF', pdf_delivery_note_path(@delivery_note), class: 'btn btn-success', target: '_blank', data: { turbo: false, 'auto-download-target': 'link' }
+      - if @delivery_note.emailable?
+        %button.btn.btn-outline-success{data: {action: 'click->generic-email-preview#open'}} Send E-Mail
+      = render 'shared/email_preview_modal', title: "Preview - Delivery Note #{@delivery_note.document_number}" if @delivery_note.emailable?
+
 .row.mb-2
   .col-md-6
     .document-details

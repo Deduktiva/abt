@@ -1,6 +1,6 @@
 - content_for :title, 'Users'
 
-= breadcrumbs 'Configuration', 'Users', action: action_button('+ Invite user', new_user_invite_path, :info)
+= breadcrumbs 'Configuration', 'Users', action: action_button('+ Invite user', new_user_invite_path, :info, permission: 'user_invites.manage')
 
 %table.table.table-striped.table-sm
   %thead
@@ -9,7 +9,6 @@
       %th Full name
       %th Status
       %th Created
-      %th
   %tbody
     - @users.each do |user|
       %tr
@@ -19,7 +18,7 @@
           - if user.blocked?
             %span.badge.bg-danger Blocked
         %td= l(user.created_at)
-        %td= list_action_link('View', user_path(user), :show)
 
-.mt-4
-  = link_to 'View invites', user_invites_path, class: 'btn btn-secondary'
+- if can?('user_invites.manage')
+  .mt-4
+    = link_to 'View invites', user_invites_path, class: 'btn btn-secondary'

@@ -15,7 +15,11 @@ Rails.application.routes.draw do
 
   namespace :account do
     resource :profile, only: [ :show ]
-    resources :sessions, only: [ :index, :destroy ]
+    resources :sessions, only: [ :index, :destroy ] do
+      collection do
+        delete :destroy_all
+      end
+    end
     resources :credentials, only: [ :index, :new, :destroy ] do
       collection do
         post :options

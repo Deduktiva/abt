@@ -20,4 +20,14 @@ class Account::SessionsController < ApplicationController
       redirect_to account_sessions_path, notice: "Session terminated."
     end
   end
+
+  def destroy_all
+    current_user.sessions.active.find_each do |s|
+      s.terminate!(reason: "user_terminated_all", actor: current_user, request: request)
+    end
+    reset_auth_cookie
+    Current.user = nil
+    Current.session = nil
+    redirect_to new_session_path, notice: "All sessions terminated. You have been signed out."
+  end
 end

@@ -5,7 +5,7 @@ class UserInvitesTest < ApplicationSystemTestCase
     visit new_user_invite_path
     assert_selector ".breadcrumb-item.active", text: "New"
 
-    click_button "Generate invite URL"
+    click_button "Save"
 
     assert_selector "h1", text: "Invite generated"
     assert_selector "code", text: %r{/invites/}

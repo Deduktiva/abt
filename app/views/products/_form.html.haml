@@ -1,5 +1,5 @@
 .fieldset
-= simple_form_for(@product, :validation => true, :html => {:class => 'form-horizontal'}) do |f|
+= simple_form_for(@product, :validation => true, :html => { id: ActionButtonsHelper::PAGE_FORM_ID, :class => 'form-horizontal' }) do |f|
   - if @product.errors.any?
     .alert.alert-danger
       %h4
@@ -26,9 +26,3 @@
       = f.label :sales_tax_product_class_id, required: true, class: 'col-lg-2 col-md-3 col-form-label', label: "Sales Tax Class"
       .col-sm-3
         = f.collection_select :sales_tax_product_class_id, SalesTaxProductClass.all, :id, :name, { prompt: 'Select tax class...' }, {:class => 'form-select', :required => true}
-
-  %br
-
-  = action_buttons_wrapper do
-    = f.button :submit, :class => 'btn btn-primary'
-    = cancel_button(@product)

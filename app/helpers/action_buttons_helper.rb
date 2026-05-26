@@ -8,6 +8,12 @@ module ActionButtonsHelper
   # can pass `actions: [pdf_button(...), delete_button(...)]` and let the
   # breadcrumbs helper compact out the nils.
 
+  # Shared HTML id for the single page-level form on edit/new pages. The
+  # breadcrumb's `save_button` and the form element both reference this
+  # constant, so the submit button can live outside the <form> and submit it
+  # via the HTML5 `form=` attribute.
+  PAGE_FORM_ID = "page-form"
+
   # --- Tier 3: glyph-only (title required) ---
 
   def delete_button(resource, confirm: nil, permission: nil)
@@ -85,6 +91,15 @@ module ActionButtonsHelper
   def audit_log_button(path, permission: nil)
     return nil if permission && !can?(permission)
     link_to "📋 Audit log", path, class: "btn btn-secondary"
+  end
+
+  # Primary submit button for edit/new pages. Lives in the breadcrumb action
+  # cluster and submits the page's main form via the HTML5 `form=` attribute,
+  # so the button can sit outside the <form> element. The breadcrumb's parent
+  # crumb replaces what Cancel used to do.
+  def save_button(label: "Save", permission: nil)
+    return nil if permission && !can?(permission)
+    button_tag label, type: :submit, form: PAGE_FORM_ID, class: "btn btn-primary"
   end
 
   # Cross-resource navigation in the breadcrumb action cluster: jumping to a

@@ -1,6 +1,6 @@
-= breadcrumbs 'Configuration', ['Issuer Company', issuer_company_path], 'Edit'
+= breadcrumbs 'Configuration', ['Issuer Company', issuer_company_path], 'Edit', action: save_button
 
-= form_with(model: @issuer_company, url: issuer_company_path, method: :patch, local: true, class: 'form', multipart: true) do |form|
+= form_with(model: @issuer_company, url: issuer_company_path, method: :patch, local: true, id: ActionButtonsHelper::PAGE_FORM_ID, class: 'form', multipart: true) do |form|
   - if @issuer_company.errors.any?
     .alert.alert-danger
       %h4
@@ -115,8 +115,3 @@
           .mb-3
             = form.label :invoice_footer, 'Invoice Footer', class: 'form-label'
             = form.text_area :invoice_footer, rows: 6, class: 'form-control'
-
-  .mt-4
-    = action_buttons_wrapper do
-      = form.submit 'Update Issuer Company', class: 'btn btn-primary'
-      = action_button 'Back', issuer_company_path, :secondary

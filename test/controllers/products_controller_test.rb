@@ -15,7 +15,7 @@ class ProductsControllerTest < ActionDispatch::IntegrationTest
     get new_product_url
     assert_response :success
 
-    assert_select "form#new_product:not([novalidate])"
+    assert_select "form#page-form:not([novalidate])"
 
     assert_select "input#product_title[required]"
     assert_select "input#product_rate[required]"

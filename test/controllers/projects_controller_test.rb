@@ -56,7 +56,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     get new_project_url
     assert_response :success
 
-    assert_select "form#new_project:not([novalidate])"
+    assert_select "form#page-form:not([novalidate])"
 
     assert_select "input#project_matchcode[required]"
     assert_select "select#project_team_id[required]"

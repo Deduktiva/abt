@@ -1,5 +1,5 @@
 %div{data: {controller: 'invoice-form'}}
-  = form_for(@invoice) do |f|
+  = form_for(@invoice, html: { id: ActionButtonsHelper::PAGE_FORM_ID }) do |f|
     - if @invoice.errors.any?
       .alert.alert-danger
         %h4
@@ -112,12 +112,5 @@
 
           %br
           = action_buttons_wrapper do
-            = f.submit 'Save', class: 'btn btn-primary'
             %button.btn.btn-info{type: 'button', data: {action: 'click->invoice-lines#addLine'}}
               + Add Line
-            = cancel_button(@invoice)
-      - else
-        %br
-        = action_buttons_wrapper do
-          = f.submit 'Save', class: 'btn btn-primary'
-          = cancel_button(@invoice)

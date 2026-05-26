@@ -1,5 +1,5 @@
 .fieldset
-= simple_form_for(@project, :validation => true, :html => {:class => 'form-horizontal'}) do |f|
+= simple_form_for(@project, :validation => true, :html => { id: ActionButtonsHelper::PAGE_FORM_ID, :class => 'form-horizontal' }) do |f|
   - if @project.errors.any?
     .alert.alert-danger
       %h4
@@ -42,7 +42,3 @@
       .col-lg-5.col-md-4
         = f.text_field :department, :class => 'form-control'
         .form-text Used to compose the Client line on offers. Leave empty for shared projects.
-
-  = action_buttons_wrapper do
-    = f.button :submit, :class => 'btn btn-primary'
-    = cancel_button(@project)

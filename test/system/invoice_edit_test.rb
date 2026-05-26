@@ -111,11 +111,6 @@ class InvoiceEditTest < ApplicationSystemTestCase
     assert_equal customers(:good_eu).id, invoice.customer_id
   end
 
-  test "form has proper navigation elements" do
-    visit "/invoices/#{invoices(:draft_invoice).id}/edit"
-    assert_link "Cancel", href: "/invoices"
-  end
-
   test "form includes dynamic UI elements" do
     visit "/invoices/#{invoices(:draft_invoice).id}/edit"
 

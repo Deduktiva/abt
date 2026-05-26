@@ -28,7 +28,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     get new_customer_url
     assert_response :success
 
-    assert_select "form#new_customer:not([novalidate])"
+    assert_select "form#page-form:not([novalidate])"
 
     assert_select "input#customer_matchcode[required]"
     assert_select "textarea#customer_name[required]"

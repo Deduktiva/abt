@@ -172,23 +172,6 @@ module ApplicationHelper
     link_to(text, path, class: css_class, target: target, data: data, title: title, "aria-label": title)
   end
 
-  def cancel_button(resource)
-    # Determine the appropriate cancel destination based on action
-    cancel_path = case action_name
-    when "edit", "update"
-      # When editing, go back to list page
-      polymorphic_path(resource.class)
-    when "new", "create"
-      # When creating new, go back to list page
-      polymorphic_path(resource.class)
-    else
-      # Default to show page
-      resource
-    end
-
-    action_button("Cancel", cancel_path, :secondary)
-  end
-
   def app_version
     Rails.application.config.x.app_version
   end

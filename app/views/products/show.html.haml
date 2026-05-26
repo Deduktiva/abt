@@ -1,3 +1,4 @@
+= breadcrumbs 'Configuration', ['Product Catalog', products_path], @product.title
 = page_header("Product \"#{@product.title}\"", action: action_button('Edit', edit_product_path(@product), permission: 'products.edit'))
 
 .row
@@ -29,6 +30,3 @@
             %strong Sales Tax Class:
           .col-sm-9
             = @product.sales_tax_product_class.name
-
-= action_buttons_wrapper do
-  = action_button 'Back', products_path, :secondary

@@ -1,3 +1,4 @@
+= breadcrumbs ['Customers', customers_path], @customer.matchcode
 = page_header("Customer #{@customer.matchcode}", action: action_button('Edit', edit_customer_path(@customer), permission: 'customers.edit')) do
   - unless @customer.active?
     %span.badge.bg-secondary.fs-6 Inactive
@@ -120,7 +121,6 @@
           = simple_format(@customer.notes)
 
 = action_buttons_wrapper do
-  = action_button 'Back', customers_path, :secondary
   - if can?('invoices.view')
     = action_button 'Invoices', invoices_path(customer_id: @customer.id, year: 'all'), :info, data: { turbo_prefetch: false }
   - if can?('delivery_notes.view')

@@ -1,5 +1,6 @@
 - content_for :title, "Audit log for #{@user.username}"
 
+= breadcrumbs 'Configuration', ['Users', users_path], [@user.username, user_path(@user)], 'Audit Log'
 = page_header("Audit log: #{@user.username}")
 
 %table.table.table-striped.table-sm
@@ -20,6 +21,3 @@
         %td
           %code.small= event.ip_address
         %td.small= event.metadata.is_a?(Hash) ? event.metadata.except('username').to_a.map { |k,v| "#{k}=#{v}" }.join(', ') : event.metadata.to_s
-
-.mt-4
-  = link_to 'Back to user', user_path(@user), class: 'btn btn-secondary'

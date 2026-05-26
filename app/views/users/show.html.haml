@@ -1,5 +1,6 @@
 - content_for :title, "User #{@user.username}"
 
+= breadcrumbs 'Configuration', ['Users', users_path], @user.username
 = page_header(@user.username) do
   - if @user.blocked?
     %span.badge.bg-danger.fs-6 Blocked
@@ -164,4 +165,3 @@
             data: { turbo_confirm: "Block #{@user.username}? All sessions will be terminated." }
 
   = action_button('View audit log', audit_user_path(@user), :secondary)
-  = action_button('Back to list', users_path, :secondary)

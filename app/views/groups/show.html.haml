@@ -1,3 +1,4 @@
+= breadcrumbs 'Configuration', ['Groups', groups_path], @group.name
 = page_header("Group \"#{@group.name}\"", action: action_button('Edit', edit_group_path(@group)))
 
 .row
@@ -48,6 +49,3 @@
           %ul.list-unstyled.mb-0
             - @members.each do |user|
               %li= link_to(user.username, user_path(user))
-
-= action_buttons_wrapper do
-  = action_button 'Back', groups_path, :secondary

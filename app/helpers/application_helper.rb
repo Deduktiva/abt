@@ -32,6 +32,34 @@ module ApplicationHelper
     end
   end
 
+  # Renders a Bootstrap breadcrumb row above the page header.
+  #
+  # Items are either:
+  #   - [label, path]  → rendered as a link
+  #   - label          → rendered as plain text (non-link)
+  # The last item is always rendered as the active (current) crumb, regardless
+  # of whether a path was given.
+  #
+  #   = breadcrumbs ['Customers', customers_path], @customer.display_name
+  #   = breadcrumbs 'Configuration', ['Sales Tax', sales_tax_rates_path], 'Edit'
+  def breadcrumbs(*items)
+    content_tag :nav, "aria-label": "breadcrumb" do
+      content_tag :ol, class: "breadcrumb border-bottom py-1 small mb-2" do
+        last_index = items.length - 1
+        items.each_with_index.map { |item, i|
+          label, path = Array(item)
+          if i == last_index
+            content_tag(:li, label, class: "breadcrumb-item active", "aria-current": "page")
+          elsif path
+            content_tag(:li, link_to(label, path), class: "breadcrumb-item")
+          else
+            content_tag(:li, label, class: "breadcrumb-item")
+          end
+        }.join.html_safe
+      end
+    end
+  end
+
   # Renders the page header row: title (left), optional inline status badges
   # (left, via the block), optional action button (right).
   #

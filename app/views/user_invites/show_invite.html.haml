@@ -1,5 +1,6 @@
 - content_for :title, 'Invite generated'
 
+= breadcrumbs 'Configuration', ['Users', users_path], ['Invites', user_invites_path], 'Generated'
 = page_header('Invite generated')
 
 .alert.alert-info
@@ -12,5 +13,4 @@
       %code= @invite_url
 
 = action_buttons_wrapper do
-  = action_button('Back to invites', user_invites_path, :secondary)
   = action_button('Generate another', new_user_invite_path, :primary)

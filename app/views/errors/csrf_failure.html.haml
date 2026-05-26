@@ -1,0 +1,18 @@
+- content_for :title, 'Session expired'
+
+.row.justify-content-center
+  .col-md-6
+    .card.border-warning
+      .card-body
+        %h1.h4.card-title Session expired
+        %p
+          = message
+        %p.text-muted.small
+          This usually happens when you signed out in another tab, or the page
+          sat open longer than the session allowed. Anything you just typed has
+          to be retyped after reloading &mdash; we deliberately do not refresh
+          the page for you.
+        .d-flex.gap-2
+          - reload_target = request.referer.presence || root_path
+          = link_to 'Reload page', reload_target, class: 'btn btn-primary'
+          = link_to 'Go to home', root_path, class: 'btn btn-outline-secondary'

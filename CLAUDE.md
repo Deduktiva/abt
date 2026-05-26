@@ -67,6 +67,7 @@ For testing against PostgreSQL (matches production environment):
 - Self-service under `/account/*`; admin under `/users` (block, reset passkeys, manage emails).
 - Tokens (invite, session, email confirmation) stored as SHA-256 digests via `DigestedToken`.
 - Rate limiting via `rack-attack` on unauthenticated endpoints (`config/initializers/rack_attack.rb`).
+- CSRF: `protect_from_forgery with: :exception` is rescued by `ApplicationController#handle_invalid_authenticity_token`. HTML requests render `app/views/errors/csrf_failure.html.haml` (status 422); JSON XHR requests return `{ "error": "..." }` with status 422. Do not replace this with a redirect or `window.location.reload()` — CSRF failures land on stale forms (login, invoice create, etc.) and an auto-reload silently discards whatever the user just typed. The error template prompts the user to click Reload themselves. New JSON XHR controllers must surface the server's `error` field in a visible alert (see `passkey_controller.js#showError`); never swallow it as `Request failed (422)`.
 
 ### PDF Generation
 - Uses Apache FOP (Formatting Objects Processor) for PDF generation

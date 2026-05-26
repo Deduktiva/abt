@@ -127,6 +127,20 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert_select "td", text: "DRAFT-NO-DATE"
   end
 
+  test "drafts sort newest-first when document_number is null" do
+    first  = DeliveryNote.create!(customer: customers(:good_eu), project: projects(:one), cust_reference: "DRAFT-FIRST", delivery_start_date: Date.current)
+    second = DeliveryNote.create!(customer: customers(:good_eu), project: projects(:one), cust_reference: "DRAFT-SECOND", delivery_start_date: Date.current)
+    third  = DeliveryNote.create!(customer: customers(:good_eu), project: projects(:one), cust_reference: "DRAFT-THIRD", delivery_start_date: Date.current)
+
+    get delivery_notes_url
+    assert_response :success
+
+    body = @response.body
+    positions = [ third, second, first ].map { |dn| body.index(dn.cust_reference) }
+    assert positions.all?, "all drafts should be rendered: #{positions.inspect}"
+    assert_equal positions, positions.sort, "drafts should render in id DESC order (newest first): #{positions.inspect}"
+  end
+
   test "should show delivery note" do
     get delivery_note_url(delivery_notes(:published_delivery_note))
     assert_response :success

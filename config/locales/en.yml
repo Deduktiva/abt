@@ -51,8 +51,6 @@ en:
         country_iso2: "Country"
       issuer_company:
         country_iso2: "Country"
-      invoice:
-        customer_country_iso2: "Customer country"
 
   # Override Rails' default belongs_to required message ("must exist"),
   # which reads as a database/lookup error to end users. Required

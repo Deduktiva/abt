@@ -177,8 +177,7 @@ module ApplicationHelper
   end
 
   def country_name(code)
-    return nil if code.blank?
-    ISO3166::Country.new(code)&.iso_short_name || code
+    AddressFormatter.country_name(code)
   end
 
   def country_unknown?(code)

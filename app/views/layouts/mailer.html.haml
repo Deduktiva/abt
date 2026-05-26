@@ -99,5 +99,6 @@
               .company-name= @issuer.legal_name
               - @issuer.address.split("\n").each do |line|
                 .address-line= line
+              .address-line= AddressFormatter.country_name(@issuer.country_iso2)
             - if @issuer.png_logo.present?
               %img.company-logo{src: "data:image/png;base64,#{Base64.encode64(@issuer.png_logo).gsub(/\n/, '')}", alt: @issuer.legal_name}

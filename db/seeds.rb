@@ -63,6 +63,7 @@ end
 # Sales tax product classes
 standard_product = SalesTaxProductClass.find_or_create_by(name: 'Standard Goods') do |stpc|
   stpc.indicator_code = 'STD'
+  stpc.is_default = true
 end
 
 # Sales tax rates (connecting customer and product classes)

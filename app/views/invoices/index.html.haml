@@ -16,6 +16,7 @@
         .btn-group.btn-group-sm.ms-auto.year-pagination{:role=>"group", "aria-label"=>"Year navigation"}
           - @available_years.each do |year|
             = link_to year, invoices_path(year: year, filter: @filter), class: (@selected_year == year ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+          = link_to 'All', invoices_path(year: 'all', filter: @filter), class: (@selected_year == 'all' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
 
   - if @filter == 'unsent' && @invoices.any?
     %table.table.table-striped.table-sm

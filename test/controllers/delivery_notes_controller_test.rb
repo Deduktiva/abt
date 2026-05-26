@@ -34,6 +34,13 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     # Verify the page contains the 2023 note reference but not 2024
     assert_select "td", text: "2023-TEST"
     assert_select "td", text: "2024-TEST", count: 0
+
+    # Test "all" year filter — delivery notes from every year are shown
+    get delivery_notes_url(year: "all")
+    assert_response :success
+    assert_select "td", text: "2023-TEST"
+    assert_select "td", text: "2024-TEST"
+    assert_select ".year-pagination a.active", text: "All"
   end
 
   test "should include draft delivery notes with nil date in current year" do

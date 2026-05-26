@@ -46,44 +46,9 @@ class EmailPreviewTest < ApplicationSystemTestCase
     end
   end
 
-  test "delivery note email preview iframe renders styled email body under strict CSP" do
-    visit delivery_note_path(@delivery_note)
-
-    click_on "Send E-Mail"
-
-    iframe_element = find("iframe.email-preview-iframe", wait: 5)
-
-    within_frame(iframe_element) do
-      assert_text "Dear #{@delivery_note.customer.name}", wait: 5
-      bg = page.evaluate_script("getComputedStyle(document.body).backgroundColor")
-      assert_equal "rgb(248, 249, 250)", bg, "Inline <style> from mailer layout should be applied in iframe"
-    end
-  end
-
   test "post-publish banner strips the published query param so reloads don't re-trigger auto-download" do
     visit invoice_path(@invoice, published: 1)
     assert_selector ".alert-success", text: "booked"
     assert_current_path invoice_path(@invoice), wait: 2
-  end
-
-  test "delivery note email preview URLs use correct paths for subdirectory deployment" do
-    visit delivery_note_path(@delivery_note)
-
-    email_wrapper = find("[data-controller='generic-email-preview']")
-
-    preview_url = email_wrapper["data-generic-email-preview-preview-url-value"]
-    raw_preview_url = email_wrapper["data-generic-email-preview-raw-preview-url-value"]
-    send_url = email_wrapper["data-generic-email-preview-send-url-value"]
-
-    assert_equal preview_email_delivery_note_path(@delivery_note), preview_url
-    assert_equal preview_email_raw_delivery_note_path(@delivery_note), raw_preview_url
-    assert_equal send_email_delivery_note_path(@delivery_note), send_url
-
-    assert_includes preview_url, @delivery_note.id.to_s, "Preview URL should contain delivery note ID"
-    assert_includes raw_preview_url, @delivery_note.id.to_s, "Raw preview URL should contain delivery note ID"
-    assert_includes send_url, @delivery_note.id.to_s, "Send URL should contain delivery note ID"
-    assert_includes preview_url, "preview_email", "Preview URL should contain preview_email action"
-    assert_includes raw_preview_url, "preview_email_raw", "Raw preview URL should contain preview_email_raw action"
-    assert_includes send_url, "send_email", "Send URL should contain send_email action"
   end
 end

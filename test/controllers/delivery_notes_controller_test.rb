@@ -180,12 +180,28 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should not destroy published delivery note" do
+    published_note = delivery_notes(:published_delivery_note)
     assert_no_difference("DeliveryNote.count") do
-      delete delivery_note_url(delivery_notes(:published_delivery_note))
+      delete delivery_note_url(published_note)
     end
 
-    assert_redirected_to delivery_notes_url
-    assert_match "cannot be deleted", flash[:alert]
+    assert_redirected_to delivery_note_url(published_note)
+    assert_match "Published delivery notes can not be modified", flash[:error]
+  end
+
+  test "should not destroy numbered but unpublished delivery note" do
+    note = delivery_notes(:published_delivery_note)
+    # Simulate the "withdrawn but still numbered" state without going through
+    # unpublish (which currently clears document_number).
+    note.update_column(:published, false)
+    assert note.document_number.present?, "fixture should retain its number"
+
+    assert_no_difference("DeliveryNote.count") do
+      delete delivery_note_url(note)
+    end
+
+    assert_redirected_to delivery_note_url(note)
+    assert_match "assigned document number", flash[:error]
   end
 
   test "should get preview pdf" do

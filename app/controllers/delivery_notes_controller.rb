@@ -36,7 +36,8 @@ class DeliveryNotesController < ApplicationController
   # spec tells browsers to ignore 'unsafe-inline' — which would re-block the
   # mailer's inline <style> tags. Strip the nonce list for this action.
   before_action(only: :preview_email_raw) { request.content_security_policy_nonce_directives = [] }
-  before_action :require_unpublished, only: %i[edit update publish preview]
+  before_action :require_unpublished, only: %i[edit update destroy publish preview]
+  before_action :require_unnumbered, only: :destroy
   before_action :require_published, only: %i[pdf unpublish upload_acceptance delete_acceptance convert_to_invoice send_email]
   before_action :require_item_line, only: %i[publish preview preview_email]
 
@@ -104,11 +105,6 @@ class DeliveryNotesController < ApplicationController
 
   # DELETE /delivery_notes/1
   def destroy
-    if @delivery_note.published?
-      flash[:alert] = "Published delivery notes cannot be deleted."
-      redirect_to delivery_notes_path and return
-    end
-
     @delivery_note.destroy
     redirect_to delivery_notes_url
   end
@@ -345,6 +341,16 @@ class DeliveryNotesController < ApplicationController
 protected
   def set_delivery_note
     @delivery_note = DeliveryNote.visible_to(current_user).find(params[:id])
+  end
+
+  # Document numbers are issued from a gap-free sequence; once assigned they
+  # must not vanish, even if the delivery note was later unpublished.
+  def require_unnumbered
+    return true if @delivery_note.document_number.blank?
+
+    flash[:error] = "Delivery notes with an assigned document number can not be deleted."
+    redirect_to @delivery_note
+    false
   end
 
   def delivery_note_params

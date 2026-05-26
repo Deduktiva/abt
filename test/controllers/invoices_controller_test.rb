@@ -557,4 +557,52 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     # Should redirect to the invoice show page since there's no flash data
     assert_redirected_to invoice_url(invoice)
   end
+
+  test "should not edit published invoice" do
+    invoice = invoices(:published_invoice)
+    get edit_invoice_url(invoice)
+    assert_redirected_to invoice_url(invoice)
+    assert_match "Published invoices can not be modified", flash[:error]
+  end
+
+  test "should not update published invoice" do
+    invoice = invoices(:published_invoice)
+    original_ref = invoice.cust_reference
+
+    patch invoice_url(invoice), params: { invoice: { cust_reference: "HACKED" } }
+
+    assert_redirected_to invoice_url(invoice)
+    assert_match "Published invoices can not be modified", flash[:error]
+    assert_equal original_ref, invoice.reload.cust_reference
+  end
+
+  test "should not destroy published invoice" do
+    invoice = invoices(:published_invoice)
+    assert_no_difference("Invoice.count") do
+      delete invoice_url(invoice)
+    end
+    assert_redirected_to invoice_url(invoice)
+    assert_match "Published invoices can not be modified", flash[:error]
+  end
+
+  test "should not preview published invoice" do
+    invoice = invoices(:published_invoice)
+    get preview_invoice_url(invoice)
+    assert_redirected_to invoice_url(invoice)
+    assert_match "Published invoices can not be modified", flash[:error]
+  end
+
+  test "should not POST book on published invoice" do
+    invoice = invoices(:published_invoice)
+    # require_item_line fires before the inline require_unpublished in
+    # book POST, so a line is needed to reach the publish guard.
+    invoice.invoice_lines.create!(
+      type: "item", title: "x", rate: 1.0, quantity: 1.0,
+      sales_tax_product_class: sales_tax_product_classes(:standard), position: 1
+    )
+
+    post book_invoice_url(invoice), params: { save: "true" }
+    assert_redirected_to invoice_url(invoice)
+    assert_match "Published invoices can not be modified", flash[:error]
+  end
 end

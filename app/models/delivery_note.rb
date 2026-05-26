@@ -8,6 +8,8 @@ class DeliveryNote < ApplicationRecord
   validates :customer_id, presence: true
   validates :delivery_start_date, presence: true
   validate :delivery_end_date_after_start_date
+  # Edits to published delivery notes are rejected by require_unpublished in
+  # the controller; this validation only guards the transition into published.
   validate :must_have_item_line_for_publish
   default_scope { order(Arel.sql("id ASC")) }
 

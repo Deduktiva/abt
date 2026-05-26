@@ -26,6 +26,8 @@ class TeamTest < ActiveSupport::TestCase
       matchcode: "INUSE",
       name: "In Use Co.",
       vat_id: "EU999999999",
+
+      country_iso2: "NL",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: team

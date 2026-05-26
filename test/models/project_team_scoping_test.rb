@@ -6,6 +6,8 @@ class ProjectTeamScopingTest < ActiveSupport::TestCase
       matchcode: "ACME_CUST",
       name: "Acme Co.",
       vat_id: "EU666666666",
+
+      country_iso2: "NL",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: teams(:acme)
@@ -41,6 +43,8 @@ class ProjectTeamScopingTest < ActiveSupport::TestCase
       matchcode: "ACME_CUST2",
       name: "Acme 2",
       vat_id: "EU777777777",
+
+      country_iso2: "NL",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: teams(:acme)

@@ -36,6 +36,15 @@
           .col-sm-8
             = simple_format(@issuer_company.address)
 
+        .row.mb-2
+          .col-sm-4
+            %strong Country:
+          .col-sm-8
+            - if country_unknown?(@issuer_company.country_iso2)
+              %span.badge.bg-warning.text-dark Not set
+            - else
+              = country_name(@issuer_company.country_iso2)
+
   .col-md-6
     .card
       .card-header

@@ -45,6 +45,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
           matchcode: "TEST123",
           name: "Test Company",
           vat_id: "EU181818181",
+          country_iso2: "NL",
           sales_tax_customer_class_id: @customer.sales_tax_customer_class_id,
           team_id: teams(:default).id
         }
@@ -59,6 +60,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
       matchcode: "UNUSED",
       name: "Unused Customer",
       vat_id: "EU191919191",
+      country_iso2: "NL",
       sales_tax_customer_class: @customer.sales_tax_customer_class,
       team: teams(:default)
     )
@@ -92,6 +94,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
       matchcode: "UNUSED2",
       name: "Another Unused Customer",
       vat_id: "EU202020202",
+      country_iso2: "NL",
       sales_tax_customer_class: @customer.sales_tax_customer_class,
       team: teams(:default)
     )
@@ -108,6 +111,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
       matchcode: "INACTIVE",
       name: "Inactive Customer",
       vat_id: "EU212121212",
+      country_iso2: "NL",
       active: false,
       sales_tax_customer_class: @customer.sales_tax_customer_class,
       team: teams(:default)

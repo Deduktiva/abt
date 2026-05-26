@@ -1,5 +1,6 @@
 published_invoice:
   customer: good_eu
+  customer_country_iso2: BE
   project: one
   attachment: invoice_pdf
   document_number: "INV-2024-001"
@@ -15,6 +16,7 @@ published_invoice:
 
 auto_email_invoice:
   customer: auto_email_customer
+  customer_country_iso2: NL
   project: two
   attachment: auto_email_pdf
   document_number: "INV-2024-002"
@@ -30,6 +32,7 @@ auto_email_invoice:
 
 no_email_invoice:
   customer: no_email_customer
+  customer_country_iso2: DE
   project: one
   attachment: invoice_pdf
   document_number: "INV-2024-003"
@@ -44,6 +47,7 @@ no_email_invoice:
 
 draft_invoice:
   customer: good_national
+  customer_country_iso2: NL
   project: two
   document_number: null
   published: false
@@ -55,6 +59,7 @@ draft_invoice:
 
 license_invoice:
   customer: good_national
+  customer_country_iso2: NL
   project: one
   document_number: null
   published: false

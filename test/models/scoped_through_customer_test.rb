@@ -14,6 +14,8 @@ class ScopedThroughCustomerTest < ActiveSupport::TestCase
       matchcode: "OTHER",
       name: "Other Co",
       vat_id: "EU888888888",
+
+      country_iso2: "NL",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: @other_team

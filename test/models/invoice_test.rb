@@ -69,13 +69,14 @@ class InvoiceTest < ActiveSupport::TestCase
 
   test "update_customer copies customer fields to the draft invoice on save" do
     invoice = invoices(:draft_invoice)
-    invoice.customer.update!(supplier_number: "SUP-001")
+    invoice.customer.update!(supplier_number: "SUP-001", country_iso2: "AT")
     invoice.save!
     assert_equal invoice.customer.name, invoice.customer_name
     assert_equal invoice.customer.address, invoice.customer_address
     assert_equal invoice.customer.id, invoice.customer_account_number.to_i
     assert_equal invoice.customer.vat_id, invoice.customer_vat_id
     assert_equal "SUP-001", invoice.customer_supplier_number
+    assert_equal "AT", invoice.customer_country_iso2
     assert_equal invoice.customer.payment_terms_days, invoice.payment_terms_days
     assert_equal invoice.customer.sales_tax_customer_class.invoice_note, invoice.tax_note
   end
@@ -147,6 +148,12 @@ class InvoiceTest < ActiveSupport::TestCase
     assert_includes invoice.publish_problems, "Customer address is missing."
   end
 
+  test "publish_problems reports an unknown customer country" do
+    invoice = license_invoice_with_tax_config
+    invoice.update_columns(customer_country_iso2: AddressFormatter::UNKNOWN_COUNTRY)
+    assert_includes invoice.publish_problems, "Customer country is missing."
+  end
+
   test "publish_problems reports a missing VAT ID when the customer class requires one" do
     invoice = license_invoice_with_tax_config # uses good_national (vat_id_required)
     invoice.update_columns(customer_vat_id: nil)
@@ -182,6 +189,7 @@ class InvoiceTest < ActiveSupport::TestCase
       matchcode: "ACME_YEAR_LEAK",
       name: "Acme Year Leak",
       vat_id: "EU161616161",
+      country_iso2: "AT",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: acme

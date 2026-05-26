@@ -14,6 +14,8 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
       matchcode: "ENG",
       address: "123 English Street\nLondon, UK",
       vat_id: "EN123456789",
+
+      country_iso2: "NL",
       sales_tax_customer_class: sales_tax_customer_classes(:national),
       language: languages(:english),
       team: teams(:default)
@@ -47,6 +49,8 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
       matchcode: "DEU",
       address: "Musterstraße 123\n12345 Berlin, Deutschland",
       vat_id: "DE987654321",
+
+      country_iso2: "NL",
       sales_tax_customer_class: sales_tax_customer_classes(:national),
       language: languages(:german),
       team: teams(:default)
@@ -78,6 +82,8 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
     english_customer = Customer.create!(
       name: "English Customer", matchcode: "ENG1", address: "English Address",
       vat_id: "EN111111111",
+
+      country_iso2: "NL",
       sales_tax_customer_class: sales_tax_customer_classes(:national),
       language: languages(:english),
       team: teams(:default)
@@ -86,6 +92,8 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
     german_customer = Customer.create!(
       name: "German Customer", matchcode: "GER1", address: "German Address",
       vat_id: "DE222222222",
+
+      country_iso2: "NL",
       sales_tax_customer_class: sales_tax_customer_classes(:national),
       language: languages(:german),
       team: teams(:default)
@@ -121,7 +129,8 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
     export_customer = Customer.create!(
       name: "USA Corporation Inc.",
       matchcode: "USACORP_TEST",
-      address: "123 Business Ave\nNew York, NY 10001\nUnited States",
+      address: "123 Business Ave\nNew York, NY 10001",
+      country_iso2: "US",
       sales_tax_customer_class: sales_tax_customer_classes(:restoftheworld),
       language: languages(:english),
       team: teams(:default)
@@ -146,6 +155,8 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
       matchcode: "TEST",
       address: "Test Address",
       vat_id: "EN111111111",
+
+      country_iso2: "NL",
       sales_tax_customer_class: sales_tax_customer_classes(:national),
       team: teams(:default)
     )

@@ -43,6 +43,16 @@ en:
   activerecord:
     models:
       delivery_note: "Delivery Note"
+    # country_iso2 is a 2-letter ISO 3166-1 alpha-2 code under the hood. Users
+    # just see "Country" — the column suffix is a schema-level clarification,
+    # not a UI label.
+    attributes:
+      customer:
+        country_iso2: "Country"
+      issuer_company:
+        country_iso2: "Country"
+      invoice:
+        customer_country_iso2: "Customer country"
 
   # Override Rails' default belongs_to required message ("must exist"),
   # which reads as a database/lookup error to end users. Required

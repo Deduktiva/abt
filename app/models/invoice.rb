@@ -89,6 +89,7 @@ class Invoice < ApplicationRecord
 
     problems << "Customer name is missing." if customer_name.blank?
     problems << "Customer address is missing." if customer_address.blank?
+    problems << "Customer country is missing." unless AddressFormatter.valid_iso2?(customer_country_iso2)
     if customer&.sales_tax_customer_class&.vat_id_required? && customer_vat_id.blank?
       problems << "Customer VAT ID is missing."
     end
@@ -185,6 +186,7 @@ private
     self.customer.reload
     self.customer_name = self.customer.name
     self.customer_address = self.customer.address
+    self.customer_country_iso2 = self.customer.country_iso2
     self.customer_account_number = self.customer.id
     self.customer_supplier_number = self.customer.supplier_number
     self.customer_vat_id = self.customer.vat_id

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_26_180000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_27_005356) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -43,6 +43,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_180000) do
   create_table "customers", force: :cascade do |t|
     t.boolean "active", default: true, null: false
     t.text "address"
+    t.string "country_iso2", limit: 2, null: false
     t.datetime "created_at", null: false
     t.string "invoice_email_auto_contact_mode", default: "replace_contacts", null: false
     t.boolean "invoice_email_auto_enabled", default: false, null: false
@@ -179,6 +180,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_180000) do
     t.string "cust_reference"
     t.text "customer_account_number"
     t.text "customer_address"
+    t.string "customer_country_iso2", limit: 2, null: false
     t.integer "customer_id"
     t.text "customer_name"
     t.text "customer_supplier_number"
@@ -210,6 +212,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_180000) do
     t.string "bankaccount_bank"
     t.string "bankaccount_bic"
     t.string "bankaccount_number"
+    t.string "country_iso2", limit: 2, null: false
     t.datetime "created_at", null: false
     t.string "currency", default: "EUR", null: false
     t.string "document_accent_color"

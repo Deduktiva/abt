@@ -29,4 +29,24 @@ class InvoiceRendererTest < ActiveSupport::TestCase
     pdf = InvoiceRenderer.new(@invoice, @issuer).render
     assert pdf.start_with?("%PDF"), "expected a PDF (got #{pdf[0, 16].inspect})"
   end
+
+  test "omits country line on both sender and recipient when they share a country" do
+    @invoice.update_columns(customer_country_iso2: @issuer.country_iso2)
+    xml = InvoiceRenderer.new(@invoice, @issuer).emit_xml(nil)
+    assert_no_match %r{<address>[^<]*Netherlands}, xml
+  end
+
+  test "includes country line on sender and recipient when they differ" do
+    @issuer.update!(country_iso2: "AT")
+    @invoice.update_columns(customer_country_iso2: "DE")
+    xml = InvoiceRenderer.new(@invoice, @issuer).emit_xml(nil)
+    assert_match %r{<issuer>.*<address>[^<]*Austria}m, xml
+    assert_match %r{<recipient>.*<address>[^<]*Germany}m, xml
+  end
+
+  test "omits country line when one side is the unknown sentinel" do
+    @invoice.update_columns(customer_country_iso2: AddressFormatter::UNKNOWN_COUNTRY)
+    xml = InvoiceRenderer.new(@invoice, @issuer).emit_xml(nil)
+    assert_no_match %r{<recipient>.*Unknown}m, xml
+  end
 end

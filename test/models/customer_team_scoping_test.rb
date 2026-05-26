@@ -11,6 +11,8 @@ class CustomerTeamScopingTest < ActiveSupport::TestCase
       matchcode: "ACME_ONLY",
       name: "Acme Only",
       vat_id: "EU111111111",
+
+      country_iso2: "NL",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: teams(:acme)
@@ -32,6 +34,8 @@ class CustomerTeamScopingTest < ActiveSupport::TestCase
         matchcode: "AS_BOB",
         name: "Bob Customer",
         vat_id: "EU222222222",
+
+        country_iso2: "NL",
         sales_tax_customer_class: sales_tax_customer_classes(:eu),
         language: languages(:english),
         team: teams(:acme)
@@ -46,6 +50,8 @@ class CustomerTeamScopingTest < ActiveSupport::TestCase
         matchcode: "BAD_BOB",
         name: "Bob Bad",
         vat_id: "EU333333333",
+
+        country_iso2: "NL",
         sales_tax_customer_class: sales_tax_customer_classes(:eu),
         language: languages(:english),
         team: other_team
@@ -64,6 +70,8 @@ class CustomerTeamScopingTest < ActiveSupport::TestCase
         matchcode: "AS_ALICE",
         name: "Alice Customer",
         vat_id: "EU444444444",
+
+        country_iso2: "NL",
         sales_tax_customer_class: sales_tax_customer_classes(:eu),
         language: languages(:english),
         team: other_team
@@ -80,6 +88,8 @@ class CustomerTeamScopingTest < ActiveSupport::TestCase
       matchcode: "SYS",
       name: "System Customer",
       vat_id: "EU555555555",
+
+      country_iso2: "NL",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: other_team

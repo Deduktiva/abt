@@ -33,6 +33,8 @@ class InvoicePublisherTest < ActiveSupport::TestCase
       name: "Default Customer",
       address: "789 Default St",
       vat_id: "VAT456",
+
+      country_iso2: "NL",
       sales_tax_customer_class: sales_tax_customer_classes(:eu)
     )
 

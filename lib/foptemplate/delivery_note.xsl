@@ -131,36 +131,40 @@
                                             </fo:block>
                                         </fo:table-cell>
                                     </fo:table-row>
-                                    <fo:table-row line-height="130%">
-                                        <fo:table-cell>
-                                            <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">
-                                                <xsl:choose>
-                                                    <xsl:when test="/document/language = 'de'">Ihr Zeichen:</xsl:when>
-                                                    <xsl:otherwise>Your Reference:</xsl:otherwise>
-                                                </xsl:choose>
-                                            </fo:block>
-                                        </fo:table-cell>
-                                        <fo:table-cell>
-                                            <fo:block>
-                                                <xsl:value-of select="/document/recipient/reference" />
-                                            </fo:block>
-                                        </fo:table-cell>
-                                    </fo:table-row>
-                                    <fo:table-row line-height="130%">
-                                        <fo:table-cell>
-                                            <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">
-                                                <xsl:choose>
-                                                    <xsl:when test="/document/language = 'de'">Ihr Auftrag:</xsl:when>
-                                                    <xsl:otherwise>Your Order No:</xsl:otherwise>
-                                                </xsl:choose>
-                                            </fo:block>
-                                        </fo:table-cell>
-                                        <fo:table-cell>
-                                            <fo:block>
-                                                <xsl:value-of select="/document/recipient/order-no" />
-                                            </fo:block>
-                                        </fo:table-cell>
-                                    </fo:table-row>
+                                    <xsl:if test="normalize-space(/document/recipient/reference) != ''">
+                                        <fo:table-row line-height="130%">
+                                            <fo:table-cell>
+                                                <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">
+                                                    <xsl:choose>
+                                                        <xsl:when test="/document/language = 'de'">Ihr Zeichen:</xsl:when>
+                                                        <xsl:otherwise>Your Reference:</xsl:otherwise>
+                                                    </xsl:choose>
+                                                </fo:block>
+                                            </fo:table-cell>
+                                            <fo:table-cell>
+                                                <fo:block>
+                                                    <xsl:value-of select="/document/recipient/reference" />
+                                                </fo:block>
+                                            </fo:table-cell>
+                                        </fo:table-row>
+                                    </xsl:if>
+                                    <xsl:if test="normalize-space(/document/recipient/order-no) != ''">
+                                        <fo:table-row line-height="130%">
+                                            <fo:table-cell>
+                                                <fo:block font-family="{$font-name-display}" xsl:use-attribute-sets="accent-color">
+                                                    <xsl:choose>
+                                                        <xsl:when test="/document/language = 'de'">Ihr Auftrag:</xsl:when>
+                                                        <xsl:otherwise>Your Order No:</xsl:otherwise>
+                                                    </xsl:choose>
+                                                </fo:block>
+                                            </fo:table-cell>
+                                            <fo:table-cell>
+                                                <fo:block>
+                                                    <xsl:value-of select="/document/recipient/order-no" />
+                                                </fo:block>
+                                            </fo:table-cell>
+                                        </fo:table-row>
+                                    </xsl:if>
                                     <xsl:if test="/document/recipient/supplier-no">
                                         <fo:table-row line-height="130%">
                                             <fo:table-cell>

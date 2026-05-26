@@ -1,0 +1,27 @@
+// Error notification dropdown rendered by layouts/_navigation
+// and driven by error_notification_controller.js.
+
+.error-notification-dropdown {
+  width: 280px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1050;
+  right: 0;
+  left: auto;
+}
+
+.error-notification-clear-all {
+  font-size: 0.75rem;
+}
+
+.error-notification-error-text {
+  min-width: 0;
+}
+
+.error-notification-error-message {
+  word-break: break-word;
+}
+
+.error-notification-clear-button {
+  min-width: 24px;
+}

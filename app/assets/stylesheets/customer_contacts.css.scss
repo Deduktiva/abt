@@ -1,0 +1,6 @@
+// Customer contacts form (customer_contacts/_form_fields).
+// Caps the multi-select's height so it doesn't grow with the project list.
+
+.customer-contact-projects-select {
+  max-height: 7rem;
+}

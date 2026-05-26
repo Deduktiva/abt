@@ -1,5 +1,8 @@
-// Utility / scoped classes that replace inline style="..." attributes so
-// the app can run under a strict CSP without 'unsafe-inline' for style-src.
+// Cross-cutting utility classes that replace inline style="..." attributes
+// so the app can run under a strict CSP without 'unsafe-inline' for
+// style-src. Per-feature styles live in their own file named after the
+// controller, view, partial, or Stimulus controller that uses them — do
+// not add component-specific blocks here.
 
 // --- Reusable utilities ---
 
@@ -18,114 +21,10 @@
 .w-fixed-400 { width: 400px; }
 .w-fixed-250 { width: 250px; }
 
-// --- Searchable dropdown scrollable content ---
-// (used by app/views/shared/_searchable_dropdown.html.haml etc.)
-.searchable-dropdown,
-.customer-dropdown,
-.project-dropdown {
-  .dropdown-content {
-    max-height: 300px;
-    overflow-y: auto;
-  }
-}
-
-// --- Document line tables (invoices show, delivery notes show) ---
-
-.document-lines-table {
-  th.col-description { width: 55%; }
-  th.col-quantity    { width: 10%; }
-  th.col-rate        { width: 15%; }
-  th.col-tax-class   { width: 10%; }
-  th.col-amount      { width: 15%; }
-
-  td.document-section-row { padding: 12px 8px; }
-  td.document-text-row    { padding: 8px; }
-
-  .document-line-comment { margin-left: 20px; }
-}
-
-// --- Email preview modal & iframe (invoices/show, delivery_notes/show) ---
-
-.email-preview-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1050;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.email-preview-modal-dialog {
-  max-width: 800px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.email-preview-iframe {
-  width: 100%;
-  height: 400px;
-  border: 1px solid #dee2e6;
-  border-radius: 0.375rem;
-}
-
-// --- Mark paid modal (invoices/show) ---
-
-.mark-paid-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1050;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.mark-paid-modal-dialog {
-  max-width: 400px;
-  width: 90%;
-}
-
-// --- Error notification dropdown (layout/_navigation) ---
-
-.error-notification-dropdown {
-  width: 280px;
-  max-height: 300px;
-  overflow-y: auto;
-  z-index: 1050;
-  right: 0;
-  left: auto;
-}
-
-.error-notification-clear-all {
-  font-size: 0.75rem;
-}
-
-.error-notification-error-text {
-  min-width: 0;
-}
-
-.error-notification-error-message {
-  word-break: break-word;
-}
-
-.error-notification-clear-button {
-  min-width: 24px;
-}
-
-// --- Dashboard ---
-
-.dashboard-issuer-logo {
-  max-height: 80px;
-  max-width: 200px;
-}
+// --- Issuer accent theme helpers ---
+// The --issuer-accent-color variable is injected once by the application
+// layout via ApplicationHelper#issuer_accent_color_style, so these helpers
+// work on every page.
 
 .text-issuer-accent {
   color: var(--issuer-accent-color) !important;
@@ -133,26 +32,4 @@
 
 .badge-issuer-accent {
   background-color: var(--issuer-accent-color);
-}
-
-// --- Jobs status ---
-
-.job-row-description {
-  max-width: 480px;
-  word-break: break-word;
-}
-
-// --- Customer contacts form ---
-// Caps the multi-select's height so it doesn't grow with the project list.
-.customer-contact-projects-select {
-  max-height: 7rem;
-}
-
-// --- Customer filter on invoice/delivery-note index ---
-// Sized to fit a typical matchcode. The customer-filter Stimulus controller
-// swaps option text between matchcode (closed) and "MATCHCODE — Company Name"
-// (open); a fixed select width prevents toolbar reflow on swap. Browsers size
-// the open dropdown panel to the longest option independent of the select.
-.customer-filter select {
-  width: 10em;
 }

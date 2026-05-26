@@ -1,0 +1,15 @@
+// Document line tables on invoices/show and delivery_notes/show
+// (shared via the DocumentWithLines concern).
+
+.document-lines-table {
+  th.col-description { width: 55%; }
+  th.col-quantity    { width: 10%; }
+  th.col-rate        { width: 15%; }
+  th.col-tax-class   { width: 10%; }
+  th.col-amount      { width: 15%; }
+
+  td.document-section-row { padding: 12px 8px; }
+  td.document-text-row    { padding: 8px; }
+
+  .document-line-comment { margin-left: 20px; }
+}

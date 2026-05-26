@@ -92,9 +92,9 @@
             - if can_edit_invoice
               - if problems.any?
                 %span.ms-auto{title: problems.join("\n")}
-                  %button.btn.btn-sm.btn-warning{disabled: true} Book Invoice…
+                  %button.btn.btn-sm.btn-info{disabled: true} Book Invoice…
               - else
-                = button_to 'Book Invoice…', book_invoice_path(@invoice), method: :post, class: 'btn btn-sm btn-warning', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Book invoice and assign a document number? This cannot be undone.' }
+                = button_to 'Book Invoice…', book_invoice_path(@invoice), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Book invoice and assign a document number? This cannot be undone.' }
 
       - if @invoice.published?
         .row.mb-2

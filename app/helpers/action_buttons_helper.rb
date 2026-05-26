@@ -20,49 +20,44 @@ module ActionButtonsHelper
   # --- Tier 3: glyph-only (title required) ---
 
   def delete_button(resource, confirm: nil, permission: nil)
-    return nil if permission && !can?(permission)
     confirm ||= "Are you sure you want to delete this #{resource.class.name.downcase}?"
     glyph_link "🗑", resource, klass: "btn btn-danger", title: "Delete",
+               permission: permission,
                data: { "turbo-method": "delete", "turbo-confirm": confirm }
   end
 
   def pdf_button(path, permission: nil)
-    return nil if permission && !can?(permission)
     glyph_link "📄", path, klass: "btn btn-success", title: "PDF",
+               permission: permission,
                target: "_blank", data: { turbo: false }
   end
 
   def preview_button(path, permission: nil)
-    return nil if permission && !can?(permission)
     glyph_link "👁", path, klass: "btn btn-info", title: "Preview",
+               permission: permission,
                target: "_blank", data: { turbo: false }
   end
 
   # --- Tier 2: glyph + text ---
 
   def publish_button(path, permission: nil, confirm: nil)
-    return nil if permission && !can?(permission)
-    post_button "🚀 Publish", path, klass: "btn btn-warning", confirm: confirm
+    post_button "🚀 Publish", path, klass: "btn btn-warning", permission: permission, confirm: confirm
   end
 
   def unpublish_button(path, permission: nil, confirm: nil)
-    return nil if permission && !can?(permission)
-    post_button "↩️ Unpublish", path, klass: "btn btn-outline-secondary", confirm: confirm
+    post_button "↩️ Unpublish", path, klass: "btn btn-outline-secondary", permission: permission, confirm: confirm
   end
 
   def convert_to_invoice_button(path, permission: nil, confirm: nil)
-    return nil if permission && !can?(permission)
-    post_button "🚀 Convert to Invoice", path, klass: "btn btn-info", confirm: confirm
+    post_button "🚀 Convert to Invoice", path, klass: "btn btn-info", permission: permission, confirm: confirm
   end
 
   def unblock_button(path, permission: nil, confirm: nil)
-    return nil if permission && !can?(permission)
-    post_button "✅ Unblock", path, klass: "btn btn-success", confirm: confirm
+    post_button "✅ Unblock", path, klass: "btn btn-success", permission: permission, confirm: confirm
   end
 
   def reset_passkeys_button(path, permission: nil, confirm: nil)
-    return nil if permission && !can?(permission)
-    post_button "Reset passkeys", path, klass: "btn btn-warning", confirm: confirm
+    post_button "Reset passkeys", path, klass: "btn btn-warning", permission: permission, confirm: confirm
   end
 
   def audit_log_button(path, permission: nil)
@@ -92,8 +87,10 @@ module ActionButtonsHelper
   private
 
   # Tier-2 shape: POST form button with a Bootstrap class and an optional
-  # turbo-confirm prompt.
-  def post_button(label, path, klass:, confirm: nil)
+  # turbo-confirm prompt. Returns nil when `permission:` is set and the
+  # current user lacks it.
+  def post_button(label, path, klass:, permission: nil, confirm: nil)
+    return nil if permission && !can?(permission)
     button_to label, path,
               method: :post,
               class: klass,
@@ -103,7 +100,9 @@ module ActionButtonsHelper
   # Tier-3 shape: glyph-only link with a Bootstrap class and an accessible
   # name. The `title:` becomes both the hover tooltip and the screen-reader
   # `aria-label`. Extra `link_opts` (e.g. `target:`, `data:`) pass through.
-  def glyph_link(glyph, path, klass:, title:, **link_opts)
+  # Returns nil when `permission:` is set and the current user lacks it.
+  def glyph_link(glyph, path, klass:, title:, permission: nil, **link_opts)
+    return nil if permission && !can?(permission)
     link_to glyph, path, link_opts.merge(class: klass, title: title, "aria-label": title)
   end
 end

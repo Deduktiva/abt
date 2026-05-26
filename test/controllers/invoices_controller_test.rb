@@ -42,6 +42,36 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".year-pagination a.active", text: "All"
   end
 
+  test "should filter invoices by customer" do
+    Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "EU-CUSTOMER-INV",
+      date: Date.current
+    )
+    Invoice.create!(
+      customer: customers(:good_national),
+      project: projects(:test_project),
+      cust_reference: "NATIONAL-CUSTOMER-INV",
+      date: Date.current
+    )
+
+    get invoices_url(customer_id: customers(:good_eu).id)
+    assert_response :success
+    assert_select "td", text: "EU-CUSTOMER-INV"
+    assert_select "td", text: "NATIONAL-CUSTOMER-INV", count: 0
+  end
+
+  test "index renders customer dropdown" do
+    get invoices_url
+    assert_response :success
+    assert_select "select[name='customer_id']" do
+      assert_select "option[value='']"
+      customer = customers(:good_eu)
+      assert_select "option[value=?][data-full=?]", customer.id.to_s, "#{customer.matchcode} — #{customer.name}", text: customer.matchcode
+    end
+  end
+
   test "should include draft invoices with nil date in current year" do
     current_year = Date.current.year
 

@@ -164,6 +164,13 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "SUP-42", @customer.reload.supplier_number
   end
 
+  test "show page links to invoices and delivery notes filtered to this customer across all years" do
+    get customer_url(@customer)
+    assert_response :success
+    assert_select "a[href=?][data-turbo-prefetch=?]", invoices_path(customer_id: @customer.id, year: "all"), "false", text: /Invoices/
+    assert_select "a[href=?][data-turbo-prefetch=?]", delivery_notes_path(customer_id: @customer.id, year: "all"), "false", text: /Delivery Notes/
+  end
+
   test "show page renders supplier number row only when set" do
     @customer.update!(supplier_number: nil)
     get customer_url(@customer)

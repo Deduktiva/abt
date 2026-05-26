@@ -1,0 +1,14 @@
+-# Locals: form_url, customers, selected_customer_id, hidden_fields (Hash<Symbol, String>)
+-#
+-# Renders a customer filter dropdown that shows only the matchcode in the
+-# closed state and "MATCHCODE — Company Name" while open. Width is set via
+-# the .customer-filter rule in utilities.css.scss (CSP forbids inline style).
+= form_with url: form_url, method: :get, local: true, class: 'me-2 customer-filter', data: { controller: 'customer-filter' } do
+  - hidden_fields.each do |name, value|
+    = hidden_field_tag name, value
+  %select.form-select.form-select-sm{name: 'customer_id', 'aria-label': 'Filter by customer', data: { 'customer-filter-target': 'select', action: 'mousedown->customer-filter#expand focus->customer-filter#expand blur->customer-filter#collapse change->customer-filter#submit' }}
+    %option{value: '', data: { short: 'All', full: 'All customers' }, selected: selected_customer_id.nil?}
+      All
+    - customers.each do |c|
+      %option{value: c.id, data: { short: c.matchcode, full: "#{c.matchcode} — #{c.name}" }, selected: c.id == selected_customer_id}
+        = c.matchcode

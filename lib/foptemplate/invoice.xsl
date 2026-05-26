@@ -517,7 +517,7 @@
                             </fo:block-container>
                             <fo:block>
                                 <xsl:choose>
-                                    <xsl:when test="/document/language = 'de'">Bei Überweisungen von außerhalb des SEPA-Raums stellen Sie bitte sicher, dass der vollständige Betrag auf unserem Konto ankommt.</xsl:when>
+                                    <xsl:when test="/document/language = 'de'">Bei Überweisungen von außerhalb des SEPA-Raums stellen Sie bitte sicher, dass der vollständige Betrag auf unserem Konto einlangt.</xsl:when>
                                     <xsl:otherwise>For transfers from outside the SEPA region, please ensure the full amount reaches our account.</xsl:otherwise>
                                 </xsl:choose>
                             </fo:block>

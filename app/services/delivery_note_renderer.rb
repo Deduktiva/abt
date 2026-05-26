@@ -40,7 +40,7 @@ class DeliveryNoteRenderer
       end
 
       xml_root.prelude @delivery_note.prelude
-      xml_root.number(@delivery_note.document_number || "DRAFT")
+      xml_root.number(draft_aware_number)
       xml_root.tag! "issue-date", @delivery_note.date || "2999-01-01"
       xml_root.tag! "delivery-timeframe", @delivery_note.delivery_timeframe if @delivery_note.delivery_timeframe.present?
 
@@ -79,5 +79,16 @@ class DeliveryNoteRenderer
     FopRenderer.new.render_pdf_with_logo("delivery_note.xsl", logo_data) do |logo_file_path|
       emit_xml(logo_file_path)
     end
+  end
+
+  private
+
+  # Drafts may carry a previously-assigned document number (numbers are
+  # issued from a gap-free sequence and survive unpublish), so check
+  # `published?` rather than the number's presence.
+  def draft_aware_number
+    return @delivery_note.document_number if @delivery_note.published?
+
+    ["DRAFT", @delivery_note.document_number].compact.join(" ")
   end
 end

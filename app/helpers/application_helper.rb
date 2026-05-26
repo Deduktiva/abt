@@ -80,7 +80,7 @@ module ApplicationHelper
   def page_header(title, action: nil, &status_block)
     content_tag :div, class: "d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" do
       title_area = content_tag(:div, class: "d-flex align-items-center flex-wrap gap-2") do
-        header = content_tag(:h1, title, class: "page-header mb-0")
+        header = content_tag(:h1, title, class: "mb-0")
         status = status_block ? capture(&status_block) : "".html_safe
         header + status
       end

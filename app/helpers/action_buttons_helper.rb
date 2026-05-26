@@ -10,7 +10,8 @@ module ActionButtonsHelper
 
   # --- Tier 3: glyph-only (title required) ---
 
-  def delete_button(resource, confirm: nil)
+  def delete_button(resource, confirm: nil, permission: nil)
+    return nil if permission && !can?(permission)
     confirm ||= "Are you sure you want to delete this #{resource.class.name.downcase}?"
     link_to "🗑", resource,
             class: "btn btn-danger",

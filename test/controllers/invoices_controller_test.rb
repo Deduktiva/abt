@@ -139,6 +139,20 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_select "td", text: "DRAFT-NO-DATE", count: 0  # Draft should not appear in old year
   end
 
+  test "drafts sort newest-first when document_number is null" do
+    first  = Invoice.create!(customer: customers(:good_eu), project: projects(:test_project), cust_reference: "DRAFT-FIRST")
+    second = Invoice.create!(customer: customers(:good_eu), project: projects(:test_project), cust_reference: "DRAFT-SECOND")
+    third  = Invoice.create!(customer: customers(:good_eu), project: projects(:test_project), cust_reference: "DRAFT-THIRD")
+
+    get invoices_url
+    assert_response :success
+
+    body = @response.body
+    positions = [ third, second, first ].map { |inv| body.index(inv.cust_reference) }
+    assert positions.all?, "all drafts should be rendered: #{positions.inspect}"
+    assert_equal positions, positions.sort, "drafts should render in id DESC order (newest first): #{positions.inspect}"
+  end
+
   test "should get new" do
     get new_invoice_url
     assert_response :success

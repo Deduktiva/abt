@@ -48,7 +48,7 @@ class DeliveryNotesController < ApplicationController
     @selected_customer_id = params[:customer_id].presence&.to_i
 
     @delivery_notes = DeliveryNote.visible_to(current_user)
-                                  .reorder(Arel.sql("document_number DESC NULLS FIRST"))
+                                  .reorder(Arel.sql("document_number DESC NULLS FIRST, id DESC"))
     unless @selected_year == "all"
       @delivery_notes = @delivery_notes.in_year(@selected_year, include_drafts: @selected_year == Date.current.year)
     end

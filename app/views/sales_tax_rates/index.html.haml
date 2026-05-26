@@ -16,11 +16,9 @@
         = sales_tax_rate.rate
         \%
       %td
-        - if can?('sales_tax.edit')
-          = list_action_link('Edit', edit_sales_tax_rate_path(sales_tax_rate), :edit)
+        = list_action_link('Edit', edit_sales_tax_rate_path(sales_tax_rate), :edit, permission: 'sales_tax.edit')
       %td
-        - if can?('sales_tax.edit')
-          = destroy_link(sales_tax_rate, "Are you sure you want to delete tax rate for \"#{sales_tax_rate.sales_tax_customer_class&.name}\" / \"#{sales_tax_rate.sales_tax_product_class&.name}\"?")
+        = destroy_link(sales_tax_rate, "Are you sure you want to delete tax rate for \"#{sales_tax_rate.sales_tax_customer_class&.name}\" / \"#{sales_tax_rate.sales_tax_product_class&.name}\"?", permission: 'sales_tax.edit')
 
 - if @sales_tax_rates.empty?
   %p

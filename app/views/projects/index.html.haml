@@ -32,5 +32,5 @@
       %td
         = list_action_link('Edit', edit_project_path(project), :edit, permission: 'projects.edit')
       %td
-        - if can?('projects.edit') && project.can_be_deleted?
-          = destroy_link(project, "Are you sure you want to delete project \"#{project.matchcode}\"?")
+        - if project.can_be_deleted?
+          = destroy_link(project, "Are you sure you want to delete project \"#{project.matchcode}\"?", permission: 'projects.edit')

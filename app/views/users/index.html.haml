@@ -19,6 +19,5 @@
             %span.badge.bg-danger Blocked
         %td= l(user.created_at)
 
-- if can?('user_invites.manage')
-  .mt-4
-    = link_to 'View invites', user_invites_path, class: 'btn btn-secondary'
+.mt-4
+  = action_button 'View invites', user_invites_path, :secondary, permission: 'user_invites.manage'

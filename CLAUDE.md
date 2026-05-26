@@ -134,6 +134,8 @@ For testing against PostgreSQL (matches production environment):
 - Stimulus controllers for interactive components (bulk-select, email-preview)
 - European-style date/time formatting throughout
 - Strict Content Security Policy — no inline styles in views. Put styling in CSS/SCSS files and apply via classes. Inline `style="..."` attributes are only allowed in email templates (rendered HTML email, not subject to the app CSP).
+- Bootstrap's JavaScript is NOT bundled — only its CSS. JS-driven components (modals, popovers, dropdowns, collapses, JS tooltips) require a custom Stimulus controller; `data-bs-toggle` / `data-bs-target` attributes do nothing on their own.
+- Established pattern: manually toggle `d-none`/`show` classes from a Stimulus controller (see `app/javascript/controllers/generic_email_preview_controller.js` and `app/javascript/controllers/modal_controller.js`).
 
 ### Status Badges
 - **Show only the deviation from the healthy default.** No badge means "normal."

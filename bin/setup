@@ -32,6 +32,13 @@ FileUtils.chdir APP_ROOT do
     puts "FOP container not available. Run script/setup-fop.sh to build it (needed for PDF rendering)."
   end
 
+  puts "\n== Installing pre-commit hooks =="
+  if system("pre-commit", "--version", out: File::NULL, err: File::NULL)
+    system "pre-commit", "install"
+  else
+    puts "pre-commit not installed. See README.md for instructions."
+  end
+
   puts "\n== Removing old logs and tempfiles =="
   system! "bin/rails log:clear tmp:clear"
 

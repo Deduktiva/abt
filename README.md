@@ -46,21 +46,19 @@ Open the printed invite URL in a browser to register the first user (auto-promot
 
 
 ### Pre-commit Hooks (Optional)
-For automatic whitespace cleanup and code quality checks:
+Install `pre-commit` to enable the hooks defined in `.pre-commit-config.yaml`:
 ```bash
-# Install pre-commit
 # Debian/Ubuntu:
 sudo apt install pre-commit
 # macOS with Homebrew:
 brew install pre-commit
 # or with pip:
 pip install pre-commit
+```
 
-# Install the hooks (run from repository root)
+`bin/setup` runs `pre-commit install` automatically when the `pre-commit` binary is on `PATH`. To install hooks without rerunning setup:
+```bash
 pre-commit install
-
-# Optional: run on all existing files
-pre-commit run --all-files
 ```
 
 

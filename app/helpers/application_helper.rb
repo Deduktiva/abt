@@ -145,7 +145,9 @@ module ApplicationHelper
   end
 
   def action_buttons_wrapper(&block)
-    content_tag :div, class: "d-flex gap-2 mb-3 mt-3", &block
+    content = capture(&block)
+    return nil if content.blank?
+    content_tag :div, content, class: "d-flex gap-2 mb-3 mt-3"
   end
 
   def action_button(text, path, type = :primary, permission: nil, target: nil, data: nil, title: nil)

@@ -30,5 +30,5 @@
       %td
         = list_action_link('Edit', edit_customer_path(customer), :edit, permission: 'customers.edit')
       %td
-        - if can?('customers.edit') && !customer.used_in_invoices?
-          = destroy_link(customer, "Are you sure you want to delete customer \"#{customer.matchcode}\" (#{customer.name})?")
+        - unless customer.used_in_invoices?
+          = destroy_link(customer, "Are you sure you want to delete customer \"#{customer.matchcode}\" (#{customer.name})?", permission: 'customers.edit')

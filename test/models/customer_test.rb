@@ -23,6 +23,21 @@ class CustomerTest < ActiveSupport::TestCase
     assert_includes customer.errors[:matchcode], "can't be blank"
   end
 
+  test "matchcode rejects whitespace and single character" do
+    [ "A", "AB C", " AB", "AB\t" ].each do |bad|
+      customer = build_customer(matchcode: bad)
+      assert_not customer.valid?, "expected #{bad.inspect} to be invalid"
+      assert_includes customer.errors[:matchcode], "is invalid"
+    end
+  end
+
+  test "matchcode allows mixed case and any length >= 2" do
+    customer = build_customer(matchcode: "aB")
+    assert customer.valid?, customer.errors.full_messages.inspect
+    customer = build_customer(matchcode: "MixedCaseLongMatchcode1234567890")
+    assert customer.valid?, customer.errors.full_messages.inspect
+  end
+
   test "requires name" do
     customer = build_customer(name: nil)
     assert_not customer.valid?

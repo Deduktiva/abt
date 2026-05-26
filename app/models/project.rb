@@ -4,7 +4,10 @@ class Project < ApplicationRecord
   belongs_to :bill_to_customer, class_name: "Customer", optional: true
   has_many :invoices
 
-  validates :matchcode, presence: true, uniqueness: { case_sensitive: false }
+  MATCHCODE_FORMAT = /\A\S{2,}\z/
+
+  validates :matchcode, presence: true, uniqueness: { case_sensitive: false },
+            format: { with: MATCHCODE_FORMAT }
   validate :team_must_match_customer
 
   # Scopes for filtering

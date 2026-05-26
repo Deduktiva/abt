@@ -1,7 +1,10 @@
 class Customer < ApplicationRecord
   include TeamOwned
 
-  validates :matchcode, presence: true, uniqueness: { case_sensitive: false }
+  MATCHCODE_FORMAT = /\A\S{2,}\z/
+
+  validates :matchcode, presence: true, uniqueness: { case_sensitive: false },
+            format: { with: MATCHCODE_FORMAT }
   validates :name, presence: true
   validates :vat_id, presence: true, if: -> { sales_tax_customer_class&.vat_id_required? }
 

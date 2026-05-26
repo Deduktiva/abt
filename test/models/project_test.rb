@@ -21,6 +21,21 @@ class ProjectTest < ActiveSupport::TestCase
     assert_not_nil @project.errors[:matchcode]
   end
 
+  test "matchcode rejects whitespace and single character" do
+    [ "A", "AB C", " AB", "AB\t" ].each do |bad|
+      @project.matchcode = bad
+      assert_not @project.valid?, "expected #{bad.inspect} to be invalid"
+      assert_includes @project.errors[:matchcode], "is invalid"
+    end
+  end
+
+  test "matchcode allows mixed case and any length >= 2" do
+    @project.matchcode = "aB"
+    assert @project.valid?, @project.errors.full_messages.inspect
+    @project.matchcode = "MixedCaseLongMatchcode1234567890"
+    assert @project.valid?, @project.errors.full_messages.inspect
+  end
+
   test "matchcode must be globally unique across all teams" do
     Project.create!(matchcode: "DUPE", team: teams(:default))
     duplicate = Project.new(matchcode: "DUPE", team: teams(:acme))

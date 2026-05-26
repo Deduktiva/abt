@@ -133,6 +133,7 @@ For testing against PostgreSQL (matches production environment):
 - Turbo for SPA-like interactions without JavaScript complexity
 - Stimulus controllers for interactive components (bulk-select, email-preview)
 - European-style date/time formatting throughout
+- Strict Content Security Policy — no inline styles in views. Put styling in CSS/SCSS files and apply via classes. Inline `style="..."` attributes are only allowed in email templates (rendered HTML email, not subject to the app CSP).
 
 ## Development Best Practices
 

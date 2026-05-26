@@ -1,5 +1,8 @@
-// Utility / scoped classes that replace inline style="..." attributes so
-// the app can run under a strict CSP without 'unsafe-inline' for style-src.
+// Cross-cutting utility classes that replace inline style="..." attributes
+// so the app can run under a strict CSP without 'unsafe-inline' for
+// style-src. Per-feature styles live in their own file named after the
+// controller, view, partial, or Stimulus controller that uses them — do
+// not add component-specific blocks here.
 
 // --- Reusable utilities ---
 

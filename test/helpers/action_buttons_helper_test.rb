@@ -6,86 +6,64 @@ class ActionButtonsHelperTest < ActionView::TestCase
   # Smoke tests that pin the established glyph + Bootstrap color + accessible
   # name for each helper. Update these when CLAUDE.md's "Button Glyphs" table
   # changes — they are the executable copy of the policy.
+  #
+  # The permission: mechanic is shared via `return nil if permission && !can?(...)`
+  # in every helper, so it gets one set of dedicated cases against delete_button
+  # rather than being re-tested per verb.
+
+  # --- Tier 3 (glyph-only) ---
 
   test "delete_button renders glyph-only with title and aria-label" do
     customer = Customer.new
     customer.class.define_singleton_method(:name) { "Customer" }
     html = delete_button(customer)
-    assert_match(/btn-danger/, html)
-    assert_match(/title="Delete"/, html)
-    assert_match(/aria-label="Delete"/, html)
-    assert_includes html, "🗑"
+    assert_glyph_link html, glyph: "🗑", klass: "btn-danger", title: "Delete"
     assert_match(/data-turbo-confirm=/, html)
-  end
-
-  test "delete_button with permission: returns the link when user has it" do
-    Current.user = users(:alice)
-    customer = customers(:good_eu)
-    html = delete_button(customer, permission: "customers.edit")
-    assert_match(/btn-danger/, html)
-    assert_includes html, "🗑"
-  ensure
-    Current.user = nil
-  end
-
-  test "delete_button with permission: returns nil when user lacks it" do
-    Current.user = users(:bob)
-    customer = customers(:good_eu)
-    assert_nil delete_button(customer, permission: "customers.edit")
-  ensure
-    Current.user = nil
-  end
-
-  test "delete_button with permission: returns nil when no current user" do
-    Current.user = nil
-    customer = customers(:good_eu)
-    assert_nil delete_button(customer, permission: "customers.edit")
   end
 
   test "pdf_button renders glyph-only with title, opens in new tab" do
     html = pdf_button("/foo.pdf")
-    assert_includes html, "📄"
-    assert_match(/btn-success/, html)
-    assert_match(/title="PDF"/, html)
-    assert_match(/aria-label="PDF"/, html)
+    assert_glyph_link html, glyph: "📄", klass: "btn-success", title: "PDF"
     assert_match(/target="_blank"/, html)
   end
 
   test "preview_button renders glyph-only, info color, new tab" do
     html = preview_button("/preview")
-    assert_includes html, "👁"
-    assert_match(/btn-info/, html)
-    assert_match(/title="Preview"/, html)
+    assert_glyph_link html, glyph: "👁", klass: "btn-info", title: "Preview"
     assert_match(/target="_blank"/, html)
   end
 
+  # --- Tier 2 (glyph + text, POST form) ---
+
   test "publish_button renders glyph + text, warning color, POST form" do
     html = publish_button("/publish")
-    assert_includes html, "🚀 Publish"
-    assert_match(/btn-warning/, html)
+    assert_post_button html, label: "🚀 Publish", klass: "btn-warning"
     assert_match(%r{<form[^>]*action="/publish"}, html)
-    assert_match(%r{method="post"}, html)
   end
 
   test "convert_to_invoice_button uses the rocket and info color" do
     html = convert_to_invoice_button("/convert", confirm: "Sure?")
-    assert_includes html, "🚀 Convert to Invoice"
-    assert_match(/btn-info/, html)
+    assert_post_button html, label: "🚀 Convert to Invoice", klass: "btn-info"
     assert_match(/data-turbo-confirm="Sure\?"/, html)
   end
 
   test "unblock_button renders glyph + text, success color" do
     html = unblock_button("/unblock")
-    assert_includes html, "✅ Unblock"
-    assert_match(/btn-success/, html)
+    assert_post_button html, label: "✅ Unblock", klass: "btn-success"
   end
 
   test "reset_passkeys_button is text-only despite Tier 2 form rendering" do
     html = reset_passkeys_button("/reset")
-    assert_includes html, "Reset passkeys"
+    assert_post_button html, label: "Reset passkeys", klass: "btn-warning"
     refute_match(/🔄/, html)
-    assert_match(/btn-warning/, html)
   end
+
+  test "unpublish_button renders glyph + text, outline-secondary color" do
+    html = unpublish_button("/unpublish")
+    assert_post_button html, label: "↩️ Unpublish", klass: "btn-outline-secondary"
+  end
+
+  # --- Tier 1 (plain link) ---
 
   test "audit_log_button uses clipboard glyph + text" do
     html = audit_log_button("/audit")
@@ -100,6 +78,8 @@ class ActionButtonsHelperTest < ActionView::TestCase
     assert_match(%r{href="/invoices"}, html)
   end
 
+  # --- save_button (form-submit shape) ---
+
   test "save_button renders a submit button bound to the shared form id" do
     html = save_button
     assert_match(/<button[^>]*type="submit"/, html)
@@ -113,10 +93,48 @@ class ActionButtonsHelperTest < ActionView::TestCase
     assert_includes html, "Update Issuer Company"
   end
 
-  test "save_button with permission: returns nil when user lacks it" do
+  # --- Permission gate (shared across every helper; tested once via delete_button) ---
+
+  test "permission: returns the button when current user has it" do
+    Current.user = users(:alice)
+    html = delete_button(customers(:good_eu), permission: "customers.edit")
+    assert_match(/btn-danger/, html)
+    assert_includes html, "🗑"
+  ensure
+    Current.user = nil
+  end
+
+  test "permission: returns nil when current user lacks it" do
+    Current.user = users(:bob)
+    assert_nil delete_button(customers(:good_eu), permission: "customers.edit")
+  ensure
+    Current.user = nil
+  end
+
+  test "permission: returns nil when there is no current user" do
+    Current.user = nil
+    assert_nil delete_button(customers(:good_eu), permission: "customers.edit")
+  end
+
+  test "permission: gate also covers save_button (button_tag shape)" do
     Current.user = users(:bob)
     assert_nil save_button(permission: "customers.edit")
   ensure
     Current.user = nil
+  end
+
+  private
+
+  def assert_glyph_link(html, glyph:, klass:, title:)
+    assert_includes html, glyph
+    assert_match(/#{Regexp.escape(klass)}/, html)
+    assert_match(/title="#{Regexp.escape(title)}"/, html)
+    assert_match(/aria-label="#{Regexp.escape(title)}"/, html)
+  end
+
+  def assert_post_button(html, label:, klass:)
+    assert_includes html, label
+    assert_match(/#{Regexp.escape(klass)}/, html)
+    assert_match(%r{<form[^>]*method="post"}, html)
   end
 end

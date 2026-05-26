@@ -4,7 +4,7 @@ good_eu:
   address: |
     Lulzstreet 3/2/1
     LH234234 Shiphol
-    European Union
+  country_iso2: BE
   vat_id: EU99999999
   notes: MyText
   sales_tax_customer_class: eu
@@ -18,7 +18,7 @@ good_national:
   address: |
     Lulzstreet 3/2/1
     LH234234 Heathrow
-    NATIONAL COUNTRY
+  country_iso2: NL
   vat_id: NAT9999999
   notes:
   sales_tax_customer_class: national
@@ -32,7 +32,7 @@ auto_email_customer:
   address: |
     456 Auto Street
     12345 Email City
-    EMAIL COUNTRY
+  country_iso2: NL
   vat_id: AUTO123456
   invoice_email_auto_enabled: true
   invoice_email_auto_to: billing@autoemail.com
@@ -49,7 +49,7 @@ no_email_customer:
   address: |
     789 Silent Street
     99999 Quiet Town
-    NO EMAIL COUNTRY
+  country_iso2: DE
   vat_id: NOEMAIL789
   sales_tax_customer_class: eu
   language: english

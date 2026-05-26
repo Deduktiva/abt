@@ -25,7 +25,8 @@ class SalesTaxCustomerClassTest < ActiveSupport::TestCase
       sales_tax_customer_class: klass,
       language: languages(:english),
       team: teams(:default),
-      vat_id: "EU171717171"
+      vat_id: "EU171717171",
+      country_iso2: "NL"
     )
     assert_raises(ActiveRecord::DeleteRestrictionError) { klass.destroy }
   end

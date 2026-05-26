@@ -73,6 +73,8 @@ class CustomerContactTest < ActiveSupport::TestCase
     other_customer = Customer.create!(
       matchcode: "OTH", name: "Other",
       vat_id: "EU101010101",
+
+      country_iso2: "NL",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: other_team
@@ -101,6 +103,8 @@ class CustomerContactTest < ActiveSupport::TestCase
     other_customer = Customer.create!(
       matchcode: "VOTH", name: "Visibility Other",
       vat_id: "EU121212121",
+
+      country_iso2: "NL",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: other_team

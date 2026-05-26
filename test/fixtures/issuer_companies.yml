@@ -8,7 +8,7 @@ one:
   address: |
     Randostraat 3
     1324 Somewhere
-    The Netherlands
+  country_iso2: NL
   bankaccount_bank: My Bank B.V.
   bankaccount_bic: BICBICBICBIC
   bankaccount_number: NL91ABNA0417164300

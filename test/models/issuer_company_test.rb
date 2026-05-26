@@ -15,21 +15,21 @@ class IssuerCompanyTest < ActiveSupport::TestCase
 
   test "document_accent_color accepts hex colors of 3, 4, 6, and 8 hex digits" do
     [ "#abc", "#ABCD", "#aabbcc", "#AABBCCDD" ].each do |color|
-      company = IssuerCompany.new(short_name: "X", legal_name: "Y", document_accent_color: color)
+      company = IssuerCompany.new(short_name: "X", legal_name: "Y", country_iso2: "NL", document_accent_color: color)
       assert company.valid?, "expected color=#{color} to be valid"
     end
   end
 
   test "document_accent_color rejects non-hex values" do
     [ "red", "#xyz", "3366cc", "#12" ].each do |color|
-      company = IssuerCompany.new(short_name: "X", legal_name: "Y", document_accent_color: color)
+      company = IssuerCompany.new(short_name: "X", legal_name: "Y", country_iso2: "NL", document_accent_color: color)
       assert_not company.valid?, "expected color=#{color} to be invalid"
       assert_includes company.errors[:document_accent_color], "must be a hex color like #rrggbb"
     end
   end
 
   test "document_accent_color is optional" do
-    company = IssuerCompany.new(short_name: "X", legal_name: "Y", document_accent_color: nil)
+    company = IssuerCompany.new(short_name: "X", legal_name: "Y", country_iso2: "NL", document_accent_color: nil)
     assert company.valid?
     company.document_accent_color = ""
     assert company.valid?

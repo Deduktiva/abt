@@ -6,6 +6,7 @@ class CustomerTest < ActiveSupport::TestCase
       matchcode: "TEST",
       name: "Test Customer",
       vat_id: "EU000000000",
+      country_iso2: "NL",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: teams(:default),
@@ -42,6 +43,19 @@ class CustomerTest < ActiveSupport::TestCase
     customer = build_customer(name: nil)
     assert_not customer.valid?
     assert_includes customer.errors[:name], "can't be blank"
+  end
+
+  test "requires country_iso2" do
+    customer = build_customer(country_iso2: nil)
+    assert_not customer.valid?
+    assert_includes customer.errors[:country_iso2], "can't be blank"
+  end
+
+  test "rejects ZZ sentinel and other non-ISO country codes" do
+    [ "ZZ", "XX", "GERMANY", "" ].each do |bad|
+      customer = build_customer(country_iso2: bad)
+      assert_not customer.valid?, "expected #{bad.inspect} to be invalid"
+    end
   end
 
   test "requires vat_id when its sales_tax_customer_class requires one" do

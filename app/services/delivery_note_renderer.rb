@@ -20,8 +20,16 @@ class DeliveryNoteRenderer
         xml_root.tag! "logo-width", @issuer.pdf_logo_width
         xml_root.tag! "logo-height", @issuer.pdf_logo_height
       end
+      issuer_country = @issuer.country_iso2
+      recipient_country = @delivery_note.customer.country_iso2
+
       xml_root.issuer do |xml_issuer|
-        xml_issuer.address @issuer.legal_name + "\n" + @issuer.address
+        xml_issuer.address AddressFormatter.build(
+          name: @issuer.legal_name,
+          address: @issuer.address,
+          self_country: issuer_country,
+          other_country: recipient_country
+        )
         xml_issuer.tag! "short-name", @issuer.short_name
         xml_issuer.tag! "legal-name", @issuer.legal_name
         xml_issuer.tag! "vat-id", @issuer.vat_id
@@ -33,7 +41,12 @@ class DeliveryNoteRenderer
         xml_recipient.tag! "order-no", @delivery_note.cust_order
         xml_recipient.reference @delivery_note.cust_reference
 
-        xml_recipient.address @delivery_note.customer.name + "\n" + @delivery_note.customer.address
+        xml_recipient.address AddressFormatter.build(
+          name: @delivery_note.customer.name,
+          address: @delivery_note.customer.address,
+          self_country: recipient_country,
+          other_country: issuer_country
+        )
         xml_recipient.tag! "account-no", @delivery_note.customer.id
         xml_recipient.tag! "vat-id", @delivery_note.customer.vat_id
         xml_recipient.tag! "supplier-no", @delivery_note.customer.supplier_number if @delivery_note.customer.supplier_number.present?

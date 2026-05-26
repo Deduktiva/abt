@@ -27,7 +27,17 @@
           .col-sm-4
             %strong Address:
           .col-sm-8
-            = simple_format(@customer.address)
+            - @customer.address.split("\n").each do |line|
+              %div= line
+
+        .row.mb-2
+          .col-sm-4
+            %strong Country:
+          .col-sm-8
+            - if country_unknown?(@customer.country_iso2)
+              %span.badge.bg-warning.text-dark Not set
+            - else
+              = country_name(@customer.country_iso2)
 
         .row.mb-2
           .col-sm-4

@@ -4,6 +4,7 @@ class Customer < ApplicationRecord
 
   validates :name, presence: true
   validates :vat_id, presence: true, if: -> { sales_tax_customer_class&.vat_id_required? }
+  validates :country_iso2, presence: true, inclusion: { in: ISO3166::Country.codes, message: "must be a valid country" }
 
   # Set default language (English) for new customers
   before_validation :set_default_language, on: :create

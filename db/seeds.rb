@@ -101,8 +101,8 @@ if Rails.env.development?
     issuer.address = <<~ADDRESS.strip
       Businessstraat 123
       1234 AB Amsterdam
-      Netherlands
     ADDRESS
+    issuer.country_iso2 = 'NL'
     issuer.vat_id = 'NL123456789B01'
     issuer.bankaccount_bank = "My Bank B.V."
     issuer.bankaccount_bic = "BICBICBICBIC"
@@ -135,8 +135,8 @@ if Rails.env.development?
     customer.address = <<~ADDRESS.strip
       Ulica Podhalańska 2
       80-322 Gdańsk
-      Poland
     ADDRESS
+    customer.country_iso2 = 'PL'
     customer.vat_id = 'PL0123456789'
     customer.notes = 'Long-term client, monthly invoicing'
     customer.sales_tax_customer_class = eu_class
@@ -153,8 +153,8 @@ if Rails.env.development?
     customer.address = <<~ADDRESS.strip
       Businessstraat 123
       1234 AB Amsterdam
-      Netherlands
     ADDRESS
+    customer.country_iso2 = 'NL'
     customer.vat_id = 'NL123456789B01'
     customer.notes = 'Project-based work'
     customer.sales_tax_customer_class = national_class
@@ -167,8 +167,8 @@ if Rails.env.development?
     customer.address = <<~ADDRESS.strip
       123 Business Ave
       New York, NY 10001
-      United States
     ADDRESS
+    customer.country_iso2 = 'US'
     customer.notes = 'US-based client, quarterly invoicing'
     customer.sales_tax_customer_class = export_class
     customer.language = english
@@ -182,8 +182,8 @@ if Rails.env.development?
     customer.address = <<~ADDRESS.strip
       Hauptstraße 1
       1010 Wien
-      Austria
     ADDRESS
+    customer.country_iso2 = 'AT'
     customer.vat_id = 'ATU99999999'
     customer.notes = 'Engagement ended 2024'
     customer.sales_tax_customer_class = eu_class

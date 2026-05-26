@@ -65,3 +65,6 @@ gem "webauthn", "~> 3.4"
 
 # Rate-limit unauthenticated endpoints to mitigate brute-force and DoS attacks.
 gem "rack-attack", "~> 6.7"
+
+# ISO 3166 country list and EU/EEA membership data for the country dropdown.
+gem "countries", "~> 7.0"

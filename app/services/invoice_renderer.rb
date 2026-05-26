@@ -21,8 +21,16 @@ class InvoiceRenderer
         xml_root.tag! "logo-width", @issuer.pdf_logo_width
         xml_root.tag! "logo-height", @issuer.pdf_logo_height
       end
+      issuer_country = @issuer.country_iso2
+      recipient_country = @invoice.customer_country_iso2
+
       xml_root.issuer do |xml_issuer|
-        xml_issuer.address @issuer.legal_name + "\n" + @issuer.address
+        xml_issuer.address AddressFormatter.build(
+          name: @issuer.legal_name,
+          address: @issuer.address,
+          self_country: issuer_country,
+          other_country: recipient_country
+        )
         xml_issuer.tag! "short-name", @issuer.short_name
         xml_issuer.tag! "legal-name", @issuer.legal_name
         xml_issuer.tag! "vat-id", @issuer.vat_id
@@ -39,7 +47,12 @@ class InvoiceRenderer
         xml_recipient.tag! "order-no", @invoice.cust_order
         xml_recipient.reference @invoice.cust_reference
 
-        xml_recipient.address @invoice.customer_name + "\n" + @invoice.customer_address
+        xml_recipient.address AddressFormatter.build(
+          name: @invoice.customer_name,
+          address: @invoice.customer_address,
+          self_country: recipient_country,
+          other_country: issuer_country
+        )
         xml_recipient.tag! "account-no", @invoice.customer_account_number
         xml_recipient.tag! "vat-id", @invoice.customer_vat_id
         xml_recipient.tag! "supplier-no", @invoice.customer_supplier_number if @invoice.customer_supplier_number.present?

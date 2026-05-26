@@ -37,6 +37,10 @@
             = form.label :address, 'Address', class: 'form-label'
             = form.text_area :address, rows: 4, class: 'form-control'
 
+          .mb-3
+            = form.label :country_iso2, 'Country', class: 'form-label'
+            = form.select :country_iso2, country_options, { prompt: 'Select country...' }, { class: 'form-select', required: true }
+
     .col-md-6
       .card
         .card-header

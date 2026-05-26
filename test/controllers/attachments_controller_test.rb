@@ -39,6 +39,8 @@ class AttachmentsControllerTest < ActionDispatch::IntegrationTest
       matchcode: "OUT",
       name: "Outside Co.",
       vat_id: "EU141414141",
+
+      country_iso2: "NL",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: other_team

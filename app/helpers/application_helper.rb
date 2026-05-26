@@ -170,6 +170,20 @@ module ApplicationHelper
     Rails.application.config.x.app_version
   end
 
+  def country_options
+    @country_options ||= ISO3166::Country.all
+      .map { |c| [ c.iso_short_name, c.alpha2 ] }
+      .sort_by { |name, _| name }
+  end
+
+  def country_name(code)
+    AddressFormatter.country_name(code)
+  end
+
+  def country_unknown?(code)
+    !AddressFormatter.valid_iso2?(code)
+  end
+
   # Stimulus data attributes that wire an element up to the
   # generic-email-preview controller for a given Invoice or DeliveryNote.
   # Relies on the routes following the {action}_{resource}_path convention.

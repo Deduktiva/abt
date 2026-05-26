@@ -106,6 +106,8 @@ class CustomerContactsControllerTest < ActionDispatch::IntegrationTest
     other_customer = Customer.create!(
       matchcode: "ISO", name: "Iso Co",
       vat_id: "EU131313131",
+
+      country_iso2: "NL",
       sales_tax_customer_class: sales_tax_customer_classes(:eu),
       language: languages(:english),
       team: other_team

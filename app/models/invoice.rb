@@ -6,6 +6,8 @@ class Invoice < ApplicationRecord
   has_line_items :invoice_lines
 
   validates :customer_id, presence: true
+  # Edits to published invoices are rejected by require_unpublished in the
+  # controller; this validation only guards the transition into published.
   validate :must_have_item_line_for_publish
   default_scope { order(Arel.sql("id ASC")) }
 

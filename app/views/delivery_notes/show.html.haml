@@ -22,6 +22,36 @@
           %strong Customer:
         .col-sm-8
           = link_to @delivery_note.customer.name, @delivery_note.customer
+      - if @delivery_note.project_id.present?
+        .row.mb-2
+          .col-sm-4
+            %strong Project:
+          .col-sm-8
+            - if @delivery_note.project
+              = link_to @delivery_note.project.display_name, @delivery_note.project
+            - else
+              %em (Project ##{@delivery_note.project_id} - not found)
+      - if @delivery_note.cust_order.present?
+        .row.mb-2
+          .col-sm-4
+            %strong Order No:
+          .col-sm-8
+            = @delivery_note.cust_order
+      - if @delivery_note.cust_reference.present?
+        .row.mb-2
+          .col-sm-4
+            %strong Reference:
+          .col-sm-8
+            = @delivery_note.cust_reference
+
+  .col-md-6
+    .document-details
+      - if @delivery_note.delivery_timeframe.present?
+        .row.mb-2
+          .col-sm-4
+            %strong Delivery Period:
+          .col-sm-8
+            = @delivery_note.delivery_timeframe
       - if @delivery_note.published?
         .row.mb-2
           .col-sm-4
@@ -52,36 +82,6 @@
               %span.badge.bg-success.ms-2 Booked
             - else
               %span.badge.bg-warning.ms-2 Draft
-
-  .col-md-6
-    .document-details
-      - if @delivery_note.project_id.present?
-        .row.mb-2
-          .col-sm-4
-            %strong Project:
-          .col-sm-8
-            - if @delivery_note.project
-              = link_to @delivery_note.project.display_name, @delivery_note.project
-            - else
-              %em (Project ##{@delivery_note.project_id} - not found)
-      - if @delivery_note.cust_reference.present?
-        .row.mb-2
-          .col-sm-4
-            %strong Reference:
-          .col-sm-8
-            = @delivery_note.cust_reference
-      - if @delivery_note.cust_order.present?
-        .row.mb-2
-          .col-sm-4
-            %strong Order No:
-          .col-sm-8
-            = @delivery_note.cust_order
-      - if @delivery_note.delivery_timeframe.present?
-        .row.mb-2
-          .col-sm-4
-            %strong Delivery Period:
-          .col-sm-8
-            = @delivery_note.delivery_timeframe
 
 
 - if @delivery_note.published?

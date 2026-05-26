@@ -14,10 +14,6 @@ jobs:
     name: Rails tests
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        ruby-version: ['3.3']
-
     services:
       postgres:
         image: postgres:17
@@ -36,10 +32,9 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
-    - name: Set up Ruby ${{ matrix.ruby-version }}
+    - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true
 
     - name: Build FOP Docker container
@@ -50,7 +45,7 @@ jobs:
       run: |
         echo "$PWD/bin" >> $GITHUB_PATH
         cp config/database.yml.sample config/database.yml
-        ./bin/abt-fop-container -version || echo "FOP version check failed"
+        ./bin/abt-fop-container -version
 
     - name: Setup database
       env:
@@ -96,7 +91,6 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.3'
         bundler-cache: true
 
     - name: Run Brakeman
@@ -112,7 +106,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
 
     - name: Install dependencies
@@ -120,21 +114,6 @@ jobs:
 
     - name: Check Stimulus controllers for event listener leaks
       run: npm run lint
-
-  fop-container:
-    name: FOP Container Test
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v6
-
-    - name: Build FOP Docker container
-      run: |
-        podman build -f Dockerfile.fop -t abt-fop .
-
-    - name: Test FOP is available
-      run: |
-        podman run --rm abt-fop fop -version
 
   pre-commit:
     name: Pre-commit Hooks
@@ -146,16 +125,7 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.3'
         bundler-cache: true
 
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: '3.x'
-
-    - name: Install pre-commit
-      run: pip install pre-commit
-
     - name: Run pre-commit hooks
-      run: pre-commit run --all-files
+      uses: pre-commit/action@v3.0.1

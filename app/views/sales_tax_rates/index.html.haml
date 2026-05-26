@@ -57,14 +57,13 @@
           %td
             = missing_rate[:product].name
           %td{:colspan => 3}
-            %form{:method=>:post, :action=>url_for(:action=>"create", :controller => "sales_tax_rates"), :class=>"form-horizontal"}
-              %input{:type => :hidden, :name => "authencity_token", :value => form_authenticity_token}
-              %input{:type => :hidden, :name => "sales_tax_rate[sales_tax_customer_class_id]", :value => missing_rate[:customer].id}
-              %input{:type => :hidden, :name => "sales_tax_rate[sales_tax_product_class_id]", :value => missing_rate[:product].id}
-              %input{:type => :number, :name => "sales_tax_rate[rate]", :class => "numeric float"}
-              \% &nbsp;
-              %button{:type => :submit, :class => "btn"}
-                Create
+            = form_with model: SalesTaxRate.new(sales_tax_customer_class_id: missing_rate[:customer].id, sales_tax_product_class_id: missing_rate[:product].id), local: true, class: 'd-flex align-items-center gap-2' do |f|
+              = f.hidden_field :sales_tax_customer_class_id
+              = f.hidden_field :sales_tax_product_class_id
+              .input-group.w-auto
+                = f.number_field :rate, class: 'form-control', step: 0.01, required: true
+                %span.input-group-text %
+              = f.submit 'Create', class: 'btn btn-primary'
 = action_buttons_wrapper do
   = action_button 'Customer Classes', sales_tax_customer_classes_path, :secondary
   = action_button 'Product Classes', sales_tax_product_classes_path, :secondary

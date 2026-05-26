@@ -1,0 +1,20 @@
+-# Shared modal for the generic-email-preview Stimulus controller.
+-# Caller must render this inside the element that carries
+-# data-controller="generic-email-preview" (see email_preview_data helper).
+-#
+-# Locals:
+-#   title - the modal heading text, e.g. "Preview - Invoice 2026-0042"
+.modal.d-none.email-preview-modal{data: {'generic-email-preview-target': 'modal', action: 'click->generic-email-preview#closeOnBackdrop keydown@window->generic-email-preview#closeOnEscape'}}
+  .modal-dialog.modal-lg.email-preview-modal-dialog
+    .modal-content
+      .modal-header.d-flex.justify-content-between.align-items-center
+        %h5.modal-title.mb-0= title
+        .d-flex.align-items-center
+          %button.btn.btn-success.btn-sm.me-2{data: {action: 'click->generic-email-preview#sendEmail'}}
+            Send E-Mail
+          %button.btn-close{type: 'button', data: {action: 'click->generic-email-preview#close'}, 'aria-label': 'Close'}
+      .modal-body{data: {'generic-email-preview-target': 'content'}}
+        .text-center
+          .spinner-border{role: 'status'}
+            %span.visually-hidden Loading...
+          %p Loading email preview...

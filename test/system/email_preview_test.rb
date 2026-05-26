@@ -60,6 +60,12 @@ class EmailPreviewTest < ApplicationSystemTestCase
     end
   end
 
+  test "post-publish banner strips the published query param so reloads don't re-trigger auto-download" do
+    visit invoice_path(@invoice, published: 1)
+    assert_selector ".alert-success", text: "booked"
+    assert_current_path invoice_path(@invoice), wait: 2
+  end
+
   test "delivery note email preview URLs use correct paths for subdirectory deployment" do
     visit delivery_note_path(@delivery_note)
 

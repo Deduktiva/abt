@@ -37,7 +37,7 @@
       .card-body
         - if @data[:issuer_company].png_logo.present?
           .mb-3.text-center
-            = image_tag png_logo_issuer_company_path, alt: @data[:issuer_company].legal_name, class: 'dashboard-issuer-logo'
+            = image_tag png_logo_issuer_company_path, alt: @data[:issuer_company].legal_name, class: 'issuer-logo-preview'
 
         - if @data[:issuer_company].document_accent_color.present?
           %h6.text-issuer-accent

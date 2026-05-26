@@ -3,18 +3,11 @@
 .row
   .col-md-6
     .card
-      .card-header
-        Basic Information
+      .card-header.d-flex.justify-content-between.align-items-center
+        %span Basic Information
+        - unless @customer.active?
+          %span.badge.bg-secondary Inactive
       .card-body
-        .row.mb-2
-          .col-sm-4
-            %strong Active:
-          .col-sm-8
-            - if @customer.active?
-              %span.badge.bg-success Yes
-            - else
-              %span.badge.bg-danger No
-
         .row.mb-2
           .col-sm-4
             %strong Matchcode:

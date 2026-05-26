@@ -12,8 +12,16 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
   # the same shared dropdown partial.
 
   test "should show delivery note" do
-    get delivery_note_url(delivery_notes(:published_delivery_note))
+    note = delivery_notes(:published_delivery_note)
+    assert_nil note.invoice, "fixture should not yet be invoiced"
+
+    get delivery_note_url(note)
     assert_response :success
+    # Invoice row renders with the convert button when published but not yet invoiced
+    assert_select "strong", text: "Invoice:"
+    assert_select "form[action=?]", convert_to_invoice_delivery_note_path(note) do
+      assert_select "button"
+    end
   end
 
   test "should get new" do

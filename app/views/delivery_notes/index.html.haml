@@ -1,4 +1,4 @@
-= breadcrumbs 'Delivery Notes', action: action_button('+ New', new_delivery_note_path, permission: 'delivery_notes.edit')
+= breadcrumbs 'Delivery Notes', action: action_button('+ New', new_delivery_note_path(customer_id: @selected_customer_id), permission: 'delivery_notes.edit')
 
 
 .bulk-select-container{data: { controller: 'bulk-select' }}

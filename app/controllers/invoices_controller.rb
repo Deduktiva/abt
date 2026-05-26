@@ -74,7 +74,7 @@ class InvoicesController < ApplicationController
 
   # GET /invoices/new
   def new
-    @invoice = Invoice.new
+    @invoice = Invoice.new(customer_id: params[:customer_id].presence)
     set_form_options
   end
 

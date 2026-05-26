@@ -113,6 +113,13 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "new prefills customer when customer_id param is given" do
+    customer = customers(:good_eu)
+    get new_invoice_url(customer_id: customer.id)
+    assert_response :success
+    assert_select "input#invoice_customer_id[value=?]", customer.id.to_s
+  end
+
   test "should create invoice" do
     assert_difference("Invoice.count") do
       post invoices_url, params: {

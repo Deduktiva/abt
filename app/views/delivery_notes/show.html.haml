@@ -20,7 +20,7 @@
           .col-sm-4
             %strong Customer:
           .col-sm-8
-            = @delivery_note.customer.name
+            = link_to @delivery_note.customer.name, @delivery_note.customer
         - if @delivery_note.published?
           .row.mb-2
             .col-sm-4
@@ -51,7 +51,7 @@
               %strong Project:
             .col-sm-8
               - if @delivery_note.project
-                = @delivery_note.project.display_name
+                = link_to @delivery_note.project.display_name, @delivery_note.project
               - else
                 %em (Project ##{@delivery_note.project_id} - not found)
         - if @delivery_note.cust_reference.present?

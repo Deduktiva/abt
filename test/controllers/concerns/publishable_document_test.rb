@@ -59,7 +59,7 @@ class PublishableDocumentTest < ActionDispatch::IntegrationTest
     assert_match(/no item lines/i, flash[:error])
   end
 
-  test "require_item_line blocks publish on an invoice with no item lines" do
+  test "publish_problems blocks publish on an invoice with no item lines" do
     invoice = create_draft_invoice(cust_reference: "NO_ITEMS_PUBLISH")
     post publish_invoice_url(invoice)
     assert_redirected_to invoice_url(invoice)

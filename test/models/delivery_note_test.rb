@@ -47,6 +47,15 @@ class DeliveryNoteTest < ActiveSupport::TestCase
     assert_equal original_document_number, delivery_note.document_number
   end
 
+  # Method shape (empty for valid draft / for published doc) is verified
+  # on Invoice; this confirms the DN-specific message wording.
+  test "publish_problems reports the DN-specific message when missing item lines" do
+    delivery_note = create_draft_delivery_note
+    delivery_note.delivery_note_lines.create!(type: "text", title: "Just a note", position: 1)
+
+    assert_includes delivery_note.publish_problems, "Delivery note has no item lines."
+  end
+
   test "delivery_timeframe formats single day correctly" do
     delivery_note = DeliveryNote.new(
       delivery_start_date: Date.new(2025, 5, 1),

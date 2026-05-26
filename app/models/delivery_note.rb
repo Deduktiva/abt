@@ -67,6 +67,20 @@ class DeliveryNote < ApplicationRecord
     self.save!
   end
 
+  # Mirrors Invoice#publish_problems: returns user-facing strings describing
+  # why publishing would fail, or [] when the document is ready. Unlike
+  # invoices, delivery notes have no customer-snapshot, tax, or VAT-ID
+  # validation, so the surface is small — but exposing the method keeps the
+  # controller flow symmetric and gives future constraints a home.
+  def publish_problems
+    problems = []
+    return problems if published?
+
+    problems << "Delivery note has no item lines." unless has_items?
+
+    problems
+  end
+
   def delivery_timeframe
     return nil unless delivery_start_date
 

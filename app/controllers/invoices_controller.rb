@@ -37,8 +37,9 @@ class InvoicesController < ApplicationController
   before_action :require_unpublished, only: %i[edit update destroy preview publish]
   before_action :require_published, only: %i[send_email mark_paid mark_unpaid]
   # preview_email reads from a pre-rendered @invoice.attachment, so it never
-  # invokes FOP. The guard belongs on the actions that actually publish/render.
-  before_action :require_item_line, only: %i[publish preview]
+  # invokes FOP. The guard belongs on actions that actually render. publish
+  # has its own check via Invoice#publish_problems in the action body.
+  before_action :require_item_line, only: %i[preview]
 
   # GET /invoices
   def index

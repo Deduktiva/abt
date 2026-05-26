@@ -38,6 +38,13 @@ class PublishableDocumentTest < ActionDispatch::IntegrationTest
     assert_match "Published invoices can not be modified", flash[:error]
   end
 
+  test "require_unpublished blocks publish on a published invoice" do
+    invoice = invoices(:published_invoice)
+    post publish_invoice_url(invoice)
+    assert_redirected_to invoice_url(invoice)
+    assert_match "Published invoices can not be modified", flash[:error]
+  end
+
   test "require_published blocks send_email on a draft invoice" do
     invoice = invoices(:draft_invoice)
     post send_email_invoice_url(invoice)

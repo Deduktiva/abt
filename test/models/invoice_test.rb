@@ -173,33 +173,9 @@ class InvoiceTest < ActiveSupport::TestCase
     assert_empty invoice.publish_problems
   end
 
-  test "in_year returns invoices whose date falls in the given year" do
-    year = Date.current.year
-    assert_includes Invoice.in_year(year), invoices(:published_invoice)
-
-    other_year = year - 5
-    assert_not_includes Invoice.in_year(other_year), invoices(:published_invoice)
-  end
-
-  test "in_year with include_drafts: true includes invoices with a null date" do
-    invoices(:draft_invoice).update_columns(date: nil)
-    year = Date.current.year
-    assert_not_includes Invoice.in_year(year), invoices(:draft_invoice)
-    assert_includes Invoice.in_year(year, include_drafts: true), invoices(:draft_invoice)
-  end
-
-  test "available_years returns distinct years with a non-null date, newest first" do
-    invoices(:draft_invoice).update_columns(date: Date.new(2020, 6, 1))
-    invoices(:license_invoice).update_columns(date: Date.new(2022, 4, 1))
-    invoices(:no_email_invoice).update_columns(date: nil)
-
-    years = Invoice.available_years
-    assert_equal years, years.uniq.sort.reverse
-    assert_includes years, 2020
-    assert_includes years, 2022
-    assert_not_includes years, nil
-  end
-
+  # in_year / available_years (YearFilterable concern) are covered by
+  # test/models/concerns/year_filterable_test.rb. The cross-team test below
+  # remains — it exercises visible_to interaction, not the concern itself.
   test "available_years honors the surrounding scope (no cross-team year leak)" do
     acme = teams(:acme)
     acme_customer = Customer.create!(

@@ -48,7 +48,7 @@ module ApplicationHelper
   #     - unless @customer.active?
   #       %span.badge.bg-secondary Inactive
   def breadcrumbs(*items, action: nil, &status_block)
-    content_tag :nav, "aria-label": "breadcrumb" do
+    nav = content_tag :nav, "aria-label": "breadcrumb" do
       content_tag :div, class: "d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom py-1 mb-2" do
         left = content_tag(:div, class: "d-flex align-items-center flex-wrap gap-2 small") do
           ol = content_tag :ol, class: "breadcrumb mb-0" do
@@ -69,6 +69,7 @@ module ApplicationHelper
         left + (action || "".html_safe)
       end
     end
+    nav + page_header_flash
   end
 
   # Renders the page header row: title (left), optional inline status badges
@@ -78,7 +79,7 @@ module ApplicationHelper
   #   nil-when-denied result), or nil for no action area.
   # status_block: yields zero or more inline badges next to the title.
   def page_header(title, action: nil, &status_block)
-    content_tag :div, class: "d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" do
+    header_row = content_tag :div, class: "d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" do
       title_area = content_tag(:div, class: "d-flex align-items-center flex-wrap gap-2") do
         header = content_tag(:h1, title, class: "mb-0")
         status = status_block ? capture(&status_block) : "".html_safe
@@ -86,6 +87,16 @@ module ApplicationHelper
       end
       title_area + (action || "".html_safe)
     end
+    header_row + page_header_flash
+  end
+
+  # Renders flash messages inline (just below the page header / breadcrumb)
+  # and sets a sentinel so the layout suppresses its top-of-content fallback.
+  # Keeps the page identifier anchored at the top so flash never pushes it
+  # down between visits.
+  def page_header_flash
+    content_for(:flash_rendered_inline, true)
+    render("layouts/messages")
   end
 
   def list_action_link(text, path, type = :default, options = {})

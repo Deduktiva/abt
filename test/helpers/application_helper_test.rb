@@ -58,6 +58,28 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_equal "Acme", last.text.strip
   end
 
+  test "breadcrumbs sets the flash_rendered_inline sentinel" do
+    breadcrumbs([ "Customers", "/customers" ], "Acme")
+    assert content_for?(:flash_rendered_inline)
+  end
+
+  test "breadcrumbs emits flash messages inline below the breadcrumb" do
+    flash[:notice] = "Saved!"
+    html = Nokogiri::HTML.fragment(breadcrumbs([ "Customers", "/customers" ], "Acme"))
+    alert = html.at_css(".alert.alert-success")
+    assert_not_nil alert, "expected flash alert to be rendered inline by breadcrumbs"
+    assert_includes alert.text, "Saved!"
+  end
+
+  test "page_header sets the flash_rendered_inline sentinel and emits flash inline" do
+    flash[:alert] = "Nope"
+    html = Nokogiri::HTML.fragment(page_header("Dashboard"))
+    assert content_for?(:flash_rendered_inline)
+    alert = html.at_css(".alert.alert-danger")
+    assert_not_nil alert
+    assert_includes alert.text, "Nope"
+  end
+
   test "breadcrumbs renders plain-label middle crumbs without a link" do
     html = Nokogiri::HTML.fragment(breadcrumbs("Configuration", [ "Sales Tax", "/sales_tax_rates" ], "Edit"))
     items = html.css("li.breadcrumb-item")

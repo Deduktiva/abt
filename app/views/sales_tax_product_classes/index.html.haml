@@ -16,8 +16,6 @@
         - if sales_tax_product_class.is_default?
           %span.badge.bg-success Default
       %td
-        - if can?('sales_tax.edit')
-          = list_action_link('Edit', edit_sales_tax_product_class_path(sales_tax_product_class), :edit)
+        = list_action_link('Edit', edit_sales_tax_product_class_path(sales_tax_product_class), :edit, permission: 'sales_tax.edit')
       %td
-        - if can?('sales_tax.edit')
-          = destroy_link(sales_tax_product_class, "Are you sure you want to delete product class \"#{sales_tax_product_class.name}\"?")
+        = destroy_link(sales_tax_product_class, "Are you sure you want to delete product class \"#{sales_tax_product_class.name}\"?", permission: 'sales_tax.edit')

@@ -80,6 +80,73 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_includes alert.text, "Nope"
   end
 
+  test "list_action_link without permission: renders the link" do
+    html = Nokogiri::HTML.fragment(list_action_link("Edit", "/customers/1/edit", :edit))
+    a = html.at_css("a")
+    assert_not_nil a
+    assert_equal "Edit", a.text
+    assert_equal "/customers/1/edit", a["href"]
+  end
+
+  test "list_action_link with permission: returns the link when user has it" do
+    Current.user = users(:alice)
+    html = Nokogiri::HTML.fragment(list_action_link("Edit", "/customers/1/edit", :edit, permission: "customers.edit").to_s)
+    a = html.at_css("a")
+    assert_not_nil a
+    assert_equal "Edit", a.text
+  ensure
+    Current.user = nil
+  end
+
+  test "list_action_link with permission: returns nil when user lacks it" do
+    Current.user = users(:bob)
+    assert_nil list_action_link("Edit", "/customers/1/edit", :edit, permission: "customers.edit")
+  ensure
+    Current.user = nil
+  end
+
+  test "list_action_link with permission: returns nil when no current user" do
+    Current.user = nil
+    assert_nil list_action_link("Edit", "/customers/1/edit", :edit, permission: "customers.edit")
+  end
+
+  test "destroy_link without permission: renders the link" do
+    customer = customers(:good_eu)
+    def self.action_name; "show"; end
+    html = Nokogiri::HTML.fragment(destroy_link(customer).to_s)
+    a = html.at_css("a")
+    assert_not_nil a
+    assert_equal "Delete", a.text
+  end
+
+  test "destroy_link with permission: returns the link when user has it" do
+    Current.user = users(:alice)
+    customer = customers(:good_eu)
+    def self.action_name; "show"; end
+    html = Nokogiri::HTML.fragment(destroy_link(customer, nil, permission: "customers.edit").to_s)
+    a = html.at_css("a")
+    assert_not_nil a
+    assert_equal "Delete", a.text
+  ensure
+    Current.user = nil
+  end
+
+  test "destroy_link with permission: returns nil when user lacks it" do
+    Current.user = users(:bob)
+    customer = customers(:good_eu)
+    def self.action_name; "show"; end
+    assert_nil destroy_link(customer, nil, permission: "customers.edit")
+  ensure
+    Current.user = nil
+  end
+
+  test "destroy_link with permission: returns nil when no current user" do
+    Current.user = nil
+    customer = customers(:good_eu)
+    def self.action_name; "show"; end
+    assert_nil destroy_link(customer, nil, permission: "customers.edit")
+  end
+
   test "breadcrumbs renders plain-label middle crumbs without a link" do
     html = Nokogiri::HTML.fragment(breadcrumbs("Configuration", [ "Sales Tax", "/sales_tax_rates" ], "Edit"))
     items = html.css("li.breadcrumb-item")

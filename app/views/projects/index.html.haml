@@ -30,8 +30,7 @@
       %td= project.bill_to_customer.try(:matchcode)
       %td= project.team&.name
       %td
-        - if can?('projects.edit')
-          = list_action_link('Edit', edit_project_path(project), :edit)
+        = list_action_link('Edit', edit_project_path(project), :edit, permission: 'projects.edit')
       %td
         - if can?('projects.edit') && project.can_be_deleted?
           = destroy_link(project, "Are you sure you want to delete project \"#{project.matchcode}\"?")

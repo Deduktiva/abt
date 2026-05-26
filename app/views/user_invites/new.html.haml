@@ -1,7 +1,0 @@
-- content_for :title, 'New invite'
-
-= breadcrumbs 'Configuration', ['Users', users_path], ['Invites', user_invites_path], 'New', action: save_button
-
-%p Click the button above to generate a one-time invite link. The link is valid for 24 hours. The next page will show the URL so you can copy it.
-
-= form_with url: user_invites_path, method: :post, local: true, id: ActionButtonsHelper::PAGE_FORM_ID, data: { turbo: false }

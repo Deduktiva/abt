@@ -13,4 +13,4 @@
       %code= @invite_url
 
 = action_buttons_wrapper do
-  = action_button('Generate another', new_user_invite_path, :primary)
+  = button_to 'Generate another', user_invites_path, method: :post, class: 'btn btn-primary', data: { turbo: false }

@@ -6,9 +6,6 @@ class UserInvitesController < ApplicationController
                          .order(created_at: :desc).limit(50)
   end
 
-  def new
-  end
-
   def create
     invite, plaintext = UserInvite.create_signup!(actor: current_user)
     UserAuditEvent.record!(action: "invite_created", user: nil, actor: current_user,

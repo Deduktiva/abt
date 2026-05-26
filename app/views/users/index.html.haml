@@ -1,6 +1,9 @@
 - content_for :title, 'Users'
 
-= breadcrumbs 'Configuration', 'Users', action: action_button('+ Invite user', new_user_invite_path, permission: 'user_invites.manage')
+- can_invite = can?('user_invites.manage')
+- invite_action = can_invite ? button_to('+ Invite user', user_invites_path, method: :post, class: 'btn btn-primary', data: { turbo: false }) : nil
+- invites_nav = nav_button('View invites', user_invites_path, permission: 'user_invites.manage')
+= breadcrumbs 'Configuration', 'Users', actions: [invites_nav], action: invite_action
 
 %table.table.table-striped.table-sm
   %thead
@@ -18,6 +21,3 @@
           - if user.blocked?
             %span.badge.bg-danger Blocked
         %td= l(user.created_at)
-
-= action_buttons_wrapper do
-  = action_button 'View invites', user_invites_path, :secondary, permission: 'user_invites.manage'

@@ -42,12 +42,14 @@ class DeliveryNotesController < ApplicationController
 
   # GET /delivery_notes
   def index
-    @selected_year = params[:year]&.to_i || Date.current.year
+    @selected_year = params[:year] == "all" ? "all" : (params[:year]&.to_i || Date.current.year)
     @email_filter = params[:email_filter] || "all"
 
     @delivery_notes = DeliveryNote.visible_to(current_user)
-                                  .in_year(@selected_year, include_drafts: @selected_year == Date.current.year)
                                   .reorder(Arel.sql("document_number DESC NULLS FIRST"))
+    unless @selected_year == "all"
+      @delivery_notes = @delivery_notes.in_year(@selected_year, include_drafts: @selected_year == Date.current.year)
+    end
 
     case @email_filter
     when "unsent"

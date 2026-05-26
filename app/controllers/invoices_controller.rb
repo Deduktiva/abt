@@ -42,12 +42,14 @@ class InvoicesController < ApplicationController
 
   # GET /invoices
   def index
-    @selected_year = params[:year]&.to_i || Date.current.year
+    @selected_year = params[:year] == "all" ? "all" : (params[:year]&.to_i || Date.current.year)
     @filter = params[:filter] || "all"
 
     @invoices = Invoice.visible_to(current_user)
-                       .in_year(@selected_year, include_drafts: @selected_year == Date.current.year)
                        .reorder(Arel.sql("document_number DESC NULLS FIRST"))
+    unless @selected_year == "all"
+      @invoices = @invoices.in_year(@selected_year, include_drafts: @selected_year == Date.current.year)
+    end
 
     case @filter
     when "unsent"

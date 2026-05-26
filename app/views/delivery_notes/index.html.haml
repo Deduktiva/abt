@@ -15,6 +15,7 @@
         .btn-group.btn-group-sm.ms-auto.year-pagination{:role=>"group", "aria-label"=>"Year navigation"}
           - @available_years.each do |year|
             = link_to year, delivery_notes_path(year: year, email_filter: @email_filter), class: (@selected_year == year ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+          = link_to 'All', delivery_notes_path(year: 'all', email_filter: @email_filter), class: (@selected_year == 'all' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
 
   - if @email_filter == 'unsent' && @delivery_notes.any?
     %table.table.table-striped.table-sm

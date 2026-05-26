@@ -1,6 +1,6 @@
 require "test_helper"
 
-class InvoiceBookerTest < ActiveSupport::TestCase
+class InvoicePublisherTest < ActiveSupport::TestCase
   test "should use customer payment terms for due date calculation" do
     # Use existing customer and update payment terms
     customer = customers(:good_eu)
@@ -65,7 +65,7 @@ class InvoiceBookerTest < ActiveSupport::TestCase
     )
     invoice.invoice_lines.create!(type: "item", title: "X", quantity: 1.0, rate: 100.0, position: 1)
 
-    # Lock in the snapshot the same way a booked invoice does
+    # Lock in the snapshot the same way a published invoice does
     invoice.update!(published: true)
 
     assert_equal 30, invoice.payment_terms_days
@@ -83,10 +83,10 @@ class InvoiceBookerTest < ActiveSupport::TestCase
 
     invoice = Invoice.create!(customer: customer, project: projects(:test_project), cust_reference: "NOVATID-EU")
 
-    booker = InvoiceBooker.new(invoice, issuer_companies(:one))
-    booker.prepare!
+    publisher = InvoicePublisher.new(invoice, issuer_companies(:one))
+    publisher.prepare!
 
-    assert_includes invoice.booking_problems, "Customer VAT ID is missing."
+    assert_includes invoice.publish_problems, "Customer VAT ID is missing."
   end
 
   test "prepare! does not flag vat_id for export customers" do
@@ -98,10 +98,10 @@ class InvoiceBookerTest < ActiveSupport::TestCase
 
     invoice = Invoice.create!(customer: customer, project: projects(:test_project), cust_reference: "NOVATID-EXPORT")
 
-    booker = InvoiceBooker.new(invoice, issuer_companies(:one))
-    booker.prepare!
+    publisher = InvoicePublisher.new(invoice, issuer_companies(:one))
+    publisher.prepare!
 
-    assert_not_includes invoice.booking_problems, "Customer VAT ID is missing."
+    assert_not_includes invoice.publish_problems, "Customer VAT ID is missing."
   end
 
   test "prepare! derives due_date from the invoice's persisted payment_terms_days" do
@@ -117,8 +117,8 @@ class InvoiceBookerTest < ActiveSupport::TestCase
 
     assert_equal 21, invoice.payment_terms_days
 
-    booker = InvoiceBooker.new(invoice, issuer_companies(:one))
-    booker.prepare!
+    publisher = InvoicePublisher.new(invoice, issuer_companies(:one))
+    publisher.prepare!
 
     assert_equal Date.new(2024, 6, 22), invoice.due_date
   end
@@ -137,8 +137,8 @@ class InvoiceBookerTest < ActiveSupport::TestCase
       sales_tax_product_class: sales_tax_product_classes(:standard)
     )
 
-    booker = InvoiceBooker.new(invoice.reload, issuer_companies(:one))
-    assert_not booker.publish!
+    publisher = InvoicePublisher.new(invoice.reload, issuer_companies(:one))
+    assert_not publisher.publish!
 
     invoice.reload
     assert_not invoice.published?
@@ -149,8 +149,8 @@ class InvoiceBookerTest < ActiveSupport::TestCase
     invoice = invoices(:published_invoice)
     assert invoice.published?
 
-    booker = InvoiceBooker.new(invoice, issuer_companies(:one))
-    assert_not booker.publish!
-    assert_includes booker.log, "E: already published"
+    publisher = InvoicePublisher.new(invoice, issuer_companies(:one))
+    assert_not publisher.publish!
+    assert_includes publisher.log, "E: already published"
   end
 end

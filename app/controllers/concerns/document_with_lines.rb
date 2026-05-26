@@ -20,8 +20,8 @@ module DocumentWithLines
 
   # Filter: redirect with a flash if the document doesn't yet have at least
   # one item line. Without this, the renderer hands FOP a table with no
-  # body and FOP aborts; this is also the business rule for booking /
-  # publishing a meaningful document.
+  # body and FOP aborts; this is also the business rule for publishing
+  # a meaningful document.
   #
   # Relies on PublishableDocument for the record lookup and human label,
   # and on the model including HasLineItems for `has_items?`.

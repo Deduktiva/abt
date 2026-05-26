@@ -60,7 +60,7 @@ Rails.application.routes.draw do
       get "preview"
       get "preview_email"
       get "preview_email_raw"
-      post "book"
+      post "publish"
       post "send_email"
       post "mark_paid"
       post "mark_unpaid"

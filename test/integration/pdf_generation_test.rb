@@ -34,14 +34,14 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
     assert_valid_pdf_response
   end
 
-  def test_invoice_booking_creates_attachment
-    # Book the invoice (this should create PDF attachment)
-    post book_invoice_path(@invoice)
+  def test_invoice_publishing_creates_attachment
+    # Publish the invoice (this should create PDF attachment)
+    post publish_invoice_path(@invoice)
 
-    assert_redirected_to invoice_path(@invoice, booked: 1)
+    assert_redirected_to invoice_path(@invoice, published: 1)
 
     @invoice.reload
-    assert @invoice.published?, "Invoice should be published after booking"
+    assert @invoice.published?, "Invoice should be published after publishing"
 
     # Check if PDF attachment was created
     assert @invoice.attachment.present?
@@ -54,7 +54,7 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # While we can't easily parse PDF content in tests, we can verify
-    # that the invoice was processed through the booking controller
+    # that the invoice was processed through the publish controller
     # by checking that invoice_lines have calculated amounts
     @invoice.reload
     assert @invoice.invoice_lines.any? { |line| line.amount.present? if line.type == "item" }
@@ -72,20 +72,20 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
     assert_match(/no item lines/i, flash[:error])
   end
 
-  def test_booking_an_empty_invoice_is_blocked
+  def test_publishing_an_empty_invoice_is_blocked
     empty = Invoice.create!(
       customer: @customer,
       project: @project
     )
 
-    post book_invoice_path(empty)
+    post publish_invoice_path(empty)
 
     assert_redirected_to invoice_path(empty)
     assert_match(/no item lines/i, flash[:error])
     assert_not empty.reload.published?
   end
 
-  def test_booking_an_invoice_with_only_non_item_lines_is_blocked
+  def test_publishing_an_invoice_with_only_non_item_lines_is_blocked
     inv = Invoice.create!(
       customer: @customer,
       project: @project
@@ -93,7 +93,7 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
     inv.invoice_lines.create!(type: "text", title: "Note", description: "no items here", position: 1)
     inv.invoice_lines.create!(type: "subheading", title: "Section", position: 2)
 
-    post book_invoice_path(inv)
+    post publish_invoice_path(inv)
 
     assert_redirected_to invoice_path(inv)
     assert_match(/no item lines/i, flash[:error])

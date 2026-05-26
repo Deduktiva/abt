@@ -92,10 +92,10 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
       position: 1
     )
 
-    problems = @invoice.booking_problems
+    problems = @invoice.publish_problems
 
     assert(problems.any? { |p| p.include?("Product") && p.include?("tax configuration") },
-           "Expected booking_problems to flag missing tax config, got: #{problems.inspect}")
+           "Expected publish_problems to flag missing tax config, got: #{problems.inspect}")
   end
 
   test "has_items? returns true when invoice has item lines" do
@@ -203,7 +203,7 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
       position: 4
     )
 
-    assert_empty @invoice.booking_problems
+    assert_empty @invoice.publish_problems
     assert @invoice.has_items?, "Invoice should have items"
   end
 end

@@ -1,7 +1,6 @@
-= breadcrumbs 'Configuration', ['Sales Tax', sales_tax_rates_path], ['Product Tax Classes', sales_tax_product_classes_path], @sales_tax_product_class.name
-= page_header("Product Tax Class \"#{@sales_tax_product_class.name}\"", action: action_button('Edit', edit_sales_tax_product_class_path(@sales_tax_product_class), permission: 'sales_tax.edit')) do
+= breadcrumbs 'Configuration', ['Sales Tax', sales_tax_rates_path], ['Product Tax Classes', sales_tax_product_classes_path], @sales_tax_product_class.name, action: action_button('Edit', edit_sales_tax_product_class_path(@sales_tax_product_class), permission: 'sales_tax.edit') do
   - if @sales_tax_product_class.is_default?
-    %span.badge.bg-success.fs-6 Default
+    %span.badge.bg-success Default
 
 %p
   %b Name:

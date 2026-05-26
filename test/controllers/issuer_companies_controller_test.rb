@@ -8,13 +8,13 @@ class IssuerCompaniesControllerTest < ActionDispatch::IntegrationTest
   test "should get show" do
     get issuer_company_url
     assert_response :success
-    assert_select "h1", text: "Issuer Company"
+    assert_select ".breadcrumb-item.active", text: "Issuer Company"
   end
 
   test "should get edit" do
     get edit_issuer_company_url
     assert_response :success
-    assert_select "h1", text: "Edit Issuer Company"
+    assert_select ".breadcrumb-item.active", text: "Edit"
     assert_select "form"
   end
 

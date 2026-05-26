@@ -1,13 +1,12 @@
 - can_edit_dn = can?('delivery_notes.edit')
 - edit_action = action_button('Edit', edit_delivery_note_path(@delivery_note), permission: 'delivery_notes.edit') unless @delivery_note.published?
-= breadcrumbs ['Delivery Notes', delivery_notes_path], (@delivery_note.document_number || "Draft ##{@delivery_note.id}")
-= page_header("Delivery Note #{@delivery_note.document_number || "Draft ##{@delivery_note.id}"}", action: edit_action) do
+= breadcrumbs ['Delivery Notes', delivery_notes_path], (@delivery_note.document_number || "Draft ##{@delivery_note.id}"), action: edit_action do
   - if !@delivery_note.published?
-    %span.badge.bg-warning.fs-6 Draft
+    %span.badge.bg-warning Draft
   - elsif @delivery_note.email_sent_at.present?
-    %span.badge.bg-success.fs-6 Sent
+    %span.badge.bg-success Sent
   - else
-    %span.badge.bg-success.fs-6 Booked
+    %span.badge.bg-success Booked
 
 .document-header.row.mb-2
   .col-md-6

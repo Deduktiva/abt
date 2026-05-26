@@ -1,4 +1,3 @@
 = breadcrumbs ['Invoices', invoices_path], [(@invoice.document_number || "Draft ##{@invoice.id}"), invoice_path(@invoice)], 'Edit'
-= page_header('Editing invoice draft')
 
 = render 'form'

@@ -1,5 +1,4 @@
-= breadcrumbs 'Configuration', ['Groups', groups_path], @group.name
-= page_header("Group \"#{@group.name}\"", action: action_button('Edit', edit_group_path(@group)))
+= breadcrumbs 'Configuration', ['Groups', groups_path], @group.name, action: action_button('Edit', edit_group_path(@group))
 
 .row
   .col-md-8

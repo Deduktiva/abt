@@ -1,7 +1,6 @@
 - content_for :title, "Audit log for #{@user.username}"
 
 = breadcrumbs 'Configuration', ['Users', users_path], [@user.username, user_path(@user)], 'Audit Log'
-= page_header("Audit log: #{@user.username}")
 
 %table.table.table-striped.table-sm
   %thead

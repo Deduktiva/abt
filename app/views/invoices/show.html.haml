@@ -1,21 +1,20 @@
 - can_edit_invoice = can?('invoices.edit')
 - edit_action = action_button('Edit', edit_invoice_path(@invoice), permission: 'invoices.edit') unless @invoice.published?
-= breadcrumbs ['Invoices', invoices_path], (@invoice.document_number || "Draft ##{@invoice.id}")
-= page_header("Invoice #{@invoice.document_number || "Draft ##{@invoice.id}"}", action: edit_action) do
+= breadcrumbs ['Invoices', invoices_path], (@invoice.document_number || "Draft ##{@invoice.id}"), action: edit_action do
   - if !@invoice.published?
-    %span.badge.bg-warning.fs-6 Draft
+    %span.badge.bg-warning Draft
   - else
     - sent = @invoice.email_sent_at.present?
     - paid = @invoice.paid?
     - overdue = @invoice.overdue?
     - unless sent || paid || overdue
-      %span.badge.bg-success.fs-6 Booked
+      %span.badge.bg-success Booked
     - if paid
-      %span.badge.bg-success.fs-6 Paid
+      %span.badge.bg-success Paid
     - elsif overdue
-      %span.badge.bg-danger.fs-6 Overdue
+      %span.badge.bg-danger Overdue
     - if sent
-      %span.badge.bg-success.fs-6 Sent
+      %span.badge.bg-success Sent
 
 .document-header.row.mb-2
   .col-md-6

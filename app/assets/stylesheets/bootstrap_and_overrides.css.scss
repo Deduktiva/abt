@@ -87,6 +87,21 @@ body { padding-top: 60px; }
   display: inline;
 }
 
+// Action buttons rendered inside the breadcrumb header strip use the small
+// button sizing so they don't tower over the small-text breadcrumb trail.
+nav[aria-label="breadcrumb"] .btn {
+  --bs-btn-padding-y: 0.25rem;
+  --bs-btn-padding-x: 0.5rem;
+  --bs-btn-font-size: 0.875rem;
+  --bs-btn-border-radius: var(--bs-border-radius-sm);
+}
+
+// Reserve a constant row height for the breadcrumb strip so pages without an
+// action button don't render a shorter header than pages with one.
+nav[aria-label="breadcrumb"] > div {
+  min-height: 2.5rem;
+}
+
 .document-details .row {
   border-bottom: 1px solid var(--bs-border-color-translucent);
 }

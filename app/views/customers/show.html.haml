@@ -1,7 +1,6 @@
-= breadcrumbs ['Customers', customers_path], @customer.matchcode
-= page_header("Customer #{@customer.matchcode}", action: action_button('Edit', edit_customer_path(@customer), permission: 'customers.edit')) do
+= breadcrumbs ['Customers', customers_path], @customer.matchcode, action: action_button('Edit', edit_customer_path(@customer), permission: 'customers.edit') do
   - unless @customer.active?
-    %span.badge.bg-secondary.fs-6 Inactive
+    %span.badge.bg-secondary Inactive
 
 .row
   .col-md-6

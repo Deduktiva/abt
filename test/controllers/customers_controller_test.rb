@@ -14,7 +14,8 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
   test "should get show" do
     get customer_url(@customer)
     assert_response :success
-    assert_select "h1", text: /Customer/
+    assert_select ".breadcrumb-item", text: "Customers"
+    assert_select ".breadcrumb-item.active", text: @customer.matchcode
   end
 
   test "should get new" do
@@ -136,7 +137,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
   test "active customer shows no inactive badge on show page" do
     get customer_url(@customer)
     assert_response :success
-    assert_select ".page-header ~ .badge", count: 0
+    assert_select "nav[aria-label='breadcrumb'] .badge", count: 0
     assert_select ".badge", text: "Inactive", count: 0
   end
 

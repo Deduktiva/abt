@@ -41,21 +41,6 @@
                 Last used #{l(cred.last_used_at)}
               - else
                 Never used
-  .col-md-6
-    .card.mb-3
-      .card-header
-        .d-flex.justify-content-between.align-items-center
-          %span Active sessions
-          = link_to 'Manage', account_sessions_path, class: 'btn btn-sm btn-outline-primary'
-      %ul.list-group.list-group-flush
-        - @sessions.each do |s|
-          %li.list-group-item
-            %div
-              %code.small= s.ip_address
-              - if current_user_session && current_user_session.id == s.id
-                %span.badge.bg-info.ms-2 This session
-            .small.text-muted= s.user_agent.to_s.truncate(80)
-            .small.text-muted Last seen: #{l(s.last_seen_at)}
     .card.mb-3
       .card-header
         Groups
@@ -82,6 +67,28 @@
               = team.name
               - if team.builtin?
                 %span.badge.bg-secondary.ms-1 built-in
+    .card.border-danger
+      .card-header.bg-danger.text-white Danger zone
+      .card-body
+        %p Self-block disables your account, terminates all your sessions, and prevents you from signing in. An administrator can re-enable your account.
+        = button_to 'Block my account', account_block_path, method: :post,
+            data: { turbo_confirm: 'Are you sure? This will sign you out and block your account.' },
+            class: 'btn btn-danger'
+  .col-md-6
+    .card.mb-3
+      .card-header
+        .d-flex.justify-content-between.align-items-center
+          %span Active sessions
+          = link_to 'Manage', account_sessions_path, class: 'btn btn-sm btn-outline-primary'
+      %ul.list-group.list-group-flush
+        - @sessions.each do |s|
+          %li.list-group-item
+            %div
+              %code.small= s.ip_address
+              - if current_user_session && current_user_session.id == s.id
+                %span.badge.bg-info.ms-2 This session
+            .small.text-muted= s.user_agent.to_s.truncate(80)
+            .small.text-muted Last seen: #{l(s.last_seen_at)}
     .card.mb-3
       .card-header
         .d-flex.justify-content-between.align-items-center
@@ -92,10 +99,3 @@
           %li.list-group-item
             %code= event.action
             %span.text-muted.ms-2.small= l(event.created_at)
-    .card.border-danger
-      .card-header.bg-danger.text-white Danger zone
-      .card-body
-        %p Self-block disables your account, terminates all your sessions, and prevents you from signing in. An administrator can re-enable your account.
-        = button_to 'Block my account', account_block_path, method: :post,
-            data: { turbo_confirm: 'Are you sure? This will sign you out and block your account.' },
-            class: 'btn btn-danger'

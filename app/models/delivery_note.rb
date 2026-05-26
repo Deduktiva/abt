@@ -8,10 +8,6 @@ class DeliveryNote < ApplicationRecord
   validates :customer_id, presence: true
   validates :delivery_start_date, presence: true
   validate :delivery_end_date_after_start_date
-  # Edits to published delivery notes are rejected by require_unpublished in
-  # the controller; this validation only guards the transition into published.
-  validate :must_have_item_line_for_publish
-
   scope :email_unsent, -> {
     where(email_sent_at: nil).where(<<~SQL.squish)
       EXISTS (
@@ -135,12 +131,5 @@ class DeliveryNote < ApplicationRecord
     if delivery_end_date < delivery_start_date
       errors.add(:delivery_end_date, "cannot be before the start date")
     end
-  end
-
-  def must_have_item_line_for_publish
-    return unless will_save_change_to_published? && published?
-    return if has_items?
-
-    errors.add(:base, "must have at least one item line before it can be published")
   end
 end

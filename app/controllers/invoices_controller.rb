@@ -64,6 +64,7 @@ class InvoicesController < ApplicationController
     @available_years = Invoice.visible_to(current_user).available_years
     @available_customers = Customer.visible_to(current_user)
                                    .where(id: Invoice.visible_to(current_user).select(:customer_id))
+                                   .where("active = ? OR id = ?", true, @selected_customer_id)
                                    .order(:name)
   end
 

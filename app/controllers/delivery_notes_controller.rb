@@ -62,6 +62,7 @@ class DeliveryNotesController < ApplicationController
     @available_years = DeliveryNote.visible_to(current_user).available_years
     @available_customers = Customer.visible_to(current_user)
                                    .where(id: DeliveryNote.visible_to(current_user).select(:customer_id))
+                                   .where("active = ? OR id = ?", true, @selected_customer_id)
                                    .order(:name)
   end
 

@@ -75,6 +75,43 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "customer dropdown excludes inactive customers" do
+    inactive = customers(:good_national)
+    inactive.update!(active: false)
+    DeliveryNote.create!(
+      customer: inactive,
+      project: projects(:one),
+      cust_reference: "INACTIVE-CUST-DN",
+      date: Date.current,
+      delivery_start_date: Date.current
+    )
+
+    get delivery_notes_url
+    assert_response :success
+    assert_select "select[name='customer_id']" do
+      assert_select "option[value=?]", inactive.id.to_s, count: 0
+    end
+  end
+
+  test "customer dropdown still includes inactive customer if currently selected" do
+    inactive = customers(:good_national)
+    inactive.update!(active: false)
+    DeliveryNote.create!(
+      customer: inactive,
+      project: projects(:one),
+      cust_reference: "INACTIVE-CUST-DN",
+      date: Date.current,
+      delivery_start_date: Date.current
+    )
+
+    get delivery_notes_url(customer_id: inactive.id)
+    assert_response :success
+    assert_select "select[name='customer_id']" do
+      assert_select "option[value=?][selected]", inactive.id.to_s
+    end
+    assert_select "td", text: "INACTIVE-CUST-DN"
+  end
+
   test "should include draft delivery notes with nil date in current year" do
     # Create a draft delivery note (no date)
     DeliveryNote.create!(

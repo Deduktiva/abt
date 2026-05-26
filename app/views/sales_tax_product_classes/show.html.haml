@@ -1,4 +1,4 @@
-= page_header_with_edit_button("Product Tax Class \"#{@sales_tax_product_class.name}\"", edit_sales_tax_product_class_path(@sales_tax_product_class), permission: 'sales_tax.edit') do
+= page_header("Product Tax Class \"#{@sales_tax_product_class.name}\"", action: action_button('Edit', edit_sales_tax_product_class_path(@sales_tax_product_class), permission: 'sales_tax.edit')) do
   - if @sales_tax_product_class.is_default?
     %span.badge.bg-success.fs-6 Default
 

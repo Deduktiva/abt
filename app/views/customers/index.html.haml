@@ -1,4 +1,4 @@
-= page_header_with_new_button('Listing customers', new_customer_path, permission: 'customers.edit')
+= page_header('Listing customers', action: action_button('+ New', new_customer_path, :info, permission: 'customers.edit'))
 
 .mb-3
   .btn-toolbar.mb-3{:role=>"toolbar", "aria-label"=>"List toolbar"}

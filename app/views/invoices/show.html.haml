@@ -1,27 +1,22 @@
 - can_edit_invoice = can?('invoices.edit')
-%div
-  .d-flex.justify-content-between.align-items-center.mb-3.flex-wrap.gap-2
-    .d-flex.align-items-center.flex-wrap.gap-2
-      %h1.h2.mb-0
-        Invoice
-        = @invoice.document_number || "Draft \##{@invoice.id}"
-      - if !@invoice.published?
-        %span.badge.bg-warning.fs-6 Draft
-      - else
-        - sent = @invoice.email_sent_at.present?
-        - paid = @invoice.paid?
-        - overdue = @invoice.overdue?
-        - unless sent || paid || overdue
-          %span.badge.bg-success.fs-6 Booked
-        - if paid
-          %span.badge.bg-success.fs-6 Paid
-        - elsif overdue
-          %span.badge.bg-danger.fs-6 Overdue
-        - if sent
-          %span.badge.bg-success.fs-6 Sent
-    - if !@invoice.published && can_edit_invoice
-      = action_button 'Edit', edit_invoice_path(@invoice), :primary
+- edit_action = action_button('Edit', edit_invoice_path(@invoice), permission: 'invoices.edit') unless @invoice.published?
+= page_header("Invoice #{@invoice.document_number || "Draft ##{@invoice.id}"}", action: edit_action) do
+  - if !@invoice.published?
+    %span.badge.bg-warning.fs-6 Draft
+  - else
+    - sent = @invoice.email_sent_at.present?
+    - paid = @invoice.paid?
+    - overdue = @invoice.overdue?
+    - unless sent || paid || overdue
+      %span.badge.bg-success.fs-6 Booked
+    - if paid
+      %span.badge.bg-success.fs-6 Paid
+    - elsif overdue
+      %span.badge.bg-danger.fs-6 Overdue
+    - if sent
+      %span.badge.bg-success.fs-6 Sent
 
+%div
   .document-header.row.mb-2
     .col-md-6
       .document-details
@@ -181,7 +176,7 @@
   = action_buttons_wrapper do
     = action_button 'Back', invoices_path, :secondary
     - if @invoice.attachment
-      = action_button 'PDF', @invoice.attachment, :success, { target: '_blank', data: { turbo: false } }
+      = action_button 'PDF', @invoice.attachment, :success, target: '_blank', data: { turbo: false }
       - if can_edit_invoice
         - if @invoice.emailable?
           %button.btn.btn-warning{"data-action" => "click->generic-email-preview#open"}
@@ -191,7 +186,7 @@
             %button.btn.btn-warning{disabled: true}
               Send E-Mail
     - else
-      = action_button 'Preview', preview_invoice_path(@invoice), :info, { target: '_blank', data: { turbo: false } }
+      = action_button 'Preview', preview_invoice_path(@invoice), :info, target: '_blank', data: { turbo: false }
     - if !@invoice.published && can_edit_invoice
       = button_to 'Test Booking', book_invoice_path(@invoice, :save => false), method: :post, class: 'btn btn-warning'
       = destroy_link(@invoice, "Are you sure you want to delete invoice \"#{@invoice.document_number || "##{@invoice.id}"}\"?")

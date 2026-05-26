@@ -1,4 +1,4 @@
-= page_header_with_new_button('Listing projects', new_project_path, permission: 'projects.edit')
+= page_header('Listing projects', action: action_button('+ New', new_project_path, :info, permission: 'projects.edit'))
 
 .mb-3
   .btn-toolbar.mb-3{:role=>"toolbar", "aria-label"=>"List toolbar"}

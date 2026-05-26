@@ -1,4 +1,4 @@
-= page_header_with_edit_button("Project #{@project.matchcode}", edit_project_path(@project), permission: 'projects.edit') do
+= page_header("Project #{@project.matchcode}", action: action_button('Edit', edit_project_path(@project), permission: 'projects.edit')) do
   - unless @project.active?
     %span.badge.bg-secondary.fs-6 Inactive
 

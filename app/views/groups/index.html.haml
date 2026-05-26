@@ -1,4 +1,4 @@
-= page_header_with_new_button('Groups', new_group_path)
+= page_header('Groups', action: action_button('+ New', new_group_path, :info))
 
 %p.text-muted
   Groups bundle system-level permissions. A user inherits all permissions of every group they belong to.

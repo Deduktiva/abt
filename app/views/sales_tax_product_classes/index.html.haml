@@ -1,4 +1,4 @@
-= page_header_with_new_button('Listing Sales Tax - Product Classes', new_sales_tax_product_class_path, permission: 'sales_tax.edit')
+= page_header('Listing Sales Tax - Product Classes', action: action_button('+ New', new_sales_tax_product_class_path, :info, permission: 'sales_tax.edit'))
 
 %table.table.table-striped.table-sm
   %tr

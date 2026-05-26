@@ -1,4 +1,4 @@
-= page_header_with_edit_button("Customer #{@customer.matchcode}", edit_customer_path(@customer), permission: 'customers.edit') do
+= page_header("Customer #{@customer.matchcode}", action: action_button('Edit', edit_customer_path(@customer), permission: 'customers.edit')) do
   - unless @customer.active?
     %span.badge.bg-secondary.fs-6 Inactive
 

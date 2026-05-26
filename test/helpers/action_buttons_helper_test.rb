@@ -41,12 +41,6 @@ class ActionButtonsHelperTest < ActionView::TestCase
     assert_match(%r{<form[^>]*action="/publish"}, html)
   end
 
-  test "convert_to_invoice_button uses the rocket and info color" do
-    html = convert_to_invoice_button("/convert", confirm: "Sure?")
-    assert_post_button html, label: "🚀 Convert to Invoice", klass: "btn-info"
-    assert_match(/data-turbo-confirm="Sure\?"/, html)
-  end
-
   test "unblock_button renders glyph + text, success color" do
     html = unblock_button("/unblock")
     assert_post_button html, label: "✅ Unblock", klass: "btn-success"

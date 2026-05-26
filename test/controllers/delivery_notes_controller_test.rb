@@ -127,6 +127,18 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".alert-success .alert-heading", count: 0
   end
 
+  test "show renders Invoice row with create button when published delivery note has no invoice yet" do
+    note = delivery_notes(:published_delivery_note)
+    assert_nil note.invoice, "fixture should not yet be invoiced"
+
+    get delivery_note_url(note)
+    assert_response :success
+    assert_select "strong", text: "Invoice:"
+    assert_select "form[action=?]", convert_to_invoice_delivery_note_path(note) do
+      assert_select "button"
+    end
+  end
+
   test "should unpublish delivery note" do
     published_note = delivery_notes(:published_delivery_note)
 

@@ -48,10 +48,6 @@ module ActionButtonsHelper
     post_button "↩️ Unpublish", path, klass: "btn btn-outline-secondary", permission: permission, confirm: confirm
   end
 
-  def convert_to_invoice_button(path, permission: nil, confirm: nil)
-    post_button "🚀 Convert to Invoice", path, klass: "btn btn-info", permission: permission, confirm: confirm
-  end
-
   def unblock_button(path, permission: nil, confirm: nil)
     post_button "✅ Unblock", path, klass: "btn btn-success", permission: permission, confirm: confirm
   end

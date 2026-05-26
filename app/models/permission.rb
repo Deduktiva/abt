@@ -13,7 +13,7 @@ module Permission
     Entry.new(key: "projects.view",       label: "View projects",           category: "Operations"),
     Entry.new(key: "projects.edit",       label: "Create / edit projects",  category: "Operations"),
     Entry.new(key: "invoices.view",       label: "View invoices",           category: "Operations"),
-    Entry.new(key: "invoices.edit",       label: "Create / book / send invoices", category: "Operations"),
+    Entry.new(key: "invoices.edit",       label: "Create / publish / send invoices", category: "Operations"),
     Entry.new(key: "delivery_notes.view", label: "View delivery notes",     category: "Operations"),
     Entry.new(key: "delivery_notes.edit", label: "Create / publish / send delivery notes", category: "Operations"),
 

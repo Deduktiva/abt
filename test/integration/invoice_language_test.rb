@@ -117,7 +117,7 @@ class InvoiceLanguageTest < ActionDispatch::IntegrationTest
   def test_pdf_generation_for_export_customer_without_vat_id
     # Customers in tax classes that don't require a VAT ID (export / non-EU /
     # B2C) must be able to render an invoice PDF. Regression test for the
-    # invoice_booker check that previously rejected any blank customer_vat_id.
+    # invoice_publisher check that previously rejected any blank customer_vat_id.
     export_customer = Customer.create!(
       name: "USA Corporation Inc.",
       matchcode: "USACORP_TEST",

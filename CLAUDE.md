@@ -53,8 +53,8 @@ For testing against PostgreSQL (matches production environment):
 - **InvoiceTaxClass** - Applied tax calculations per invoice
 
 ### Invoice Processing Pipeline
-1. **InvoicesController** - Standard CRUD + special actions (preview, book, bulk email)
-2. **InvoiceBooker** - Business logic for "booking" invoices (calculating taxes, assigning document numbers, publishing)
+1. **InvoicesController** - Standard CRUD + special actions (preview, publish, bulk email)
+2. **InvoicePublisher** - Business logic for publishing invoices (calculating taxes, assigning document numbers, attaching PDF). Invoice publishing is irreversible; there is no unpublish action.
 3. **InvoiceRenderer** - PDF generation using Apache FOP with XML/XSL transformation
 4. **Email System** - `DocumentMailer` delivered via `deliver_later` (Solid Queue). Bulk send marks `email_sent_at` for tracking.
 
@@ -80,7 +80,7 @@ For testing against PostgreSQL (matches production environment):
 ### Key Workflow
 1. Create draft invoice with lines
 2. Preview generates temporary PDF without saving
-3. "Book" finalizes invoice (assigns document number, calculates final taxes, publishes)
+3. "Publish" finalizes invoice (assigns document number, calculates final taxes, publishes). The post-publish state is shown as "Booked" — a deliberate accounting-state label.
 4. Published invoices cannot be modified
 5. Email invoices individually or in bulk batches
 
@@ -116,7 +116,7 @@ For testing against PostgreSQL (matches production environment):
 - Open Sans fonts in `lib/foptemplate/open-sans/` for PDF rendering
 
 ## Key Files for Modifications
-- Invoice business logic: `app/controllers/invoice_book_controller.rb`
+- Invoice publish logic: `app/services/invoice_publisher.rb`
 - PDF template: `lib/foptemplate/invoice.xsl`
 - Invoice model: `app/models/invoice.rb`
 - Main invoice controller: `app/controllers/invoices_controller.rb`
@@ -141,7 +141,7 @@ For testing against PostgreSQL (matches production environment):
 ### Status Badges
 - **Show only the deviation from the healthy default.** No badge means "normal."
   - Customer/Project Inactive, User Blocked → badge. Active state → nothing.
-  - Invoice/Delivery Note lifecycle (Draft, Booked, Paid, Overdue, Sent) all get header badges — there's no implicit "good" lifecycle, every state is noteworthy.
+  - Invoice lifecycle (Draft, Booked, Paid, Overdue, Sent) and Delivery Note lifecycle (Draft, Published, Sent) all get header badges — there's no implicit "good" lifecycle, every state is noteworthy. Invoice's finalized state is labelled "Booked" (accounting term) even though the action that gets it there is "Publish"; delivery notes use "Published" for the same state.
 - **Hide superseded badges.** On invoices, the header drops "Booked" once a more specific state (Sent/Paid/Overdue) applies. Sent stacks with Paid/Overdue (email and payment are independent).
 - **In detail grids and list columns, healthy data renders as plain text, not a badge.** Paid (with date), Sent (with timestamp) → plain text. Problem states (Unpaid, Unsent, Overdue, No Recipient) keep their badges.
 - **Hide the status column entirely when a list is filtered to a single state.** On the customers and projects lists, the Status column is only rendered when the filter is "All"; when filtered to Active or Inactive the column would be redundant (every row identical or empty), so the header and cells are omitted.
@@ -186,11 +186,11 @@ For testing against PostgreSQL (matches production environment):
 - To render a `datetime` column as date-only (e.g. `email_sent_at` in compact list rows), call `l(value.to_date)` — `l` on a `Time`/`DateTime` produces the time format.
 
 ### UI Helper Methods
-- `breadcrumbs(*items, action: nil, actions: nil, &status_block)` - Bootstrap breadcrumb strip that serves as the page header on every index/show/edit/new page (every page except the dashboard, `/account/*`, the sign-in / invite-acceptance flow, and the post-book confirmation). Each item is either `[label, path]` (link) or a plain label (non-link). The last item is always the active crumb with `aria-current="page"` (rendered `fw-semibold`), and it is the page identifier — there is no separate H1. The optional block yields inline status badges next to the active crumb. The right cluster carries optional secondary `actions:` (array — `nil` entries are compacted out) followed by the primary `action:` (rightmost). Buttons are built with `action_button(...)` or the per-verb helpers from `ActionButtonsHelper` (see "Button Glyphs" below).
+- `breadcrumbs(*items, action: nil, actions: nil, &status_block)` - Bootstrap breadcrumb strip that serves as the page header on every index/show/edit/new page (every page except the dashboard, `/account/*`, the sign-in / invite-acceptance flow, and the post-publish confirmation). Each item is either `[label, path]` (link) or a plain label (non-link). The last item is always the active crumb with `aria-current="page"` (rendered `fw-semibold`), and it is the page identifier — there is no separate H1. The optional block yields inline status badges next to the active crumb. The right cluster carries optional secondary `actions:` (array — `nil` entries are compacted out) followed by the primary `action:` (rightmost). Buttons are built with `action_button(...)` or the per-verb helpers from `ActionButtonsHelper` (see "Button Glyphs" below).
   - Top-level resources start with the navbar label linked to its index: `['Customers', customers_path]`, `['Projects', projects_path]`, `['Delivery Notes', delivery_notes_path]`, `['Invoices', invoices_path]`.
   - Configuration resources start with a non-link `'Configuration'` crumb (the dropdown has no destination) followed by the resource's navbar label, e.g. `breadcrumbs 'Configuration', ['Sales Tax', sales_tax_rates_path], 'Edit'`.
   - On edit pages append `'Edit'` as the active crumb; on new pages append `'New'`. On show pages the resource's identifier (matchcode / document number / name) is the active crumb.
-  - The bottom `action_buttons_wrapper` is gone from show pages — every workflow verb (PDF, Preview, Publish, Convert to Invoice, Delete, etc.) moves into `actions:` on the breadcrumb. Status-row buttons (Send E-Mail, Mark Paid, Mark Unpaid, Book Invoice…) stay inline with their status row. `cancel_button(resource)` on edit/new forms stays — it pairs with Submit, not navigation.
+  - The bottom `action_buttons_wrapper` is gone from show pages — every workflow verb (PDF, Preview, Publish, Convert to Invoice, Delete, etc.) moves into `actions:` on the breadcrumb. Status-row buttons (Send E-Mail, Mark Paid, Mark Unpaid, Publish Invoice…) stay inline with their status row. `cancel_button(resource)` on edit/new forms stays — it pairs with Submit, not navigation.
 - `page_header(title, action: nil, &status_block)` - Page-header row with an H1 title, optional inline status badges via the block, and optional right-aligned action. Only used on pages without breadcrumbs: dashboard (`home/index`), `/account/*`, the sign-in / invite-acceptance / "Invite generated" pages.
 - `action_button(text, path, type = :primary, permission: nil, target: nil, data: nil, title: nil)` - Styled buttons (primary, secondary, success, info, warning, danger). Returns `nil` when `permission:` is given and the current user lacks it. Pass `title:` on glyph-only buttons — the helper applies it as both `title=` (hover tooltip) and `aria-label=` (screen-reader name).
 - `action_buttons_wrapper` - Container for the bottom-of-page workflow action row. Only used by `issuer_companies/edit` and `user_invites/show_invite` now.

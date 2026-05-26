@@ -11,10 +11,10 @@ class InvoicesController < ApplicationController
   before_action -> { require_permission!("invoices.view") }, only: %i[index show preview preview_email preview_email_raw]
   before_action -> { require_permission!("invoices.edit") }, only: %i[
     new create edit update destroy
-    book send_email mark_paid mark_unpaid bulk_send_emails
+    publish send_email mark_paid mark_unpaid bulk_send_emails
   ]
 
-  before_action :set_invoice, only: %i[show edit update destroy book preview preview_email preview_email_raw send_email mark_paid mark_unpaid]
+  before_action :set_invoice, only: %i[show edit update destroy publish preview preview_email preview_email_raw send_email mark_paid mark_unpaid]
 
   # Permit the inline <style> blocks and embedded data: images that the
   # mailer layout produces. Scoped strictly to the iframe response so the
@@ -34,11 +34,11 @@ class InvoicesController < ApplicationController
   # spec tells browsers to ignore 'unsafe-inline' — which would re-block the
   # mailer's inline <style> tags. Strip the nonce list for this action.
   before_action(only: :preview_email_raw) { request.content_security_policy_nonce_directives = [] }
-  before_action :require_unpublished, only: %i[edit update destroy preview book]
+  before_action :require_unpublished, only: %i[edit update destroy preview publish]
   before_action :require_published, only: %i[send_email mark_paid mark_unpaid]
   # preview_email reads from a pre-rendered @invoice.attachment, so it never
-  # invokes FOP. The guard belongs on the actions that actually book/render.
-  before_action :require_item_line, only: %i[book preview]
+  # invokes FOP. The guard belongs on the actions that actually publish/render.
+  before_action :require_item_line, only: %i[publish preview]
 
   # GET /invoices
   def index
@@ -110,26 +110,26 @@ class InvoicesController < ApplicationController
     redirect_to invoices_url
   end
 
-  def book
-    booker = InvoiceBooker.new @invoice, IssuerCompany.get_the_issuer!
-    if booker.publish!
-      redirect_to invoice_path(@invoice, booked: 1)
+  def publish
+    publisher = InvoicePublisher.new @invoice, IssuerCompany.get_the_issuer!
+    if publisher.publish!
+      redirect_to invoice_path(@invoice, published: 1)
     else
-      flash[:error] = "Booking failed: #{@invoice.booking_problems.join('; ')}"
+      flash[:error] = "Publishing failed: #{@invoice.publish_problems.join('; ')}"
       redirect_to @invoice
     end
   end
 
   def preview
     issuer = IssuerCompany.get_the_issuer!
-    booker = InvoiceBooker.new @invoice, issuer
+    publisher = InvoicePublisher.new @invoice, issuer
     problems = nil
     pdf = nil
 
     ActiveRecord::Base.transaction(requires_new: true) do
       @invoice.document_number = "DRAFT"
-      booker.prepare!
-      problems = @invoice.booking_problems
+      publisher.prepare!
+      problems = @invoice.publish_problems
       pdf = InvoiceRenderer.new(@invoice, issuer).render if problems.empty?
       raise ActiveRecord::Rollback, "preview only"
     end

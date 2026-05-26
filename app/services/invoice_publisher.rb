@@ -1,4 +1,4 @@
-class InvoiceBooker
+class InvoicePublisher
   attr_reader :log
 
   def initialize(invoice, issuer)
@@ -17,8 +17,8 @@ class InvoiceBooker
     @invoice.due_date = @invoice.date + @invoice.payment_terms_days.days
   end
 
-  # Performs the irreversible booking. Returns true on success, false otherwise.
-  # On failure, problems are accessible via @invoice.booking_problems.
+  # Performs the irreversible publish. Returns true on success, false otherwise.
+  # On failure, problems are accessible via @invoice.publish_problems.
   def publish!
     if @invoice.published?
       @log << "E: already published"
@@ -27,7 +27,7 @@ class InvoiceBooker
 
     prepare!
 
-    problems = @invoice.booking_problems
+    problems = @invoice.publish_problems
     if problems.any?
       problems.each { |p| @log << "E: #{p}" }
       return false

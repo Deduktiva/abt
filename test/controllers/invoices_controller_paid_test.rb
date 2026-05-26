@@ -72,7 +72,7 @@ class InvoicesControllerPaidTest < ActionDispatch::IntegrationTest
     assert_equal "Draft invoices can not be used for this action.", flash[:error]
   end
 
-  test "show page exposes unpaid status with mark paid form for booked invoice" do
+  test "show page exposes unpaid status with mark paid form for published invoice" do
     invoice = invoices(:published_invoice)
     invoice.update!(paid_at: nil)
 

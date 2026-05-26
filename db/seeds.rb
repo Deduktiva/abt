@@ -523,7 +523,7 @@ if Rails.env.development?
     complex_invoice.save!
   end
 
-  # Booked invoice for 2025
+  # Published invoice for 2025
   unless Invoice.exists?(document_number: '20250001')
     current_year_invoice = Invoice.create!(
       customer: good_company,
@@ -568,7 +568,7 @@ if Rails.env.development?
       position: 3
     )
 
-    # Properly initialize the invoice by running the booking process
+    # Properly initialize the invoice by running the publish process
     current_year_invoice.save! # Trigger before_save callbacks
     current_year_invoice.due_date = Date.new(2025, 2, 14)
 
@@ -585,7 +585,7 @@ if Rails.env.development?
     current_year_invoice.save!
   end
 
-  # Booked invoice for last year (2024)
+  # Published invoice for last year (2024)
   unless Invoice.exists?(document_number: '20240145')
     last_year_invoice = Invoice.create!(
       customer: local_company,

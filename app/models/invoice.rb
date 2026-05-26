@@ -95,7 +95,7 @@ class Invoice < ApplicationRecord
     self.published? && !self.paid? && self.due_date.present? && self.due_date < Date.current
   end
 
-  def booking_problems
+  def publish_problems
     problems = []
     return problems if published?
 

@@ -13,7 +13,7 @@ module HasLineItems
   end
 
   # At least one line of type 'item' (as opposed to text / subheading /
-  # plain). Required for booking taxes / totals and for the document to
+  # plain). Required for publishing taxes / totals and for the document to
   # carry meaningful content.
   def has_items?
     public_send(self.class.line_items_association).any?(&:is_item?)

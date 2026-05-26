@@ -118,7 +118,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
       # date is nil for draft invoices
     )
 
-    # Create a booked invoice from previous year
+    # Create a published invoice from previous year
     Invoice.create!(
       customer: customers(:good_eu),
       project: projects(:test_project),
@@ -183,7 +183,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should show booked invoice with tax classes" do
+  test "should show published invoice with tax classes" do
     invoice = Invoice.create!(
       customer: customers(:good_eu),
       project: projects(:test_project),
@@ -218,7 +218,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".badge.bg-success", text: "Booked"
   end
 
-  test "draft invoice show renders Booking Status row with Ready badge for a valid draft" do
+  test "draft invoice show renders Publish Status row with Ready badge for a valid draft" do
     invoice = Invoice.create!(
       customer: customers(:good_eu),
       project: projects(:test_project),
@@ -237,10 +237,10 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".badge.bg-warning", text: "Draft"
     assert_select ".badge.bg-success", text: "Ready"
-    assert_select "form.button_to button", text: /Book Invoice/
+    assert_select "form.button_to button", text: /Publish Invoice/
   end
 
-  test "draft invoice show renders problems alert and disabled Book button when invoice has missing data" do
+  test "draft invoice show renders problems alert and disabled Publish button when invoice has missing data" do
     invoice = Invoice.create!(
       customer: customers(:good_eu),
       project: projects(:test_project),
@@ -259,7 +259,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     get invoice_url(invoice)
     assert_response :success
     assert_select ".alert-warning li", text: /Broken Line.*rate/
-    assert_select "button[disabled]", text: /Book Invoice/
+    assert_select "button[disabled]", text: /Publish Invoice/
   end
 
   test "should get edit" do
@@ -361,11 +361,11 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_content
   end
 
-  test "book action publishes a valid draft and redirects to show with booked=1" do
+  test "publish action publishes a valid draft and redirects to show with published=1" do
     invoice = Invoice.create!(
       customer: customers(:good_eu),
       project: projects(:test_project),
-      cust_reference: "BOOK_OK"
+      cust_reference: "PUBLISH_OK"
     )
     invoice.invoice_lines.create!(
       type: "item",
@@ -376,20 +376,20 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
       position: 1
     )
 
-    post book_invoice_url(invoice)
+    post publish_invoice_url(invoice)
 
-    assert_redirected_to invoice_path(invoice, booked: 1)
+    assert_redirected_to invoice_path(invoice, published: 1)
     invoice.reload
     assert invoice.published?
     assert invoice.document_number.present?
     assert invoice.attachment.present?
   end
 
-  test "book action redirects with flash[:error] when invoice has booking problems" do
+  test "publish action redirects with flash[:error] when invoice has publish problems" do
     invoice = Invoice.create!(
       customer: customers(:good_eu),
       project: projects(:test_project),
-      cust_reference: "BOOK_FAIL"
+      cust_reference: "PUBLISH_FAIL"
     )
     line = invoice.invoice_lines.create!(
       type: "item",
@@ -401,10 +401,10 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     )
     line.update_columns(rate: nil)
 
-    post book_invoice_url(invoice)
+    post publish_invoice_url(invoice)
 
     assert_redirected_to invoice_url(invoice)
-    assert_match(/Booking failed/, flash[:error])
+    assert_match(/Publishing failed/, flash[:error])
     assert_not invoice.reload.published?
     assert_nil invoice.document_number
   end
@@ -427,7 +427,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
       position: 1
     )
 
-    # Run test booking first time to create tax classes
+    # Run an update to create tax classes
     patch invoice_url(invoice), params: { invoice: { cust_reference: "NEW_REF" } }
     invoice.reload
 
@@ -438,7 +438,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     # Modify the invoice to trigger recalculation
     invoice.invoice_lines.first.update!(quantity: 3.0)
 
-    # Run test booking again - should reuse existing tax class
+    # Run update again - should reuse existing tax class
     patch invoice_url(invoice), params: { invoice: { cust_reference: "NEW_REF2" } }
     invoice.reload
 
@@ -529,16 +529,16 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_match "Published invoices can not be modified", flash[:error]
   end
 
-  test "should not POST book on published invoice" do
+  test "should not POST publish on published invoice" do
     invoice = invoices(:published_invoice)
-    # require_item_line fires before require_unpublished in the book POST,
+    # require_item_line fires before require_unpublished in the publish POST,
     # so a line is needed to reach the publish guard.
     invoice.invoice_lines.create!(
       type: "item", title: "x", rate: 1.0, quantity: 1.0,
       sales_tax_product_class: sales_tax_product_classes(:standard), position: 1
     )
 
-    post book_invoice_url(invoice)
+    post publish_invoice_url(invoice)
     assert_redirected_to invoice_url(invoice)
     assert_match "Published invoices can not be modified", flash[:error]
   end

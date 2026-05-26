@@ -174,4 +174,16 @@ module ApplicationHelper
       "generic-email-preview-send-url-value" => send("send_email_#{prefix}_path", resource)
     }
   end
+
+  # Emits a <style> tag in the layout head that sets the --issuer-accent-color
+  # CSS variable from the active IssuerCompany's document_accent_color. Returns
+  # nil (so the layout renders nothing) when no issuer or no accent color is
+  # configured. document_accent_color is validated against a hex pattern on
+  # the model, so interpolating it into a CSS string is safe.
+  def issuer_accent_color_style
+    color = IssuerCompany.get_the_issuer!&.document_accent_color
+    return unless color.present?
+    tag.style ":root { --issuer-accent-color: #{color}; }".html_safe,
+              nonce: content_security_policy_nonce
+  end
 end

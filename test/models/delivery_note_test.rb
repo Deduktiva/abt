@@ -47,28 +47,13 @@ class DeliveryNoteTest < ActiveSupport::TestCase
     assert_equal original_document_number, delivery_note.document_number
   end
 
-  test "publish_problems is empty for a draft with at least one item line" do
-    delivery_note = delivery_notes(:draft_delivery_note)
-    assert delivery_note.has_items?, "fixture should already carry an item line"
-
-    assert_empty delivery_note.publish_problems
-  end
-
-  test "publish_problems reports a draft with no item lines" do
-    delivery_note = DeliveryNote.create!(
-      customer: customers(:good_eu),
-      project: projects(:one),
-      delivery_start_date: Date.current
-    )
+  # Method shape (empty for valid draft / for published doc) is verified
+  # on Invoice; this confirms the DN-specific message wording.
+  test "publish_problems reports the DN-specific message when missing item lines" do
+    delivery_note = create_draft_delivery_note
     delivery_note.delivery_note_lines.create!(type: "text", title: "Just a note", position: 1)
-    assert_not delivery_note.has_items?
 
     assert_includes delivery_note.publish_problems, "Delivery note has no item lines."
-  end
-
-  test "publish_problems is empty for a published delivery note regardless of data" do
-    delivery_note = delivery_notes(:published_delivery_note)
-    assert_empty delivery_note.publish_problems
   end
 
   test "delivery_timeframe formats single day correctly" do

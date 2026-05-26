@@ -15,7 +15,10 @@ module PublishableDocument
   #
   # Both expose a publish_problems method returning user-facing strings,
   # so controllers can share the "check problems → publish → redirect"
-  # shape even though the underlying mechanisms differ.
+  # shape even though the underlying mechanisms differ. publish_problems
+  # is the canonical pre-check for the publish action — the model-level
+  # must_have_item_line_for_publish validation remains as a save-time
+  # safety net for programmatic callers (console, seeds, future code).
   class_methods do
     # Configure the instance variable and document label used by the guards.
     #

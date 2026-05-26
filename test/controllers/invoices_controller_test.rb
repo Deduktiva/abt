@@ -421,12 +421,6 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
 
   test "should not POST publish on published invoice" do
     invoice = invoices(:published_invoice)
-    # require_item_line fires before require_unpublished in the publish POST,
-    # so a line is needed to reach the publish guard.
-    invoice.invoice_lines.create!(
-      type: "item", title: "x", rate: 1.0, quantity: 1.0,
-      sales_tax_product_class: sales_tax_product_classes(:standard), position: 1
-    )
 
     post publish_invoice_url(invoice)
     assert_redirected_to invoice_url(invoice)

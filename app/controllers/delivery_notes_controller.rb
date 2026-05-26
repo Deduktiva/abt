@@ -39,7 +39,7 @@ class DeliveryNotesController < ApplicationController
   before_action :require_unpublished, only: %i[edit update destroy publish preview]
   before_action :require_unnumbered, only: :destroy
   before_action :require_published, only: %i[pdf unpublish upload_acceptance delete_acceptance convert_to_invoice send_email]
-  before_action :require_item_line, only: %i[publish preview preview_email]
+  before_action :require_item_line, only: %i[preview preview_email]
 
   # GET /delivery_notes
   def index

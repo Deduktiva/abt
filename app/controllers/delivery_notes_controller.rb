@@ -110,6 +110,13 @@ class DeliveryNotesController < ApplicationController
   end
 
   def publish
+    problems = @delivery_note.publish_problems
+    if problems.any?
+      flash[:error] = "Publishing failed: #{problems.join('; ')}"
+      redirect_to @delivery_note
+      return
+    end
+
     @delivery_note.publish!
     redirect_to delivery_note_path(@delivery_note, published: 1)
   rescue StandardError => e

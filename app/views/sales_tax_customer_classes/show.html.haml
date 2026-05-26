@@ -1,11 +1,51 @@
 = breadcrumbs 'Configuration', ['Sales Tax', sales_tax_rates_path], ['Customer Tax Classes', sales_tax_customer_classes_path], @sales_tax_customer_class.name, action: action_button('Edit', edit_sales_tax_customer_class_path(@sales_tax_customer_class), permission: 'sales_tax.edit')
 
-%p
-  %b Name:
-  = @sales_tax_customer_class.name
-%p
-  %b Invoice note:
-  = @sales_tax_customer_class.invoice_note
-%p
-  %b VAT ID required:
-  = @sales_tax_customer_class.vat_id_required? ? 'Yes' : 'No'
+.row
+  .col-md-8
+    .card
+      .card-header
+        Customer Tax Class
+      .card-body
+        .row.mb-2
+          .col-sm-3
+            %strong Name:
+          .col-sm-9
+            = @sales_tax_customer_class.name
+
+        .row.mb-2
+          .col-sm-3
+            %strong Invoice note:
+          .col-sm-9
+            - if @sales_tax_customer_class.invoice_note.present?
+              = simple_format(@sales_tax_customer_class.invoice_note)
+            - else
+              %em None
+
+        .row.mb-2
+          .col-sm-3
+            %strong VAT ID required:
+          .col-sm-9
+            = @sales_tax_customer_class.vat_id_required? ? 'Yes' : 'No'
+
+- if @sales_tax_customer_class.sales_tax_rates.any?
+  .row.mt-4
+    .col-md-8
+      .card
+        .card-header
+          Tax Rates
+        .card-body
+          %table.table.table-striped.table-sm.mb-0
+            %tr
+              %th Product class
+              %th Rate
+            - @sales_tax_customer_class.sales_tax_rates.includes(:sales_tax_product_class).each do |rate|
+              %tr
+                %td= link_to rate.sales_tax_product_class.name, rate.sales_tax_product_class
+                %td
+                  = link_to sales_tax_rate_path(rate) do
+                    = rate.rate
+                    \%
+
+= action_buttons_wrapper do
+  - if can?('sales_tax.edit')
+    = destroy_link(@sales_tax_customer_class, "Are you sure you want to delete customer class \"#{@sales_tax_customer_class.name}\"?")

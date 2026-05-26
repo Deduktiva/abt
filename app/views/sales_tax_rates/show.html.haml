@@ -1,11 +1,32 @@
 = breadcrumbs 'Configuration', ['Sales Tax', sales_tax_rates_path], "#{@sales_tax_rate.sales_tax_customer_class&.name} / #{@sales_tax_rate.sales_tax_product_class&.name}", action: action_button('Edit', edit_sales_tax_rate_path(@sales_tax_rate), permission: 'sales_tax.edit')
 
-%p
-  %b Sales tax customer class:
-  = @sales_tax_rate.sales_tax_customer_class_id
-%p
-  %b Sales tax product class:
-  = @sales_tax_rate.sales_tax_product_class_id
-%p
-  %b Rate:
-  = @sales_tax_rate.rate
+.row
+  .col-md-8
+    .card
+      .card-header
+        Tax Rate
+      .card-body
+        .row.mb-2
+          .col-sm-3
+            %strong Customer class:
+          .col-sm-9
+            - if @sales_tax_rate.sales_tax_customer_class
+              = link_to @sales_tax_rate.sales_tax_customer_class.name, @sales_tax_rate.sales_tax_customer_class
+
+        .row.mb-2
+          .col-sm-3
+            %strong Product class:
+          .col-sm-9
+            - if @sales_tax_rate.sales_tax_product_class
+              = link_to @sales_tax_rate.sales_tax_product_class.name, @sales_tax_rate.sales_tax_product_class
+
+        .row.mb-2
+          .col-sm-3
+            %strong Rate:
+          .col-sm-9
+            = @sales_tax_rate.rate
+            \%
+
+= action_buttons_wrapper do
+  - if can?('sales_tax.edit')
+    = destroy_link(@sales_tax_rate, "Are you sure you want to delete tax rate for \"#{@sales_tax_rate.sales_tax_customer_class&.name}\" / \"#{@sales_tax_rate.sales_tax_product_class&.name}\"?")

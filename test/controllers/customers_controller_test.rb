@@ -160,8 +160,8 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
   test "show page links to invoices and delivery notes filtered to this customer across all years" do
     get customer_url(@customer)
     assert_response :success
-    assert_select "a[href=?]", invoices_path(customer_id: @customer.id, year: "all"), text: /Invoices/
-    assert_select "a[href=?]", delivery_notes_path(customer_id: @customer.id, year: "all"), text: /Delivery Notes/
+    assert_select "a[href=?][data-turbo-prefetch=?]", invoices_path(customer_id: @customer.id, year: "all"), "false", text: /Invoices/
+    assert_select "a[href=?][data-turbo-prefetch=?]", delivery_notes_path(customer_id: @customer.id, year: "all"), "false", text: /Delivery Notes/
   end
 
   test "show page renders supplier number row only when set" do

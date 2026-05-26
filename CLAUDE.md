@@ -29,7 +29,7 @@ For testing against PostgreSQL (matches production environment):
 - `./bin/postgres-dev setup` - Create and setup PostgreSQL database
 - `./bin/postgres-dev server` - Run Rails server with PostgreSQL
 - `./bin/postgres-dev test` - Run tests with PostgreSQL
-- See `POSTGRES_DEV.md` for complete documentation
+- See `docs/POSTGRES_DEV.md` for complete documentation
 
 ## Architecture Overview
 

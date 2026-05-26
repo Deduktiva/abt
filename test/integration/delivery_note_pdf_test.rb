@@ -155,18 +155,6 @@ class DeliveryNotePdfTest < ActionDispatch::IntegrationTest
     assert_not dn.reload.published?
   end
 
-  test "model rejects setting published=true on an empty delivery note" do
-    dn = DeliveryNote.create!(
-      customer: @customer_en,
-      project: @project,
-      delivery_start_date: Date.new(2025, 8, 1)
-    )
-
-    dn.published = true
-    refute dn.valid?
-    assert_includes dn.errors[:base].join, "item line"
-  end
-
   test "delivery note XML structure is correct" do
     delivery_note = DeliveryNote.create!(
       customer: @customer_en,

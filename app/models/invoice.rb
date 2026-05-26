@@ -6,11 +6,6 @@ class Invoice < ApplicationRecord
   has_line_items :invoice_lines
 
   validates :customer_id, presence: true
-  # Edits to published invoices are rejected by require_unpublished in the
-  # controller; this validation only guards the transition into published.
-  validate :must_have_item_line_for_publish
-  default_scope { order(Arel.sql("id ASC")) }
-
   # Mirror of emailable? in SQL — must agree.
   # Auto-email branch needs a non-blank auto_to (the only To recipient).
   # Contacts branch only applies when auto-email is OFF (when it's on, contacts
@@ -34,7 +29,6 @@ class Invoice < ApplicationRecord
       )
     SQL
   }
-  scope :published, -> { where(published: true) }
   scope :unpaid, -> { where(paid_at: nil) }
 
   # Recipients for a real outbound send. Honors invoice_email_auto_contact_mode
@@ -63,12 +57,6 @@ class Invoice < ApplicationRecord
 
   def emailable?
     email_recipients.any?
-  end
-
-  def self.visible_to(user)
-    return none if user.nil?
-    return all if user.bypass_team_scoping?
-    where(customer_id: Customer.visible_to(user).select(:id))
   end
 
   after_initialize :set_defaults
@@ -127,13 +115,6 @@ class Invoice < ApplicationRecord
   end
 
 private
-  def must_have_item_line_for_publish
-    return unless will_save_change_to_published? && published?
-    return if has_items?
-
-    errors.add(:base, "must have at least one item line before it can be published")
-  end
-
   def update_sums
     return if self.published?
 

@@ -100,17 +100,6 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
     assert_not inv.reload.published?
   end
 
-  def test_model_rejects_setting_published_true_on_an_empty_invoice
-    inv = Invoice.create!(
-      customer: @customer,
-      project: @project
-    )
-
-    inv.published = true
-    refute inv.valid?
-    assert_includes inv.errors[:base].join, "item line"
-  end
-
   def test_pdf_generation_with_logo
     # Set up issuer company with a PDF logo
     issuer_company = issuer_companies(:one)

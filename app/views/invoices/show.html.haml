@@ -16,7 +16,7 @@
     - if sent
       %span.badge.bg-success Sent
 
-.document-header.row.mb-2
+.row.mb-2
   .col-md-6
     .document-details
       - if @invoice.date
@@ -118,7 +118,7 @@
             = link_to "Delivery Note #{@invoice.delivery_note.document_number || "##{@invoice.delivery_note.id}"}", @invoice.delivery_note
 
 - if @invoice.prelude.present?
-  .document-prelude.mb-4
+  .mb-4
     .card
       .card-body
         = simple_format(@invoice.prelude)
@@ -166,28 +166,27 @@
                   - else
                     = simple_format(line.description)
 
-.document-summary
-  .row.justify-content-end
-    .col-md-4
-      %table.table.table-sm
-        %tbody
-          %tr
-            %td.text-end
-              %strong Sum Net:
-            %td.text-end
-              %strong= format_currency(@invoice.sum_net)
-          - if @invoice.invoice_tax_classes.any?
-            - @invoice.invoice_tax_classes.each do |tax_class|
-              %tr
-                %td.text-end
-                  Tax (#{tax_class.rate}%):
-                %td.text-end
-                  = format_currency(tax_class.value)
-          %tr.table-dark
-            %td.text-end
-              %strong Sum Total:
-            %td.text-end
-              %strong= format_currency(@invoice.sum_total)
+.row.justify-content-end
+  .col-md-4
+    %table.table.table-sm
+      %tbody
+        %tr
+          %td.text-end
+            %strong Sum Net:
+          %td.text-end
+            %strong= format_currency(@invoice.sum_net)
+        - if @invoice.invoice_tax_classes.any?
+          - @invoice.invoice_tax_classes.each do |tax_class|
+            %tr
+              %td.text-end
+                Tax (#{tax_class.rate}%):
+              %td.text-end
+                = format_currency(tax_class.value)
+        %tr.table-dark
+          %td.text-end
+            %strong Sum Total:
+          %td.text-end
+            %strong= format_currency(@invoice.sum_total)
 
 = action_buttons_wrapper do
   - if @invoice.attachment

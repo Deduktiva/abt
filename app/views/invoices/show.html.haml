@@ -17,215 +17,219 @@
     - if sent
       %span.badge.bg-success Sent
 
-- if params[:booked] == '1' && @invoice.published? && @invoice.attachment
-  .alert.alert-success.mb-3{data: {controller: 'auto-download'}}
-    %h4.alert-heading.mb-2= "Invoice #{@invoice.document_number} booked."
-    %p.mb-3 Download the PDF and send it to your customer.
-    .d-flex.gap-2{data: email_preview_data(@invoice)}
-      = link_to 'Download PDF', @invoice.attachment, class: 'btn btn-success', target: '_blank', data: { turbo: false, 'auto-download-target': 'link' }
-      - if @invoice.emailable?
-        %button.btn.btn-outline-success{data: {action: 'click->generic-email-preview#open'}} Send E-Mail
-      = render 'shared/email_preview_modal', title: "Preview - Invoice #{@invoice.document_number}" if @invoice.emailable?
+-# Single generic-email-preview controller scope so the modal can be rendered
+-# once at the bottom and serve every trigger site on the page.
+%div{data: (@invoice.published? ? email_preview_data(@invoice) : {})}
+  - if params[:booked] == '1' && @invoice.published? && @invoice.attachment
+    .alert.alert-success.mb-3{data: {controller: 'auto-download'}}
+      %h4.alert-heading.mb-2= "Invoice #{@invoice.document_number} booked."
+      %p.mb-3 Download the PDF and send it to your customer.
+      .d-flex.gap-2
+        = link_to 'Download PDF', @invoice.attachment, class: 'btn btn-success', target: '_blank', data: { turbo: false, 'auto-download-target': 'link' }
+        - if @invoice.emailable?
+          %button.btn.btn-outline-success{data: {action: 'click->generic-email-preview#open'}} Send E-Mail
 
-.row.mb-2
-  .col-md-6
-    .document-details
-      - if @invoice.date
+  .row.mb-2
+    .col-md-6
+      .document-details
+        - if @invoice.date
+          .row.mb-2
+            .col-sm-4
+              %strong Date:
+            .col-sm-8
+              = l(@invoice.date)
         .row.mb-2
           .col-sm-4
-            %strong Date:
+            %strong Customer:
           .col-sm-8
-            = l(@invoice.date)
-      .row.mb-2
-        .col-sm-4
-          %strong Customer:
-        .col-sm-8
-          = link_to(@invoice.customer_name || @invoice.customer.name, @invoice.customer)
-      - if @invoice.project_id.present?
-        .row.mb-2
-          .col-sm-4
-            %strong Project:
-          .col-sm-8
-            - if @invoice.project
-              = link_to @invoice.project.display_name, @invoice.project
-            - else
-              %em (Project ##{@invoice.project_id} - not found)
-      - if @invoice.cust_order.present?
-        .row.mb-2
-          .col-sm-4
-            %strong Order No:
-          .col-sm-8
-            = @invoice.cust_order
-      - if @invoice.cust_reference.present?
-        .row.mb-2
-          .col-sm-4
-            %strong Reference:
-          .col-sm-8
-            = @invoice.cust_reference
+            = link_to(@invoice.customer_name || @invoice.customer.name, @invoice.customer)
+        - if @invoice.project_id.present?
+          .row.mb-2
+            .col-sm-4
+              %strong Project:
+            .col-sm-8
+              - if @invoice.project
+                = link_to @invoice.project.display_name, @invoice.project
+              - else
+                %em (Project ##{@invoice.project_id} - not found)
+        - if @invoice.cust_order.present?
+          .row.mb-2
+            .col-sm-4
+              %strong Order No:
+            .col-sm-8
+              = @invoice.cust_order
+        - if @invoice.cust_reference.present?
+          .row.mb-2
+            .col-sm-4
+              %strong Reference:
+            .col-sm-8
+              = @invoice.cust_reference
 
-  .col-md-6
-    .document-details
-      - if @invoice.due_date
-        .row.mb-2
-          .col-sm-4
-            %strong Due Date:
-          .col-sm-8
-            = l(@invoice.due_date)
-            %span.text-muted.ms-2 (#{@invoice.payment_terms_days} days net)
-      - else
-        .row.mb-2
-          .col-sm-4
-            %strong Payment Terms:
-          .col-sm-8
-            = @invoice.payment_terms_days
-            days net
+    .col-md-6
+      .document-details
+        - if @invoice.due_date
+          .row.mb-2
+            .col-sm-4
+              %strong Due Date:
+            .col-sm-8
+              = l(@invoice.due_date)
+              %span.text-muted.ms-2 (#{@invoice.payment_terms_days} days net)
+        - else
+          .row.mb-2
+            .col-sm-4
+              %strong Payment Terms:
+            .col-sm-8
+              = @invoice.payment_terms_days
+              days net
 
-      - unless @invoice.published?
-        .row.mb-2
-          .col-sm-4
-            %strong Booking Status:
-          .col-sm-8.d-flex.align-items-center.gap-2
-            - if problems.any?
-              %span.badge.bg-warning= pluralize(problems.size, 'problem')
-            - else
-              %span.badge.bg-success Ready
-            - if can_edit_invoice
+        - unless @invoice.published?
+          .row.mb-2
+            .col-sm-4
+              %strong Booking Status:
+            .col-sm-8.d-flex.align-items-center.gap-2
               - if problems.any?
-                %span.ms-auto{title: problems.join("\n")}
-                  %button.btn.btn-sm.btn-info{disabled: true} Book Invoice…
+                %span.badge.bg-warning= pluralize(problems.size, 'problem')
               - else
-                = button_to 'Book Invoice…', book_invoice_path(@invoice), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Book invoice and assign a document number? This cannot be undone.' }
+                %span.badge.bg-success Ready
+              - if can_edit_invoice
+                - if problems.any?
+                  %span.ms-auto{title: problems.join("\n")}
+                    %button.btn.btn-sm.btn-info{disabled: true} Book Invoice…
+                - else
+                  = button_to 'Book Invoice…', book_invoice_path(@invoice), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Book invoice and assign a document number? This cannot be undone.' }
 
-      - if @invoice.published?
-        .row.mb-2
-          .col-sm-4
-            %strong Email Status:
-          .col-sm-8.d-flex.align-items-center.gap-2{data: email_preview_data(@invoice)}
-            - if @invoice.email_sent_at
-              Sent #{l(@invoice.email_sent_at)}
-            - elsif @invoice.emailable?
-              %span.badge.bg-warning Unsent
-            - else
-              %span.badge.bg-secondary No Recipient
-            - if can_edit_invoice && @invoice.attachment
-              - if @invoice.emailable?
-                %button.btn.btn-sm.btn-warning.ms-auto{data: {action: 'click->generic-email-preview#open'}}
-                  Send E-Mail
+        - if @invoice.published?
+          .row.mb-2
+            .col-sm-4
+              %strong Email Status:
+            .col-sm-8.d-flex.align-items-center.gap-2
+              - if @invoice.email_sent_at
+                Sent #{l(@invoice.email_sent_at)}
+              - elsif @invoice.emailable?
+                %span.badge.bg-warning Unsent
               - else
-                %span.ms-auto{data: {'bs-toggle': 'tooltip'}, title: 'No contact is configured to receive this invoice. Add a contact on the customer, or enable Automated E-Mail.'}
-                  %button.btn.btn-sm.btn-warning{disabled: true}
+                %span.badge.bg-secondary No Recipient
+              - if can_edit_invoice && @invoice.attachment
+                - if @invoice.emailable?
+                  %button.btn.btn-sm.btn-warning.ms-auto{data: {action: 'click->generic-email-preview#open'}}
                     Send E-Mail
-            = render 'shared/email_preview_modal', title: "Preview - Invoice #{@invoice.document_number}"
+                - else
+                  %span.ms-auto{data: {'bs-toggle': 'tooltip'}, title: 'No contact is configured to receive this invoice. Add a contact on the customer, or enable Automated E-Mail.'}
+                    %button.btn.btn-sm.btn-warning{disabled: true}
+                      Send E-Mail
 
-        .row.mb-2
-          .col-sm-4
-            %strong Payment Status:
-          .col-sm-8.d-flex.align-items-center.gap-2{data: {controller: 'modal'}}
-            - if @invoice.paid?
-              Paid #{l(@invoice.paid_at.to_date)}
-            - elsif @invoice.overdue?
-              %span.badge.bg-danger Overdue
-            - else
-              %span.badge.bg-warning Unpaid
-            - if can_edit_invoice
+          .row.mb-2
+            .col-sm-4
+              %strong Payment Status:
+            .col-sm-8.d-flex.align-items-center.gap-2{data: {controller: 'modal'}}
               - if @invoice.paid?
-                -# button_to wraps the button in a form; the form is the flex
-                -# child, so ms-auto must go on the form to push it right.
-                = button_to 'Mark Unpaid', mark_unpaid_invoice_path(@invoice), method: :post, class: 'btn btn-sm btn-outline-secondary', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Mark this invoice as unpaid?' }
+                Paid #{l(@invoice.paid_at.to_date)}
+              - elsif @invoice.overdue?
+                %span.badge.bg-danger Overdue
               - else
-                %button.btn.btn-sm.btn-success.ms-auto{data: {action: 'click->modal#open'}}
-                  Mark Paid…
-                = render 'shared/mark_paid_modal', invoice: @invoice
+                %span.badge.bg-warning Unpaid
+              - if can_edit_invoice
+                - if @invoice.paid?
+                  -# button_to wraps the button in a form; the form is the flex
+                  -# child, so ms-auto must go on the form to push it right.
+                  = button_to 'Mark Unpaid', mark_unpaid_invoice_path(@invoice), method: :post, class: 'btn btn-sm btn-outline-secondary', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Mark this invoice as unpaid?' }
+                - else
+                  %button.btn.btn-sm.btn-success.ms-auto{data: {action: 'click->modal#open'}}
+                    Mark Paid…
+                  = render 'shared/mark_paid_modal', invoice: @invoice
 
-      - if @invoice.delivery_note
-        .row.mb-2
-          .col-sm-4
-            %strong Source:
-          .col-sm-8
-            = link_to "Delivery Note #{@invoice.delivery_note.document_number || "##{@invoice.delivery_note.id}"}", @invoice.delivery_note
+        - if @invoice.delivery_note
+          .row.mb-2
+            .col-sm-4
+              %strong Source:
+            .col-sm-8
+              = link_to "Delivery Note #{@invoice.delivery_note.document_number || "##{@invoice.delivery_note.id}"}", @invoice.delivery_note
 
-- if @invoice.prelude.present?
-  .mb-4
-    .card
-      .card-body
-        = simple_format(@invoice.prelude)
+  - if @invoice.prelude.present?
+    .mb-4
+      .card
+        .card-body
+          = simple_format(@invoice.prelude)
 
-- if !@invoice.published? && problems.any?
-  .alert.alert-warning.mb-3
-    %strong This invoice cannot be booked yet:
-    %ul.mb-0
-      - problems.each do |p|
-        %li= p
+  - if !@invoice.published? && problems.any?
+    .alert.alert-warning.mb-3
+      %strong This invoice cannot be booked yet:
+      %ul.mb-0
+        - problems.each do |p|
+          %li= p
 
-.document-lines.mb-2
-  %table.table.table-bordered.document-lines-table
-    %thead
-      %tr
-        %th.col-description Description
-        %th.text-end.col-quantity Quantity
-        %th.text-end.col-rate Rate
-        %th.text-center.col-tax-class Tax Class
-        %th.text-end.col-amount Amount
-    %tbody
-      - @invoice.invoice_lines.each do |line|
-        - case line.type
-        - when 'item'
-          %tr
-            %td
-              %strong= line.title
-              - if line.description.present?
-                %br
-                %small.text-muted= simple_format(line.description, {}, wrapper_tag: 'span')
-            %td.text-end
-              = number_with_precision(line.quantity, precision: 2, strip_insignificant_zeros: true)
-            %td.text-end
-              = format_currency(line.rate)
-            %td.text-center
-              %small= line.sales_tax_product_class&.name
-            %td.text-end
-              %strong= format_currency(line.amount || (line.quantity * line.rate))
-        - when 'subheading'
-          %tr
-            %td.fw-bold.table-secondary.document-section-row{colspan: 5}
-              = line.title
-        - when 'text', 'plain'
-          %tr
-            %td.document-text-row{colspan: 5}
-              - if line.title.present?
-                %div= line.title
-              - if line.description.present?
-                %div.text-muted.document-line-comment
-                  - if line.type == 'plain'
-                    %pre.mb-0.font-monospace.text-pre-wrap= line.description
-                  - else
-                    = simple_format(line.description)
-
-.row.justify-content-end
-  .col-md-4
-    %table.table.table-sm
-      %tbody
+  .document-lines.mb-2
+    %table.table.table-bordered.document-lines-table
+      %thead
         %tr
-          %td.text-end
-            %strong Sum Net:
-          %td.text-end
-            %strong= format_currency(@invoice.sum_net)
-        - if @invoice.invoice_tax_classes.any?
-          - @invoice.invoice_tax_classes.each do |tax_class|
+          %th.col-description Description
+          %th.text-end.col-quantity Quantity
+          %th.text-end.col-rate Rate
+          %th.text-center.col-tax-class Tax Class
+          %th.text-end.col-amount Amount
+      %tbody
+        - @invoice.invoice_lines.each do |line|
+          - case line.type
+          - when 'item'
             %tr
+              %td
+                %strong= line.title
+                - if line.description.present?
+                  %br
+                  %small.text-muted= simple_format(line.description, {}, wrapper_tag: 'span')
               %td.text-end
-                Tax (#{tax_class.rate}%):
+                = number_with_precision(line.quantity, precision: 2, strip_insignificant_zeros: true)
               %td.text-end
-                = format_currency(tax_class.value)
-        %tr.table-dark
-          %td.text-end
-            %strong Sum Total:
-          %td.text-end
-            %strong= format_currency(@invoice.sum_total)
+                = format_currency(line.rate)
+              %td.text-center
+                %small= line.sales_tax_product_class&.name
+              %td.text-end
+                %strong= format_currency(line.amount || (line.quantity * line.rate))
+          - when 'subheading'
+            %tr
+              %td.fw-bold.table-secondary.document-section-row{colspan: 5}
+                = line.title
+          - when 'text', 'plain'
+            %tr
+              %td.document-text-row{colspan: 5}
+                - if line.title.present?
+                  %div= line.title
+                - if line.description.present?
+                  %div.text-muted.document-line-comment
+                    - if line.type == 'plain'
+                      %pre.mb-0.font-monospace.text-pre-wrap= line.description
+                    - else
+                      = simple_format(line.description)
 
-= action_buttons_wrapper do
-  - if @invoice.attachment
-    = action_button 'PDF', @invoice.attachment, :success, target: '_blank', data: { turbo: false }
-  - else
-    = action_button 'Preview', preview_invoice_path(@invoice), :info, target: '_blank', data: { turbo: false }
-  - if !@invoice.published && can_edit_invoice
-    = destroy_link(@invoice, "Are you sure you want to delete invoice \"#{@invoice.document_number || "##{@invoice.id}"}\"?")
+  .row.justify-content-end
+    .col-md-4
+      %table.table.table-sm
+        %tbody
+          %tr
+            %td.text-end
+              %strong Sum Net:
+            %td.text-end
+              %strong= format_currency(@invoice.sum_net)
+          - if @invoice.invoice_tax_classes.any?
+            - @invoice.invoice_tax_classes.each do |tax_class|
+              %tr
+                %td.text-end
+                  Tax (#{tax_class.rate}%):
+                %td.text-end
+                  = format_currency(tax_class.value)
+          %tr.table-dark
+            %td.text-end
+              %strong Sum Total:
+            %td.text-end
+              %strong= format_currency(@invoice.sum_total)
+
+  = action_buttons_wrapper do
+    - if @invoice.attachment
+      = action_button 'PDF', @invoice.attachment, :success, target: '_blank', data: { turbo: false }
+    - else
+      = action_button 'Preview', preview_invoice_path(@invoice), :info, target: '_blank', data: { turbo: false }
+    - if !@invoice.published && can_edit_invoice
+      = destroy_link(@invoice, "Are you sure you want to delete invoice \"#{@invoice.document_number || "##{@invoice.id}"}\"?")
+
+  - if @invoice.published?
+    = render 'shared/email_preview_modal', title: "Preview - Invoice #{@invoice.document_number}"

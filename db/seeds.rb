@@ -174,6 +174,23 @@ if Rails.env.development?
     customer.team = default_team
   end
 
+  # Former customer, kept for historical invoice references but no longer
+  # billable. Demonstrates the Inactive state in the UI.
+  Customer.find_or_create_by(matchcode: 'OLDCLIENT') do |customer|
+    customer.name = 'Old Client GmbH'
+    customer.address = <<~ADDRESS.strip
+      Hauptstraße 1
+      1010 Wien
+      Austria
+    ADDRESS
+    customer.vat_id = 'ATU99999999'
+    customer.notes = 'Engagement ended 2024'
+    customer.sales_tax_customer_class = eu_class
+    customer.language = german
+    customer.team = default_team
+    customer.active = false
+  end
+
   # Sample projects
   webapp_project = Project.find_or_create_by(matchcode: 'WEBAPP') do |project|
     project.description = 'Web Application Development'
@@ -223,6 +240,15 @@ if Rails.env.development?
     project.description = 'Migration 2026'
     project.bill_to_customer = good_company
     project.team = default_team
+  end
+
+  # Discontinued reusable project, kept for historical reference. Demonstrates
+  # the Inactive state.
+  Project.find_or_create_by(matchcode: 'LEGACY') do |project|
+    project.description = 'Legacy System (decommissioned)'
+    project.bill_to_customer = nil
+    project.team = default_team
+    project.active = false
   end
 
   # Customer contacts.

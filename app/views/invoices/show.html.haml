@@ -76,7 +76,7 @@
               %strong Email Status:
             .col-sm-8
               - if @invoice.email_sent_at
-                %span.badge.bg-success Sent #{l(@invoice.email_sent_at)}
+                Sent #{l(@invoice.email_sent_at)}
               - elsif @invoice.emailable?
                 %span.badge.bg-warning Unsent
               - else
@@ -87,7 +87,7 @@
               %strong Payment Status:
             .col-sm-8
               - if @invoice.paid?
-                %span.badge.bg-success Paid #{l(@invoice.paid_at)}
+                Paid #{l(@invoice.paid_at.to_date)}
               - elsif @invoice.overdue?
                 %span.badge.bg-danger Overdue
               - else

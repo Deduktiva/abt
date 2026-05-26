@@ -29,7 +29,7 @@
               %strong Email Status:
             .col-sm-8
               - if @delivery_note.email_sent_at
-                %span.badge.bg-success Sent #{l(@delivery_note.email_sent_at)}
+                Sent #{l(@delivery_note.email_sent_at)}
               - elsif @delivery_note.emailable?
                 %span.badge.bg-warning Unsent
               - else

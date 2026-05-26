@@ -141,6 +141,7 @@ For testing against PostgreSQL (matches production environment):
   - Invoice/Delivery Note lifecycle (Draft, Booked, Paid, Overdue, Sent) all get header badges — there's no implicit "good" lifecycle, every state is noteworthy.
 - **Hide superseded badges.** On invoices, the header drops "Booked" once a more specific state (Sent/Paid/Overdue) applies. Sent stacks with Paid/Overdue (email and payment are independent).
 - **In detail grids and list columns, healthy data renders as plain text, not a badge.** Paid (with date), Sent (with timestamp) → plain text. Problem states (Unpaid, Unsent, Overdue, No Recipient) keep their badges.
+- **Hide the status column entirely when a list is filtered to a single state.** On the customers and projects lists, the Status column is only rendered when the filter is "All"; when filtered to Active or Inactive the column would be redundant (every row identical or empty), so the header and cells are omitted.
 - Use `fs-6` when a badge sits inline with an H1, otherwise it inflates to heading size.
 
 ## Development Best Practices

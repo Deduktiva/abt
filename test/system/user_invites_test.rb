@@ -1,11 +1,11 @@
 require "application_system_test_case"
 
 class UserInvitesTest < ApplicationSystemTestCase
-  test "generating an invite URL renders the token page" do
-    visit new_user_invite_path
-    assert_selector ".breadcrumb-item.active", text: "New"
+  test "clicking + Invite user on the users page lands directly on the token page" do
+    visit users_path
+    assert_selector ".breadcrumb-item.active", text: "Users"
 
-    click_button "Save"
+    click_button "+ Invite user"
 
     assert_selector "h1", text: "Invite generated"
     assert_selector "code", text: %r{/invites/}

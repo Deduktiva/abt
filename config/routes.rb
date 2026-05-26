@@ -40,7 +40,7 @@ Rails.application.routes.draw do
     resources :emails, only: [ :create, :update, :destroy ], controller: "users/emails"
   end
 
-  resources :user_invites, only: [ :new, :create, :index ]
+  resources :user_invites, only: [ :create, :index ]
 
   resources :groups
   resources :teams

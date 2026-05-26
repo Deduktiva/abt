@@ -1,6 +1,6 @@
 - content_for :title, 'Invites'
 
-= breadcrumbs 'Configuration', ['Users', users_path], 'Invites', action: action_button('+ New', new_user_invite_path)
+= breadcrumbs 'Configuration', ['Users', users_path], 'Invites', action: button_to('+ New', user_invites_path, method: :post, class: 'btn btn-primary', data: { turbo: false })
 
 %table.table.table-striped.table-sm
   %thead

@@ -385,45 +385,6 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0.0, tax_class.value, "Tax value should be 0.0"
   end
 
-  test "should not edit published invoice" do
-    invoice = invoices(:published_invoice)
-    get edit_invoice_url(invoice)
-    assert_redirected_to invoice_url(invoice)
-    assert_match "Published invoices can not be modified", flash[:error]
-  end
-
-  test "should not update published invoice" do
-    invoice = invoices(:published_invoice)
-    original_ref = invoice.cust_reference
-
-    patch invoice_url(invoice), params: { invoice: { cust_reference: "HACKED" } }
-
-    assert_redirected_to invoice_url(invoice)
-    assert_match "Published invoices can not be modified", flash[:error]
-    assert_equal original_ref, invoice.reload.cust_reference
-  end
-
-  test "should not destroy published invoice" do
-    invoice = invoices(:published_invoice)
-    assert_no_difference("Invoice.count") do
-      delete invoice_url(invoice)
-    end
-    assert_redirected_to invoice_url(invoice)
-    assert_match "Published invoices can not be modified", flash[:error]
-  end
-
-  test "should not preview published invoice" do
-    invoice = invoices(:published_invoice)
-    get preview_invoice_url(invoice)
-    assert_redirected_to invoice_url(invoice)
-    assert_match "Published invoices can not be modified", flash[:error]
-  end
-
-  test "should not POST publish on published invoice" do
-    invoice = invoices(:published_invoice)
-
-    post publish_invoice_url(invoice)
-    assert_redirected_to invoice_url(invoice)
-    assert_match "Published invoices can not be modified", flash[:error]
-  end
+  # Published-invoice guards (edit/update/destroy/preview/publish) live in
+  # test/controllers/concerns/publishable_document_test.rb.
 end

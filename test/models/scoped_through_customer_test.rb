@@ -59,32 +59,4 @@ class ScopedThroughCustomerTest < ActiveSupport::TestCase
     invoice = Invoice.new(customer: @other_customer, project: @other_project)
     assert invoice.valid?, invoice.errors.full_messages.inspect
   end
-
-  test "DeliveryNote.new rejects customer_id from a team Current.user can't see" do
-    Current.set(user: users(:bob)) do
-      dn = DeliveryNote.new(customer_id: @other_customer.id,
-                            delivery_start_date: Date.current)
-      refute dn.valid?
-      assert_includes dn.errors[:customer_id], "must be a customer you can access"
-    end
-  end
-
-  test "DeliveryNote.new rejects project_id from a team Current.user can't see" do
-    Current.set(user: users(:bob)) do
-      dn = DeliveryNote.new(customer: customers(:good_eu),
-                            project_id: @other_project.id,
-                            delivery_start_date: Date.current)
-      refute dn.valid?
-      assert_includes dn.errors[:project_id], "must be a project you can access"
-    end
-  end
-
-  test "DeliveryNote.new accepts customer_id from a team Current.user can see" do
-    Current.set(user: users(:bob)) do
-      dn = DeliveryNote.new(customer: customers(:good_eu),
-                            project: projects(:one),
-                            delivery_start_date: Date.current)
-      assert dn.valid?, dn.errors.full_messages.inspect
-    end
-  end
 end

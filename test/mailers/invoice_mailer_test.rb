@@ -26,14 +26,13 @@ class InvoiceMailerTest < ActionMailer::TestCase
   test "customer_email skips contacts whose project does not match the invoice's project" do
     # good_eu_project_one_lead is scoped to project `one`. An invoice on
     # project `two` should NOT include that contact.
-    invoice = Invoice.create!(
-      customer: customers(:good_eu),
+    invoice = create_invoice_with_item_line(
       project: projects(:two),
       attachment: attachments(:invoice_pdf),
       date: Date.current,
-      due_date: 30.days.from_now
+      due_date: 30.days.from_now,
+      quantity: 1.0
     )
-    invoice.invoice_lines.create!(type: "item", title: "X", quantity: 1.0, rate: 100.0, position: 1)
     invoice.update!(published: true, document_number: "INV-PROJ-FILTER", sum_net: 100.00, sum_total: 121.00)
 
     mail = InvoiceMailer.with(invoice: invoice).customer_email
@@ -136,16 +135,16 @@ class InvoiceMailerTest < ActionMailer::TestCase
   end
 
   test "customer_email subject template handles empty substitution values" do
-    invoice = Invoice.create!(
+    invoice = create_invoice_with_item_line(
       customer: customers(:auto_email_customer),
       project: projects(:one),
       attachment: attachments(:auto_email_pdf),
       date: Date.current,
       due_date: 30.days.from_now,
       cust_reference: "",
-      cust_order: ""
+      cust_order: "",
+      quantity: 1.0
     )
-    invoice.invoice_lines.create!(type: "item", title: "X", quantity: 1.0, rate: 100.0, position: 1)
     invoice.update!(published: true, document_number: "INV-EMPTY", sum_net: 100.00, sum_total: 121.00)
 
     mail = InvoiceMailer.with(invoice: invoice).customer_email
@@ -153,16 +152,16 @@ class InvoiceMailerTest < ActionMailer::TestCase
   end
 
   test "customer_email subject template handles nil substitution values" do
-    invoice = Invoice.create!(
+    invoice = create_invoice_with_item_line(
       customer: customers(:auto_email_customer),
       project: projects(:one),
       attachment: attachments(:auto_email_pdf),
       date: Date.current,
       due_date: 30.days.from_now,
       cust_reference: nil,
-      cust_order: nil
+      cust_order: nil,
+      quantity: 1.0
     )
-    invoice.invoice_lines.create!(type: "item", title: "X", quantity: 1.0, rate: 100.0, position: 1)
     invoice.update!(published: true, document_number: "INV-NIL", sum_net: 100.00, sum_total: 121.00)
 
     mail = InvoiceMailer.with(invoice: invoice).customer_email
@@ -175,14 +174,13 @@ class InvoiceMailerTest < ActionMailer::TestCase
     # Project `two` matches only good_eu_accounting (good_eu_project_one_lead
     # is scoped to project `one`), so the To: line resolves to a single
     # contact and its salutation_line wins.
-    invoice = Invoice.create!(
-      customer: customers(:good_eu),
+    invoice = create_invoice_with_item_line(
       project: projects(:two),
       attachment: attachments(:invoice_pdf),
       date: Date.current,
-      due_date: 30.days.from_now
+      due_date: 30.days.from_now,
+      quantity: 1.0
     )
-    invoice.invoice_lines.create!(type: "item", title: "X", quantity: 1.0, rate: 100.0, position: 1)
     invoice.update!(published: true, document_number: "INV-SALUT-1", sum_net: 100.00, sum_total: 121.00)
 
     mail = InvoiceMailer.with(invoice: invoice).customer_email
@@ -195,14 +193,13 @@ class InvoiceMailerTest < ActionMailer::TestCase
   end
 
   test "customer_email falls back to greeting when the single resolved contact has no salutation_line" do
-    invoice = Invoice.create!(
-      customer: customers(:good_eu),
+    invoice = create_invoice_with_item_line(
       project: projects(:two),
       attachment: attachments(:invoice_pdf),
       date: Date.current,
-      due_date: 30.days.from_now
+      due_date: 30.days.from_now,
+      quantity: 1.0
     )
-    invoice.invoice_lines.create!(type: "item", title: "X", quantity: 1.0, rate: 100.0, position: 1)
     invoice.update!(published: true, document_number: "INV-SALUT-NIL", sum_net: 100.00, sum_total: 121.00)
 
     mail = InvoiceMailer.with(invoice: invoice).customer_email

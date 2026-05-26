@@ -14,6 +14,8 @@ Capybara.ignore_hidden_elements = true
 # Automatically apply migrations to test database
 ActiveRecord::Migration.maintain_test_schema!
 
+Dir[File.expand_path("support/**/*.rb", __dir__)].each { |f| require f }
+
 class ActiveSupport::TestCase
   # Setup all fixtures in test/fixtures/*.(yml|csv) for all tests in alphabetical order.
   #
@@ -21,7 +23,7 @@ class ActiveSupport::TestCase
   # -- they do not yet inherit this setting
   fixtures :all
 
-  # Add more helper methods to be used by all tests here...
+  include DocumentFactories
 end
 
 module TestAuthHelpers

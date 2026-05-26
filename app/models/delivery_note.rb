@@ -11,7 +11,6 @@ class DeliveryNote < ApplicationRecord
   # Edits to published delivery notes are rejected by require_unpublished in
   # the controller; this validation only guards the transition into published.
   validate :must_have_item_line_for_publish
-  default_scope { order(Arel.sql("id ASC")) }
 
   scope :email_unsent, -> {
     where(email_sent_at: nil).where(<<~SQL.squish)
@@ -24,7 +23,6 @@ class DeliveryNote < ApplicationRecord
       )
     SQL
   }
-  scope :published, -> { where(published: true) }
 
   def email_recipients
     customer.contacts_for_delivery_note(self).map(&:email)
@@ -40,12 +38,6 @@ class DeliveryNote < ApplicationRecord
 
   def emailable?
     email_recipients.any?
-  end
-
-  def self.visible_to(user)
-    return none if user.nil?
-    return all if user.bypass_team_scoping?
-    where(customer_id: Customer.visible_to(user).select(:id))
   end
 
   belongs_to :customer

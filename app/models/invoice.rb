@@ -9,7 +9,6 @@ class Invoice < ApplicationRecord
   # Edits to published invoices are rejected by require_unpublished in the
   # controller; this validation only guards the transition into published.
   validate :must_have_item_line_for_publish
-  default_scope { order(Arel.sql("id ASC")) }
 
   # Mirror of emailable? in SQL — must agree.
   # Auto-email branch needs a non-blank auto_to (the only To recipient).
@@ -34,7 +33,6 @@ class Invoice < ApplicationRecord
       )
     SQL
   }
-  scope :published, -> { where(published: true) }
   scope :unpaid, -> { where(paid_at: nil) }
 
   # Recipients for a real outbound send. Honors invoice_email_auto_contact_mode
@@ -63,12 +61,6 @@ class Invoice < ApplicationRecord
 
   def emailable?
     email_recipients.any?
-  end
-
-  def self.visible_to(user)
-    return none if user.nil?
-    return all if user.bypass_team_scoping?
-    where(customer_id: Customer.visible_to(user).select(:id))
   end
 
   after_initialize :set_defaults

@@ -1,4 +1,6 @@
-= breadcrumbs 'Configuration', ['Sales Tax', sales_tax_rates_path], ['Customer Tax Classes', sales_tax_customer_classes_path], @sales_tax_customer_class.name, action: action_button('Edit', edit_sales_tax_customer_class_path(@sales_tax_customer_class), permission: 'sales_tax.edit')
+- delete_action = delete_button(@sales_tax_customer_class, confirm: "Are you sure you want to delete customer class \"#{@sales_tax_customer_class.name}\"?", permission: 'sales_tax.edit')
+- edit_action = action_button('Edit', edit_sales_tax_customer_class_path(@sales_tax_customer_class), permission: 'sales_tax.edit')
+= breadcrumbs 'Configuration', ['Sales Tax', sales_tax_rates_path], ['Customer Tax Classes', sales_tax_customer_classes_path], @sales_tax_customer_class.name, actions: [delete_action], action: edit_action
 
 .row
   .col-md-8
@@ -45,7 +47,3 @@
                   = link_to sales_tax_rate_path(rate) do
                     = rate.rate
                     \%
-
-= action_buttons_wrapper do
-  - if can?('sales_tax.edit')
-    = destroy_link(@sales_tax_customer_class, "Are you sure you want to delete customer class \"#{@sales_tax_customer_class.name}\"?")

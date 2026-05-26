@@ -1,3 +1,5 @@
+= page_header_with_edit_button("Customer Tax Class \"#{@sales_tax_customer_class.name}\"", edit_sales_tax_customer_class_path(@sales_tax_customer_class), permission: 'sales_tax.edit')
+
 %p
   %b Name:
   = @sales_tax_customer_class.name
@@ -9,6 +11,4 @@
   = @sales_tax_customer_class.vat_id_required? ? 'Yes' : 'No'
 
 = action_buttons_wrapper do
-  - if can?('sales_tax.edit')
-    = action_button 'Edit', edit_sales_tax_customer_class_path(@sales_tax_customer_class), :primary
   = action_button 'Back', sales_tax_customer_classes_path, :secondary

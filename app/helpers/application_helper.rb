@@ -44,11 +44,15 @@ module ApplicationHelper
     end
   end
 
-  def page_header_with_edit_button(title, edit_path, permission: nil)
-    content_tag :div, class: "d-flex justify-content-between align-items-center mb-3" do
-      header = content_tag(:h1, title, class: "page-header mb-0")
+  def page_header_with_edit_button(title, edit_path, permission: nil, &status_block)
+    content_tag :div, class: "d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" do
+      title_area = content_tag(:div, class: "d-flex align-items-center flex-wrap gap-2") do
+        header = content_tag(:h1, title, class: "page-header mb-0")
+        status = status_block ? capture(&status_block) : "".html_safe
+        header + status
+      end
       button = (permission.nil? || can?(permission)) ? link_to("Edit", edit_path, class: "btn btn-primary") : "".html_safe
-      header + button
+      title_area + button
     end
   end
 

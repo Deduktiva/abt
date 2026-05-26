@@ -1,3 +1,5 @@
+= page_header_with_edit_button('Sales Tax Rate', edit_sales_tax_rate_path(@sales_tax_rate), permission: 'sales_tax.edit')
+
 %p
   %b Sales tax customer class:
   = @sales_tax_rate.sales_tax_customer_class_id
@@ -9,6 +11,4 @@
   = @sales_tax_rate.rate
 
 = action_buttons_wrapper do
-  - if can?('sales_tax.edit')
-    = action_button 'Edit', edit_sales_tax_rate_path(@sales_tax_rate), :primary
   = action_button 'Back', sales_tax_rate_path, :secondary

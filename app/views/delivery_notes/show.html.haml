@@ -1,14 +1,21 @@
+- can_edit_dn = can?('delivery_notes.edit')
 %div
-  .document-header.row.mb-2
-    .col-md-6
-      %h1.h2.mb-3
+  .d-flex.justify-content-between.align-items-center.mb-3.flex-wrap.gap-2
+    .d-flex.align-items-center.flex-wrap.gap-2
+      %h1.h2.mb-0
         Delivery Note
         = @delivery_note.document_number || "Draft \##{@delivery_note.id}"
-        - if not @delivery_note.published?
-          %span.badge.bg-warning.ms-2 Draft
-        - else
-          %span.badge.bg-success.ms-2 Booked
+      - if !@delivery_note.published?
+        %span.badge.bg-warning.fs-6 Draft
+      - elsif @delivery_note.email_sent_at.present?
+        %span.badge.bg-success.fs-6 Sent
+      - else
+        %span.badge.bg-success.fs-6 Booked
+    - if !@delivery_note.published && can_edit_dn
+      = action_button 'Edit', edit_delivery_note_path(@delivery_note), :primary
 
+  .document-header.row.mb-2
+    .col-md-6
       .document-details
         - if @delivery_note.date
           .row.mb-2
@@ -44,7 +51,7 @@
                 %span.badge.bg-warning.ms-2 Draft
 
     .col-md-6
-      .document-details.mt-md-5
+      .document-details
         - if @delivery_note.project_id.present?
           .row.mb-2
             .col-sm-4
@@ -143,11 +150,8 @@
                       = simple_format(line.description)
 
 .email-delivery_note-preview-wrapper{"data-controller" => "generic-email-preview", "data-generic-email-preview-preview-url-value" => preview_email_delivery_note_path(@delivery_note), "data-generic-email-preview-raw-preview-url-value" => preview_email_raw_delivery_note_path(@delivery_note), "data-generic-email-preview-send-url-value" => send_email_delivery_note_path(@delivery_note)}
-  - can_edit_dn = can?('delivery_notes.edit')
   = action_buttons_wrapper do
     = action_button 'Back', delivery_notes_path, :secondary
-    - if !@delivery_note.published && can_edit_dn
-      = action_button 'Edit', edit_delivery_note_path(@delivery_note), :primary
     - if @delivery_note.published?
       = action_button 'PDF', pdf_delivery_note_path(@delivery_note), :success, { target: '_blank', data: { turbo: false } }
       - if can_edit_dn

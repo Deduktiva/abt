@@ -102,7 +102,9 @@
               %span.badge.bg-warning Unpaid
             - if can_edit_invoice
               - if @invoice.paid?
-                = button_to 'Mark Unpaid', mark_unpaid_invoice_path(@invoice), method: :post, class: 'btn btn-sm btn-outline-secondary ms-auto', data: { 'turbo-confirm': 'Mark this invoice as unpaid?' }
+                -# button_to wraps the button in a form; the form is the flex
+                -# child, so ms-auto must go on the form to push it right.
+                = button_to 'Mark Unpaid', mark_unpaid_invoice_path(@invoice), method: :post, class: 'btn btn-sm btn-outline-secondary', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Mark this invoice as unpaid?' }
               - else
                 %button.btn.btn-sm.btn-success.ms-auto{data: {action: 'click->modal#open'}}
                   Mark Paid…

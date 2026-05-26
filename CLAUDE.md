@@ -146,6 +146,13 @@ For testing against PostgreSQL (matches production environment):
 - **Hide the status column entirely when a list is filtered to a single state.** On the customers and projects lists, the Status column is only rendered when the filter is "All"; when filtered to Active or Inactive the column would be redundant (every row identical or empty), so the header and cells are omitted.
 - Use `fs-6` when a badge sits inline with an H1, otherwise it inflates to heading size.
 
+### Status-row Action Buttons
+- On document show pages, "act on this status" controls (Send E-Mail, Mark Paid…, Mark Unpaid) sit inline at the right edge of their status row's `col-sm-8`, separating the status text/badge on the left from the action on the right. The row container is `.col-sm-8.d-flex.align-items-center.gap-2`.
+- `ms-auto` must go on the actual flex child:
+  - Direct `%button` → put `ms-auto` on the button.
+  - Disabled-tooltip variant (a `%span` wrapping a disabled `%button`) → put `ms-auto` on the wrapping `%span`.
+  - `button_to` → the generated `<form class="button_to">` is the flex child, so `ms-auto` on the inner button has no effect. Pass it on the form instead: `button_to ..., form: { class: 'button_to ms-auto' }` (keep the `button_to` class — `bootstrap_and_overrides.css.scss` styles it).
+
 ## Development Best Practices
 
 ### Running rails

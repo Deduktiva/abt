@@ -107,14 +107,19 @@ class Invoice < ApplicationRecord
 
     problems << "Invoice has no item lines." unless has_items?
 
-    invoice_lines.each do |line|
+    lines = invoice_lines.to_a
+    configured_class_ids = invoice_tax_classes.to_a.map(&:sales_tax_product_class_id).to_set
+    missing_class_ids = lines.filter_map { |l| l.sales_tax_product_class_id if l.is_item? && !configured_class_ids.include?(l.sales_tax_product_class_id) }.uniq
+    product_class_names = missing_class_ids.empty? ? {} : SalesTaxProductClass.where(id: missing_class_ids).pluck(:id, :name).to_h
+
+    lines.each do |line|
       next unless line.is_item?
       label = line.title.presence || "##{line.id}"
       problems << "Line \"#{label}\" is missing a quantity." if line.quantity.nil?
       problems << "Line \"#{label}\" is missing a rate." if line.rate.nil?
-      if invoice_tax_classes.find_by(sales_tax_product_class_id: line.sales_tax_product_class_id).nil?
-        klass = SalesTaxProductClass.find_by(id: line.sales_tax_product_class_id)
-        problems << "Line \"#{label}\" has no tax configuration for product class \"#{klass&.name || line.sales_tax_product_class_id}\"."
+      unless configured_class_ids.include?(line.sales_tax_product_class_id)
+        name = product_class_names[line.sales_tax_product_class_id] || line.sales_tax_product_class_id
+        problems << "Line \"#{label}\" has no tax configuration for product class \"#{name}\"."
       end
     end
 

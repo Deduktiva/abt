@@ -1,8 +1,6 @@
 - content_for :title, 'Users'
 
-.d-flex.justify-content-between.align-items-center.mb-3
-  %h1.page-header.mb-0 Users
-  = link_to '+ Invite user', new_user_invite_path, class: 'btn btn-info'
+= page_header('Users', action: action_button('+ Invite user', new_user_invite_path, :info))
 
 %table.table.table-striped.table-sm
   %thead

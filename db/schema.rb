@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_26_172314) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_26_180000) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -49,7 +49,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_172314) do
     t.string "invoice_email_auto_subject_template", default: "", null: false
     t.string "invoice_email_auto_to", default: "", null: false
     t.integer "language_id", null: false
-    t.string "matchcode"
+    t.string "matchcode", null: false
     t.text "name"
     t.text "notes"
     t.integer "payment_terms_days", default: 30, null: false
@@ -253,7 +253,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_172314) do
     t.datetime "created_at", null: false
     t.string "department"
     t.text "description"
-    t.string "matchcode"
+    t.string "matchcode", null: false
     t.integer "team_id", null: false
     t.datetime "updated_at", null: false
     t.index "LOWER(matchcode)", name: "index_projects_on_lower_matchcode", unique: true

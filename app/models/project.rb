@@ -1,10 +1,10 @@
 class Project < ApplicationRecord
   include TeamOwned
+  include HasMatchcode
 
   belongs_to :bill_to_customer, class_name: "Customer", optional: true
   has_many :invoices
 
-  validates :matchcode, presence: true, uniqueness: { case_sensitive: false }
   validate :team_must_match_customer
 
   # Scopes for filtering

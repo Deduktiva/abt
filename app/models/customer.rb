@@ -1,7 +1,7 @@
 class Customer < ApplicationRecord
   include TeamOwned
+  include HasMatchcode
 
-  validates :matchcode, presence: true, uniqueness: { case_sensitive: false }
   validates :name, presence: true
   validates :vat_id, presence: true, if: -> { sales_tax_customer_class&.vat_id_required? }
 

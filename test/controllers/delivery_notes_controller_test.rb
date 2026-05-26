@@ -43,6 +43,38 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".year-pagination a.active", text: "All"
   end
 
+  test "should filter delivery notes by customer" do
+    DeliveryNote.create!(
+      customer: customers(:good_eu),
+      project: projects(:one),
+      cust_reference: "EU-CUSTOMER-DN",
+      date: Date.current,
+      delivery_start_date: Date.current
+    )
+    DeliveryNote.create!(
+      customer: customers(:good_national),
+      project: projects(:one),
+      cust_reference: "NATIONAL-CUSTOMER-DN",
+      date: Date.current,
+      delivery_start_date: Date.current
+    )
+
+    get delivery_notes_url(customer_id: customers(:good_eu).id)
+    assert_response :success
+    assert_select "td", text: "EU-CUSTOMER-DN"
+    assert_select "td", text: "NATIONAL-CUSTOMER-DN", count: 0
+  end
+
+  test "index renders customer dropdown" do
+    get delivery_notes_url
+    assert_response :success
+    assert_select "select[name='customer_id']" do
+      assert_select "option[value='']"
+      customer = customers(:good_eu)
+      assert_select "option[value=?][data-full=?]", customer.id.to_s, "#{customer.matchcode} — #{customer.name}", text: customer.matchcode
+    end
+  end
+
   test "should include draft delivery notes with nil date in current year" do
     # Create a draft delivery note (no date)
     DeliveryNote.create!(

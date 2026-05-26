@@ -2,21 +2,31 @@
 
 
 .bulk-select-container{data: { controller: 'bulk-select' }}
-  = form_with url: bulk_send_emails_invoices_path, method: :post, local: true, id: 'bulk-email-form' do |form|
-    .btn-toolbar.mb-3{:role=>"toolbar", "aria-label"=>"List toolbar"}
-      .btn-group.btn-group-sm.me-2.invoice-filter{:role=>"group", "aria-label"=>"Filter"}
-        = link_to 'All', invoices_path(year: @selected_year, filter: 'all'), class: (@filter == 'all' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
-        = link_to 'Unsent', invoices_path(year: @selected_year, filter: 'unsent'), class: (@filter == 'unsent' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
-        = link_to 'Unpaid', invoices_path(year: @selected_year, filter: 'unpaid'), class: (@filter == 'unpaid' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+  -# Empty body — checkboxes + submit attach via form="bulk-email-form".
+  -# Sibling forms (customer filter) live outside so they aren't nested in HTML.
+  = form_with url: bulk_send_emails_invoices_path, method: :post, local: true, id: 'bulk-email-form' do
+    -# intentionally empty
 
-      - if @filter == 'unsent'
-        = form.submit 'Send Selected Emails', class: 'btn btn-warning btn-sm me-2 align-self-start', disabled: true, data: { confirm: 'Are you sure you want to send emails for the selected invoices?', 'bulk-select-target': 'submitButton' }
+  .btn-toolbar.mb-3{:role=>"toolbar", "aria-label"=>"List toolbar"}
+    .btn-group.btn-group-sm.me-2.invoice-filter{:role=>"group", "aria-label"=>"Filter"}
+      = link_to 'All', invoices_path(year: @selected_year, filter: 'all', customer_id: @selected_customer_id), class: (@filter == 'all' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+      = link_to 'Unsent', invoices_path(year: @selected_year, filter: 'unsent', customer_id: @selected_customer_id), class: (@filter == 'unsent' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+      = link_to 'Unpaid', invoices_path(year: @selected_year, filter: 'unpaid', customer_id: @selected_customer_id), class: (@filter == 'unpaid' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
 
-      - if @available_years.any?
-        .btn-group.btn-group-sm.ms-auto.year-pagination{:role=>"group", "aria-label"=>"Year navigation"}
-          - @available_years.each do |year|
-            = link_to year, invoices_path(year: year, filter: @filter), class: (@selected_year == year ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
-          = link_to 'All', invoices_path(year: 'all', filter: @filter), class: (@selected_year == 'all' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+    = render 'shared/customer_filter',
+        form_url: invoices_path,
+        customers: @available_customers,
+        selected_customer_id: @selected_customer_id,
+        hidden_fields: { year: @selected_year, filter: @filter }
+
+    - if @filter == 'unsent'
+      = submit_tag 'Send Selected Emails', form: 'bulk-email-form', class: 'btn btn-warning btn-sm me-2 align-self-start', disabled: true, data: { confirm: 'Are you sure you want to send emails for the selected invoices?', 'bulk-select-target': 'submitButton' }
+
+    - if @available_years.any?
+      .btn-group.btn-group-sm.ms-auto.year-pagination{:role=>"group", "aria-label"=>"Year navigation"}
+        - @available_years.each do |year|
+          = link_to year, invoices_path(year: year, filter: @filter, customer_id: @selected_customer_id), class: (@selected_year == year ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+        = link_to 'All', invoices_path(year: 'all', filter: @filter, customer_id: @selected_customer_id), class: (@selected_year == 'all' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
 
   - if @filter == 'unsent' && @invoices.any?
     %table.table.table-striped.table-sm

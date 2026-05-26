@@ -127,3 +127,12 @@
 .customer-contact-projects-select {
   max-height: 7rem;
 }
+
+// --- Customer filter on invoice/delivery-note index ---
+// Sized to fit a typical matchcode. The customer-filter Stimulus controller
+// swaps option text between matchcode (closed) and "MATCHCODE — Company Name"
+// (open); a fixed select width prevents toolbar reflow on swap. Browsers size
+// the open dropdown panel to the longest option independent of the select.
+.customer-filter select {
+  width: 10em;
+}

@@ -44,6 +44,7 @@ class DeliveryNotesController < ApplicationController
   def index
     @selected_year = params[:year] == "all" ? "all" : (params[:year]&.to_i || Date.current.year)
     @email_filter = params[:email_filter] || "all"
+    @selected_customer_id = params[:customer_id].presence&.to_i
 
     @delivery_notes = DeliveryNote.visible_to(current_user)
                                   .reorder(Arel.sql("document_number DESC NULLS FIRST"))
@@ -56,7 +57,12 @@ class DeliveryNotesController < ApplicationController
       @delivery_notes = @delivery_notes.email_unsent.published
     end
 
+    @delivery_notes = @delivery_notes.where(customer_id: @selected_customer_id) if @selected_customer_id
+
     @available_years = DeliveryNote.visible_to(current_user).available_years
+    @available_customers = Customer.visible_to(current_user)
+                                   .where(id: DeliveryNote.visible_to(current_user).select(:customer_id))
+                                   .order(:name)
   end
 
   # GET /delivery_notes/1

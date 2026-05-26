@@ -44,6 +44,7 @@ class InvoicesController < ApplicationController
   def index
     @selected_year = params[:year] == "all" ? "all" : (params[:year]&.to_i || Date.current.year)
     @filter = params[:filter] || "all"
+    @selected_customer_id = params[:customer_id].presence&.to_i
 
     @invoices = Invoice.visible_to(current_user)
                        .reorder(Arel.sql("document_number DESC NULLS FIRST"))
@@ -58,7 +59,12 @@ class InvoicesController < ApplicationController
       @invoices = @invoices.unpaid.published
     end
 
+    @invoices = @invoices.where(customer_id: @selected_customer_id) if @selected_customer_id
+
     @available_years = Invoice.visible_to(current_user).available_years
+    @available_customers = Customer.visible_to(current_user)
+                                   .where(id: Invoice.visible_to(current_user).select(:customer_id))
+                                   .order(:name)
   end
 
   # GET /invoices/1

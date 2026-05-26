@@ -41,3 +41,15 @@
     background-color: transparent;
   }
 }
+
+// Scrollable dropdown content panel used by the searchable-dropdown partial
+// and its customer-/project-specific instances (.dropdown-content is wrapped
+// inside .searchable-dropdown / .customer-dropdown / .project-dropdown).
+.searchable-dropdown,
+.customer-dropdown,
+.project-dropdown {
+  .dropdown-content {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+}

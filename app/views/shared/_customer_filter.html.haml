@@ -2,7 +2,7 @@
 -#
 -# Renders a customer filter dropdown that shows only the matchcode in the
 -# closed state and "MATCHCODE — Company Name" while open. Width is set via
--# the .customer-filter rule in utilities.css.scss (CSP forbids inline style).
+-# the .customer-filter rule in customer_filter.css.scss (CSP forbids inline style).
 = form_with url: form_url, method: :get, local: true, class: 'me-2 customer-filter', data: { controller: 'customer-filter' } do
   - hidden_fields.each do |name, value|
     = hidden_field_tag name, value

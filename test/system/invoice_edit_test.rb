@@ -111,9 +111,11 @@ class InvoiceEditTest < ApplicationSystemTestCase
     assert_equal customers(:good_eu).id, invoice.customer_id
   end
 
-  test "form has proper navigation elements" do
+  test "breadcrumb provides back navigation in lieu of a Cancel button" do
     visit "/invoices/#{invoices(:draft_invoice).id}/edit"
-    assert_link "Cancel", href: "/invoices"
+    within "nav[aria-label='breadcrumb']" do
+      assert_link "Invoices", href: "/invoices"
+    end
   end
 
   test "form includes dynamic UI elements" do

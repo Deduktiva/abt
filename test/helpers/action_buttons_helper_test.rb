@@ -99,4 +99,24 @@ class ActionButtonsHelperTest < ActionView::TestCase
     assert_match(/btn-outline-secondary/, html)
     assert_match(%r{href="/invoices"}, html)
   end
+
+  test "save_button renders a submit button bound to the shared form id" do
+    html = save_button
+    assert_match(/<button[^>]*type="submit"/, html)
+    assert_match(/form="page-form"/, html)
+    assert_match(/btn-primary/, html)
+    assert_includes html, "Save"
+  end
+
+  test "save_button respects custom label" do
+    html = save_button(label: "Update Issuer Company")
+    assert_includes html, "Update Issuer Company"
+  end
+
+  test "save_button with permission: returns nil when user lacks it" do
+    Current.user = users(:bob)
+    assert_nil save_button(permission: "customers.edit")
+  ensure
+    Current.user = nil
+  end
 end

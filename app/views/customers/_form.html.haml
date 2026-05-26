@@ -1,5 +1,5 @@
 .fieldset
-= simple_form_for(@customer, :validation => true, :html => {:class => 'form-horizontal' }) do |f|
+= simple_form_for(@customer, :validation => true, :html => { id: ActionButtonsHelper::PAGE_FORM_ID, :class => 'form-horizontal' }) do |f|
   - if @customer.errors.any?
     .alert.alert-danger
       %h4
@@ -80,7 +80,3 @@
       .col-lg-10.col-md-9
         = f.text_area :notes, :class => 'form-control', :rows => 5
     %hr
-
-  = action_buttons_wrapper do
-    = f.button :submit, :class => 'btn btn-primary'
-    = cancel_button(@customer)

@@ -1,5 +1,5 @@
 %div{data: {controller: 'delivery-notes-form'}}
-  = form_for(@delivery_note) do |f|
+  = form_for(@delivery_note, html: { id: ActionButtonsHelper::PAGE_FORM_ID }) do |f|
     - if @delivery_note.errors.any?
       .alert.alert-danger
         %h4
@@ -119,12 +119,5 @@
 
         %br
         = action_buttons_wrapper do
-          = f.submit 'Save', class: 'btn btn-primary'
           %button.btn.btn-info{type: 'button', data: {action: 'click->delivery-note-lines#addLine'}}
             + Add Line
-          = cancel_button(@delivery_note)
-    - else
-      %br
-      = action_buttons_wrapper do
-        = f.submit 'Save', class: 'btn btn-primary'
-        = cancel_button(@delivery_note)

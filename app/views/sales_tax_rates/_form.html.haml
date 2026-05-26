@@ -1,4 +1,4 @@
-= simple_form_for(@sales_tax_rate, :validation => true, :html => {:class => 'form-horizontal'}) do |f|
+= simple_form_for(@sales_tax_rate, :validation => true, :html => { id: ActionButtonsHelper::PAGE_FORM_ID, :class => 'form-horizontal' }) do |f|
   - if @sales_tax_rate.errors.any?
     .alert.alert-danger
       %h4
@@ -23,9 +23,3 @@
         .input-group
           = f.number_field :rate, :class => 'form-control', :step => 0.01, :required => true
           %span.input-group-text %
-
-  %br
-
-  = action_buttons_wrapper do
-    = f.button :submit, :class => 'btn btn-primary'
-    = action_button 'Cancel', sales_tax_rates_path, :secondary

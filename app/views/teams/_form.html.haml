@@ -1,5 +1,5 @@
 .fieldset
-  = simple_form_for(@team, :validation => true, :html => {:class => 'form-horizontal'}) do |f|
+  = simple_form_for(@team, :validation => true, :html => { id: ActionButtonsHelper::PAGE_FORM_ID, :class => 'form-horizontal' }) do |f|
     - if @team.errors.any?
       .alert.alert-danger
         %h4
@@ -28,9 +28,3 @@
             .form-check
               = check_box_tag 'team[user_ids][]', user.id, current_member_ids.include?(user.id), id: "team_user_#{user.id}", class: 'form-check-input'
               = label_tag "team_user_#{user.id}", user.username, class: 'form-check-label'
-
-    %br
-
-    = action_buttons_wrapper do
-      = f.button :submit, :class => 'btn btn-primary'
-      = cancel_button(@team)

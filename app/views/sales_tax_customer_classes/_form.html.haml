@@ -1,4 +1,4 @@
-= simple_form_for(@sales_tax_customer_class, :validation => true, :html => {:class => 'form-horizontal'}) do |f|
+= simple_form_for(@sales_tax_customer_class, :validation => true, :html => { id: ActionButtonsHelper::PAGE_FORM_ID, :class => 'form-horizontal' }) do |f|
   - if @sales_tax_customer_class.errors.any?
     .alert.alert-danger
       %h4
@@ -24,9 +24,3 @@
           = f.check_box :vat_id_required, class: 'form-check-input'
           = f.label :vat_id_required, 'Customers in this class must have a VAT ID', class: 'form-check-label'
         %small.form-text.text-muted Uncheck for export / non-EU / B2C classes where a VAT ID is not applicable.
-
-  %br
-
-  = action_buttons_wrapper do
-    = f.button :submit, :class => 'btn btn-primary'
-    = cancel_button(@sales_tax_customer_class)

@@ -1,7 +1,7 @@
-import { Controller } from "@hotwired/stimulus"
+import ModalController from "controllers/modal_controller"
 
 // Reusable base class for email preview functionality
-export default class extends Controller {
+export default class extends ModalController {
   static targets = ["modal", "content"]
   static values = {
     previewUrl: String,     // URL to fetch preview metadata as JSON
@@ -22,32 +22,8 @@ export default class extends Controller {
   }
 
   open(event) {
-    this.modalTarget.classList.remove('d-none')
-    this.modalTarget.classList.add('show')
-    document.body.classList.add('modal-open')
-
-    // Load content
+    super.open()
     this.loadContent()
-  }
-
-  close() {
-    this.modalTarget.classList.add('d-none')
-    this.modalTarget.classList.remove('show')
-    document.body.classList.remove('modal-open')
-  }
-
-  // Close modal when clicking backdrop
-  closeOnBackdrop(event) {
-    if (event.target === this.modalTarget) {
-      this.close()
-    }
-  }
-
-  // Close modal on Escape key
-  closeOnEscape(event) {
-    if (event.key === 'Escape') {
-      this.close()
-    }
   }
 
   async sendEmail() {

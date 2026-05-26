@@ -12,8 +12,6 @@
       %td= sales_tax_customer_class.name
       %td= sales_tax_customer_class.invoice_note
       %td
-        - if can?('sales_tax.edit')
-          = list_action_link('Edit', edit_sales_tax_customer_class_path(sales_tax_customer_class), :edit)
+        = list_action_link('Edit', edit_sales_tax_customer_class_path(sales_tax_customer_class), :edit, permission: 'sales_tax.edit')
       %td
-        - if can?('sales_tax.edit')
-          = destroy_link(sales_tax_customer_class, "Are you sure you want to delete customer class \"#{sales_tax_customer_class.name}\"?")
+        = destroy_link(sales_tax_customer_class, "Are you sure you want to delete customer class \"#{sales_tax_customer_class.name}\"?", permission: 'sales_tax.edit')

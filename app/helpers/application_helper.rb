@@ -99,7 +99,11 @@ module ApplicationHelper
     render("layouts/messages")
   end
 
-  def list_action_link(text, path, type = :default, options = {})
+  # Compact in-row action link (Edit / View / Delete...). When permission: is
+  # given and the current user lacks it, returns nil so views can drop their
+  # explicit `- if can?('xxx.edit')` wraps and gate inline.
+  def list_action_link(text, path, type = :default, options = {}, permission: nil)
+    return nil if permission && !can?(permission)
     css_classes = case type
     when :show
       "btn btn-sm btn-outline-primary py-0"
@@ -114,7 +118,11 @@ module ApplicationHelper
     link_to(text, path, options.merge(class: css_classes))
   end
 
-  def destroy_link(resource, confirm_text = nil)
+  # Trashcan (on index) or "Delete" button (on detail pages) for a resource.
+  # When permission: is given and the current user lacks it, returns nil so
+  # views can gate inline without an `- if can?('xxx.edit')` wrap.
+  def destroy_link(resource, confirm_text = nil, permission: nil)
+    return nil if permission && !can?(permission)
     confirm_text ||= "Are you sure you want to delete this #{resource.class.name.downcase}?"
 
     if action_name == "index"

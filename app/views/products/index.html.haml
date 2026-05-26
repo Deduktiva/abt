@@ -14,8 +14,6 @@
       %td= format_currency(product.rate)
       %td= product.sales_tax_product_class && product.sales_tax_product_class.name
       %td
-        - if can?('products.edit')
-          = list_action_link('Edit', edit_product_path(product), :edit)
+        = list_action_link('Edit', edit_product_path(product), :edit, permission: 'products.edit')
       %td
-        - if can?('products.edit')
-          = destroy_link(product, "Are you sure you want to delete product \"#{product.title}\"?")
+        = destroy_link(product, "Are you sure you want to delete product \"#{product.title}\"?", permission: 'products.edit')

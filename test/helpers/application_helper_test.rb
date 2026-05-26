@@ -143,6 +143,18 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_nil destroy_link(customer, nil, permission: "customers.edit")
   end
 
+  test "action_buttons_wrapper wraps non-empty block content in a flex div" do
+    html = Nokogiri::HTML.fragment(action_buttons_wrapper { "<a>Go</a>".html_safe })
+    div = html.at_css("div")
+    assert_not_nil div
+    assert_equal "d-flex gap-2 mb-3 mt-3", div["class"]
+    assert_not_nil div.at_css("a")
+  end
+
+  test "action_buttons_wrapper returns nil when the block is empty" do
+    assert_nil action_buttons_wrapper { "" }
+  end
+
   test "breadcrumbs renders plain-label middle crumbs without a link" do
     html = Nokogiri::HTML.fragment(breadcrumbs("Configuration", [ "Sales Tax", "/sales_tax_rates" ], "Edit"))
     items = html.css("li.breadcrumb-item")

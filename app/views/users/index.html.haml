@@ -19,5 +19,5 @@
             %span.badge.bg-danger Blocked
         %td= l(user.created_at)
 
-.mt-4
+= action_buttons_wrapper do
   = action_button 'View invites', user_invites_path, :secondary, permission: 'user_invites.manage'

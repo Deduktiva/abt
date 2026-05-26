@@ -1,0 +1,20 @@
+-# Shared modal for marking an invoice paid. Caller must render this inside
+-# the element carrying data-controller="modal".
+-#
+-# Locals:
+-#   invoice - the Invoice being marked paid
+.modal.d-none.mark-paid-modal{data: {"modal-target": "modal", action: "click->modal#closeOnBackdrop keydown@window->modal#closeOnEscape"}}
+  .modal-dialog.mark-paid-modal-dialog
+    .modal-content
+      .modal-header.d-flex.justify-content-between.align-items-center
+        %h5.modal-title.mb-0 Mark invoice paid
+        %button.btn-close{type: "button", data: {action: "click->modal#close"}, "aria-label": "Close"}
+      .modal-body
+        = form_with url: mark_paid_invoice_path(invoice), method: :post, local: true do |f|
+          .mb-3
+            = f.label :paid_at, "Paid on", class: "form-label"
+            = f.date_field :paid_at, value: Date.current, class: "form-control", required: true
+          .text-end
+            %button.btn.btn-secondary.me-2{type: "button", data: {action: "click->modal#close"}}
+              Cancel
+            = f.submit "Mark Paid", class: "btn btn-success"

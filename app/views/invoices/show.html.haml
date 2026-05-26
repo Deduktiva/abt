@@ -93,13 +93,20 @@
         .row.mb-2
           .col-sm-4
             %strong Payment Status:
-          .col-sm-8
+          .col-sm-8.d-flex.align-items-center.gap-2{data: {controller: 'modal'}}
             - if @invoice.paid?
               Paid #{l(@invoice.paid_at.to_date)}
             - elsif @invoice.overdue?
               %span.badge.bg-danger Overdue
             - else
               %span.badge.bg-warning Unpaid
+            - if can_edit_invoice
+              - if @invoice.paid?
+                = button_to 'Mark Unpaid', mark_unpaid_invoice_path(@invoice), method: :post, class: 'btn btn-sm btn-outline-secondary ms-auto', data: { 'turbo-confirm': 'Mark this invoice as unpaid?' }
+              - else
+                %button.btn.btn-sm.btn-success.ms-auto{data: {action: 'click->modal#open'}}
+                  Mark Paid…
+                = render 'shared/mark_paid_modal', invoice: @invoice
 
       - if @invoice.delivery_note
         .row.mb-2
@@ -189,10 +196,3 @@
   - if !@invoice.published && can_edit_invoice
     = button_to 'Test Booking', book_invoice_path(@invoice, :save => false), method: :post, class: 'btn btn-warning'
     = destroy_link(@invoice, "Are you sure you want to delete invoice \"#{@invoice.document_number || "##{@invoice.id}"}\"?")
-  - if @invoice.published? && can_edit_invoice
-    - if @invoice.paid?
-      = button_to 'Mark Unpaid', mark_unpaid_invoice_path(@invoice), method: :post, class: 'btn btn-outline-secondary', data: { 'turbo-confirm': 'Mark this invoice as unpaid?' }
-    - else
-      = form_with url: mark_paid_invoice_path(@invoice), method: :post, local: true, class: 'd-flex gap-1 align-items-center' do |f|
-        = f.date_field :paid_at, value: Date.current, class: 'form-control form-control-sm w-auto'
-        = f.submit 'Mark Paid', class: 'btn btn-success'

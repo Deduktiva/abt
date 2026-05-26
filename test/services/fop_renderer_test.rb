@@ -55,7 +55,7 @@ class FopRendererTest < ActiveSupport::TestCase
     old_umask = File.umask(0022)
 
     # Place the bait file under Rails.root/tmp because production runs FOP in
-    # a container with only the project root bind-mounted (script/setup-fop.sh).
+    # a container with only the project root bind-mounted (bin/setup-fop).
     # A path under /tmp would not exist inside that container, so an
     # unhardened FOP would still fail to leak — which would make the test
     # pass for the wrong reason.

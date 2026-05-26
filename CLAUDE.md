@@ -6,6 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is "ABT", a Rails 8 application for invoice and delivery-note management. Bootstrap 5 + Turbo UI, passkey auth, Solid Queue background jobs, Apache FOP PDFs.
 
+## Repository Layout
+
+- All repo-local executables live in `bin/` — Bundler binstubs plus custom scripts (`abt-fop`, `abt-fop-container`, `jobs`, `postgres-dev`, `production-update`, `setup`, `setup-fop`).
+- Long-form documentation lives in `docs/` and uses lowercase kebab-case filenames (`postgres-dev.md`, `production-update.md`).
+- Do not reintroduce a `script/` directory.
+
 ## Common Commands
 
 ### Setup and Dependencies
@@ -29,7 +35,7 @@ For testing against PostgreSQL (matches production environment):
 - `./bin/postgres-dev setup` - Create and setup PostgreSQL database
 - `./bin/postgres-dev server` - Run Rails server with PostgreSQL
 - `./bin/postgres-dev test` - Run tests with PostgreSQL
-- See `docs/POSTGRES_DEV.md` for complete documentation
+- See `docs/postgres-dev.md` for complete documentation
 
 ## Architecture Overview
 
@@ -73,9 +79,9 @@ For testing against PostgreSQL (matches production environment):
 - Uses Apache FOP (Formatting Objects Processor) for PDF generation
 - XML templates in `lib/foptemplate/`; shared base in `document_base.xsl` uses XSLT 2.0 features (`xsl:function`, `format-date` picture strings) — Saxon-B is mandatory, JDK's built-in XSLTC silently can't process these
 - Two launchers, both tracked in this repo and both injecting Saxon-B plus JAXP hardening flags (`jdk.xml.dtd.support=deny`, `accessExternalDTD=`, `accessExternalSchema=`, `accessExternalStylesheet=file`):
-  - `bin/abt-fop-container` — wraps `podman run` (or docker) around the abt-fop image and execs `script/abt-fop` inside it. Default for dev/test/CI.
-  - `script/abt-fop` — invokes `run_java` directly on the host's `fop` + `libsaxonb-java` packages. Used in production and in environments without a container runtime (e.g. the Claude Code sandbox, which writes a `config/settings/{env}.local.yml` override pointing at it).
-- When changing XML handling, keep hardening in `script/abt-fop` — don't introduce a second launcher path.
+  - `bin/abt-fop-container` — wraps `podman run` (or docker) around the abt-fop image and execs `bin/abt-fop` inside it. Default for dev/test/CI.
+  - `bin/abt-fop` — invokes `run_java` directly on the host's `fop` + `libsaxonb-java` packages. Used in production and in environments without a container runtime (e.g. the Claude Code sandbox, which writes a `config/settings/{env}.local.yml` override pointing at it).
+- When changing XML handling, keep hardening in `bin/abt-fop` — don't introduce a second launcher path.
 
 ### Key Workflow
 1. Create draft invoice with lines

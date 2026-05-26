@@ -169,12 +169,12 @@ restart_jobs_worker() {
     # systemctl --user needs XDG_RUNTIME_DIR pointing at the user's systemd
     # runtime directory. Non-login shells (deploys, cron, scripted ssh) don't
     # inherit it from PAM. With `loginctl enable-linger` configured (see
-    # script/production-update.md), /run/user/<uid> persists for the user.
+    # docs/production-update.md), /run/user/<uid> persists for the user.
     export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 
     if [[ ! -S "${XDG_RUNTIME_DIR}/bus" ]]; then
         print_warning "Cannot reach user systemd: ${XDG_RUNTIME_DIR}/bus is missing."
-        print_warning "Ensure 'loginctl enable-linger $(whoami)' has been run (see script/production-update.md)."
+        print_warning "Ensure 'loginctl enable-linger $(whoami)' has been run (see docs/production-update.md)."
         return 0
     fi
 
@@ -186,7 +186,7 @@ restart_jobs_worker() {
             print_warning "systemctl --user restart abt-jobs.service failed; please restart manually."
         fi
     elif echo "$cat_output" | grep -qi "no .*unit\|not loaded\|not.found\|could not be found"; then
-        print_warning "abt-jobs.service is not installed; see script/production-update.md for setup."
+        print_warning "abt-jobs.service is not installed; see docs/production-update.md for setup."
     else
         print_warning "systemctl --user cat abt-jobs.service failed:"
         echo "$cat_output" | sed 's/^/    /'

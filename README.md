@@ -26,7 +26,7 @@ brew install libyaml
 ```
 
 ### Additional Software
-- Apache FOP 2.10 for PDF generation (run `./script/setup-fop.sh` for automated setup)
+- Apache FOP 2.10 for PDF generation (run `./bin/setup-fop` for automated setup)
 - PostgreSQL (production)
 - Web server
 - Mailgun account for outbound email
@@ -40,9 +40,9 @@ Setup
 bin/setup
 ```
 
-Installs gems, sets up `config/database.yml`, prepares the dev and test databases, verifies the FOP container, and prints a signup invite URL. Idempotent. If FOP isn't built yet, run `script/setup-fop.sh`.
+Installs gems, sets up `config/database.yml`, prepares the dev and test databases, verifies the FOP container, and prints a signup invite URL. Idempotent. If FOP isn't built yet, run `bin/setup-fop`.
 
-Open the printed invite URL in a browser to register the first user (auto-promoted to Admin). Run tests with `bundle exec rails test`. For PostgreSQL instead of SQLite, see `docs/POSTGRES_DEV.md`.
+Open the printed invite URL in a browser to register the first user (auto-promoted to Admin). Run tests with `bundle exec rails test`. For PostgreSQL instead of SQLite, see `docs/postgres-dev.md`.
 
 
 ### Pre-commit Hooks (Optional)

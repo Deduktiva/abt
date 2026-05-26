@@ -1,9 +1,9 @@
 fop:
   # Containerized FOP launcher (tracked at bin/abt-fop-container). Needs
-  # podman/docker plus the abt-fop image, which script/setup-fop.sh builds.
+  # podman/docker plus the abt-fop image, which bin/setup-fop builds.
   # To run FOP natively instead (requires fop + libsaxonb-java packages),
   # override via config/settings/test.local.yml with
-  # binary_path: "./script/abt-fop".
+  # binary_path: "./bin/abt-fop".
   binary_path: "./bin/abt-fop-container"
 
 payments:

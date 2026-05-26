@@ -29,7 +29,7 @@ FileUtils.chdir APP_ROOT do
   if system("bin/abt-fop-container", "-version", out: File::NULL, err: File::NULL)
     puts "FOP container OK."
   else
-    puts "FOP container not available. Run script/setup-fop.sh to build it (needed for PDF rendering)."
+    puts "FOP container not available. Run bin/setup-fop to build it (needed for PDF rendering)."
   end
 
   puts "\n== Removing old logs and tempfiles =="

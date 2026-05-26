@@ -92,10 +92,10 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
       position: 1
     )
 
-    result = @invoice.validate_lines_for_booking
+    problems = @invoice.booking_problems
 
-    assert_not result[:success], "Tax calculation should fail"
-    assert_includes result[:errors], "no tax config for product class 99999"
+    assert(problems.any? { |p| p.include?("Product") && p.include?("tax configuration") },
+           "Expected booking_problems to flag missing tax config, got: #{problems.inspect}")
   end
 
   test "has_items? returns true when invoice has item lines" do
@@ -168,26 +168,6 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
     assert_equal 50.0, itc.net
   end
 
-  test "generates detailed log output" do
-    @invoice.invoice_lines.create!(
-      type: "item",
-      title: "Test Product",
-      description: "Test Description",
-      rate: 100.0,
-      quantity: 2.0,
-      sales_tax_product_class: @product_class,
-      position: 1
-    )
-
-    result = @invoice.validate_lines_for_booking
-
-    log = result[:log]
-    assert_includes log, "--- BEGIN LINES ---"
-    assert_includes log, "--- END LINES ---"
-    assert log.any? { |line| line.include?("Test Product") }
-    assert log.any? { |line| line.include?("Qty 2.0 * 100.0 = 200.0") }
-  end
-
   test "validates successfully with mixed line types" do
     # Create mixed lines: subheading, items, and text
     @invoice.invoice_lines.create!(
@@ -223,10 +203,7 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
       position: 4
     )
 
-    result = @invoice.validate_lines_for_booking
-
-    assert result[:success], "Validation should succeed with mixed line types"
-    assert_empty result[:errors], "Should have no errors: #{result[:errors]}"
+    assert_empty @invoice.booking_problems
     assert @invoice.has_items?, "Invoice should have items"
   end
 end

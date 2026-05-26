@@ -11,7 +11,7 @@ class InvoiceLine < ApplicationRecord
   before_save :calculate_amount
 
   def calculate_amount
-    if is_item?
+    if is_item? && !self[:rate].nil? && !self[:quantity].nil?
       self[:amount] = self[:rate] * self[:quantity]
     else
       self[:amount] = 0

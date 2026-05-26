@@ -34,7 +34,7 @@ class InvoicesController < ApplicationController
   # spec tells browsers to ignore 'unsafe-inline' — which would re-block the
   # mailer's inline <style> tags. Strip the nonce list for this action.
   before_action(only: :preview_email_raw) { request.content_security_policy_nonce_directives = [] }
-  before_action :require_unpublished, only: %i[edit update destroy preview]
+  before_action :require_unpublished, only: %i[edit update destroy preview book]
   before_action :require_published, only: %i[send_email mark_paid mark_unpaid]
   # preview_email reads from a pre-rendered @invoice.attachment, so it never
   # invokes FOP. The guard belongs on the actions that actually book/render.
@@ -111,65 +111,34 @@ class InvoicesController < ApplicationController
   end
 
   def book
-    cache_key = "booking_log_#{@invoice.id}"
-
-    if request.post?
-      return unless require_unpublished
-
-      want_save = (params[:save] == "true")
-      action = want_save ? "Booking" : "TEST-Booking"
-
-      issuer = IssuerCompany.get_the_issuer!
-      booker = InvoiceBooker.new @invoice, issuer
-
-      @booked = booker.book want_save
-      Rails.cache.write(cache_key, booker.log, expires_in: 1.hour)
-
-      flash[:booking_success] = @booked
-      if @booked
-        flash[:notice] = "#{action} succeeded."
-      else
-        flash[:error] = "#{action} failed. Errors: #{booker.log.select { |line| line.start_with?('E:') }.length}"
-      end
-
-      respond_to do |format|
-        format.html { redirect_to book_invoice_path(@invoice) }
-      end
+    booker = InvoiceBooker.new @invoice, IssuerCompany.get_the_issuer!
+    if booker.publish!
+      flash[:notice] = "Invoice #{@invoice.document_number} has been booked."
+      redirect_to invoice_path(@invoice, booked: 1)
     else
-      # Show the booking results from flash data
-      @booked = flash[:booking_success]
-
-      # If no flash data (e.g., direct access), redirect to invoice
-      if @booked.nil?
-        redirect_to @invoice and return
-      end
-
-      @booking_log = Rails.cache.read(cache_key)
-
-      respond_to do |format|
-        format.html
-      end
+      flash[:error] = "Booking failed: #{@invoice.booking_problems.join('; ')}"
+      redirect_to @invoice
     end
   end
 
   def preview
-    Rails.logger.debug "InvoiceController#preview"
     issuer = IssuerCompany.get_the_issuer!
-    @booker = InvoiceBooker.new @invoice, issuer
+    booker = InvoiceBooker.new @invoice, issuer
+    problems = nil
+    pdf = nil
 
     ActiveRecord::Base.transaction(requires_new: true) do
       @invoice.document_number = "DRAFT"
-      @booked = @booker.book false
-      Rails.logger.debug "InvoiceBooker#book returned with #{@booked}"
-      @pdf = InvoiceRenderer.new(@invoice, issuer).render if @booked
-      Rails.logger.debug "InvoiceRenderer#render returned"
+      booker.prepare!
+      problems = @invoice.booking_problems
+      pdf = InvoiceRenderer.new(@invoice, issuer).render if problems.empty?
       raise ActiveRecord::Rollback, "preview only"
     end
 
-    if @booked and !@pdf.nil? and !@pdf.empty?
-      send_data @pdf, type: "application/pdf", disposition: "inline"
+    if !pdf.nil? && !pdf.empty?
+      send_data pdf, type: "application/pdf", disposition: "inline"
     else
-      log = [ "Test-Booking succeeded? #{@booked}", "PDF empty: #{@pdf.nil? or @pdf.empty?}", "" ] + @booker.log
+      log = [ "Preview failed.", "" ] + problems
       send_data log.join("\n"), type: "text/plain", disposition: "inline"
     end
   end

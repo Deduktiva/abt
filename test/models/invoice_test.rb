@@ -103,38 +103,74 @@ class InvoiceTest < ActiveSupport::TestCase
     assert_equal 1234.56, invoice.sum_total
   end
 
-  test "validate_lines_for_booking returns success for a valid line set" do
+  test "booking_problems is empty for a complete draft" do
     invoice = license_invoice_with_tax_config
-    result = invoice.validate_lines_for_booking
-    assert result[:success], result[:errors].inspect
-    assert_empty result[:errors]
+    assert_empty invoice.booking_problems
   end
 
-  test "validate_lines_for_booking reports a missing rate" do
+  test "booking_problems reports a missing rate using the line title" do
     invoice = license_invoice_with_tax_config
-    invoice.invoice_lines.find_by(type: "item").update_columns(rate: nil)
+    line = invoice.invoice_lines.find_by(type: "item")
+    line.update_columns(rate: nil)
 
-    result = invoice.reload.validate_lines_for_booking
-    assert_not result[:success]
-    assert(result[:errors].any? { |e| e.include?("no rate") })
+    problems = invoice.reload.booking_problems
+    assert(problems.any? { |p| p.include?(line.title) && p.include?("rate") })
   end
 
-  test "validate_lines_for_booking reports a missing quantity" do
+  test "booking_problems reports a missing quantity using the line title" do
     invoice = license_invoice_with_tax_config
-    invoice.invoice_lines.find_by(type: "item").update_columns(quantity: nil)
+    line = invoice.invoice_lines.find_by(type: "item")
+    line.update_columns(quantity: nil)
 
-    result = invoice.reload.validate_lines_for_booking
-    assert_not result[:success]
-    assert(result[:errors].any? { |e| e.include?("no quantity") })
+    problems = invoice.reload.booking_problems
+    assert(problems.any? { |p| p.include?(line.title) && p.include?("quantity") })
   end
 
-  test "validate_lines_for_booking reports a missing tax config" do
+  test "booking_problems reports a missing tax config using the line title" do
     invoice = license_invoice_with_tax_config
-    invoice.invoice_lines.find_by(type: "item").update_columns(sales_tax_product_class_id: 999_999)
+    line = invoice.invoice_lines.find_by(type: "item")
+    line.update_columns(sales_tax_product_class_id: 999_999)
 
-    result = invoice.reload.validate_lines_for_booking
-    assert_not result[:success]
-    assert(result[:errors].any? { |e| e.include?("no tax config") })
+    problems = invoice.reload.booking_problems
+    assert(problems.any? { |p| p.include?(line.title) && p.include?("tax configuration") })
+  end
+
+  test "booking_problems reports a missing customer name" do
+    invoice = license_invoice_with_tax_config
+    invoice.update_columns(customer_name: nil)
+    assert_includes invoice.booking_problems, "Customer name is missing."
+  end
+
+  test "booking_problems reports a missing customer address" do
+    invoice = license_invoice_with_tax_config
+    invoice.update_columns(customer_address: nil)
+    assert_includes invoice.booking_problems, "Customer address is missing."
+  end
+
+  test "booking_problems reports a missing VAT ID when the customer class requires one" do
+    invoice = license_invoice_with_tax_config # uses good_national (vat_id_required)
+    invoice.update_columns(customer_vat_id: nil)
+    assert_includes invoice.booking_problems, "Customer VAT ID is missing."
+  end
+
+  test "booking_problems does not require a VAT ID for an export customer class" do
+    invoice = license_invoice_with_tax_config
+    invoice.customer.update_columns(sales_tax_customer_class_id: sales_tax_customer_classes(:restoftheworld).id)
+    invoice.update_columns(customer_vat_id: nil)
+    invoice.reload
+    assert_not_includes invoice.booking_problems, "Customer VAT ID is missing."
+  end
+
+  test "booking_problems reports a draft with no item lines" do
+    invoice = license_invoice_with_tax_config
+    invoice.invoice_lines.where(type: "item").destroy_all
+    assert_includes invoice.reload.booking_problems, "Invoice has no item lines."
+  end
+
+  test "booking_problems is empty for a published invoice regardless of data" do
+    invoice = invoices(:published_invoice)
+    assert invoice.published?
+    assert_empty invoice.booking_problems
   end
 
   test "in_year returns invoices whose date falls in the given year" do

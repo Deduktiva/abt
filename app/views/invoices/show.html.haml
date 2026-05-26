@@ -1,5 +1,6 @@
 - can_edit_invoice = can?('invoices.edit')
 - edit_action = action_button('Edit', edit_invoice_path(@invoice), permission: 'invoices.edit') unless @invoice.published?
+- problems = @invoice.published? ? [] : @invoice.booking_problems
 = breadcrumbs ['Invoices', invoices_path], (@invoice.document_number || "Draft ##{@invoice.id}"), action: edit_action do
   - if !@invoice.published?
     %span.badge.bg-warning Draft
@@ -15,6 +16,16 @@
       %span.badge.bg-danger Overdue
     - if sent
       %span.badge.bg-success Sent
+
+- if params[:booked] == '1' && @invoice.published? && @invoice.attachment
+  .alert.alert-success.mb-3{data: {controller: 'auto-download'}}
+    %h4.alert-heading.mb-2= "Invoice #{@invoice.document_number} booked."
+    %p.mb-3 Download the PDF and send it to your customer.
+    .d-flex.gap-2{data: email_preview_data(@invoice)}
+      = link_to 'Download PDF', @invoice.attachment, class: 'btn btn-success', target: '_blank', data: { turbo: false, 'auto-download-target': 'link' }
+      - if @invoice.emailable?
+        %button.btn.btn-outline-success{data: {action: 'click->generic-email-preview#open'}} Send E-Mail
+      = render 'shared/email_preview_modal', title: "Preview - Invoice #{@invoice.document_number}" if @invoice.emailable?
 
 .row.mb-2
   .col-md-6
@@ -69,6 +80,22 @@
             = @invoice.payment_terms_days
             days net
 
+      - unless @invoice.published?
+        .row.mb-2
+          .col-sm-4
+            %strong Booking Status:
+          .col-sm-8.d-flex.align-items-center.gap-2
+            - if problems.any?
+              %span.badge.bg-warning= pluralize(problems.size, 'problem')
+            - else
+              %span.badge.bg-success Ready
+            - if can_edit_invoice
+              - if problems.any?
+                %span.ms-auto{title: problems.join("\n")}
+                  %button.btn.btn-sm.btn-warning{disabled: true} Book Invoice…
+              - else
+                = button_to 'Book Invoice…', book_invoice_path(@invoice), method: :post, class: 'btn btn-sm btn-warning', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Book invoice and assign a document number? This cannot be undone.' }
+
       - if @invoice.published?
         .row.mb-2
           .col-sm-4
@@ -122,6 +149,13 @@
     .card
       .card-body
         = simple_format(@invoice.prelude)
+
+- if !@invoice.published? && problems.any?
+  .alert.alert-warning.mb-3
+    %strong This invoice cannot be booked yet:
+    %ul.mb-0
+      - problems.each do |p|
+        %li= p
 
 .document-lines.mb-2
   %table.table.table-bordered.document-lines-table
@@ -194,5 +228,4 @@
   - else
     = action_button 'Preview', preview_invoice_path(@invoice), :info, target: '_blank', data: { turbo: false }
   - if !@invoice.published && can_edit_invoice
-    = button_to 'Test Booking', book_invoice_path(@invoice, :save => false), method: :post, class: 'btn btn-warning'
     = destroy_link(@invoice, "Are you sure you want to delete invoice \"#{@invoice.document_number || "##{@invoice.id}"}\"?")

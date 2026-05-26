@@ -36,9 +36,9 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
 
   def test_invoice_booking_creates_attachment
     # Book the invoice (this should create PDF attachment)
-    post book_invoice_path(@invoice), params: { save: "true" }
+    post book_invoice_path(@invoice)
 
-    assert_redirected_to book_invoice_path(@invoice)
+    assert_redirected_to invoice_path(@invoice, booked: 1)
 
     @invoice.reload
     assert @invoice.published?, "Invoice should be published after booking"
@@ -78,7 +78,7 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
       project: @project
     )
 
-    post book_invoice_path(empty), params: { save: "true" }
+    post book_invoice_path(empty)
 
     assert_redirected_to invoice_path(empty)
     assert_match(/no item lines/i, flash[:error])
@@ -93,7 +93,7 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
     inv.invoice_lines.create!(type: "text", title: "Note", description: "no items here", position: 1)
     inv.invoice_lines.create!(type: "subheading", title: "Section", position: 2)
 
-    post book_invoice_path(inv), params: { save: "true" }
+    post book_invoice_path(inv)
 
     assert_redirected_to invoice_path(inv)
     assert_match(/no item lines/i, flash[:error])

@@ -95,40 +95,30 @@ class Invoice < ApplicationRecord
     self.published? && !self.paid? && self.due_date.present? && self.due_date < Date.current
   end
 
-  def validate_lines_for_booking
-    errors = []
-    log = []
-    log << "--- BEGIN LINES ---"
+  def booking_problems
+    problems = []
+    return problems if published?
 
-    self.invoice_lines.each do |line|
-      log << "#{line.id}.  #{line.type} #{line.title} #{line.description}"
-
-      next unless line.is_item?
-
-      if line.quantity.nil?
-        errors << "no quantity on line id #{line.id}"
-      end
-
-      if line.rate.nil?
-        errors << "no rate on line id #{line.id}"
-      end
-
-      itc = self.invoice_tax_classes.find_by_sales_tax_product_class_id(line.sales_tax_product_class_id)
-      if itc.nil?
-        errors << "no tax config for product class #{line.sales_tax_product_class_id}"
-      end
-
-      log << "#{line.id}.     Qty #{line.quantity} * #{line.rate} = #{line.amount}"
+    problems << "Customer name is missing." if customer_name.blank?
+    problems << "Customer address is missing." if customer_address.blank?
+    if customer&.sales_tax_customer_class&.vat_id_required? && customer_vat_id.blank?
+      problems << "Customer VAT ID is missing."
     end
 
-    log << "--- END LINES ---"
-    log << ""
+    problems << "Invoice has no item lines." unless has_items?
 
-    {
-      success: errors.empty?,
-      errors: errors,
-      log: log
-    }
+    invoice_lines.each do |line|
+      next unless line.is_item?
+      label = line.title.presence || "##{line.id}"
+      problems << "Line \"#{label}\" is missing a quantity." if line.quantity.nil?
+      problems << "Line \"#{label}\" is missing a rate." if line.rate.nil?
+      if invoice_tax_classes.find_by(sales_tax_product_class_id: line.sales_tax_product_class_id).nil?
+        klass = SalesTaxProductClass.find_by(id: line.sales_tax_product_class_id)
+        problems << "Line \"#{label}\" has no tax configuration for product class \"#{klass&.name || line.sales_tax_product_class_id}\"."
+      end
+    end
+
+    problems
   end
 
 private

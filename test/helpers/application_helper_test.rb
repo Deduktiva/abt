@@ -1,18 +1,13 @@
 require "test_helper"
 
 class ApplicationHelperTest < ActionView::TestCase
-  test "page_title sets content_for :title" do
-    page_title("Customers")
-    assert_equal "Customers", content_for(:title)
-  end
-
   test "breadcrumbs auto-sets content_for :title from the last item label" do
     breadcrumbs([ "Customers", "/customers" ], "Acme")
     assert_equal "Acme", content_for(:title)
   end
 
-  test "breadcrumbs does not override an explicit page_title" do
-    page_title("Custom")
+  test "breadcrumbs does not override an explicit content_for :title" do
+    content_for :title, "Custom"
     breadcrumbs([ "Customers", "/customers" ], "Acme")
     assert_equal "Custom", content_for(:title)
   end

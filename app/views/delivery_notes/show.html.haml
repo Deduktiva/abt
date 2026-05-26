@@ -1,4 +1,4 @@
-= page_title @delivery_note.display_name
+- content_for :title, @delivery_note.display_name
 - can_edit_dn = can?('delivery_notes.edit')
 - edit_action = action_button('Edit', edit_delivery_note_path(@delivery_note), permission: 'delivery_notes.edit') unless @delivery_note.published?
 - pdf_action = pdf_button(pdf_delivery_note_path(@delivery_note))

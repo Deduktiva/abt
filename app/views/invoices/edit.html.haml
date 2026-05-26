@@ -1,4 +1,4 @@
-= page_title @invoice.display_name
+- content_for :title, @invoice.display_name
 = breadcrumbs ['Invoices', invoices_path], [@invoice.display_label, invoice_path(@invoice)], 'Edit', action: save_button
 
 = render 'form'

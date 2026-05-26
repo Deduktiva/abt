@@ -1,4 +1,4 @@
-= page_title @sales_tax_product_class.name
+- content_for :title, @sales_tax_product_class.name
 = breadcrumbs 'Configuration', ['Sales Tax', sales_tax_rates_path], ['Product Tax Classes', sales_tax_product_classes_path], [@sales_tax_product_class.name, sales_tax_product_class_path(@sales_tax_product_class)], 'Edit', action: save_button
 
 = render 'form'

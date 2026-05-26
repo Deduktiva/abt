@@ -1,11 +1,11 @@
 - eligible_projects ||= Project.visible_to(Current.user).where("bill_to_customer_id = ? OR bill_to_customer_id IS NULL", customer.id).order(:matchcode)
 .row.align-items-start.gx-2
   .col-md-2
-    = form.text_field :name, class: "form-control form-control-sm", required: true, autofocus: true, placeholder: "Name"
+    = form.text_field :name, class: "form-control form-control-sm", required: true, autofocus: true, placeholder: "Name", autocomplete: "off"
     - if contact.errors[:name].any?
       .invalid-feedback.d-block= contact.errors[:name].to_sentence
   .col-md-3
-    = form.email_field :email, class: "form-control form-control-sm", required: true, placeholder: "Email"
+    = form.email_field :email, class: "form-control form-control-sm", required: true, placeholder: "Email", autocomplete: "off"
     - if contact.errors[:email].any?
       .invalid-feedback.d-block= contact.errors[:email].to_sentence
   .col-md-1.text-center
@@ -25,11 +25,11 @@
   .col-md-2.text-end
     = form.submit (contact.persisted? ? "Save" : "Add"), class: "btn btn-sm btn-primary"
     - if contact.persisted?
-      = link_to "Cancel", customer_contact_path(contact), class: "btn btn-sm btn-link"
+      = link_to "Cancel", customer_contact_path(contact), class: "btn btn-sm btn-secondary", data: { turbo_prefetch: false }
     - else
-      = link_to "Cancel", new_customer_customer_contact_path(customer, cancel: 1), class: "btn btn-sm btn-link"
+      = link_to "Cancel", new_customer_customer_contact_path(customer, cancel: 1), class: "btn btn-sm btn-secondary", data: { turbo_prefetch: false }
 .row.align-items-start.gx-2.mt-2
   .col-md-5
-    = form.text_field :salutation_line, class: "form-control form-control-sm"
+    = form.text_field :salutation_line, class: "form-control form-control-sm", placeholder: "Email salutation, e.g. Dear John,"
     .form-text.small
       = t("customer_contacts.salutation_line_hint", language_name: customer.language.title)

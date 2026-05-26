@@ -85,4 +85,13 @@ module ActionButtonsHelper
     return nil if permission && !can?(permission)
     link_to "📋 Audit log", path, class: "btn btn-secondary"
   end
+
+  # Cross-resource navigation in the breadcrumb action cluster: jumping to a
+  # related list/page (e.g. from a customer to its Invoices, or from Sales Tax
+  # rates to Customer/Product Classes). Bakes in `:info` so the convention is
+  # not re-decided per caller.
+  def nav_button(text, path, permission: nil, data: nil)
+    return nil if permission && !can?(permission)
+    link_to text, path, class: "btn btn-info", data: data
+  end
 end

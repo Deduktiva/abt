@@ -66,4 +66,11 @@ class ActionButtonsHelperTest < ActionView::TestCase
     assert_includes html, "📋 Audit log"
     assert_match(/btn-secondary/, html)
   end
+
+  test "nav_button renders the given label with info color" do
+    html = nav_button("Invoices", "/invoices")
+    assert_includes html, "Invoices"
+    assert_match(/btn-info/, html)
+    assert_match(%r{href="/invoices"}, html)
+  end
 end

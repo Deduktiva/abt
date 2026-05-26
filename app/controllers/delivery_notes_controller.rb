@@ -2,7 +2,6 @@ require "json"
 
 class DeliveryNotesController < ApplicationController
   include EmailPreviewHelper
-  include ApplicationHelper
   include PublishableDocument
   include DocumentWithLines
 

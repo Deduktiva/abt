@@ -1,7 +1,9 @@
 - can_edit_invoice = can?('invoices.edit')
 - edit_action = action_button('Edit', edit_invoice_path(@invoice), permission: 'invoices.edit') unless @invoice.published?
 - problems = @invoice.published? ? [] : @invoice.booking_problems
-= breadcrumbs ['Invoices', invoices_path], (@invoice.document_number || "Draft ##{@invoice.id}"), action: edit_action do
+- pdf_or_preview = @invoice.attachment ? pdf_button(@invoice.attachment) : preview_button(preview_invoice_path(@invoice))
+- delete_action = delete_button(@invoice, confirm: "Are you sure you want to delete invoice \"#{@invoice.document_number || "##{@invoice.id}"}\"?") if !@invoice.published? && can_edit_invoice
+= breadcrumbs ['Invoices', invoices_path], (@invoice.document_number || "Draft ##{@invoice.id}"), actions: [pdf_or_preview, delete_action], action: edit_action do
   - if !@invoice.published?
     %span.badge.bg-warning Draft
   - else
@@ -222,14 +224,6 @@
               %strong Sum Total:
             %td.text-end
               %strong= format_currency(@invoice.sum_total)
-
-  = action_buttons_wrapper do
-    - if @invoice.attachment
-      = action_button 'PDF', @invoice.attachment, :success, target: '_blank', data: { turbo: false }
-    - else
-      = action_button 'Preview', preview_invoice_path(@invoice), :info, target: '_blank', data: { turbo: false }
-    - if !@invoice.published && can_edit_invoice
-      = destroy_link(@invoice, "Are you sure you want to delete invoice \"#{@invoice.document_number || "##{@invoice.id}"}\"?")
 
   - if @invoice.published?
     = render 'shared/email_preview_modal', title: "Preview - Invoice #{@invoice.document_number}"

@@ -186,16 +186,54 @@ For testing against PostgreSQL (matches production environment):
 - To render a `datetime` column as date-only (e.g. `email_sent_at` in compact list rows), call `l(value.to_date)` — `l` on a `Time`/`DateTime` produces the time format.
 
 ### UI Helper Methods
-- `breadcrumbs(*items, action: nil, &status_block)` - Bootstrap breadcrumb strip that serves as the page header on every index/show/edit/new page (every page except the dashboard, `/account/*`, the sign-in / invite-acceptance flow, and the post-book confirmation). Each item is either `[label, path]` (link) or a plain label (non-link). The last item is always the active crumb with `aria-current="page"` (rendered `fw-semibold`), and it is the page identifier — there is no separate H1. The optional block yields inline status badges next to the active crumb; the optional `action:` is right-aligned on the same row (built with `action_button(...)`, which returns nil when its permission check fails — that renders as no action area).
+- `breadcrumbs(*items, action: nil, actions: nil, &status_block)` - Bootstrap breadcrumb strip that serves as the page header on every index/show/edit/new page (every page except the dashboard, `/account/*`, the sign-in / invite-acceptance flow, and the post-book confirmation). Each item is either `[label, path]` (link) or a plain label (non-link). The last item is always the active crumb with `aria-current="page"` (rendered `fw-semibold`), and it is the page identifier — there is no separate H1. The optional block yields inline status badges next to the active crumb. The right cluster carries optional secondary `actions:` (array — `nil` entries are compacted out) followed by the primary `action:` (rightmost). Buttons are built with `action_button(...)` or the per-verb helpers from `ActionButtonsHelper` (see "Button Glyphs" below).
   - Top-level resources start with the navbar label linked to its index: `['Customers', customers_path]`, `['Projects', projects_path]`, `['Delivery Notes', delivery_notes_path]`, `['Invoices', invoices_path]`.
   - Configuration resources start with a non-link `'Configuration'` crumb (the dropdown has no destination) followed by the resource's navbar label, e.g. `breadcrumbs 'Configuration', ['Sales Tax', sales_tax_rates_path], 'Edit'`.
   - On edit pages append `'Edit'` as the active crumb; on new pages append `'New'`. On show pages the resource's identifier (matchcode / document number / name) is the active crumb.
-  - The bottom `action_buttons_wrapper` no longer contains a `Back` button — the breadcrumb is the navigation anchor. `action_buttons_wrapper` is reserved for workflow verbs (PDF, Send, Publish, Delete, Mark Paid, etc.). `cancel_button(resource)` on edit/new forms stays — it pairs with Submit, not navigation.
-- `page_header(title, action: nil, &status_block)` - Page-header row with an H1 title, optional inline status badges via the block, and optional right-aligned action. Only used on pages without breadcrumbs: dashboard (`home/index`), `/account/*`, the sign-in / invite-acceptance / "Book invoice" / "Invite generated" pages.
-- `action_button(text, path, type = :primary, permission: nil, target: nil, data: nil)` - Styled buttons (primary, secondary, success, info, warning, danger). Returns `nil` when `permission:` is given and the current user lacks it.
-- `action_buttons_wrapper` - Container for the bottom-of-page workflow action row (Back, PDF, Send E-Mail, Publish, Delete, etc.).
-- `destroy_link(resource, confirm_text)` - Smart delete links (trashcan on index, "Delete" on detail pages).
+  - The bottom `action_buttons_wrapper` is gone from show pages — every workflow verb (PDF, Preview, Publish, Convert to Invoice, Delete, etc.) moves into `actions:` on the breadcrumb. Status-row buttons (Send E-Mail, Mark Paid, Mark Unpaid, Book Invoice…) stay inline with their status row. `cancel_button(resource)` on edit/new forms stays — it pairs with Submit, not navigation.
+- `page_header(title, action: nil, &status_block)` - Page-header row with an H1 title, optional inline status badges via the block, and optional right-aligned action. Only used on pages without breadcrumbs: dashboard (`home/index`), `/account/*`, the sign-in / invite-acceptance / "Invite generated" pages.
+- `action_button(text, path, type = :primary, permission: nil, target: nil, data: nil, title: nil)` - Styled buttons (primary, secondary, success, info, warning, danger). Returns `nil` when `permission:` is given and the current user lacks it. Pass `title:` on glyph-only buttons — the helper applies it as both `title=` (hover tooltip) and `aria-label=` (screen-reader name).
+- `action_buttons_wrapper` - Container for the bottom-of-page workflow action row. Only used by `issuer_companies/edit` and `user_invites/show_invite` now.
+- `destroy_link(resource, confirm_text)` - Compact `🗑` outline link for the **Actions** column on index pages. On detail pages use `delete_button(resource)` instead.
 - `list_action_link(text, path, type)` - Compact buttons for in-table row actions.
+- Per-verb helpers in `ActionButtonsHelper` (`delete_button`, `pdf_button`, `preview_button`, `publish_button`, `unpublish_button`, `convert_to_invoice_button`, `unblock_button`, `reset_passkeys_button`, `audit_log_button`) — see "Button Glyphs" below for the full mapping and policy.
+
+### Button Glyphs (Show-page Actions)
+
+Glyphs on action buttons are space-savers, not decoration. Three tiers:
+
+- **Text only** when the label is already short and universally clear: `Edit`, `+ New`, `Cancel`, `Save`, `Reset passkeys`. Don't prefix with a glyph.
+- **Glyph + text** for less-familiar workflow actions where the glyph aids scanning but the text is still required: `🚀 Publish`, `🚀 Convert to Invoice`, etc.
+- **Glyph only with `title:`** for actions whose glyph is universally understood and whose label is fully replaceable: `🗑` Delete, `📄` PDF, `👁` Preview. Always pass `title:` to set both the hover tooltip and the screen-reader `aria-label`.
+
+Label-shortening rule: when a glyph already carries the verb concept and the remaining noun/state is clear, drop the leading verb in the label. So `Mark Paid` → `✅ Paid` (✅ = the verb, "Paid" = the state). Keep `🚀 Publish`, `📥 Upload PDF` full when the verb/object isn't carried by the glyph alone.
+
+Glyph reuse is intentional when the action archetype is the same:
+- 🚀 = "promote forward" (Publish + Convert to Invoice)
+- ✅ = "positive state change" (Paid + Unblock)
+- ↩ / ↩️ = "revert state" (Unpaid + Unpublish) — Unicode-distinct but visually similar; they never coexist on the same page
+
+Established mapping — extend this table; don't invent new glyphs for existing verbs:
+
+| Verb | Render | Tier | Helper |
+|---|---|---|---|
+| Edit | `Edit` | text-only | `action_button` |
+| + New | `+ New` | text-only | `action_button` |
+| Cancel | `Cancel` | text-only | `cancel_button` |
+| Reset passkeys | `Reset passkeys` | text-only | `reset_passkeys_button` |
+| Delete | `🗑` (title "Delete") | glyph-only | `delete_button` |
+| PDF | `📄` (title "PDF") | glyph-only | `pdf_button` |
+| Preview | `👁` (title "Preview") | glyph-only | `preview_button` |
+| Mark Paid | `✅ Paid` | glyph + shortened text | (status-row, inline) |
+| Mark Unpaid | `↩ Unpaid` | glyph + shortened text | (status-row, inline) |
+| Send e-mail | `✉️ Send` | glyph + text | (status-row, inline) |
+| Publish | `🚀 Publish` | glyph + text | `publish_button` |
+| Unpublish | `↩️ Unpublish` | glyph + text | `unpublish_button` |
+| Convert to Invoice | `🚀 Convert to Invoice` | glyph + text | `convert_to_invoice_button` |
+| Upload PDF | `📥 Upload PDF` | glyph + text | (form, inline) |
+| Block | `🚫 Block` | glyph + text | (form-with-reason, inline) |
+| Unblock | `✅ Unblock` | glyph + text | `unblock_button` |
+| Audit log | `📋 Audit log` | glyph + text | `audit_log_button` |
 
 ### JavaScript/Stimulus Controllers
 - **ALWAYS implement `disconnect()` method** in Stimulus controllers that add event listeners

@@ -204,20 +204,15 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".badge.bg-success", text: "Booked"
   end
 
-  test "should show draft invoice prompting for test booking" do
+  test "draft invoice show renders Booking Status row with Ready badge for a valid draft" do
     invoice = Invoice.create!(
       customer: customers(:good_eu),
       project: projects(:test_project),
       cust_reference: "TEST_DRAFT",
-      sum_net: 100.0,
-      sum_total: 0.0  # INVALID Draft invoices have sum_total = 0
     )
-
-    # Add invoice line with tax class
     invoice.invoice_lines.create!(
       type: "item",
       title: "Test Product",
-      description: "A test product",
       rate: 100.0,
       quantity: 1.0,
       sales_tax_product_class: sales_tax_product_classes(:standard),
@@ -227,6 +222,30 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     get invoice_url(invoice)
     assert_response :success
     assert_select ".badge.bg-warning", text: "Draft"
+    assert_select ".badge.bg-success", text: "Ready"
+    assert_select "form.button_to button", text: /Book Invoice/
+  end
+
+  test "draft invoice show renders problems alert and disabled Book button when invoice has missing data" do
+    invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "MISSING_RATE",
+    )
+    line = invoice.invoice_lines.create!(
+      type: "item",
+      title: "Broken Line",
+      rate: 1.0,
+      quantity: 1.0,
+      sales_tax_product_class: sales_tax_product_classes(:standard),
+      position: 1
+    )
+    line.update_columns(rate: nil)
+
+    get invoice_url(invoice)
+    assert_response :success
+    assert_select ".alert-warning li", text: /Broken Line.*rate/
+    assert_select "button[disabled]", text: /Book Invoice/
   end
 
   test "should get edit" do
@@ -328,33 +347,52 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_content
   end
 
-  test "should handle test booking from show page without form params" do
+  test "book action publishes a valid draft and redirects to show with booked=1" do
     invoice = Invoice.create!(
       customer: customers(:good_eu),
       project: projects(:test_project),
-      cust_reference: "TEST"
+      cust_reference: "BOOK_OK"
     )
-
-    # Add an invoice line
     invoice.invoice_lines.create!(
       type: "item",
       title: "Test Product",
-      description: "A test product",
       rate: 100.0,
       quantity: 2.0,
       sales_tax_product_class: sales_tax_product_classes(:standard),
       position: 1
     )
 
-    post book_invoice_url(invoice), params: { save: false }
+    post book_invoice_url(invoice)
 
-    assert_redirected_to book_invoice_url(invoice)
+    assert_redirected_to invoice_path(invoice, booked: 1)
     invoice.reload
+    assert invoice.published?
+    assert invoice.document_number.present?
+    assert invoice.attachment.present?
+  end
 
-    # Verify that test booking calculated and persisted totals
-    assert invoice.sum_net == 200.0, "sum_net should be calculated (#{invoice.sum_net})"
-    assert invoice.sum_total == 200.0, "sum_total should be calculated (#{invoice.sum_total})"
-    assert invoice.invoice_tax_classes.any?, "tax classes should be created"
+  test "book action redirects with flash[:error] when invoice has booking problems" do
+    invoice = Invoice.create!(
+      customer: customers(:good_eu),
+      project: projects(:test_project),
+      cust_reference: "BOOK_FAIL"
+    )
+    line = invoice.invoice_lines.create!(
+      type: "item",
+      title: "Missing Rate Item",
+      rate: 1.0,
+      quantity: 2.0,
+      sales_tax_product_class: sales_tax_product_classes(:standard),
+      position: 1
+    )
+    line.update_columns(rate: nil)
+
+    post book_invoice_url(invoice)
+
+    assert_redirected_to invoice_url(invoice)
+    assert_match(/Booking failed/, flash[:error])
+    assert_not invoice.reload.published?
+    assert_nil invoice.document_number
   end
 
   test "should reuse existing tax classes during update" do
@@ -443,121 +481,6 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0.0, tax_class.value, "Tax value should be 0.0"
   end
 
-  test "should handle large invoice booking without cookie overflow" do
-    # Create an invoice with many lines to trigger the cookie overflow issue
-    invoice = Invoice.create!(
-      customer: customers(:good_eu),
-      project: projects(:test_project),
-      cust_reference: "LARGE_INVOICE_TEST"
-    )
-
-    # Add many invoice lines to make the booking log large
-    15.times do |i|
-      invoice.invoice_lines.create!(
-        type: "item",
-        title: "Large Invoice Item #{i + 1}",
-        description: "This is a test item with a longer description to increase the booking log size for invoice line #{i + 1}",
-        rate: 85.0 + i,
-        quantity: 10.0 + i,
-        sales_tax_product_class: sales_tax_product_classes(:standard),
-        position: i + 1
-      )
-    end
-
-    # Test booking should work without cookie overflow
-    post book_invoice_url(invoice), params: { save: false }
-
-    assert_redirected_to book_invoice_url(invoice)
-
-    # Verify flash data was set instead of session data to avoid cookie overflow
-    assert flash[:booking_success].present?, "Flash should contain booking success status"
-    assert flash[:notice].present?, "Flash should contain booking notice"
-    assert flash[:notice].include?("succeeded"), "Flash notice should indicate success"
-
-    # Test the GET request to the booking results page
-    get book_invoice_url(invoice)
-    assert_response :success
-
-    # Verify booking log is accessible and contains expected information
-    cache_key = "booking_log_#{invoice.id}"
-    booking_log = Rails.cache.read(cache_key)
-    assert booking_log.present?, "Should have booking log from cache"
-    assert booking_log.is_a?(Array), "Booking log should be an array"
-    assert booking_log.length > 0, "Booking log should contain entries"
-  end
-
-  test "should handle booking multiple invoices without cookie overflow" do
-    invoices = []
-
-    # Create 3 invoices with substantial invoice lines each
-    3.times do |invoice_num|
-      invoice = Invoice.create!(
-        customer: customers(:good_eu),
-        project: projects(:test_project),
-        cust_reference: "MULTI_INVOICE_#{invoice_num + 1}"
-      )
-
-      # Add multiple lines to each invoice to create substantial booking logs
-      10.times do |line_num|
-        invoice.invoice_lines.create!(
-          type: "item",
-          title: "Invoice #{invoice_num + 1} Item #{line_num + 1}",
-          description: "Detailed description for invoice #{invoice_num + 1}, item #{line_num + 1} with enough text to make the booking log substantial",
-          rate: 100.0 + line_num,
-          quantity: 5.0,
-          sales_tax_product_class: sales_tax_product_classes(:standard),
-          position: line_num + 1
-        )
-      end
-
-      invoices << invoice
-    end
-
-    # Book each invoice in sequence, simulating rapid successive bookings
-    invoices.each_with_index do |invoice, index|
-      post book_invoice_url(invoice), params: { save: false }
-
-      assert_redirected_to book_invoice_url(invoice), "Invoice #{index + 1} booking should redirect"
-
-      # Verify booking succeeded
-      assert flash[:booking_success].present?, "Invoice #{index + 1} booking should succeed"
-      assert flash[:notice].present?, "Invoice #{index + 1} should have booking notice"
-
-      # Make a GET request to the booking result page
-      get book_invoice_url(invoice)
-      assert_response :success, "Should be able to view booking results for invoice #{index + 1}"
-
-      # Check that booking log is available in cache storage
-      cache_key = "booking_log_#{invoice.id}"
-      booking_log = Rails.cache.read(cache_key)
-
-      assert booking_log.present?, "Booking log should be available in cache for invoice #{index + 1}"
-      assert booking_log.is_a?(Array), "Booking log should be an array"
-      assert booking_log.length > 0, "Booking log should contain entries"
-    end
-
-    # Verify all booking logs are still accessible after multiple bookings
-    invoices.each_with_index do |invoice, index|
-      cache_key = "booking_log_#{invoice.id}"
-      booking_log = Rails.cache.read(cache_key)
-      assert booking_log.present?, "Booking log should still be available in cache for invoice #{index + 1} after all bookings"
-    end
-  end
-
-  test "should redirect to invoice page when accessing GET book page without flash data" do
-    invoice = Invoice.create!(
-      customer: customers(:good_eu),
-      project: projects(:test_project),
-      cust_reference: "NO_FLASH_TEST"
-    )
-
-    # Direct GET request without prior POST booking
-    get book_invoice_url(invoice)
-
-    # Should redirect to the invoice show page since there's no flash data
-    assert_redirected_to invoice_url(invoice)
-  end
-
   test "should not edit published invoice" do
     invoice = invoices(:published_invoice)
     get edit_invoice_url(invoice)
@@ -594,14 +517,14 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
 
   test "should not POST book on published invoice" do
     invoice = invoices(:published_invoice)
-    # require_item_line fires before the inline require_unpublished in
-    # book POST, so a line is needed to reach the publish guard.
+    # require_item_line fires before require_unpublished in the book POST,
+    # so a line is needed to reach the publish guard.
     invoice.invoice_lines.create!(
       type: "item", title: "x", rate: 1.0, quantity: 1.0,
       sales_tax_product_class: sales_tax_product_classes(:standard), position: 1
     )
 
-    post book_invoice_url(invoice), params: { save: "true" }
+    post book_invoice_url(invoice)
     assert_redirected_to invoice_url(invoice)
     assert_match "Published invoices can not be modified", flash[:error]
   end

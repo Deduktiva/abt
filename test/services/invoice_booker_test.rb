@@ -77,19 +77,19 @@ class InvoiceBookerTest < ActiveSupport::TestCase
     assert_equal 30, invoice.payment_terms_days
   end
 
-  test "booker requires a customer vat_id when the class requires one" do
+  test "prepare! flags a missing vat_id when the customer class requires one" do
     customer = customers(:good_eu)
     customer.update_columns(vat_id: nil)
 
     invoice = Invoice.create!(customer: customer, project: projects(:test_project), cust_reference: "NOVATID-EU")
 
     booker = InvoiceBooker.new(invoice, issuer_companies(:one))
-    booker.book(false)
+    booker.prepare!
 
-    assert_includes booker.log, "E: no customer vat id"
+    assert_includes invoice.booking_problems, "Customer VAT ID is missing."
   end
 
-  test "booker does not require a customer vat_id when the class does not require one" do
+  test "prepare! does not flag vat_id for export customers" do
     customer = customers(:good_eu)
     customer.update_columns(
       sales_tax_customer_class_id: sales_tax_customer_classes(:restoftheworld).id,
@@ -99,12 +99,12 @@ class InvoiceBookerTest < ActiveSupport::TestCase
     invoice = Invoice.create!(customer: customer, project: projects(:test_project), cust_reference: "NOVATID-EXPORT")
 
     booker = InvoiceBooker.new(invoice, issuer_companies(:one))
-    booker.book(false)
+    booker.prepare!
 
-    assert_not_includes booker.log, "E: no customer vat id"
+    assert_not_includes invoice.booking_problems, "Customer VAT ID is missing."
   end
 
-  test "booker derives due_date from invoice's persisted payment_terms_days" do
+  test "prepare! derives due_date from the invoice's persisted payment_terms_days" do
     customer = customers(:good_eu)
     customer.update!(payment_terms_days: 21)
 
@@ -115,12 +115,42 @@ class InvoiceBookerTest < ActiveSupport::TestCase
       date: Date.new(2024, 6, 1),
     )
 
-    # On a draft, the snapshot tracks the customer value
     assert_equal 21, invoice.payment_terms_days
 
     booker = InvoiceBooker.new(invoice, issuer_companies(:one))
-    booker.book(false)
+    booker.prepare!
 
     assert_equal Date.new(2024, 6, 22), invoice.due_date
+  end
+
+  test "publish! returns false and does not assign a document number when problems exist" do
+    customer = customers(:good_eu)
+    customer.update_columns(vat_id: nil)
+
+    invoice = Invoice.create!(customer: customer, project: projects(:test_project), cust_reference: "FAIL-1")
+    invoice.invoice_lines.create!(
+      type: "item",
+      title: "Widget",
+      quantity: 1.0,
+      rate: 100.0,
+      position: 1,
+      sales_tax_product_class: sales_tax_product_classes(:standard)
+    )
+
+    booker = InvoiceBooker.new(invoice.reload, issuer_companies(:one))
+    assert_not booker.publish!
+
+    invoice.reload
+    assert_not invoice.published?
+    assert_nil invoice.document_number
+  end
+
+  test "publish! returns false and does not publish an already-published invoice" do
+    invoice = invoices(:published_invoice)
+    assert invoice.published?
+
+    booker = InvoiceBooker.new(invoice, issuer_companies(:one))
+    assert_not booker.publish!
+    assert_includes booker.log, "E: already published"
   end
 end

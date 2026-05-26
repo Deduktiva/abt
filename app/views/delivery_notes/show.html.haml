@@ -52,6 +52,21 @@
             %strong Delivery Period:
           .col-sm-8
             = @delivery_note.delivery_timeframe
+      - unless @delivery_note.published?
+        .row.mb-2
+          .col-sm-4
+            %strong Publish Status:
+          .col-sm-8.d-flex.align-items-center.gap-2
+            - if @delivery_note.has_items?
+              %span.badge.bg-success Ready
+            - else
+              %span.badge.bg-warning No item lines
+            - if can_edit_dn
+              - if @delivery_note.has_items?
+                = button_to 'Publish…', publish_delivery_note_path(@delivery_note), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }
+              - else
+                %span.ms-auto
+                  %button.btn.btn-sm.btn-info{disabled: true} Publish…
       - if @delivery_note.published?
         .row.mb-2
           .col-sm-4
@@ -162,5 +177,4 @@
   - else
     = action_button 'Preview', preview_delivery_note_path(@delivery_note), :info, target: '_blank', data: { turbo: false }
     - if can_edit_dn
-      = button_to 'Publish', publish_delivery_note_path(@delivery_note), method: :post, class: 'btn btn-warning'
       = destroy_link(@delivery_note, "Are you sure you want to delete delivery note \"#{@delivery_note.document_number || "##{@delivery_note.id}"}\"?")

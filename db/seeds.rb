@@ -316,7 +316,6 @@ if Rails.env.development?
       cust_reference: 'PO-2025-001',
       cust_order: 'ORDER-WEB-2025',
       prelude: 'Development work for Q1 2025 web application project',
-      date: 1.week.ago.to_date,
       published: false
     )
 
@@ -357,7 +356,6 @@ if Rails.env.development?
       project: consulting_project,
       cust_reference: 'REF-LICENSE-2025',
       prelude: 'Software license keys delivery for enterprise deployment',
-      date: 3.days.ago.to_date,
       published: false
     )
 
@@ -416,7 +414,6 @@ if Rails.env.development?
       cust_reference: 'TRAIN-2025-001',
       cust_order: 'TRAINING-ORDER-001',
       prelude: 'Technical training workshop for development team',
-      date: 5.days.ago.to_date,
       published: false
     )
   end
@@ -429,7 +426,6 @@ if Rails.env.development?
       cust_reference: 'API-DEV-2025-Q1',
       cust_order: 'PO-API-5589',
       prelude: 'API development project with multiple deliverables and milestone phases',
-      date: 2.weeks.ago.to_date,
       published: false
     )
 

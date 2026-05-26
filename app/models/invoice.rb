@@ -95,40 +95,35 @@ class Invoice < ApplicationRecord
     self.published? && !self.paid? && self.due_date.present? && self.due_date < Date.current
   end
 
-  def validate_lines_for_booking
-    errors = []
-    log = []
-    log << "--- BEGIN LINES ---"
+  def booking_problems
+    problems = []
+    return problems if published?
 
-    self.invoice_lines.each do |line|
-      log << "#{line.id}.  #{line.type} #{line.title} #{line.description}"
-
-      next unless line.is_item?
-
-      if line.quantity.nil?
-        errors << "no quantity on line id #{line.id}"
-      end
-
-      if line.rate.nil?
-        errors << "no rate on line id #{line.id}"
-      end
-
-      itc = self.invoice_tax_classes.find_by_sales_tax_product_class_id(line.sales_tax_product_class_id)
-      if itc.nil?
-        errors << "no tax config for product class #{line.sales_tax_product_class_id}"
-      end
-
-      log << "#{line.id}.     Qty #{line.quantity} * #{line.rate} = #{line.amount}"
+    problems << "Customer name is missing." if customer_name.blank?
+    problems << "Customer address is missing." if customer_address.blank?
+    if customer&.sales_tax_customer_class&.vat_id_required? && customer_vat_id.blank?
+      problems << "Customer VAT ID is missing."
     end
 
-    log << "--- END LINES ---"
-    log << ""
+    problems << "Invoice has no item lines." unless has_items?
 
-    {
-      success: errors.empty?,
-      errors: errors,
-      log: log
-    }
+    lines = invoice_lines.to_a
+    configured_class_ids = invoice_tax_classes.to_a.map(&:sales_tax_product_class_id).to_set
+    missing_class_ids = lines.filter_map { |l| l.sales_tax_product_class_id if l.is_item? && !configured_class_ids.include?(l.sales_tax_product_class_id) }.uniq
+    product_class_names = missing_class_ids.empty? ? {} : SalesTaxProductClass.where(id: missing_class_ids).pluck(:id, :name).to_h
+
+    lines.each do |line|
+      next unless line.is_item?
+      label = line.title.presence || "##{line.id}"
+      problems << "Line \"#{label}\" is missing a quantity." if line.quantity.nil?
+      problems << "Line \"#{label}\" is missing a rate." if line.rate.nil?
+      unless configured_class_ids.include?(line.sales_tax_product_class_id)
+        name = product_class_names[line.sales_tax_product_class_id] || line.sales_tax_product_class_id
+        problems << "Line \"#{label}\" has no tax configuration for product class \"#{name}\"."
+      end
+    end
+
+    problems
   end
 
 private

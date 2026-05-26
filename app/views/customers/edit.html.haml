@@ -1,3 +1,4 @@
+- content_for :title, @customer.matchcode
 = breadcrumbs ['Customers', customers_path], [@customer.matchcode, customer_path(@customer)], 'Edit', action: save_button
 
 = render 'form'

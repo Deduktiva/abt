@@ -99,6 +99,21 @@ class DeliveryNote < ApplicationRecord
     end
   end
 
+  # Human-facing identifier without a type prefix — the document number once
+  # published, or a "Draft #id" stand-in while still a draft. Used wherever
+  # the surrounding context (column header, breadcrumb chain) already says
+  # "Delivery Note".
+  def display_label
+    document_number || "Draft ##{id}"
+  end
+
+  # Same identifier with the model name in front, e.g. "Delivery Note
+  # 20240301" or "Delivery Note Draft #42". Used in cross-references, modal
+  # titles, PDF attachment names, and the browser <title> tag.
+  def display_name
+    "#{self.class.model_name.human} #{display_label}"
+  end
+
   private
 
   def format_date_for_timeframe(date)

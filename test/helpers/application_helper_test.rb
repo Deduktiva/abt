@@ -1,7 +1,21 @@
 require "test_helper"
 
 class ApplicationHelperTest < ActionView::TestCase
-  # Removed redundant page_title tests - covered more comprehensively in integration tests
+  test "breadcrumbs auto-sets content_for :title from the last item label" do
+    breadcrumbs([ "Customers", "/customers" ], "Acme")
+    assert_equal "Acme", content_for(:title)
+  end
+
+  test "breadcrumbs does not override an explicit content_for :title" do
+    content_for :title, "Custom"
+    breadcrumbs([ "Customers", "/customers" ], "Acme")
+    assert_equal "Custom", content_for(:title)
+  end
+
+  test "page_header auto-sets content_for :title from its title" do
+    page_header("Business Dashboard")
+    assert_equal "Business Dashboard", content_for(:title)
+  end
 
   test "app_version returns test-version in test environment" do
     assert_equal "test-version", app_version

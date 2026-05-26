@@ -114,6 +114,21 @@ class Invoice < ApplicationRecord
     problems
   end
 
+  # Human-facing identifier without a type prefix — the document number once
+  # published, or a "Draft #id" stand-in while still a draft. Used wherever
+  # the surrounding context (column header, breadcrumb chain) already says
+  # "Invoice".
+  def display_label
+    document_number || "Draft ##{id}"
+  end
+
+  # Same identifier with the model name in front, e.g. "Invoice 20240017"
+  # or "Invoice Draft #42". Used in cross-references, modal titles, PDF
+  # attachment names, and the browser <title> tag.
+  def display_name
+    "#{self.class.model_name.human} #{display_label}"
+  end
+
 private
   def update_sums
     return if self.published?

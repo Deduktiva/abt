@@ -76,7 +76,7 @@
       - @delivery_notes.each do |delivery_note|
         %tr
           %td
-            = link_to(delivery_note.document_number || "Draft \##{delivery_note.id}", delivery_note)
+            = link_to(delivery_note.display_label, delivery_note)
           %td= delivery_note.customer.name
           %td= delivery_note.project && delivery_note.project.display_name
           %td= l(delivery_note.date) if delivery_note.date

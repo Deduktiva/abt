@@ -37,6 +37,13 @@ en:
     formats:
       default: "%d.%m.%Y %H:%M"
 
+  # Override the auto-humanized model name (which would lowercase the second
+  # word as "Delivery note"). "Delivery Note" is the title-cased spelling used
+  # throughout the UI, and DeliveryNote#display_name reads model_name.human.
+  activerecord:
+    models:
+      delivery_note: "Delivery Note"
+
   # Override Rails' default belongs_to required message ("must exist"),
   # which reads as a database/lookup error to end users. Required
   # belongs_to fields render as <select> dropdowns in our forms, so

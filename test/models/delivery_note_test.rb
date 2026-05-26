@@ -123,4 +123,12 @@ class DeliveryNoteTest < ActiveSupport::TestCase
     )
     assert delivery_note.valid?
   end
+
+  # display_label / display_name shape is covered by InvoiceTest. This test
+  # exists only to lock in the title-cased "Delivery Note" model name
+  # (overridden in config/locales/en.yml so the auto-humanized "Delivery note"
+  # doesn't bleed into modal titles, PDF names, and browser tab titles).
+  test "display_name uses title-cased Delivery Note" do
+    assert_equal "Delivery Note DN-2025-001", delivery_notes(:published_delivery_note).display_name
+  end
 end

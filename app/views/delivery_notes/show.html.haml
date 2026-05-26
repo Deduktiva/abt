@@ -1,12 +1,13 @@
+- content_for :title, @delivery_note.display_name
 - can_edit_dn = can?('delivery_notes.edit')
 - edit_action = action_button('Edit', edit_delivery_note_path(@delivery_note), permission: 'delivery_notes.edit') unless @delivery_note.published?
 - pdf_action = pdf_button(pdf_delivery_note_path(@delivery_note))
 - preview_action = preview_button(preview_delivery_note_path(@delivery_note))
 - unpublish_action = unpublish_button(unpublish_delivery_note_path(@delivery_note), permission: 'delivery_notes.edit', confirm: 'Are you sure you want to revert this delivery note to draft status?')
-- delete_action = delete_button(@delivery_note, confirm: "Are you sure you want to delete delivery note \"#{@delivery_note.document_number || "##{@delivery_note.id}"}\"?") if can_edit_dn
+- delete_action = delete_button(@delivery_note, confirm: "Are you sure you want to delete delivery note \"#{@delivery_note.display_label}\"?") if can_edit_dn
 - main_action = @delivery_note.published? ? preview_action : edit_action
 - workflow_actions = @delivery_note.published? ? [pdf_action, unpublish_action] : [preview_action, delete_action]
-= breadcrumbs ['Delivery Notes', delivery_notes_path], (@delivery_note.document_number || "Draft ##{@delivery_note.id}"), actions: workflow_actions, action: main_action do
+= breadcrumbs ['Delivery Notes', delivery_notes_path], @delivery_note.display_label, actions: workflow_actions, action: main_action do
   - if !@delivery_note.published?
     %span.badge.bg-warning Draft
   - elsif @delivery_note.email_sent_at.present?
@@ -19,7 +20,7 @@
 %div{data: (@delivery_note.published? ? email_preview_data(@delivery_note) : {})}
   - if params[:published] == '1' && @delivery_note.published?
     .alert.alert-success.mb-3{data: {controller: 'auto-download'}}
-      %h4.alert-heading.mb-2= "Delivery Note #{@delivery_note.document_number} published."
+      %h4.alert-heading.mb-2= "#{@delivery_note.display_name} published."
       %p.mb-3 Download the PDF and send it to your customer.
       .d-flex.gap-2
         = link_to 'Download PDF', pdf_delivery_note_path(@delivery_note), class: 'btn btn-success', target: '_blank', data: { turbo: false, 'auto-download-target': 'link' }
@@ -93,7 +94,7 @@
               %strong Invoice:
             .col-sm-8.d-flex.align-items-center.gap-2
               - if @delivery_note.invoice
-                = link_to "Invoice #{@delivery_note.invoice.document_number || "##{@delivery_note.invoice.id}"}", @delivery_note.invoice
+                = link_to @delivery_note.invoice.display_name, @delivery_note.invoice
                 - if @delivery_note.invoice.published?
                   %span.badge.bg-success Booked
                 - else
@@ -173,4 +174,4 @@
                       = simple_format(line.description)
 
   - if @delivery_note.published?
-    = render 'shared/email_preview_modal', title: "Preview - Delivery Note #{@delivery_note.document_number}"
+    = render 'shared/email_preview_modal', title: "Preview - #{@delivery_note.display_name}"

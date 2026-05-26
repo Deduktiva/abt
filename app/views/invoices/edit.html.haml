@@ -1,3 +1,4 @@
-= breadcrumbs ['Invoices', invoices_path], [(@invoice.document_number || "Draft ##{@invoice.id}"), invoice_path(@invoice)], 'Edit', action: save_button
+- content_for :title, @invoice.display_name
+= breadcrumbs ['Invoices', invoices_path], [@invoice.display_label, invoice_path(@invoice)], 'Edit', action: save_button
 
 = render 'form'

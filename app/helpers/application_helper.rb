@@ -46,6 +46,8 @@ module ApplicationHelper
   #     - unless @customer.active?
   #       %span.badge.bg-secondary Inactive
   def breadcrumbs(*items, action: nil, actions: nil, &status_block)
+    active_label, _ = Array(items.last)
+    content_for(:title, active_label) if active_label.present? && !content_for?(:title)
     nav = content_tag :nav, "aria-label": "breadcrumb" do
       content_tag :div, class: "d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom py-1 mb-2" do
         left = content_tag(:div, class: "d-flex align-items-center flex-wrap gap-2 small") do
@@ -79,6 +81,7 @@ module ApplicationHelper
   #   nil-when-denied result), or nil for no action area.
   # status_block: yields zero or more inline badges next to the title.
   def page_header(title, action: nil, &status_block)
+    content_for(:title, title) if title.present? && !content_for?(:title)
     header_row = content_tag :div, class: "d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" do
       title_area = content_tag(:div, class: "d-flex align-items-center flex-wrap gap-2") do
         header = content_tag(:h1, title, class: "mb-0")

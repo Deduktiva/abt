@@ -1,4 +1,6 @@
-= breadcrumbs 'Configuration', 'Sales Tax', action: action_button('+ New', new_sales_tax_rate_path, :info, permission: 'sales_tax.edit')
+- customer_classes_action = nav_button('Customer Classes', sales_tax_customer_classes_path)
+- product_classes_action = nav_button('Product Classes', sales_tax_product_classes_path)
+= breadcrumbs 'Configuration', 'Sales Tax', actions: [customer_classes_action, product_classes_action], action: action_button('+ New', new_sales_tax_rate_path, :info, permission: 'sales_tax.edit')
 
 %table.table.table-striped.table-sm
   %tr
@@ -62,6 +64,3 @@
                 = f.number_field :rate, class: 'form-control', step: 0.01, required: true
                 %span.input-group-text %
               = f.submit 'Create', class: 'btn btn-primary'
-= action_buttons_wrapper do
-  = action_button 'Customer Classes', sales_tax_customer_classes_path, :secondary
-  = action_button 'Product Classes', sales_tax_product_classes_path, :secondary

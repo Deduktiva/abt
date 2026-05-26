@@ -197,6 +197,7 @@ For testing against PostgreSQL (matches production environment):
 - `destroy_link(resource, confirm_text)` - Compact `🗑` outline link for the **Actions** column on index pages. On detail pages use `delete_button(resource)` instead.
 - `list_action_link(text, path, type)` - Compact buttons for in-table row actions.
 - Per-verb helpers in `ActionButtonsHelper` (`delete_button`, `pdf_button`, `preview_button`, `publish_button`, `unpublish_button`, `convert_to_invoice_button`, `unblock_button`, `reset_passkeys_button`, `audit_log_button`) — see "Button Glyphs" below for the full mapping and policy.
+- `nav_button(text, path, permission: nil, data: nil)` (in `ActionButtonsHelper`) — cross-resource navigation in the breadcrumb action cluster (e.g. customer show → its Invoices/Delivery Notes; sales-tax rates → Customer/Product Classes). Bakes in `:info` so the color convention is centralized. Don't reach for `action_button(..., :info)` for cross-resource navigation — use `nav_button` instead.
 
 ### Button Glyphs (Show-page Actions)
 

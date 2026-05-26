@@ -20,7 +20,7 @@
           .col-sm-4
             %strong Customer:
           .col-sm-8
-            = @invoice.customer_name || @invoice.customer.name
+            = link_to(@invoice.customer_name || @invoice.customer.name, @invoice.customer)
         .row.mb-2
           .col-sm-4
             %strong Payment Terms:
@@ -72,7 +72,7 @@
               %strong Project:
             .col-sm-8
               - if @invoice.project
-                = @invoice.project.display_name
+                = link_to @invoice.project.display_name, @invoice.project
               - else
                 %em (Project ##{@invoice.project_id} - not found)
         - if @invoice.cust_reference.present?

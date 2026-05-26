@@ -1,4 +1,4 @@
-%div{data: {controller: 'delivery-notes-form'}}
+%div{data: {controller: 'auto-resize-form'}}
   = form_for(@delivery_note, html: { id: ActionButtonsHelper::PAGE_FORM_ID }) do |f|
     - if @delivery_note.errors.any?
       .alert.alert-danger
@@ -102,7 +102,7 @@
         .col-sm-12
           .mb-3
             %label.form-label Prelude
-            = f.text_area :prelude, class: 'form-control', rows: 2, placeholder: 'Thank you for your business...', data: { action: 'input->delivery-notes-form#fieldChanged' }
+            = f.text_area :prelude, class: 'form-control', rows: 2, placeholder: 'Thank you for your business...', data: { action: 'input->auto-resize-form#fieldChanged' }
 
     - unless @delivery_note.id.nil?
       %div{data: {controller: 'delivery-note-lines'}}

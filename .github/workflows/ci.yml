@@ -45,7 +45,7 @@ jobs:
       run: |
         echo "$PWD/bin" >> $GITHUB_PATH
         cp config/database.yml.sample config/database.yml
-        ./bin/abt-fop-container -version || echo "FOP version check failed"
+        ./bin/abt-fop-container -version
 
     - name: Setup database
       env:

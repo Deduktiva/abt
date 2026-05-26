@@ -113,7 +113,6 @@ class InvoicesController < ApplicationController
   def book
     booker = InvoiceBooker.new @invoice, IssuerCompany.get_the_issuer!
     if booker.publish!
-      flash[:notice] = "Invoice #{@invoice.document_number} has been booked."
       redirect_to invoice_path(@invoice, booked: 1)
     else
       flash[:error] = "Booking failed: #{@invoice.booking_problems.join('; ')}"

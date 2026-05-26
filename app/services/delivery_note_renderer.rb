@@ -40,7 +40,7 @@ class DeliveryNoteRenderer
       end
 
       xml_root.prelude @delivery_note.prelude
-      xml_root.number(draft_aware_number)
+      xml_root.number draft_aware_number
       xml_root.tag! "issue-date", @delivery_note.date || "2999-01-01"
       xml_root.tag! "delivery-timeframe", @delivery_note.delivery_timeframe if @delivery_note.delivery_timeframe.present?
 

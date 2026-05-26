@@ -1,3 +1,4 @@
+= breadcrumbs 'Configuration', ['Teams', teams_path], @team.name
 = page_header("Team \"#{@team.name}\"", action: action_button('Edit', edit_team_path(@team)))
 
 .row
@@ -39,6 +40,3 @@
           %ul.list-unstyled.mb-0
             - @members.each do |user|
               %li= link_to(user.username, user_path(user))
-
-= action_buttons_wrapper do
-  = action_button 'Back', teams_path, :secondary

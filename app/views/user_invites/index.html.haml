@@ -1,5 +1,6 @@
 - content_for :title, 'Invites'
 
+= breadcrumbs 'Configuration', ['Users', users_path], 'Invites'
 = page_header('Invites', action: action_button('+ New', new_user_invite_path, :info))
 
 %table.table.table-striped.table-sm
@@ -25,6 +26,3 @@
           - else
             %span.badge.bg-warning Pending
         %td= invite.used_by_user&.username || '—'
-
-.mt-4
-  = link_to 'Back to users', users_path, class: 'btn btn-secondary'

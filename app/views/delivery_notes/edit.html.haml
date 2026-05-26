@@ -1,3 +1,4 @@
+= breadcrumbs ['Delivery Notes', delivery_notes_path], [(@delivery_note.document_number || "Draft ##{@delivery_note.id}"), delivery_note_path(@delivery_note)], 'Edit'
 = page_header('Editing delivery note draft')
 
 = render 'form'

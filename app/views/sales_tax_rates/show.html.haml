@@ -1,3 +1,4 @@
+= breadcrumbs 'Configuration', ['Sales Tax', sales_tax_rates_path], "#{@sales_tax_rate.sales_tax_customer_class&.name} / #{@sales_tax_rate.sales_tax_product_class&.name}"
 = page_header('Sales Tax Rate', action: action_button('Edit', edit_sales_tax_rate_path(@sales_tax_rate), permission: 'sales_tax.edit'))
 
 %p
@@ -9,6 +10,3 @@
 %p
   %b Rate:
   = @sales_tax_rate.rate
-
-= action_buttons_wrapper do
-  = action_button 'Back', sales_tax_rates_path, :secondary

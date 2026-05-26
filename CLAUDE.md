@@ -185,6 +185,11 @@ For testing against PostgreSQL (matches production environment):
 - To render a `datetime` column as date-only (e.g. `email_sent_at` in compact list rows), call `l(value.to_date)` — `l` on a `Time`/`DateTime` produces the time format.
 
 ### UI Helper Methods
+- `breadcrumbs(*items)` - Bootstrap breadcrumb row, rendered above `page_header` on every page except the dashboard (`root_path`) and `/account/*`. Each item is either `[label, path]` (link) or a plain label (non-link). The last item is always rendered as the active crumb with `aria-current="page"`, even if a path was supplied.
+  - Top-level resources start with the navbar label linked to its index: `['Customers', customers_path]`, `['Projects', projects_path]`, `['Delivery Notes', delivery_notes_path]`, `['Invoices', invoices_path]`.
+  - Configuration resources start with a non-link `'Configuration'` crumb (the dropdown has no destination) followed by the resource's navbar label, e.g. `breadcrumbs 'Configuration', ['Sales Tax', sales_tax_rates_path], 'Edit'`.
+  - On edit pages append `'Edit'` as the active crumb; on new pages append `'New'`. On show pages the resource's identifier (matchcode / document number / name) is the active crumb.
+  - The bottom `action_buttons_wrapper` no longer contains a `Back` button — the breadcrumb is the navigation anchor. `action_buttons_wrapper` is reserved for workflow verbs (PDF, Send, Publish, Delete, Mark Paid, etc.). `cancel_button(resource)` on edit/new forms stays — it pairs with Submit, not navigation.
 - `page_header(title, action: nil, &status_block)` - The page-header row. Title left, optional inline status badges via block, optional right-aligned action. Build the action with `action_button(...)` — when its permission check fails it returns nil, which `page_header` renders as no action area.
 - `action_button(text, path, type = :primary, permission: nil, target: nil, data: nil)` - Styled buttons (primary, secondary, success, info, warning, danger). Returns `nil` when `permission:` is given and the current user lacks it.
 - `action_buttons_wrapper` - Container for the bottom-of-page workflow action row (Back, PDF, Send E-Mail, Publish, Delete, etc.).

@@ -1,5 +1,6 @@
 - can_edit_invoice = can?('invoices.edit')
 - edit_action = action_button('Edit', edit_invoice_path(@invoice), permission: 'invoices.edit') unless @invoice.published?
+= breadcrumbs ['Invoices', invoices_path], (@invoice.document_number || "Draft ##{@invoice.id}")
 = page_header("Invoice #{@invoice.document_number || "Draft ##{@invoice.id}"}", action: edit_action) do
   - if !@invoice.published?
     %span.badge.bg-warning.fs-6 Draft
@@ -190,7 +191,6 @@
               %strong= format_currency(@invoice.sum_total)
 
 = action_buttons_wrapper do
-  = action_button 'Back', invoices_path, :secondary
   - if @invoice.attachment
     = action_button 'PDF', @invoice.attachment, :success, target: '_blank', data: { turbo: false }
   - else

@@ -8,15 +8,6 @@
       .card-body
         .row.mb-2
           .col-sm-4
-            %strong Active:
-          .col-sm-8
-            - if @issuer_company.active?
-              %span.badge.bg-success Yes
-            - else
-              %span.badge.bg-danger No
-
-        .row.mb-2
-          .col-sm-4
             %strong Short Name:
           .col-sm-8
             = @issuer_company.short_name
@@ -124,7 +115,7 @@
             %strong PNG Logo:
           .col-sm-8
             - if @issuer_company.png_logo.present?
-              %span.badge.bg-success Logo uploaded
+              = image_tag png_logo_issuer_company_path, alt: @issuer_company.legal_name, class: 'issuer-logo-preview'
             - else
               %em No logo set
 

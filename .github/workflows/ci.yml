@@ -35,7 +35,6 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.3'
         bundler-cache: true
 
     - name: Build FOP Docker container
@@ -92,7 +91,6 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.3'
         bundler-cache: true
 
     - name: Run Brakeman
@@ -142,7 +140,6 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.3'
         bundler-cache: true
 
     - name: Set up Python

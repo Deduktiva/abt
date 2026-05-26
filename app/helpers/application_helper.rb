@@ -9,6 +9,17 @@ module ApplicationHelper
     @current_currency ||= IssuerCompany.get_the_issuer!&.currency || "EUR"
   end
 
+  # Sets the browser <title> bare (no "ABT" suffix — the layout fallback adds
+  # one only when no title was set). Place as the first line of the view. The
+  # breadcrumbs / page_header helpers auto-call this from their primary label
+  # when no explicit page_title has been set, so most views can omit it; call
+  # it explicitly when the breadcrumb's active crumb is too generic for a
+  # browser tab ("Edit", "New") or when the show-page identifier needs a type
+  # prefix for clarity (e.g. "Invoice 20240017" rather than just the number).
+  def page_title(text)
+    content_for :title, text
+  end
+
   def format_currency(amount)
     return "" if amount.nil?
     case current_currency
@@ -46,6 +57,8 @@ module ApplicationHelper
   #     - unless @customer.active?
   #       %span.badge.bg-secondary Inactive
   def breadcrumbs(*items, action: nil, actions: nil, &status_block)
+    active_label, _ = Array(items.last)
+    page_title(active_label) if active_label.present? && !content_for?(:title)
     nav = content_tag :nav, "aria-label": "breadcrumb" do
       content_tag :div, class: "d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom py-1 mb-2" do
         left = content_tag(:div, class: "d-flex align-items-center flex-wrap gap-2 small") do
@@ -79,6 +92,7 @@ module ApplicationHelper
   #   nil-when-denied result), or nil for no action area.
   # status_block: yields zero or more inline badges next to the title.
   def page_header(title, action: nil, &status_block)
+    page_title(title) if title.present? && !content_for?(:title)
     header_row = content_tag :div, class: "d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" do
       title_area = content_tag(:div, class: "d-flex align-items-center flex-wrap gap-2") do
         header = content_tag(:h1, title, class: "mb-0")

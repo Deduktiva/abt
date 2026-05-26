@@ -1,30 +1,15 @@
 require "test_helper"
 
 class PageTitleTest < ActionDispatch::IntegrationTest
-  def setup
-    @issuer = IssuerCompany.get_the_issuer!
-    @original_short_name = @issuer.short_name
-  end
-
-  def teardown
-    # Restore original short_name after each test
-    @issuer.update!(short_name: @original_short_name) if @issuer
-  end
-
-  test "home page shows dynamic title with issuer short_name" do
-    @issuer.update!(short_name: "TestCorp")
-
+  test "dashboard title is auto-derived from page_header" do
     get root_path
     assert_response :success
-    assert_select "title", text: "ABT: TestCorp"
+    assert_select "title", text: "Business Dashboard"
   end
 
-  test "home page shows ABT title when issuer short_name is blank" do
-    # Temporarily set short_name to blank using update_column to bypass validation
-    @issuer.update_column(:short_name, "")
-
-    get root_path
+  test "index page title is auto-derived from the active breadcrumb" do
+    get customers_path
     assert_response :success
-    assert_select "title", text: "ABT"
+    assert_select "title", text: "Customers"
   end
 end

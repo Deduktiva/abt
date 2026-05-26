@@ -80,7 +80,7 @@
       - @invoices.each do |invoice|
         %tr
           %td
-            = link_to(invoice.document_number || "Draft \##{invoice.id}", invoice)
+            = link_to(invoice.display_label, invoice)
           %td= invoice.customer.name
           %td= invoice.project && invoice.project.display_name
           %td= l(invoice.date) if invoice.date

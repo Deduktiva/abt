@@ -277,4 +277,17 @@ class InvoiceTest < ActiveSupport::TestCase
     assert_not invoice.emailable?
     assert_not_includes Invoice.email_unsent, invoice
   end
+
+  test "display_label returns the document_number when published" do
+    assert_equal "INV-2024-001", invoices(:published_invoice).display_label
+  end
+
+  test "display_label returns Draft #id when unpublished" do
+    draft = invoices(:draft_invoice)
+    assert_equal "Draft ##{draft.id}", draft.display_label
+  end
+
+  test "display_name prepends the model name" do
+    assert_equal "Invoice INV-2024-001", invoices(:published_invoice).display_name
+  end
 end

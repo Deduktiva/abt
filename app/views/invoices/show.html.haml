@@ -1,9 +1,10 @@
+= page_title @invoice.display_name
 - can_edit_invoice = can?('invoices.edit')
 - edit_action = action_button('Edit', edit_invoice_path(@invoice), permission: 'invoices.edit') unless @invoice.published?
 - problems = @invoice.published? ? [] : @invoice.publish_problems
 - pdf_or_preview = @invoice.attachment ? pdf_button(@invoice.attachment) : preview_button(preview_invoice_path(@invoice))
-- delete_action = delete_button(@invoice, confirm: "Are you sure you want to delete invoice \"#{@invoice.document_number || "##{@invoice.id}"}\"?") if !@invoice.published? && can_edit_invoice
-= breadcrumbs ['Invoices', invoices_path], (@invoice.document_number || "Draft ##{@invoice.id}"), actions: [pdf_or_preview, delete_action], action: edit_action do
+- delete_action = delete_button(@invoice, confirm: "Are you sure you want to delete invoice \"#{@invoice.display_label}\"?") if !@invoice.published? && can_edit_invoice
+= breadcrumbs ['Invoices', invoices_path], @invoice.display_label, actions: [pdf_or_preview, delete_action], action: edit_action do
   - if !@invoice.published?
     %span.badge.bg-warning Draft
   - else
@@ -24,7 +25,7 @@
 %div{data: (@invoice.published? ? email_preview_data(@invoice) : {})}
   - if params[:published] == '1' && @invoice.published? && @invoice.attachment
     .alert.alert-success.mb-3{data: {controller: 'auto-download'}}
-      %h4.alert-heading.mb-2= "Invoice #{@invoice.document_number} booked."
+      %h4.alert-heading.mb-2= "#{@invoice.display_name} booked."
       %p.mb-3 Download the PDF and send it to your customer.
       .d-flex.gap-2
         = link_to 'Download PDF', @invoice.attachment, class: 'btn btn-success', target: '_blank', data: { turbo: false, 'auto-download-target': 'link' }
@@ -128,7 +129,7 @@
             .col-sm-4
               %strong Source:
             .col-sm-8
-              = link_to "Delivery Note #{@invoice.delivery_note.document_number || "##{@invoice.delivery_note.id}"}", @invoice.delivery_note
+              = link_to @invoice.delivery_note.display_name, @invoice.delivery_note
 
   - if @invoice.prelude.present?
     .mb-4
@@ -209,4 +210,4 @@
               %strong= format_currency(@invoice.sum_total)
 
   - if @invoice.published?
-    = render 'shared/email_preview_modal', title: "Preview - Invoice #{@invoice.document_number}"
+    = render 'shared/email_preview_modal', title: "Preview - #{@invoice.display_name}"

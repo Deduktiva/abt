@@ -178,7 +178,7 @@ class DeliveryNotesController < ApplicationController
     attachment = Attachment.new
     attachment.set_data uploaded_file.read, "application/pdf"
     attachment.filename = uploaded_file.original_filename
-    attachment.title = "Acceptance Document for Delivery Note #{@delivery_note.document_number}"
+    attachment.title = "Acceptance Document for #{@delivery_note.display_name}"
 
     if attachment.save
       @delivery_note.update!(acceptance_attachment: attachment)
@@ -216,7 +216,7 @@ class DeliveryNotesController < ApplicationController
     begin
       # Build enhanced prelude with delivery note information
       delivery_note_info = []
-      delivery_note_info << "Based on Delivery Note #{@delivery_note.document_number}"
+      delivery_note_info << "Based on #{@delivery_note.display_name}"
       delivery_note_info << "Delivery Note Date: #{I18n.l(@delivery_note.date)}" if @delivery_note.date
       if @delivery_note.acceptance_attachment
         delivery_note_info << "Acceptance Document: #{@delivery_note.acceptance_attachment.filename} (#{I18n.l(@delivery_note.acceptance_attachment.created_at.to_date)})"

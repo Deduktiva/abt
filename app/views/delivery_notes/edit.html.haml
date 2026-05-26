@@ -1,3 +1,4 @@
-= breadcrumbs ['Delivery Notes', delivery_notes_path], [(@delivery_note.document_number || "Draft ##{@delivery_note.id}"), delivery_note_path(@delivery_note)], 'Edit', action: save_button
+= page_title @delivery_note.display_name
+= breadcrumbs ['Delivery Notes', delivery_notes_path], [@delivery_note.display_label, delivery_note_path(@delivery_note)], 'Edit', action: save_button
 
 = render 'form'

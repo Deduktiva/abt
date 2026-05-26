@@ -145,6 +145,18 @@ class ApplicationController < ActionController::Base
     reset_session
   end
 
+  # Full sign-out for action endpoints that end with the user signed out:
+  # tears down the auth cookie + framework session, clears Current so any
+  # after_action / logging callback sees the user as anonymous, and
+  # redirects to the sign-in page with a notice. Callers are responsible
+  # for terminating UserSession records before invoking.
+  def sign_out_and_redirect(notice:)
+    reset_auth_cookie
+    Current.user = nil
+    Current.session = nil
+    redirect_to new_session_path, notice: notice
+  end
+
   def read_auth_token
     value = cookies.signed[AUTH_COOKIE]
     return value if value.present?

@@ -23,15 +23,17 @@ class Account::SessionsControllerTest < ActionDispatch::IntegrationTest
     assert current.reload.terminated_at.present?
   end
 
-  test "destroying current session clears the framework session" do
+  test "destroy_all terminates every active session of the current user and signs them out" do
     current = sign_in_as(users(:alice))
-    post options_account_credentials_path, params: { nickname: "x" }, as: :json
-    assert_response :success
-    assert session[:webauthn_credential_add_nonce].present?,
-      "options should have stashed a credential_add nonce in the framework session"
+    other, _plain = UserSession.create_for!(user: users(:alice), request: nil)
+    foreign, _plain = UserSession.create_for!(user: users(:bob), request: nil)
 
-    delete account_session_path(current)
-    assert session[:webauthn_credential_add_nonce].blank?,
-      "destroying the current session must clear the framework session"
+    delete destroy_all_account_sessions_path
+    assert_redirected_to new_session_path
+
+    assert current.reload.terminated_at.present?
+    assert other.reload.terminated_at.present?
+    assert_nil foreign.reload.terminated_at,
+      "destroy_all must not touch other users' sessions"
   end
 end

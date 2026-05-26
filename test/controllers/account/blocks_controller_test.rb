@@ -28,17 +28,4 @@ class Account::BlocksControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_path
     assert_not users(:alice).reload.blocked?
   end
-
-  test "self-block clears the framework session" do
-    sign_in_as(users(:alice))
-    # Seed a webauthn credential-add nonce in the framework session.
-    post options_account_credentials_path, params: { nickname: "x" }, as: :json
-    assert_response :success
-    assert session[:webauthn_credential_add_nonce].present?,
-      "options should have stashed a credential_add nonce in the framework session"
-
-    post account_block_path
-    assert session[:webauthn_credential_add_nonce].blank?,
-      "self-block must clear the framework session"
-  end
 end

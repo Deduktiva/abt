@@ -636,7 +636,7 @@ if Rails.env.development?
     # sum_net / sum_total from the lines.
     last_year_invoice.save!
     last_year_invoice.due_date = last_year_invoice.date + last_year_invoice.customer.payment_terms_days.days
-    last_year_invoice.token = SecureRandom.base58(13)
+    last_year_invoice.token = 'lastyr2024tkn'
     last_year_invoice.published = true # Now publish the invoice
 
     # Create a sample PDF attachment

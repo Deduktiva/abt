@@ -22,9 +22,9 @@
 .w-fixed-250 { width: 250px; }
 
 // --- Issuer accent theme helpers ---
-// The --issuer-accent-color variable is injected once by the application
-// layout via ApplicationHelper#issuer_accent_color_style, so these helpers
-// work on every page.
+// The --issuer-accent-color variable is injected once at the top of the
+// application layout (app/views/layouts/application.html.haml) so these
+// helpers work on every page.
 
 .text-issuer-accent {
   color: var(--issuer-accent-color) !important;

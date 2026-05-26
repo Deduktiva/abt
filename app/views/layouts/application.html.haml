@@ -1,13 +1,18 @@
 !!!
 %html
   %head
-    %title= content_for?(:title) ? yield(:title) : page_title
+    - issuer = IssuerCompany.get_the_issuer!
+    - default_title = issuer&.short_name.present? ? "ABT: #{issuer.short_name}" : "ABT"
+    %title= content_for?(:title) ? yield(:title) : default_title
     %meta{name: "robots", content: "noindex, nofollow"}
     = csrf_meta_tags
     = csp_meta_tag
     = favicon_link_tag 'favicon.svg', type: 'image/svg+xml'
     = stylesheet_link_tag    "application", :media => "all"
-    = issuer_accent_color_style
+    - if issuer&.document_accent_color.present?
+      -# document_accent_color is hex-validated on the model; tag.style HTML-escapes
+      -# the body as defense-in-depth against any bypass of that validation.
+      = tag.style ":root { --issuer-accent-color: #{issuer.document_accent_color}; }", nonce: content_security_policy_nonce
     = javascript_importmap_tags
     = javascript_tag nonce: true do
       :plain

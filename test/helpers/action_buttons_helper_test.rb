@@ -93,10 +93,10 @@ class ActionButtonsHelperTest < ActionView::TestCase
     assert_match(/btn-secondary/, html)
   end
 
-  test "nav_button renders the given label with info color" do
+  test "nav_button renders the given label with outline-secondary style" do
     html = nav_button("Invoices", "/invoices")
     assert_includes html, "Invoices"
-    assert_match(/btn-info/, html)
+    assert_match(/btn-outline-secondary/, html)
     assert_match(%r{href="/invoices"}, html)
   end
 end

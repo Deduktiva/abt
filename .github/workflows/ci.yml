@@ -127,13 +127,5 @@ jobs:
       with:
         bundler-cache: true
 
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: '3.x'
-
-    - name: Install pre-commit
-      run: pip install pre-commit
-
     - name: Run pre-commit hooks
-      run: pre-commit run --all-files
+      uses: pre-commit/action@v3.0.1

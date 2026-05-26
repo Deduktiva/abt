@@ -86,7 +86,7 @@
                   %span.ms-auto
                     %button.btn.btn-sm.btn-info{disabled: true} Publish…
         - if @delivery_note.published?
-          = render 'shared/email_status_row', resource: @delivery_note, can_edit: can_edit_dn, show_send_button: true, no_recipient_help: 'No contact is configured to receive this delivery note. Add a contact on the customer with "Delivery Notes" enabled.'
+          = render 'shared/email_status_row', resource: @delivery_note, can_edit: can_edit_dn, show_send_button: true
         - if @delivery_note.published?
           .row.mb-2
             .col-sm-4

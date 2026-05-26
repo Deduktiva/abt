@@ -101,7 +101,7 @@
                   = button_to 'Publish Invoice…', publish_invoice_path(@invoice), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Publish invoice and assign a document number? This cannot be undone.' }
 
         - if @invoice.published?
-          = render 'shared/email_status_row', resource: @invoice, can_edit: can_edit_invoice, show_send_button: @invoice.attachment.present?, no_recipient_help: 'No contact is configured to receive this invoice. Add a contact on the customer, or enable Automated E-Mail.'
+          = render 'shared/email_status_row', resource: @invoice, can_edit: can_edit_invoice, show_send_button: @invoice.attachment.present?
 
           .row.mb-2
             .col-sm-4

@@ -86,24 +86,7 @@
                   %span.ms-auto
                     %button.btn.btn-sm.btn-info{disabled: true} Publish…
         - if @delivery_note.published?
-          .row.mb-2
-            .col-sm-4
-              %strong Email Status:
-            .col-sm-8.d-flex.align-items-center.gap-2
-              - if @delivery_note.email_sent_at
-                Sent #{l(@delivery_note.email_sent_at)}
-              - elsif @delivery_note.emailable?
-                %span.badge.bg-warning Unsent
-              - else
-                %span.badge.bg-secondary No Recipient
-              - if can_edit_dn
-                - if @delivery_note.emailable?
-                  %button.btn.btn-sm.btn-warning.ms-auto{data: {action: 'click->generic-email-preview#open'}}
-                    Send E-Mail
-                - else
-                  %span.ms-auto{data: {'bs-toggle': 'tooltip'}, title: 'No contact is configured to receive this delivery note. Add a contact on the customer with "Delivery Notes" enabled.'}
-                    %button.btn.btn-sm.btn-warning{disabled: true}
-                      Send E-Mail
+          = render 'shared/email_status_row', resource: @delivery_note, can_edit: can_edit_dn, show_send_button: true, no_recipient_help: 'No contact is configured to receive this delivery note. Add a contact on the customer with "Delivery Notes" enabled.'
         - if @delivery_note.published?
           .row.mb-2
             .col-sm-4

@@ -1,0 +1,30 @@
+-# Shared "Email Status" status row for invoice and delivery-note show pages.
+-# Caller must render this inside the element that carries
+-# data-controller="generic-email-preview" (see email_preview_data helper).
+-#
+-# Locals:
+-#   resource          - the document (Invoice or DeliveryNote); read for
+-#                       email_sent_at and emailable?
+-#   can_edit          - whether the current user may trigger the email send
+-#   no_recipient_help - tooltip text for the disabled-button variant when
+-#                       the document has no email recipient configured
+-#   show_send_button  - whether to render the Send-E-Mail action at all
+-#                       (e.g. invoice requires an attachment to send)
+.row.mb-2
+  .col-sm-4
+    %strong Email Status:
+  .col-sm-8.d-flex.align-items-center.gap-2
+    - if resource.email_sent_at
+      Sent #{l(resource.email_sent_at)}
+    - elsif resource.emailable?
+      %span.badge.bg-warning Unsent
+    - else
+      %span.badge.bg-secondary No Recipient
+    - if can_edit && show_send_button
+      - if resource.emailable?
+        %button.btn.btn-sm.btn-warning.ms-auto{data: {action: 'click->generic-email-preview#open'}}
+          Send E-Mail
+      - else
+        %span.ms-auto{data: {'bs-toggle': 'tooltip'}, title: no_recipient_help}
+          %button.btn.btn-sm.btn-warning{disabled: true}
+            Send E-Mail

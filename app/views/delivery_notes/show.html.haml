@@ -8,7 +8,7 @@
   - else
     %span.badge.bg-success.fs-6 Booked
 
-%div
+.email-delivery_note-preview-wrapper{"data-controller" => "generic-email-preview", "data-generic-email-preview-preview-url-value" => preview_email_delivery_note_path(@delivery_note), "data-generic-email-preview-raw-preview-url-value" => preview_email_raw_delivery_note_path(@delivery_note), "data-generic-email-preview-send-url-value" => send_email_delivery_note_path(@delivery_note)}
   .document-header.row.mb-2
     .col-md-6
       .document-details
@@ -27,13 +27,21 @@
           .row.mb-2
             .col-sm-4
               %strong Email Status:
-            .col-sm-8
+            .col-sm-8.d-flex.align-items-center.gap-2
               - if @delivery_note.email_sent_at
                 Sent #{l(@delivery_note.email_sent_at)}
               - elsif @delivery_note.emailable?
                 %span.badge.bg-warning Unsent
               - else
                 %span.badge.bg-secondary No Recipient
+              - if can_edit_dn
+                - if @delivery_note.emailable?
+                  %button.btn.btn-sm.btn-warning{"data-action" => "click->generic-email-preview#open"}
+                    Send E-Mail
+                - else
+                  %span{data: { 'bs-toggle': 'tooltip' }, title: 'No contact is configured to receive this delivery note. Add a contact on the customer with "Delivery Notes" enabled.'}
+                    %button.btn.btn-sm.btn-warning{disabled: true}
+                      Send E-Mail
         - if @delivery_note.invoice
           .row.mb-2
             .col-sm-4
@@ -144,19 +152,10 @@
                     - else
                       = simple_format(line.description)
 
-.email-delivery_note-preview-wrapper{"data-controller" => "generic-email-preview", "data-generic-email-preview-preview-url-value" => preview_email_delivery_note_path(@delivery_note), "data-generic-email-preview-raw-preview-url-value" => preview_email_raw_delivery_note_path(@delivery_note), "data-generic-email-preview-send-url-value" => send_email_delivery_note_path(@delivery_note)}
   = action_buttons_wrapper do
     = action_button 'Back', delivery_notes_path, :secondary
     - if @delivery_note.published?
       = action_button 'PDF', pdf_delivery_note_path(@delivery_note), :success, target: '_blank', data: { turbo: false }
-      - if can_edit_dn
-        - if @delivery_note.emailable?
-          %button.btn.btn-warning{"data-action" => "click->generic-email-preview#open"}
-            Send E-Mail
-        - else
-          %span{data: { 'bs-toggle': 'tooltip' }, title: 'No contact is configured to receive this delivery note. Add a contact on the customer with "Delivery Notes" enabled.'}
-            %button.btn.btn-warning{disabled: true}
-              Send E-Mail
       - if can_edit_dn && !@delivery_note.invoice
         = button_to 'Convert to Invoice', convert_to_invoice_delivery_note_path(@delivery_note), method: :post, class: 'btn btn-info', confirm: 'Create an invoice draft from this delivery note?'
       - if can_edit_dn

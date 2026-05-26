@@ -16,7 +16,7 @@
     - if sent
       %span.badge.bg-success.fs-6 Sent
 
-%div
+.email-preview-wrapper{"data-controller" => "generic-email-preview", "data-generic-email-preview-preview-url-value" => preview_email_invoice_path(@invoice), "data-generic-email-preview-raw-preview-url-value" => preview_email_raw_invoice_path(@invoice), "data-generic-email-preview-send-url-value" => send_email_invoice_path(@invoice)}
   .document-header.row.mb-2
     .col-md-6
       .document-details
@@ -74,13 +74,21 @@
           .row.mb-2
             .col-sm-4
               %strong Email Status:
-            .col-sm-8
+            .col-sm-8.d-flex.align-items-center.gap-2
               - if @invoice.email_sent_at
                 Sent #{l(@invoice.email_sent_at)}
               - elsif @invoice.emailable?
                 %span.badge.bg-warning Unsent
               - else
                 %span.badge.bg-secondary No Recipient
+              - if can_edit_invoice && @invoice.attachment
+                - if @invoice.emailable?
+                  %button.btn.btn-sm.btn-warning{"data-action" => "click->generic-email-preview#open"}
+                    Send E-Mail
+                - else
+                  %span{data: { 'bs-toggle': 'tooltip' }, title: 'No contact is configured to receive this invoice. Add a contact on the customer, or enable Automated E-Mail.'}
+                    %button.btn.btn-sm.btn-warning{disabled: true}
+                      Send E-Mail
 
           .row.mb-2
             .col-sm-4
@@ -172,19 +180,10 @@
               %td.text-end
                 %strong= format_currency(@invoice.sum_total)
 
-.email-preview-wrapper{"data-controller" => "generic-email-preview", "data-generic-email-preview-preview-url-value" => preview_email_invoice_path(@invoice), "data-generic-email-preview-raw-preview-url-value" => preview_email_raw_invoice_path(@invoice), "data-generic-email-preview-send-url-value" => send_email_invoice_path(@invoice)}
   = action_buttons_wrapper do
     = action_button 'Back', invoices_path, :secondary
     - if @invoice.attachment
       = action_button 'PDF', @invoice.attachment, :success, target: '_blank', data: { turbo: false }
-      - if can_edit_invoice
-        - if @invoice.emailable?
-          %button.btn.btn-warning{"data-action" => "click->generic-email-preview#open"}
-            Send E-Mail
-        - else
-          %span{data: { 'bs-toggle': 'tooltip' }, title: 'No contact is configured to receive this invoice. Add a contact on the customer, or enable Automated E-Mail.'}
-            %button.btn.btn-warning{disabled: true}
-              Send E-Mail
     - else
       = action_button 'Preview', preview_invoice_path(@invoice), :info, target: '_blank', data: { turbo: false }
     - if !@invoice.published && can_edit_invoice

@@ -84,11 +84,10 @@ class DeliveryNoteRenderer
   private
 
   # Drafts may carry a previously-assigned document number (numbers are
-  # issued from a gap-free sequence and survive unpublish), so check
-  # `published?` rather than the number's presence.
+  # issued from a gap-free sequence and survive unpublish), but showing
+  # that number on the PDF is confusing — render "DRAFT" alone whenever
+  # the document is not published.
   def draft_aware_number
-    return @delivery_note.document_number if @delivery_note.published?
-
-    ["DRAFT", @delivery_note.document_number].compact.join(" ")
+    @delivery_note.published? ? @delivery_note.document_number : "DRAFT"
   end
 end

@@ -135,6 +135,14 @@ For testing against PostgreSQL (matches production environment):
 - European-style date/time formatting throughout
 - Strict Content Security Policy — no inline styles in views. Put styling in CSS/SCSS files and apply via classes. Inline `style="..."` attributes are only allowed in email templates (rendered HTML email, not subject to the app CSP).
 
+### Status Badges
+- **Show only the deviation from the healthy default.** No badge means "normal."
+  - Customer/Project Inactive, User Blocked → badge. Active state → nothing.
+  - Invoice/Delivery Note lifecycle (Draft, Booked, Paid, Overdue, Sent) all get header badges — there's no implicit "good" lifecycle, every state is noteworthy.
+- **Hide superseded badges.** On invoices, the header drops "Booked" once a more specific state (Sent/Paid/Overdue) applies. Sent stacks with Paid/Overdue (email and payment are independent).
+- **In detail grids and list columns, healthy data renders as plain text, not a badge.** Paid (with date), Sent (with timestamp) → plain text. Problem states (Unpaid, Unsent, Overdue, No Recipient) keep their badges.
+- Use `fs-6` when a badge sits inline with an H1, otherwise it inflates to heading size.
+
 ## Development Best Practices
 
 ### Running rails
@@ -167,11 +175,11 @@ For testing against PostgreSQL (matches production environment):
 - To render a `datetime` column as date-only (e.g. `email_sent_at` in compact list rows), call `l(value.to_date)` — `l` on a `Time`/`DateTime` produces the time format.
 
 ### UI Helper Methods
-- `action_buttons_wrapper` - Container for action button groups
-- `action_button(text, path, type)` - Styled buttons (primary, secondary, success, info, warning, danger)
-- `destroy_link(resource, confirm_text)` - Smart delete links (trashcan on index, "Delete" on detail pages)
-- `list_action_link(text, path, type)` - Compact buttons for table actions
-- `page_header_with_new_button` - Standard page headers with + New button
+- `page_header(title, action: nil, &status_block)` - The page-header row. Title left, optional inline status badges via block, optional right-aligned action. Build the action with `action_button(...)` — when its permission check fails it returns nil, which `page_header` renders as no action area.
+- `action_button(text, path, type = :primary, permission: nil, target: nil, data: nil)` - Styled buttons (primary, secondary, success, info, warning, danger). Returns `nil` when `permission:` is given and the current user lacks it.
+- `action_buttons_wrapper` - Container for the bottom-of-page workflow action row (Back, PDF, Send E-Mail, Publish, Delete, etc.).
+- `destroy_link(resource, confirm_text)` - Smart delete links (trashcan on index, "Delete" on detail pages).
+- `list_action_link(text, path, type)` - Compact buttons for in-table row actions.
 
 ### JavaScript/Stimulus Controllers
 - **ALWAYS implement `disconnect()` method** in Stimulus controllers that add event listeners

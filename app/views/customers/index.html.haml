@@ -20,9 +20,7 @@
     %tr
       %td= link_to customer.matchcode, customer
       %td
-        - if customer.active?
-          %span.badge.bg-success Active
-        - else
+        - unless customer.active?
           %span.badge.bg-secondary Inactive
       %td= customer.name
       %td= customer.team&.name

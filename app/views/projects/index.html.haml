@@ -21,9 +21,7 @@
     %tr
       %td= link_to project.matchcode, project
       %td
-        - if project.active?
-          %span.badge.bg-success Active
-        - else
+        - unless project.active?
           %span.badge.bg-secondary Inactive
       %td= project.description
       %td= project.bill_to_customer.try(:matchcode)

@@ -34,8 +34,9 @@ module ApplicationHelper
 
   # Renders the breadcrumb strip that serves as the page header on every
   # index/show/edit/new page. The active (last) crumb is the page identifier;
-  # optional status badges (via the block) sit next to it; an optional action:
-  # button is right-aligned on the same row.
+  # optional status badges (via the block) sit next to it; the right cluster
+  # carries optional secondary actions (`actions:`, an array) followed by the
+  # primary action (`action:`, single) rightmost.
   #
   # Items are either:
   #   - [label, path]  → rendered as a link
@@ -43,11 +44,17 @@ module ApplicationHelper
   # The last item is always rendered as the active (current) crumb, regardless
   # of whether a path was given.
   #
+  # `actions:` accepts an array of pre-built buttons (action_button,
+  # delete_button, button_to forms, etc). nil entries are compacted out, so
+  # views can rely on permission-gated helpers returning nil.
+  #
   #   = breadcrumbs ['Customers', customers_path], @customer.display_name
-  #   = breadcrumbs ['Customers', customers_path], @customer.matchcode, action: action_button('Edit', edit_customer_path(@customer)) do
+  #   = breadcrumbs ['Customers', customers_path], @customer.matchcode,
+  #       actions: [delete_button(@customer)],
+  #       action: action_button('Edit', edit_customer_path(@customer)) do
   #     - unless @customer.active?
   #       %span.badge.bg-secondary Inactive
-  def breadcrumbs(*items, action: nil, &status_block)
+  def breadcrumbs(*items, action: nil, actions: nil, &status_block)
     nav = content_tag :nav, "aria-label": "breadcrumb" do
       content_tag :div, class: "d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom py-1 mb-2" do
         left = content_tag(:div, class: "d-flex align-items-center flex-wrap gap-2 small") do
@@ -66,7 +73,9 @@ module ApplicationHelper
           end
           ol + (status_block ? capture(&status_block) : "".html_safe)
         end
-        left + (action || "".html_safe)
+        action_cluster_html = Array(actions).compact.map { |a| a }.join.html_safe + (action || "".html_safe)
+        right = action_cluster_html.empty? ? "".html_safe : content_tag(:div, action_cluster_html, class: "d-flex align-items-center flex-wrap gap-2")
+        left + right
       end
     end
     nav + page_header_flash
@@ -118,38 +127,28 @@ module ApplicationHelper
     link_to(text, path, options.merge(class: css_classes))
   end
 
-  # Trashcan (on index) or "Delete" button (on detail pages) for a resource.
+  # Index-context delete link: a small outline trashcan that fits into row
+  # actions. Detail-page delete uses `delete_button(resource)` (defined in
+  # ActionButtonsHelper) — both render the 🗑 glyph, but the index variant is
+  # the small btn-outline-danger sized for table rows.
   # When permission: is given and the current user lacks it, returns nil so
   # views can gate inline without an `- if can?('xxx.edit')` wrap.
   def destroy_link(resource, confirm_text = nil, permission: nil)
     return nil if permission && !can?(permission)
     confirm_text ||= "Are you sure you want to delete this #{resource.class.name.downcase}?"
-
-    if action_name == "index"
-      # Show trashcan icon on index pages (space-saving)
-      list_action_link("🗑", resource, :destroy, {
-        data: {
-          'turbo-method': "delete",
-          'turbo-confirm': confirm_text
-        }
-      })
-    else
-      # Show "Delete" text on detail pages with proper action button styling
-      link_to("Delete", resource, {
-        data: {
-          'turbo-method': "delete",
-          'turbo-confirm': confirm_text
-        },
-        class: "btn btn-danger"
-      })
-    end
+    list_action_link("🗑", resource, :destroy, {
+      data: {
+        'turbo-method': "delete",
+        'turbo-confirm': confirm_text
+      }
+    })
   end
 
   def action_buttons_wrapper(&block)
     content_tag :div, class: "d-flex gap-2 mb-3 mt-3", &block
   end
 
-  def action_button(text, path, type = :primary, permission: nil, target: nil, data: nil)
+  def action_button(text, path, type = :primary, permission: nil, target: nil, data: nil, title: nil)
     return nil if permission && !can?(permission)
     css_class = case type
     when :primary
@@ -168,7 +167,7 @@ module ApplicationHelper
       "btn btn-primary"
     end
 
-    link_to(text, path, class: css_class, target: target, data: data)
+    link_to(text, path, class: css_class, target: target, data: data, title: title, "aria-label": title)
   end
 
   def cancel_button(resource)

@@ -1,6 +1,9 @@
 - content_for :title, "User #{@user.username}"
 
-= breadcrumbs 'Configuration', ['Users', users_path], @user.username do
+- unblock_action = unblock_button(unblock_user_path(@user), permission: 'users.block', confirm: "Unblock #{@user.username}?") if @user.blocked?
+- reset_action = reset_passkeys_button(reset_passkeys_user_path(@user), permission: 'users.reset_passkeys', confirm: "Delete all of #{@user.username}'s passkeys and email them an invite to register a new one?") if @user.blocked?
+- audit_action = audit_log_button(audit_user_path(@user))
+= breadcrumbs 'Configuration', ['Users', users_path], @user.username, actions: [unblock_action, reset_action, audit_action] do
   - if @user.blocked?
     %span.badge.bg-danger Blocked
   - if @user.id == current_user.id
@@ -146,21 +149,13 @@
                 - if team.builtin?
                   %span.badge.bg-secondary.ms-1 built-in
 
-= action_buttons_wrapper do
-  - if @user.blocked?
-    - if can?('users.block')
-      = button_to 'Unblock', unblock_user_path(@user), method: :post,
-          data: { turbo_confirm: "Unblock #{@user.username}?" },
-          class: 'btn btn-success'
-    - if can?('users.reset_passkeys')
-      = button_to 'Reset passkeys', reset_passkeys_user_path(@user), method: :post,
-          data: { turbo_confirm: "Delete all of #{@user.username}'s passkeys and email them an invite to register a new one?" },
-          class: 'btn btn-warning'
-  - elsif @user.id != current_user.id && can?('users.block')
-    = form_with url: block_user_path(@user), method: :post, local: true, class: 'd-inline-flex' do |f|
-      .input-group.w-fixed-400
-        = f.text_field :reason, class: 'form-control', placeholder: 'Reason (required)', required: true
-        = f.submit 'Block', class: 'btn btn-danger',
-            data: { turbo_confirm: "Block #{@user.username}? All sessions will be terminated." }
-
-  = action_button('View audit log', audit_user_path(@user), :secondary)
+- if !@user.blocked? && @user.id != current_user.id && can?('users.block')
+  .row.mb-3
+    .col-sm-4
+      %strong Block user:
+    .col-sm-8
+      = form_with url: block_user_path(@user), method: :post, local: true do |f|
+        .input-group.w-fixed-400
+          = f.text_field :reason, class: 'form-control', placeholder: 'Reason (required)', required: true
+          = f.submit '🚫 Block', class: 'btn btn-danger',
+              data: { turbo_confirm: "Block #{@user.username}? All sessions will be terminated." }

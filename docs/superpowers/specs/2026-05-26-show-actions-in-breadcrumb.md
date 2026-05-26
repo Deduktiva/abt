@@ -130,7 +130,6 @@ Established mapping — extend this table, don't invent new glyphs for existing 
 | Publish | `🚀 Publish` | glyph + text | `publish_button` |
 | Unpublish | `↩️ Unpublish` | glyph + text | `unpublish_button` |
 | Convert to Invoice | `🚀 Convert to Invoice` | glyph + text | `convert_to_invoice_button` |
-| Test Booking | `🧪 Test Booking` | glyph + text | `test_booking_button` |
 | Upload PDF | (file-upload form — out of scope) | — | — |
 | Block / Unblock | `🚫 Block` / `✅ Unblock` | glyph + text | `block_button` / `unblock_button` |
 | Audit log | `📋 Audit log` | glyph + text | `audit_log_button` |
@@ -143,19 +142,19 @@ For each show view: delete its `= action_buttons_wrapper do ... end`, build an `
 
 ### `app/views/invoices/show.html.haml`
 
-Today's bottom row: PDF, Preview, Test Booking, Delete. Edit stays as the breadcrumb `action:`.
+After PR #382 lands (this PR is stacked on top of #382), the invoice show bottom row is simpler: **PDF or Preview** (depending on whether the invoice has an attachment) **and Delete** (only when not published). Test Booking is gone — replaced by an inline-validation **Book Invoice** button living inside the **Booking Status** status row (`.col-sm-8.d-flex.align-items-center.gap-2`), which is out of scope per the status-row rule. Edit stays as the breadcrumb `action:`.
 
 ```haml
 - edit_action = action_button('Edit', edit_invoice_path(@invoice), permission: 'invoices.edit') unless @invoice.published?
 - workflow_actions = [
--   pdf_button(pdf_invoice_path(@invoice), permission: 'invoices.read'),
--   preview_button(preview_invoice_path(@invoice), permission: 'invoices.read'),
--   test_booking_button(test_book_invoice_path(@invoice), permission: 'invoices.book'),
--   (delete_button(@invoice) if can?('invoices.delete') && !@invoice.published?),
+-   (@invoice.attachment ? pdf_button(@invoice.attachment) : preview_button(preview_invoice_path(@invoice))),
+-   (delete_button(@invoice, confirm: "Are you sure you want to delete invoice \"#{@invoice.document_number || "##{@invoice.id}"}\"?") if !@invoice.published? && can_edit_invoice),
 - ]
 = breadcrumbs ['Invoices', invoices_path], (@invoice.document_number || "Draft ##{@invoice.id}"), actions: workflow_actions, action: edit_action do
   -# status badges unchanged
 ```
+
+Note: the post-booking green `.alert.alert-success` (Download PDF / Send E-Mail from `params[:booked] == '1'`) is its own body banner introduced by #382 — not part of `action_buttons_wrapper`, not in scope.
 
 ### `app/views/delivery_notes/show.html.haml`
 

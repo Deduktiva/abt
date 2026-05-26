@@ -112,21 +112,19 @@ class ApplicationHelperTest < ActionView::TestCase
 
   test "destroy_link without permission: renders the link" do
     customer = customers(:good_eu)
-    def self.action_name; "show"; end
     html = Nokogiri::HTML.fragment(destroy_link(customer).to_s)
     a = html.at_css("a")
     assert_not_nil a
-    assert_equal "Delete", a.text
+    assert_equal "🗑", a.text
   end
 
   test "destroy_link with permission: returns the link when user has it" do
     Current.user = users(:alice)
     customer = customers(:good_eu)
-    def self.action_name; "show"; end
     html = Nokogiri::HTML.fragment(destroy_link(customer, nil, permission: "customers.edit").to_s)
     a = html.at_css("a")
     assert_not_nil a
-    assert_equal "Delete", a.text
+    assert_equal "🗑", a.text
   ensure
     Current.user = nil
   end
@@ -134,7 +132,6 @@ class ApplicationHelperTest < ActionView::TestCase
   test "destroy_link with permission: returns nil when user lacks it" do
     Current.user = users(:bob)
     customer = customers(:good_eu)
-    def self.action_name; "show"; end
     assert_nil destroy_link(customer, nil, permission: "customers.edit")
   ensure
     Current.user = nil
@@ -143,7 +140,6 @@ class ApplicationHelperTest < ActionView::TestCase
   test "destroy_link with permission: returns nil when no current user" do
     Current.user = nil
     customer = customers(:good_eu)
-    def self.action_name; "show"; end
     assert_nil destroy_link(customer, nil, permission: "customers.edit")
   end
 

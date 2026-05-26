@@ -29,11 +29,9 @@
 
 %h2 Add new email
 = form_with url: account_emails_path, method: :post, scope: :user_email, local: true do |f|
-  .row.g-2
-    .col-md-6
-      = f.email_field :address, class: 'form-control', placeholder: 'new@example.com', required: true
-    .col-md-2
-      = f.submit 'Add', class: 'btn btn-primary'
+  .input-group.w-fixed-400
+    = f.email_field :address, class: 'form-control', placeholder: 'new@example.com', required: true
+    = f.submit 'Add', class: 'btn btn-primary'
   .form-text You'll receive a confirmation link at this address.
 
 .mt-4

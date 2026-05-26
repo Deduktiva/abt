@@ -1,6 +1,8 @@
 require "test_helper"
 
 class ActionButtonsHelperTest < ActionView::TestCase
+  helper ApplicationHelper
+
   # Smoke tests that pin the established glyph + Bootstrap color + accessible
   # name for each helper. Update these when CLAUDE.md's "Button Glyphs" table
   # changes — they are the executable copy of the policy.
@@ -14,6 +16,30 @@ class ActionButtonsHelperTest < ActionView::TestCase
     assert_match(/aria-label="Delete"/, html)
     assert_includes html, "🗑"
     assert_match(/data-turbo-confirm=/, html)
+  end
+
+  test "delete_button with permission: returns the link when user has it" do
+    Current.user = users(:alice)
+    customer = customers(:good_eu)
+    html = delete_button(customer, permission: "customers.edit")
+    assert_match(/btn-danger/, html)
+    assert_includes html, "🗑"
+  ensure
+    Current.user = nil
+  end
+
+  test "delete_button with permission: returns nil when user lacks it" do
+    Current.user = users(:bob)
+    customer = customers(:good_eu)
+    assert_nil delete_button(customer, permission: "customers.edit")
+  ensure
+    Current.user = nil
+  end
+
+  test "delete_button with permission: returns nil when no current user" do
+    Current.user = nil
+    customer = customers(:good_eu)
+    assert_nil delete_button(customer, permission: "customers.edit")
   end
 
   test "pdf_button renders glyph-only with title, opens in new tab" do

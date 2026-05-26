@@ -82,10 +82,10 @@
               %span.badge.bg-secondary No Recipient
             - if can_edit_invoice && @invoice.attachment
               - if @invoice.emailable?
-                %button.btn.btn-sm.btn-warning{data: {action: 'click->generic-email-preview#open'}}
+                %button.btn.btn-sm.btn-warning.ms-auto{data: {action: 'click->generic-email-preview#open'}}
                   Send E-Mail
               - else
-                %span{data: {'bs-toggle': 'tooltip'}, title: 'No contact is configured to receive this invoice. Add a contact on the customer, or enable Automated E-Mail.'}
+                %span.ms-auto{data: {'bs-toggle': 'tooltip'}, title: 'No contact is configured to receive this invoice. Add a contact on the customer, or enable Automated E-Mail.'}
                   %button.btn.btn-sm.btn-warning{disabled: true}
                     Send E-Mail
             = render 'shared/email_preview_modal', title: "Preview - Invoice #{@invoice.document_number}"

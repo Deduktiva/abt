@@ -42,7 +42,7 @@ find_jars saxonb
 case "${JAVA_CLASSPATH:-}" in
   *saxonb*) ;;
   *)
-    echo "script/abt-fop: Saxon-B not found on classpath." >&2
+    echo "bin/abt-fop: Saxon-B not found on classpath." >&2
     echo "  Install the libsaxonb-java Debian package (or equivalent)" >&2
     echo "  — the invoice templates require an XSLT 2.0 processor." >&2
     exit 1 ;;

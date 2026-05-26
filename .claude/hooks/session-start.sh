@@ -2,12 +2,12 @@
 # SessionStart hook for Claude Code on the web.
 #
 # The sandbox has no container runtime, so we install FOP natively from
-# Debian packages and point fop.binary_path at script/abt-fop directly
+# Debian packages and point fop.binary_path at bin/abt-fop directly
 # (via a local settings override) instead of the containerized
 # bin/abt-fop-container wrapper that other environments use.
 set -euo pipefail
 
-# Only run inside the remote sandbox; local dev should use script/setup-fop.sh.
+# Only run inside the remote sandbox; local dev should use bin/setup-fop.
 if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ]; then
   exit 0
 fi
@@ -59,11 +59,11 @@ for env in development test; do
 # the Claude Code sandbox has no container runtime. Safe to delete if you
 # install podman/docker and build the abt-fop image.
 fop:
-  binary_path: "./script/abt-fop"
+  binary_path: "./bin/abt-fop"
 YAML
 done
 
 echo "== Verifying FOP launcher =="
-./script/abt-fop -version
+./bin/abt-fop -version
 
 echo "== FOP setup complete =="

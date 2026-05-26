@@ -1,6 +1,6 @@
-# Production Deployment Scripts
+# Production Deployment
 
-This directory contains scripts for managing the ABT application in production.
+`bin/production-update` is the automated deployment script for the ABT application in production. It also documents the systemd setup for the Solid Queue jobs worker (`bin/jobs`) further below.
 
 ## production-update
 
@@ -10,7 +10,7 @@ Automated production deployment script that handles the complete deployment proc
 
 ```bash
 # Run from the ABT application root directory as the application user
-./script/production-update
+./bin/production-update
 ```
 
 ### What it does

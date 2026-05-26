@@ -2,17 +2,17 @@
 # Canonical containerized FOP launcher.
 #
 # Bind-mounts the project root into the abt-fop image and execs the
-# in-repo script/abt-fop inside it. Hardening flags (XXE / DTD rejection,
-# JAXP secure-processing — see issue #273) live in script/abt-fop, so
+# in-repo bin/abt-fop inside it. Hardening flags (XXE / DTD rejection,
+# JAXP secure-processing — see issue #273) live in bin/abt-fop, so
 # host and in-container invocations stay in sync.
 #
 # Used by:
 #   - config/settings/development.yml and test.yml (default for local dev)
 #   - .github/workflows/ci.yml
-#   - script/setup-fop.sh (after building the abt-fop image)
+#   - bin/setup-fop (after building the abt-fop image)
 #
 # The Claude Code sandbox does NOT use this wrapper — it has no container
-# runtime and instead points fop.binary_path at script/abt-fop directly
+# runtime and instead points fop.binary_path at bin/abt-fop directly
 # via config/settings/{env}.local.yml (see .claude/hooks/session-start.sh).
 set -eu
 
@@ -31,7 +31,7 @@ elif command -v docker >/dev/null 2>&1; then
   USERNS_FLAGS=""
 else
   echo "abt-fop-container: neither podman nor docker found." >&2
-  echo "Install one, or point fop.binary_path at ./script/abt-fop in" >&2
+  echo "Install one, or point fop.binary_path at ./bin/abt-fop in" >&2
   echo "config/settings/{env}.local.yml to run FOP natively." >&2
   exit 127
 fi
@@ -42,4 +42,4 @@ exec "$CONTAINER_CMD" run --rm \
   -u "$(id -u):$(id -g)" \
   $USERNS_FLAGS \
   "$IMAGE" \
-  "$PROJECT_ROOT/script/abt-fop" "$@"
+  "$PROJECT_ROOT/bin/abt-fop" "$@"

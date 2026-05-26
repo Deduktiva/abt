@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-  USERNAME_FORMAT = /\A[a-z0-9][a-z0-9_\-.]*\z/i
+  USERNAME_FORMAT = /\A[\p{L}\p{N}][\p{L}\p{N}_\-.]*\z/
 
   has_many :emails, class_name: "UserEmail", dependent: :destroy
   has_many :credentials, class_name: "UserCredential", dependent: :destroy

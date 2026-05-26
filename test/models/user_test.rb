@@ -26,6 +26,18 @@ class UserTest < ActiveSupport::TestCase
     assert_includes user.errors[:username], "is invalid"
   end
 
+  test "username accepts unicode letters" do
+    user = User.new(username: "ärnö", full_name: "Ärnö Müller")
+    assert user.valid?, user.errors.full_messages.inspect
+    user.save!
+    assert_equal "ärnö", user.reload.username
+  end
+
+  test "username accepts non-latin letters" do
+    user = User.new(username: "宮本", full_name: "Miyamoto")
+    assert user.valid?, user.errors.full_messages.inspect
+  end
+
   test "blocked? reflects blocked_at" do
     assert_not users(:alice).blocked?
     assert users(:blocked_carol).blocked?

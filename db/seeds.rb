@@ -346,6 +346,8 @@ if Rails.env.development?
       rate: 95.00,
       sales_tax_product_class: standard_product
     )
+
+    invoice.save!
   end
 
   unless Invoice.exists?(customer: local_company, project: consulting_project)
@@ -401,6 +403,8 @@ if Rails.env.development?
       sales_tax_product_class: standard_product,
       position: 3
     )
+
+    license_invoice.save!
   end
 
   # Sample invoice using a reusable project
@@ -518,6 +522,8 @@ if Rails.env.development?
       sales_tax_product_class: standard_product,
       position: 11
     )
+
+    complex_invoice.save!
   end
 
   # Booked invoice for 2025
@@ -625,27 +631,11 @@ if Rails.env.development?
       position: 3
     )
 
-    # Properly initialize the invoice by running the booking process
-    last_year_invoice.save! # Trigger before_save callbacks
+    # save! triggers before_save :update_sums, which auto-creates the
+    # InvoiceTaxClass row for the customer's product class and computes
+    # sum_net / sum_total from the lines.
+    last_year_invoice.save!
     last_year_invoice.due_date = last_year_invoice.date + last_year_invoice.customer.payment_terms_days.days
-
-    # Calculate and set tax classes for the booked invoice
-    net_amount = (24.0 * 95.00) + (16.0 * 95.00) + (8.0 * 85.00)
-    tax_amount = net_amount * 0.20 # 20% for national customer
-
-    last_year_invoice.invoice_tax_classes.create!(
-      sales_tax_product_class: standard_product,
-      name: standard_product.name,
-      indicator_code: standard_product.indicator_code,
-      rate: 20.0, # National customer has 20% VAT
-      net: net_amount,
-      value: tax_amount,
-      total: net_amount + tax_amount
-    )
-
-    # Set invoice totals and generate token, then publish
-    last_year_invoice.sum_net = net_amount
-    last_year_invoice.sum_total = net_amount + tax_amount # National customer with 20% VAT
     last_year_invoice.token = SecureRandom.base58(13)
     last_year_invoice.published = true # Now publish the invoice
 

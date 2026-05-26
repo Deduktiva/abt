@@ -157,15 +157,11 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     )
     invoice.update!(published: true)
 
-    # Add tax classes
-    tax_class = invoice.invoice_tax_classes.build(
-      sales_tax_product_class: sales_tax_product_classes(:standard),
-      rate: 19.0,
-      value: 38.0,
-      total: 238.0
-    )
-    tax_class.net = 200.0
-    tax_class.save!
+    # update_sums auto-created the tax class for the standard product class
+    # when the invoice was first saved. Populate it with the totals this
+    # test wants to render.
+    tax_class = invoice.invoice_tax_classes.find_by!(sales_tax_product_class: sales_tax_product_classes(:standard))
+    tax_class.update!(rate: 19.0, value: 38.0, total: 238.0, net: 200.0)
 
     get invoice_url(invoice)
     assert_response :success

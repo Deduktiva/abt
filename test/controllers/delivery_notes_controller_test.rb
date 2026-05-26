@@ -222,6 +222,34 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert_match "Draft delivery notes can not be used for this action", flash[:error]
   end
 
+  test "publish action redirects to show with published=1 on success" do
+    note = delivery_notes(:draft_delivery_note)
+    note.delivery_note_lines.create!(
+      type: "item", title: "x", quantity: 1.0, position: 1
+    )
+
+    post publish_delivery_note_url(note)
+    assert_redirected_to delivery_note_path(note, published: 1)
+    assert_not flash[:notice].present?, "success path should not flash; the banner replaces it"
+
+    note.reload
+    assert note.published?
+    assert note.document_number.present?
+  end
+
+  test "show renders post-publish banner when arriving with ?published=1" do
+    get delivery_note_url(delivery_notes(:published_delivery_note), published: 1)
+    assert_response :success
+    assert_select ".alert-success .alert-heading", text: /published/
+    assert_select ".alert-success a", text: "Download PDF"
+  end
+
+  test "show does not render post-publish banner without ?published=1" do
+    get delivery_note_url(delivery_notes(:published_delivery_note))
+    assert_response :success
+    assert_select ".alert-success .alert-heading", count: 0
+  end
+
   test "should unpublish delivery note" do
     published_note = delivery_notes(:published_delivery_note)
 

@@ -9,15 +9,6 @@ module ApplicationHelper
     @current_currency ||= IssuerCompany.get_the_issuer!&.currency || "EUR"
   end
 
-  def page_title
-    issuer = IssuerCompany.get_the_issuer!
-    if issuer&.short_name.present?
-      "ABT: #{issuer.short_name}"
-    else
-      "ABT"
-    end
-  end
-
   def format_currency(amount)
     return "" if amount.nil?
     case current_currency
@@ -187,18 +178,5 @@ module ApplicationHelper
       "generic-email-preview-raw-preview-url-value" => send("preview_email_raw_#{prefix}_path", resource),
       "generic-email-preview-send-url-value" => send("send_email_#{prefix}_path", resource)
     }
-  end
-
-  # Emits a <style> tag in the layout head that sets the --issuer-accent-color
-  # CSS variable from the active IssuerCompany's document_accent_color. Returns
-  # nil (so the layout renders nothing) when no issuer or no accent color is
-  # configured. document_accent_color is validated against a hex pattern on
-  # the model; tag.style HTML-escapes the body as defense-in-depth so any
-  # bypass of that validation can't break out of the <style> context.
-  def issuer_accent_color_style
-    color = IssuerCompany.get_the_issuer!&.document_accent_color
-    return unless color.present?
-    tag.style ":root { --issuer-accent-color: #{color}; }",
-              nonce: content_security_policy_nonce
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_25_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_26_172314) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -169,6 +169,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_25_140000) do
     t.decimal "total"
     t.datetime "updated_at", null: false
     t.decimal "value"
+    t.index ["invoice_id", "sales_tax_product_class_id"], name: "index_invoice_tax_classes_on_invoice_and_product_class", unique: true
   end
 
   create_table "invoices", force: :cascade do |t|

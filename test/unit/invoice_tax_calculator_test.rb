@@ -122,17 +122,35 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
     assert_not @invoice.has_items?
   end
 
-  test "clears existing tax classes before calculation" do
-    # Create some existing tax classes
-    @invoice.invoice_tax_classes.create!(
-      sales_tax_product_class: @product_class,
-      name: "Old Tax",
-      rate: 10.0,
-      net: 100.0,
-      total: 110.0
-    )
+  test "does not duplicate tax classes when saving an invoice with multiple item lines" do
+    # Building several item lines via nested attributes used to recurse through
+    # line_addedremoved → update_sums → setup_tax_classes on an unsaved parent
+    # and create one InvoiceTaxClass row per line for the same product class.
+    invoice = Invoice.new(customer: @customer, project: @project, cust_reference: "DUP-TEST")
+    invoice.invoice_lines_attributes = [
+      { type: "item", title: "L1", quantity: 1, rate: 100, sales_tax_product_class_id: @product_class.id },
+      { type: "item", title: "L2", quantity: 2, rate: 50,  sales_tax_product_class_id: @product_class.id },
+      { type: "item", title: "L3", quantity: 1, rate: 75,  sales_tax_product_class_id: @product_class.id }
+    ]
+    invoice.save!
+    invoice.reload
 
-    # Add an item line
+    assert_equal 1, invoice.invoice_tax_classes.size
+    itc = invoice.invoice_tax_classes.first
+    assert_equal @product_class.id, itc.sales_tax_product_class_id
+    assert_equal 275.0, itc.net # 100 + 100 + 75
+    assert_equal 275.0, invoice.sum_net
+  end
+
+  test "refreshes stale name/rate on existing tax classes when product class changes" do
+    # @invoice was auto-set-up with one InvoiceTaxClass for @product_class.
+    # Simulate the product class metadata changing after the invoice exists,
+    # and verify the next update_sums pass picks up the new values.
+    itc = @invoice.invoice_tax_classes.find_by!(sales_tax_product_class: @product_class)
+    original_rate = itc.rate
+
+    @product_class.update!(name: "Renamed Goods", indicator_code: "RNM")
+
     @invoice.invoice_lines.create!(
       type: "item",
       title: "Product",
@@ -141,14 +159,13 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
       sales_tax_product_class: @product_class,
       position: 1
     )
+    @invoice.save!
 
-    @invoice.save
-
-    # Old tax classes should be gone, new ones created
-    @invoice.reload
-    tax_classes = @invoice.invoice_tax_classes
-    assert_not_empty tax_classes
-    assert_not tax_classes.any? { |tc| tc.name == "Old Tax" }
+    itc.reload
+    assert_equal "Renamed Goods", itc.name
+    assert_equal "RNM", itc.indicator_code
+    assert_equal original_rate, itc.rate
+    assert_equal 50.0, itc.net
   end
 
   test "generates detailed log output" do

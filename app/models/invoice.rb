@@ -202,7 +202,6 @@ private
 
   def line_addedremoved(changed_item)
     self.update_sums
-    self.save
   end
 
   def set_defaults
@@ -220,8 +219,11 @@ private
     # Get required product class IDs from customer tax rates
     required_product_class_ids = customer_sales_tax_rates.map(&:sales_tax_product_class_id).to_set
 
-    # Get existing tax classes
-    existing_tax_classes = self.invoice_tax_classes.includes(:sales_tax_product_class).index_by(&:sales_tax_product_class_id)
+    # Walk the in-memory association target so we also see records built
+    # earlier in this same save cycle (e.g. via accepts_nested_attributes_for).
+    # Going through .includes here would issue a fresh SQL load and miss
+    # those, which previously caused duplicate InvoiceTaxClass rows.
+    existing_tax_classes = self.invoice_tax_classes.to_a.index_by(&:sales_tax_product_class_id)
 
     # Update/create required tax classes
     customer_sales_tax_rates.each do |cst|
@@ -235,7 +237,9 @@ private
         itc.rate = cst.rate
         itc.net = 0
         itc.total = 0
-        itc.save
+        # Only persist when the parent is already saved; otherwise the parent's
+        # autosave will write this record (with the correct FK) when it saves.
+        itc.save if itc.persisted?
       else
         # Create new tax class
         self.invoice_tax_classes << InvoiceTaxClass.new(

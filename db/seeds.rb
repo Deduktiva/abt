@@ -346,6 +346,8 @@ if Rails.env.development?
       rate: 95.00,
       sales_tax_product_class: standard_product
     )
+
+    invoice.save!
   end
 
   unless Invoice.exists?(customer: local_company, project: consulting_project)
@@ -401,6 +403,8 @@ if Rails.env.development?
       sales_tax_product_class: standard_product,
       position: 3
     )
+
+    license_invoice.save!
   end
 
   # Sample invoice using a reusable project
@@ -518,6 +522,8 @@ if Rails.env.development?
       sales_tax_product_class: standard_product,
       position: 11
     )
+
+    complex_invoice.save!
   end
 
   # Booked invoice for 2025

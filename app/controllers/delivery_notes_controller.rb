@@ -71,7 +71,7 @@ class DeliveryNotesController < ApplicationController
 
   # GET /delivery_notes/new
   def new
-    @delivery_note = DeliveryNote.new
+    @delivery_note = DeliveryNote.new(customer_id: params[:customer_id].presence)
     set_form_options
   end
 

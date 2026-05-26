@@ -1,11 +1,10 @@
 - content_for :title, "User #{@user.username}"
 
-= breadcrumbs 'Configuration', ['Users', users_path], @user.username
-= page_header(@user.username) do
+= breadcrumbs 'Configuration', ['Users', users_path], @user.username do
   - if @user.blocked?
-    %span.badge.bg-danger.fs-6 Blocked
+    %span.badge.bg-danger Blocked
   - if @user.id == current_user.id
-    %span.badge.bg-info.fs-6 This is you
+    %span.badge.bg-info This is you
 
 .row
   .col-md-6

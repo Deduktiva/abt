@@ -1,5 +1,4 @@
-= breadcrumbs 'Configuration', ['Product Catalog', products_path], @product.title
-= page_header("Product \"#{@product.title}\"", action: action_button('Edit', edit_product_path(@product), permission: 'products.edit'))
+= breadcrumbs 'Configuration', ['Product Catalog', products_path], @product.title, action: action_button('Edit', edit_product_path(@product), permission: 'products.edit')
 
 .row
   .col-md-8

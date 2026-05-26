@@ -4,7 +4,7 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
   test "admin can list teams" do
     get teams_path
     assert_response :success
-    assert_select "h1", text: "Teams"
+    assert_select ".breadcrumb-item.active", text: "Teams"
   end
 
   test "non-admin is denied" do

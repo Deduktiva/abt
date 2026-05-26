@@ -1,5 +1,4 @@
-= breadcrumbs 'Customers'
-= page_header('Listing customers', action: action_button('+ New', new_customer_path, :info, permission: 'customers.edit'))
+= breadcrumbs 'Customers', action: action_button('+ New', new_customer_path, :info, permission: 'customers.edit')
 
 .mb-3
   .btn-toolbar.mb-3{:role=>"toolbar", "aria-label"=>"List toolbar"}

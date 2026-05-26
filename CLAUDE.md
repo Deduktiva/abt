@@ -144,7 +144,7 @@ For testing against PostgreSQL (matches production environment):
 - **Hide superseded badges.** On invoices, the header drops "Booked" once a more specific state (Sent/Paid/Overdue) applies. Sent stacks with Paid/Overdue (email and payment are independent).
 - **In detail grids and list columns, healthy data renders as plain text, not a badge.** Paid (with date), Sent (with timestamp) → plain text. Problem states (Unpaid, Unsent, Overdue, No Recipient) keep their badges.
 - **Hide the status column entirely when a list is filtered to a single state.** On the customers and projects lists, the Status column is only rendered when the filter is "All"; when filtered to Active or Inactive the column would be redundant (every row identical or empty), so the header and cells are omitted.
-- Use `fs-6` when a badge sits inline with an H1, otherwise it inflates to heading size.
+- Header badges sit inline with the active breadcrumb crumb (via the `breadcrumbs(...)` status block) at the default badge size — no `fs-` modifier needed.
 
 ### Status-row Action Buttons
 - On document show pages, "act on this status" controls (Send E-Mail, Mark Paid…, Mark Unpaid) sit inline at the right edge of their status row's `col-sm-8`, separating the status text/badge on the left from the action on the right. The row container is `.col-sm-8.d-flex.align-items-center.gap-2`.
@@ -185,12 +185,12 @@ For testing against PostgreSQL (matches production environment):
 - To render a `datetime` column as date-only (e.g. `email_sent_at` in compact list rows), call `l(value.to_date)` — `l` on a `Time`/`DateTime` produces the time format.
 
 ### UI Helper Methods
-- `breadcrumbs(*items)` - Bootstrap breadcrumb row, rendered above `page_header` on every page except the dashboard (`root_path`) and `/account/*`. Each item is either `[label, path]` (link) or a plain label (non-link). The last item is always rendered as the active crumb with `aria-current="page"`, even if a path was supplied.
+- `breadcrumbs(*items, action: nil, &status_block)` - Bootstrap breadcrumb strip that serves as the page header on every index/show/edit/new page (every page except the dashboard, `/account/*`, the sign-in / invite-acceptance flow, and the post-book confirmation). Each item is either `[label, path]` (link) or a plain label (non-link). The last item is always the active crumb with `aria-current="page"` (rendered `fw-semibold`), and it is the page identifier — there is no separate H1. The optional block yields inline status badges next to the active crumb; the optional `action:` is right-aligned on the same row (built with `action_button(...)`, which returns nil when its permission check fails — that renders as no action area).
   - Top-level resources start with the navbar label linked to its index: `['Customers', customers_path]`, `['Projects', projects_path]`, `['Delivery Notes', delivery_notes_path]`, `['Invoices', invoices_path]`.
   - Configuration resources start with a non-link `'Configuration'` crumb (the dropdown has no destination) followed by the resource's navbar label, e.g. `breadcrumbs 'Configuration', ['Sales Tax', sales_tax_rates_path], 'Edit'`.
   - On edit pages append `'Edit'` as the active crumb; on new pages append `'New'`. On show pages the resource's identifier (matchcode / document number / name) is the active crumb.
   - The bottom `action_buttons_wrapper` no longer contains a `Back` button — the breadcrumb is the navigation anchor. `action_buttons_wrapper` is reserved for workflow verbs (PDF, Send, Publish, Delete, Mark Paid, etc.). `cancel_button(resource)` on edit/new forms stays — it pairs with Submit, not navigation.
-- `page_header(title, action: nil, &status_block)` - The page-header row. Title left, optional inline status badges via block, optional right-aligned action. Build the action with `action_button(...)` — when its permission check fails it returns nil, which `page_header` renders as no action area.
+- `page_header(title, action: nil, &status_block)` - Page-header row with an H1 title, optional inline status badges via the block, and optional right-aligned action. Only used on pages without breadcrumbs: dashboard (`home/index`), `/account/*`, the sign-in / invite-acceptance / "Book invoice" / "Invite generated" pages.
 - `action_button(text, path, type = :primary, permission: nil, target: nil, data: nil)` - Styled buttons (primary, secondary, success, info, warning, danger). Returns `nil` when `permission:` is given and the current user lacks it.
 - `action_buttons_wrapper` - Container for the bottom-of-page workflow action row (Back, PDF, Send E-Mail, Publish, Delete, etc.).
 - `destroy_link(resource, confirm_text)` - Smart delete links (trashcan on index, "Delete" on detail pages).

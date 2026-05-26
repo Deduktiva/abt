@@ -1,7 +1,6 @@
-= breadcrumbs ['Projects', projects_path], @project.matchcode
-= page_header("Project #{@project.matchcode}", action: action_button('Edit', edit_project_path(@project), permission: 'projects.edit')) do
+= breadcrumbs ['Projects', projects_path], @project.matchcode, action: action_button('Edit', edit_project_path(@project), permission: 'projects.edit') do
   - unless @project.active?
-    %span.badge.bg-secondary.fs-6 Inactive
+    %span.badge.bg-secondary Inactive
 
 .row
   .col-md-8

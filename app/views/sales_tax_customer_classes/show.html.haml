@@ -1,5 +1,4 @@
-= breadcrumbs 'Configuration', ['Sales Tax', sales_tax_rates_path], ['Customer Tax Classes', sales_tax_customer_classes_path], @sales_tax_customer_class.name
-= page_header("Customer Tax Class \"#{@sales_tax_customer_class.name}\"", action: action_button('Edit', edit_sales_tax_customer_class_path(@sales_tax_customer_class), permission: 'sales_tax.edit'))
+= breadcrumbs 'Configuration', ['Sales Tax', sales_tax_rates_path], ['Customer Tax Classes', sales_tax_customer_classes_path], @sales_tax_customer_class.name, action: action_button('Edit', edit_sales_tax_customer_class_path(@sales_tax_customer_class), permission: 'sales_tax.edit')
 
 %p
   %b Name:

@@ -1,7 +1,6 @@
 - content_for :title, 'Users'
 
-= breadcrumbs 'Configuration', 'Users'
-= page_header('Users', action: action_button('+ Invite user', new_user_invite_path, :info))
+= breadcrumbs 'Configuration', 'Users', action: action_button('+ Invite user', new_user_invite_path, :info)
 
 %table.table.table-striped.table-sm
   %thead

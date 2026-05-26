@@ -9,7 +9,7 @@ class InvoiceEditTest < ApplicationSystemTestCase
 
     # Verify we're on the edit page with correct form
     assert_current_path("/invoices/#{invoices(:draft_invoice).id}/edit")
-    assert_text "Editing invoice draft"
+    assert_selector ".breadcrumb-item.active", text: "Edit"
     assert_field "invoice_cust_reference"
     assert_field "invoice_cust_order"
     assert_field "invoice_prelude"
@@ -267,7 +267,7 @@ class InvoiceEditTest < ApplicationSystemTestCase
     end
 
     # Click outside the dropdown
-    find("h1").click
+    find(".breadcrumb-item.active").click
 
     within(".customer-dropdown") do
       # Dropdown should be closed

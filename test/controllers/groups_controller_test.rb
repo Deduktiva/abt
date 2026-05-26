@@ -4,7 +4,7 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
   test "admin can list groups" do
     get groups_path
     assert_response :success
-    assert_select "h1", text: "Groups"
+    assert_select ".breadcrumb-item.active", text: "Groups"
   end
 
   test "non-admin is denied" do

@@ -1,5 +1,4 @@
-= breadcrumbs 'Configuration', ['Teams', teams_path], @team.name
-= page_header("Team \"#{@team.name}\"", action: action_button('Edit', edit_team_path(@team)))
+= breadcrumbs 'Configuration', ['Teams', teams_path], @team.name, action: action_button('Edit', edit_team_path(@team))
 
 .row
   .col-md-8

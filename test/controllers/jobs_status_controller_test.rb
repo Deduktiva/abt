@@ -16,7 +16,7 @@ class JobsStatusControllerTest < ActionDispatch::IntegrationTest
   test "renders an empty status page" do
     get jobs_status_path
     assert_response :success
-    assert_select "h1", text: "Background Jobs"
+    assert_select ".breadcrumb-item.active", text: "Background Jobs"
     assert_select ".card-header", text: "Worker Processes"
     assert_select ".card-header", text: "Recurring Tasks"
     assert_select ".card-header", text: "Recently Failed Jobs"

@@ -32,7 +32,10 @@ module ApplicationHelper
     end
   end
 
-  # Renders a Bootstrap breadcrumb row above the page header.
+  # Renders the breadcrumb strip that serves as the page header on every
+  # index/show/edit/new page. The active (last) crumb is the page identifier;
+  # optional status badges (via the block) sit next to it; an optional action:
+  # button is right-aligned on the same row.
   #
   # Items are either:
   #   - [label, path]  → rendered as a link
@@ -41,21 +44,29 @@ module ApplicationHelper
   # of whether a path was given.
   #
   #   = breadcrumbs ['Customers', customers_path], @customer.display_name
-  #   = breadcrumbs 'Configuration', ['Sales Tax', sales_tax_rates_path], 'Edit'
-  def breadcrumbs(*items)
+  #   = breadcrumbs ['Customers', customers_path], @customer.matchcode, action: action_button('Edit', edit_customer_path(@customer)) do
+  #     - unless @customer.active?
+  #       %span.badge.bg-secondary Inactive
+  def breadcrumbs(*items, action: nil, &status_block)
     content_tag :nav, "aria-label": "breadcrumb" do
-      content_tag :ol, class: "breadcrumb border-bottom py-1 small mb-2" do
-        last_index = items.length - 1
-        items.each_with_index.map { |item, i|
-          label, path = Array(item)
-          if i == last_index
-            content_tag(:li, label, class: "breadcrumb-item active", "aria-current": "page")
-          elsif path
-            content_tag(:li, link_to(label, path), class: "breadcrumb-item")
-          else
-            content_tag(:li, label, class: "breadcrumb-item")
+      content_tag :div, class: "d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom py-1 mb-2" do
+        left = content_tag(:div, class: "d-flex align-items-center flex-wrap gap-2 small") do
+          ol = content_tag :ol, class: "breadcrumb mb-0" do
+            last_index = items.length - 1
+            items.each_with_index.map { |item, i|
+              label, path = Array(item)
+              if i == last_index
+                content_tag(:li, label, class: "breadcrumb-item active fw-semibold", "aria-current": "page")
+              elsif path
+                content_tag(:li, link_to(label, path), class: "breadcrumb-item")
+              else
+                content_tag(:li, label, class: "breadcrumb-item")
+              end
+            }.join.html_safe
           end
-        }.join.html_safe
+          ol + (status_block ? capture(&status_block) : "".html_safe)
+        end
+        left + (action || "".html_safe)
       end
     end
   end

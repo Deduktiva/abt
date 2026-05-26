@@ -7,20 +7,8 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get index with year filter" do
-    # Create invoices in different years
-    Invoice.create!(
-      customer: customers(:good_eu),
-      project: projects(:test_project),
-      cust_reference: "2023-TEST",
-      date: Date.new(2023, 6, 15)
-    )
-
-    Invoice.create!(
-      customer: customers(:good_eu),
-      project: projects(:test_project),
-      cust_reference: "2024-TEST",
-      date: Date.new(2024, 6, 15)
-    )
+    create_draft_invoice(cust_reference: "2023-TEST", date: Date.new(2023, 6, 15))
+    create_draft_invoice(cust_reference: "2024-TEST", date: Date.new(2024, 6, 15))
 
     # Test current year (default)
     get invoices_url
@@ -43,18 +31,8 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should filter invoices by customer" do
-    Invoice.create!(
-      customer: customers(:good_eu),
-      project: projects(:test_project),
-      cust_reference: "EU-CUSTOMER-INV",
-      date: Date.current
-    )
-    Invoice.create!(
-      customer: customers(:good_national),
-      project: projects(:test_project),
-      cust_reference: "NATIONAL-CUSTOMER-INV",
-      date: Date.current
-    )
+    create_draft_invoice(cust_reference: "EU-CUSTOMER-INV", date: Date.current)
+    create_draft_invoice(customer: customers(:good_national), cust_reference: "NATIONAL-CUSTOMER-INV", date: Date.current)
 
     get invoices_url(customer_id: customers(:good_eu).id)
     assert_response :success
@@ -75,12 +53,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   test "customer dropdown excludes inactive customers" do
     inactive = customers(:good_national)
     inactive.update!(active: false)
-    Invoice.create!(
-      customer: inactive,
-      project: projects(:test_project),
-      cust_reference: "INACTIVE-CUST-INV",
-      date: Date.current
-    )
+    create_draft_invoice(customer: inactive, cust_reference: "INACTIVE-CUST-INV", date: Date.current)
 
     get invoices_url
     assert_response :success
@@ -92,12 +65,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   test "customer dropdown still includes inactive customer if currently selected" do
     inactive = customers(:good_national)
     inactive.update!(active: false)
-    Invoice.create!(
-      customer: inactive,
-      project: projects(:test_project),
-      cust_reference: "INACTIVE-CUST-INV",
-      date: Date.current
-    )
+    create_draft_invoice(customer: inactive, cust_reference: "INACTIVE-CUST-INV", date: Date.current)
 
     get invoices_url(customer_id: inactive.id)
     assert_response :success
@@ -110,21 +78,8 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   test "should include draft invoices with nil date in current year" do
     current_year = Date.current.year
 
-    # Create a draft invoice (no date)
-    Invoice.create!(
-      customer: customers(:good_eu),
-      project: projects(:test_project),
-      cust_reference: "DRAFT-NO-DATE"
-      # date is nil for draft invoices
-    )
-
-    # Create a published invoice from previous year
-    Invoice.create!(
-      customer: customers(:good_eu),
-      project: projects(:test_project),
-      cust_reference: "OLD-BOOKED",
-      date: Date.new(current_year - 1, 6, 15)
-    )
+    create_draft_invoice(cust_reference: "DRAFT-NO-DATE")  # date is nil
+    create_draft_invoice(cust_reference: "OLD-BOOKED", date: Date.new(current_year - 1, 6, 15))
 
     # Test current year (should include draft invoice)
     get invoices_url(year: current_year)
@@ -140,9 +95,9 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "drafts sort newest-first when document_number is null" do
-    first  = Invoice.create!(customer: customers(:good_eu), project: projects(:test_project), cust_reference: "DRAFT-FIRST")
-    second = Invoice.create!(customer: customers(:good_eu), project: projects(:test_project), cust_reference: "DRAFT-SECOND")
-    third  = Invoice.create!(customer: customers(:good_eu), project: projects(:test_project), cust_reference: "DRAFT-THIRD")
+    first  = create_draft_invoice(cust_reference: "DRAFT-FIRST")
+    second = create_draft_invoice(cust_reference: "DRAFT-SECOND")
+    third  = create_draft_invoice(cust_reference: "DRAFT-THIRD")
 
     get invoices_url
     assert_response :success
@@ -174,11 +129,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should show invoice" do
-    invoice = Invoice.create!(
-      customer: customers(:good_eu),
-      project: projects(:test_project),
-      cust_reference: "TEST"
-    )
+    invoice = create_draft_invoice(cust_reference: "TEST")
     get invoice_url(invoice)
     assert_response :success
   end
@@ -219,19 +170,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "draft invoice show renders Publish Status row with Ready badge for a valid draft" do
-    invoice = Invoice.create!(
-      customer: customers(:good_eu),
-      project: projects(:test_project),
-      cust_reference: "TEST_DRAFT",
-    )
-    invoice.invoice_lines.create!(
-      type: "item",
-      title: "Test Product",
-      rate: 100.0,
-      quantity: 1.0,
-      sales_tax_product_class: sales_tax_product_classes(:standard),
-      position: 1
-    )
+    invoice = create_invoice_with_item_line(cust_reference: "TEST_DRAFT", quantity: 1.0)
 
     get invoice_url(invoice)
     assert_response :success
@@ -241,20 +180,12 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "draft invoice show renders problems alert and disabled Publish button when invoice has missing data" do
-    invoice = Invoice.create!(
-      customer: customers(:good_eu),
-      project: projects(:test_project),
+    invoice = create_invoice_with_item_line(
       cust_reference: "MISSING_RATE",
-    )
-    line = invoice.invoice_lines.create!(
-      type: "item",
-      title: "Broken Line",
-      rate: 1.0,
       quantity: 1.0,
-      sales_tax_product_class: sales_tax_product_classes(:standard),
-      position: 1
+      line_overrides: { title: "Broken Line", rate: 1.0 }
     )
-    line.update_columns(rate: nil)
+    invoice.invoice_lines.first.update_columns(rate: nil)
 
     get invoice_url(invoice)
     assert_response :success
@@ -263,21 +194,13 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get edit" do
-    invoice = Invoice.create!(
-      customer: customers(:good_eu),
-      project: projects(:test_project),
-      cust_reference: "TEST"
-    )
+    invoice = create_draft_invoice(cust_reference: "TEST")
     get edit_invoice_url(invoice)
     assert_response :success
   end
 
   test "should get edit with existing lines" do
-    invoice = Invoice.create!(
-      customer: customers(:good_eu),
-      project: projects(:test_project),
-      cust_reference: "TEST"
-    )
+    invoice = create_draft_invoice(cust_reference: "TEST")
 
     # Add some invoice lines to test the HAML template rendering
     invoice.invoice_lines.create!(
@@ -302,11 +225,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update invoice with nested attributes" do
-    invoice = Invoice.create!(
-      customer: customers(:good_national),  # has 20% tax
-      project: projects(:test_project),
-      cust_reference: "TEST"
-    )
+    invoice = create_draft_invoice(customer: customers(:good_national), cust_reference: "TEST")  # good_national has 20% tax
 
     patch invoice_url(invoice), params: {
       invoice: {
@@ -345,11 +264,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should handle updating invoice with validation errors" do
-    invoice = Invoice.create!(
-      customer: customers(:good_eu),
-      project: projects(:test_project),
-      cust_reference: "TEST"
-    )
+    invoice = create_draft_invoice(cust_reference: "TEST")
 
     patch invoice_url(invoice), params: {
       invoice: {
@@ -362,19 +277,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "publish action publishes a valid draft and redirects to show with published=1" do
-    invoice = Invoice.create!(
-      customer: customers(:good_eu),
-      project: projects(:test_project),
-      cust_reference: "PUBLISH_OK"
-    )
-    invoice.invoice_lines.create!(
-      type: "item",
-      title: "Test Product",
-      rate: 100.0,
-      quantity: 2.0,
-      sales_tax_product_class: sales_tax_product_classes(:standard),
-      position: 1
-    )
+    invoice = create_invoice_with_item_line(cust_reference: "PUBLISH_OK")
 
     post publish_invoice_url(invoice)
 
@@ -386,20 +289,11 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "publish action redirects with flash[:error] when invoice has publish problems" do
-    invoice = Invoice.create!(
-      customer: customers(:good_eu),
-      project: projects(:test_project),
-      cust_reference: "PUBLISH_FAIL"
+    invoice = create_invoice_with_item_line(
+      cust_reference: "PUBLISH_FAIL",
+      line_overrides: { title: "Missing Rate Item", rate: 1.0 }
     )
-    line = invoice.invoice_lines.create!(
-      type: "item",
-      title: "Missing Rate Item",
-      rate: 1.0,
-      quantity: 2.0,
-      sales_tax_product_class: sales_tax_product_classes(:standard),
-      position: 1
-    )
-    line.update_columns(rate: nil)
+    invoice.invoice_lines.first.update_columns(rate: nil)
 
     post publish_invoice_url(invoice)
 
@@ -410,11 +304,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should reuse existing tax classes during update" do
-    invoice = Invoice.create!(
-      customer: customers(:good_eu),
-      project: projects(:test_project),
-      cust_reference: "TEST"
-    )
+    invoice = create_draft_invoice(cust_reference: "TEST")
 
     # Add an invoice line
     invoice.invoice_lines.create!(

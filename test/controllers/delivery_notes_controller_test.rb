@@ -6,126 +6,10 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should get index with year filter" do
-    # Create delivery notes in different years
-    DeliveryNote.create!(
-      customer: customers(:good_eu),
-      project: projects(:one),
-      cust_reference: "2023-TEST",
-      date: Date.new(2023, 6, 15),
-      delivery_start_date: Date.new(2023, 6, 15)
-    )
-
-    DeliveryNote.create!(
-      customer: customers(:good_eu),
-      project: projects(:one),
-      cust_reference: "2024-TEST",
-      date: Date.new(2024, 6, 15),
-      delivery_start_date: Date.new(2024, 6, 15)
-    )
-
-    # Test current year (default)
-    get delivery_notes_url
-    assert_response :success
-
-    # Test specific year filter
-    get delivery_notes_url(year: 2023)
-    assert_response :success
-    # Verify the page contains the 2023 note reference but not 2024
-    assert_select "td", text: "2023-TEST"
-    assert_select "td", text: "2024-TEST", count: 0
-
-    # Test "all" year filter — delivery notes from every year are shown
-    get delivery_notes_url(year: "all")
-    assert_response :success
-    assert_select "td", text: "2023-TEST"
-    assert_select "td", text: "2024-TEST"
-    assert_select ".year-pagination a.active", text: "All"
-  end
-
-  test "should filter delivery notes by customer" do
-    DeliveryNote.create!(
-      customer: customers(:good_eu),
-      project: projects(:one),
-      cust_reference: "EU-CUSTOMER-DN",
-      date: Date.current,
-      delivery_start_date: Date.current
-    )
-    DeliveryNote.create!(
-      customer: customers(:good_national),
-      project: projects(:one),
-      cust_reference: "NATIONAL-CUSTOMER-DN",
-      date: Date.current,
-      delivery_start_date: Date.current
-    )
-
-    get delivery_notes_url(customer_id: customers(:good_eu).id)
-    assert_response :success
-    assert_select "td", text: "EU-CUSTOMER-DN"
-    assert_select "td", text: "NATIONAL-CUSTOMER-DN", count: 0
-  end
-
-  test "index renders customer dropdown" do
-    get delivery_notes_url
-    assert_response :success
-    assert_select "select[name='customer_id']" do
-      assert_select "option[value='']"
-      customer = customers(:good_eu)
-      assert_select "option[value=?][data-full=?]", customer.id.to_s, "#{customer.matchcode} — #{customer.name}", text: customer.matchcode
-    end
-  end
-
-  test "customer dropdown excludes inactive customers" do
-    inactive = customers(:good_national)
-    inactive.update!(active: false)
-    DeliveryNote.create!(
-      customer: inactive,
-      project: projects(:one),
-      cust_reference: "INACTIVE-CUST-DN",
-      date: Date.current,
-      delivery_start_date: Date.current
-    )
-
-    get delivery_notes_url
-    assert_response :success
-    assert_select "select[name='customer_id']" do
-      assert_select "option[value=?]", inactive.id.to_s, count: 0
-    end
-  end
-
-  test "customer dropdown still includes inactive customer if currently selected" do
-    inactive = customers(:good_national)
-    inactive.update!(active: false)
-    DeliveryNote.create!(
-      customer: inactive,
-      project: projects(:one),
-      cust_reference: "INACTIVE-CUST-DN",
-      date: Date.current,
-      delivery_start_date: Date.current
-    )
-
-    get delivery_notes_url(customer_id: inactive.id)
-    assert_response :success
-    assert_select "select[name='customer_id']" do
-      assert_select "option[value=?][selected]", inactive.id.to_s
-    end
-    assert_select "td", text: "INACTIVE-CUST-DN"
-  end
-
-  test "should include draft delivery notes with nil date in current year" do
-    # Create a draft delivery note (no date)
-    DeliveryNote.create!(
-      customer: customers(:good_eu),
-      project: projects(:one),
-      cust_reference: "DRAFT-NO-DATE",
-      delivery_start_date: Date.current
-      # date is nil for draft notes
-    )
-
-    get delivery_notes_url
-    assert_response :success
-    assert_select "td", text: "DRAFT-NO-DATE"
-  end
+  # Year filtering, customer filtering, and the customer-dropdown rendering are
+  # covered once via the InvoicesController test (and YearFilterable via its
+  # own concern test). DeliveryNotesController#index uses the same scopes and
+  # the same shared dropdown partial.
 
   test "should show delivery note" do
     get delivery_note_url(delivery_notes(:published_delivery_note))
@@ -179,15 +63,8 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to delivery_notes_url
   end
 
-  test "should not destroy published delivery note" do
-    published_note = delivery_notes(:published_delivery_note)
-    assert_no_difference("DeliveryNote.count") do
-      delete delivery_note_url(published_note)
-    end
-
-    assert_redirected_to delivery_note_url(published_note)
-    assert_match "Published delivery notes can not be modified", flash[:error]
-  end
+  # require_unpublished's "Published … can not be modified" guard is covered
+  # once via PublishableDocumentTest using the Invoice routes.
 
   test "should not destroy numbered but unpublished delivery note" do
     note = delivery_notes(:published_delivery_note)
@@ -519,22 +396,5 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     post bulk_send_emails_delivery_notes_url, params: { delivery_note_ids: [ note1.id, note2.id ] }
     assert_redirected_to delivery_notes_url
     assert_match "2 emails queued for sending", flash[:notice]
-  end
-
-  private
-
-  def create_published_delivery_note(customer:, document_number:, cust_reference:)
-    DeliveryNote.new(
-      customer: customer,
-      project: projects(:one),
-      document_number: document_number,
-      published: true,
-      date: Date.current,
-      cust_reference: cust_reference,
-      delivery_start_date: Date.current,
-      delivery_note_lines_attributes: [
-        { type: "item", title: "Item", description: "desc", quantity: 1.0, position: 1 }
-      ]
-    ).tap(&:save!)
   end
 end

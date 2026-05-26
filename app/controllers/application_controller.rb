@@ -11,6 +11,7 @@ class ApplicationController < ActionController::Base
   class PermissionDenied < StandardError; end
   class MissingPermissionCheck < StandardError; end
   rescue_from PermissionDenied, with: :deny_permission
+  rescue_from ActionController::InvalidAuthenticityToken, with: :handle_invalid_authenticity_token
 
   class << self
     def allow_unauthenticated_access(**options)
@@ -46,6 +47,21 @@ class ApplicationController < ActionController::Base
       format.json { render json: { error: "permission_denied" }, status: :forbidden }
       format.turbo_stream { redirect_to root_path, alert: "You don't have permission to access that page." }
       format.any  { head :forbidden }
+    end
+  end
+
+  # CSRF token check failed — usually a stale tab whose session rotated
+  # (sign-out in another tab, server-side session expiry, cookies cleared).
+  # Surface a clear, recovery-oriented message instead of Rails' default
+  # 422.html / dev exception page. The handler must not auto-reload the
+  # page: that would silently discard whatever the user just typed.
+  def handle_invalid_authenticity_token(exception)
+    message = "Your security token has expired. Reload this page to try again."
+    Rails.logger.warn "[csrf] InvalidAuthenticityToken on #{request.method} #{request.path} ua=#{request.user_agent.inspect}"
+    respond_to do |format|
+      format.json { render json: { error: message }, status: :unprocessable_content }
+      format.html { render "errors/csrf_failure", layout: "application", status: :unprocessable_content, locals: { message: message } }
+      format.any  { head :unprocessable_content }
     end
   end
 

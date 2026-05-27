@@ -24,6 +24,14 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "published delivery note show offers PDF action, not the unusable Preview" do
+    note = delivery_notes(:published_delivery_note)
+    get delivery_note_url(note)
+    assert_response :success
+    assert_select "a[href=?]", pdf_delivery_note_path(note)
+    assert_select "a[href=?]", preview_delivery_note_path(note), count: 0
+  end
+
   test "should get new" do
     get new_delivery_note_url
     assert_response :success

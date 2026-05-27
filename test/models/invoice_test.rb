@@ -356,4 +356,20 @@ class InvoiceTest < ActiveSupport::TestCase
     customer.update_columns(vat_id_verified_at: 1.day.ago)
     assert_empty invoice.publish_warnings
   end
+
+  test "publish_warnings drops the rejected warning after the customer's vat_id is edited" do
+    invoice = invoices(:draft_invoice)
+    customer = invoice.customer
+    customer.update_columns(vat_id_verified_at: nil)
+    CustomerVatVerification.create!(
+      customer: customer, vat_id: customer.vat_id, country_iso2: customer.country_iso2,
+      valid_response: false, raw_response: "{}"
+    )
+    assert(invoice.publish_warnings.any? { |w| w.include?("rejected by VIES") })
+
+    customer.update!(vat_id: "BE9999999999")
+    warnings = invoice.publish_warnings
+    assert(warnings.any? { |w| w.include?("never been verified") })
+    assert_not(warnings.any? { |w| w.include?("rejected by VIES") })
+  end
 end

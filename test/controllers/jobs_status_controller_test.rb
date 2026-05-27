@@ -7,7 +7,6 @@ class JobsStatusControllerTest < ActionDispatch::IntegrationTest
     SolidQueue::ScheduledExecution.delete_all
     SolidQueue::ClaimedExecution.delete_all
     SolidQueue::BlockedExecution.delete_all
-    SolidQueue::RecurringExecution.delete_all
     SolidQueue::Job.delete_all
     SolidQueue::RecurringTask.delete_all
     SolidQueue::Process.delete_all
@@ -58,6 +57,19 @@ class JobsStatusControllerTest < ActionDispatch::IntegrationTest
     assert_select "code", text: "my_command_task"
     assert_select "td", text: "OverdueInvoicesReportJob"
     assert_select "code", text: "SolidQueue::Job.clear_finished_in_batches"
+  end
+
+  test "shows next run time computed from a recurring task's schedule" do
+    travel_to Time.zone.local(2026, 5, 27, 12, 0, 0) do
+      task = SolidQueue::RecurringTask.create!(
+        key: "daily_task", schedule: "every day at 13:00",
+        command: "puts 1", static: true
+      )
+
+      get jobs_status_path
+      assert_response :success
+      assert_select "td", text: I18n.l(task.next_time)
+    end
   end
 
   test "lists recently failed jobs with error class and message" do

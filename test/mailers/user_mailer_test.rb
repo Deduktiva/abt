@@ -48,7 +48,7 @@ class UserMailerTest < ActionMailer::TestCase
   end
 
   test "passkey_reset_invite includes the invite URL" do
-    url = "http://example.com/invites/abc123"
+    url = "http://example.com/invites?token=abc123"
     mail = UserMailer.passkey_reset_invite(users(:alice), url, "alice@example.com")
     assert_match url, body_text(mail)
   end

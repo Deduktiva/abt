@@ -22,7 +22,7 @@ class AbsoluteUrlTest < ActiveSupport::TestCase
 
     url = AbsoluteUrl.invite("tok-123")
 
-    assert_equal "https://example.test/abt/invites/tok-123", url
+    assert_equal "https://example.test/abt/invites?token=tok-123", url
   end
 
   test "invite URL omits sub-path when script_name is blank" do
@@ -32,7 +32,7 @@ class AbsoluteUrlTest < ActiveSupport::TestCase
 
     url = AbsoluteUrl.invite("tok-123")
 
-    assert_equal "https://example.test/invites/tok-123", url
+    assert_equal "https://example.test/invites?token=tok-123", url
   end
 
   test "account_email_confirmation URL includes script_name from Settings" do

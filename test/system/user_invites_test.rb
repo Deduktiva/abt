@@ -8,6 +8,6 @@ class UserInvitesTest < ApplicationSystemTestCase
     click_button "+ Invite user"
 
     assert_selector "h1", text: "Invite generated"
-    assert_selector "code", text: %r{/invites/}
+    assert_selector "code", text: %r{/invites\?token=}
   end
 end

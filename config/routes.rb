@@ -6,12 +6,9 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :invites, only: [ :show ], param: :token do
-    member do
-      post :options
-      post :verify
-    end
-  end
+  get "invites", to: "invites#show", as: :invite
+  post "invites/options", to: "invites#options", as: :options_invite
+  post "invites/verify", to: "invites#verify", as: :verify_invite
 
   namespace :account do
     resource :profile, only: [ :show ]

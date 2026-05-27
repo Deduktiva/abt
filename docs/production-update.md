@@ -83,7 +83,7 @@ systemctl --user restart abt-puma.service
 
 ## Apache reverse proxy
 
-Apache terminates TLS on `*:443` and reverse-proxies all dynamic requests to Puma over a Unix socket at `/srv/abt/tmp/sockets/puma.sock`. Precompiled assets (`/assets`, `/packs`, root-level `favicon.ico` etc.) are served by Apache directly.
+Apache terminates TLS on `*:443` and reverse-proxies all dynamic requests to Puma at `127.0.0.1:3000`. Precompiled assets (`/assets`, root-level `favicon.ico`, `robots.txt`, etc.) are served by Apache directly via DocumentRoot, with explicit `ProxyPass !` exclusions ahead of the catch-all proxy.
 
 App-owned directives live in [`deploy/apache/abt-app.conf`](../deploy/apache/abt-app.conf) and are pulled into a thin host-specific VirtualHost via `Include`. The template for that wrapper is [`deploy/apache/abt-vhost.conf.tpl`](../deploy/apache/abt-vhost.conf.tpl).
 

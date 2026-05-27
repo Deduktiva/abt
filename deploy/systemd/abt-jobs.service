@@ -6,7 +6,9 @@ After=network.target
 Type=simple
 WorkingDirectory=%h
 Environment=RAILS_ENV=production
+Environment=FOP_EXTRA_JAR_PATH=/srv/fop-extra-jars
 ExecStart=/usr/bin/bundle exec %h/bin/jobs
+TimeoutStopSec=30
 Restart=always
 RestartSec=5
 

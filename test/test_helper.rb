@@ -24,6 +24,12 @@ class ActiveSupport::TestCase
   fixtures :all
 
   include DocumentFactories
+
+  # Make sure no test accidentally talks to the live VIES SOAP endpoint.
+  # Tests that exercise the verifier must set their own lookup_strategy.
+  setup do
+    ViesVerifier.lookup_strategy = ->(*) { raise "VIES called without stub" } if defined?(ViesVerifier)
+  end
 end
 
 module TestAuthHelpers

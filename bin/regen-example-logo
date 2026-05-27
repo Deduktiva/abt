@@ -1,0 +1,71 @@
+#!/bin/sh
+# Regenerate test/fixtures/files/example_logo.{pdf,png}.
+#
+# The fixture is a synthetic letterhead-style logo used by the renderer
+# tests and seed data:
+#   - 5.95cm x 1.785cm (matches a production logo width)
+#   - solid #3366cc background, white "My Example" wordmark
+#   - content flush to the edges so visual inspection in a rendered
+#     invoice shows the actual viewport bounds (no whitespace padding
+#     to hide alignment regressions)
+#
+# The PDF is intentionally a vector PDF with an embedded font, so the
+# fixture exercises the font-embedding code path in FOP — fonts from
+# the logo PDF should propagate into the parent invoice's font
+# dictionary, which pdffonts can verify.
+#
+# WeasyPrint's font matching on macOS doesn't pick up the in-repo Inter
+# OTF; it falls back to a system sans-serif (Hiragino-Sans-Bold). For a
+# test fixture the visual difference vs the PNG (which does use Inter
+# directly via ImageMagick) is cosmetic — what matters is that a real
+# OpenType-CFF font is embedded and propagates correctly.
+set -eu
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+INTER_BOLD="$REPO_ROOT/lib/foptemplate/inter-41/Inter-Bold.otf"
+OUT_DIR="$REPO_ROOT/test/fixtures/files"
+TMP_HTML="$(mktemp -t example-logo.XXXXXX).html"
+trap 'rm -f "$TMP_HTML"' EXIT
+
+if ! command -v weasyprint >/dev/null 2>&1; then
+  echo "regen-example-logo: weasyprint not found (pip install weasyprint)" >&2
+  exit 1
+fi
+if ! command -v magick >/dev/null 2>&1; then
+  echo "regen-example-logo: ImageMagick 'magick' not found" >&2
+  exit 1
+fi
+
+cat > "$TMP_HTML" <<'HTML'
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  @page { size: 5.95cm 1.785cm; margin: 0; }
+  html, body { margin: 0; padding: 0; height: 1.785cm; }
+  body {
+    background: #3366cc;
+    color: white;
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 24pt;
+    line-height: 1.785cm;
+    text-align: center;
+  }
+</style>
+</head>
+<body>My Example</body>
+</html>
+HTML
+
+weasyprint "$TMP_HTML" "$OUT_DIR/example_logo.pdf"
+
+# PNG: rendered directly with Inter Bold from the repo. Same blue, same
+# wordmark; 625x187 px keeps the legacy seed fixture dimensions.
+magick -size 625x187 xc:'#3366cc' \
+  -fill white -font "$INTER_BOLD" -pointsize 80 -gravity center \
+  -annotate +0+0 "My Example" \
+  -alpha off -depth 8 \
+  "$OUT_DIR/example_logo.png"
+
+echo "regenerated $OUT_DIR/example_logo.{pdf,png}"

@@ -33,20 +33,21 @@ class InvoiceRendererTest < ActiveSupport::TestCase
   test "omits country line on both sender and recipient when they share a country" do
     @invoice.update_columns(customer_country_iso2: @issuer.country_iso2)
     xml = InvoiceRenderer.new(@invoice, @issuer).emit_xml(nil)
-    assert_no_match %r{<address>[^<]*Netherlands}, xml
+    assert_no_match %r{<address>[^<]*Niederlande|<address>[^<]*Netherlands}, xml
   end
 
-  test "includes country line on sender and recipient when they differ" do
+  test "renders country lines in the customer's language" do
+    @invoice.customer.update!(language: languages(:german))
     @issuer.update!(country_iso2: "AT")
     @invoice.update_columns(customer_country_iso2: "DE")
     xml = InvoiceRenderer.new(@invoice, @issuer).emit_xml(nil)
-    assert_match %r{<issuer>.*<address>[^<]*Austria}m, xml
-    assert_match %r{<recipient>.*<address>[^<]*Germany}m, xml
+    assert_match %r{<issuer>.*<address>[^<]*Österreich}m, xml
+    assert_match %r{<recipient>.*<address>[^<]*Deutschland}m, xml
   end
 
   test "omits country line when one side is the unknown sentinel" do
     @invoice.update_columns(customer_country_iso2: AddressFormatter::UNKNOWN_COUNTRY)
     xml = InvoiceRenderer.new(@invoice, @issuer).emit_xml(nil)
-    assert_no_match %r{<recipient>.*Unknown}m, xml
+    assert_no_match %r{<recipient>.*Unknown|<recipient>.*Unbekannt}m, xml
   end
 end

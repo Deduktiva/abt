@@ -163,7 +163,7 @@
 
     <!-- Component: company logo/name block with contact lines (typically on first page) -->
     <xsl:template name="company-header-block">
-        <fo:block-container height="1cm" width="6cm" top="0cm" left="0cm" position="absolute" line-height="120%">
+        <fo:block-container height="1cm" width="8cm" top="0cm" left="0cm" position="absolute" line-height="120%">
             <xsl:call-template name="impl-company-logo"/>
 
             <fo:block text-align="start" font-size="9pt" xsl:use-attribute-sets="accent-color">

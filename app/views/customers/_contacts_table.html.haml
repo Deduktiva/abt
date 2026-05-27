@@ -13,7 +13,7 @@
       - if customer.customer_contacts.any?
         = render partial: "customer_contacts/row", collection: customer.customer_contacts.includes(:projects), as: :contact
       - else
-        .text-muted.py-2.small No contacts configured. The customer will not receive any emails unless an Automated Email is configured.
+        = render "customer_contacts/empty_message"
 
     - if can?('customers.edit')
       = render "customer_contacts/add_link", customer: customer

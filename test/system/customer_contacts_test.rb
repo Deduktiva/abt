@@ -105,6 +105,30 @@ class CustomerContactsTest < ApplicationSystemTestCase
     assert_nil CustomerContact.find_by(id: @accounting.id)
   end
 
+  test "empty-state message hides when first contact is added and returns after the last is removed" do
+    empty_customer = customers(:no_email_customer)
+    visit customer_path(empty_customer)
+    assert_selector "#customer_contacts_empty_message"
+
+    click_link "+ Add contact"
+    within("#new_customer_contact") do
+      fill_in "customer_contact[name]", with: "First Contact"
+      fill_in "customer_contact[email]", with: "first@example.com"
+      click_button "Add"
+    end
+
+    new_contact = empty_customer.customer_contacts.find_by(email: "first@example.com")
+    assert_selector "##{ActionView::RecordIdentifier.dom_id(new_contact)}"
+    assert_no_selector "#customer_contacts_empty_message"
+
+    accept_confirm do
+      within("##{ActionView::RecordIdentifier.dom_id(new_contact)}") { click_link "🗑" }
+    end
+
+    assert_no_selector "##{ActionView::RecordIdentifier.dom_id(new_contact)}"
+    assert_selector "#customer_contacts_empty_message"
+  end
+
   test "salutation_line persists from the edit form and renders in the row" do
     visit customer_path(@customer)
     row = "##{ActionView::RecordIdentifier.dom_id(@accounting)}"

@@ -176,6 +176,14 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".badge.bg-success", text: "Booked"
   end
 
+  test "draft invoice without lines renders inline Edit Lines button" do
+    invoice = create_draft_invoice(cust_reference: "EMPTY")
+
+    get invoice_url(invoice)
+    assert_response :success
+    assert_select "table.document-lines-table tbody a", text: "Edit Lines", href: edit_invoice_path(invoice)
+  end
+
   test "draft invoice show renders Publish Status row with Ready badge for a valid draft" do
     invoice = create_invoice_with_item_line(cust_reference: "TEST_DRAFT", quantity: 1.0)
 

@@ -1,6 +1,8 @@
 # Production Deployment
 
-`bin/production-update` is the automated deployment script for the ABT application in production. It also documents the systemd setup for the Solid Queue jobs worker (`bin/jobs`) further below.
+`bin/production-update` is the automated deployment script for the ABT application in production. Production runs **Puma** behind **Apache 2.4** as a TLS-terminating reverse proxy; both Puma and the Solid Queue jobs worker are supervised as systemd **user** units under the application user. The unit files live in [`deploy/systemd/`](../deploy/systemd/) and the Apache include lives in [`deploy/apache/`](../deploy/apache/).
+
+For a first-time cutover from the previous mod_passenger setup, see [`migrate-passenger-to-puma.md`](./migrate-passenger-to-puma.md).
 
 ## production-update
 
@@ -28,17 +30,20 @@ The script sets `RAILS_ENV=production` for the entire session and performs the f
 3. **Dependencies**
    - Runs `bundle install` to install/update Ruby gems
 
-4. **Asset Compilation**
+4. **Systemd Unit Install**
+   - Symlinks every `*.service` file in `deploy/systemd/` into `~/.config/systemd/user/` and runs `systemctl --user daemon-reload`. Idempotent — re-runs on every deploy so unit drift can't accumulate. Skips (and warns about) targets that already exist as non-symlinks so operator customizations aren't clobbered. Tolerant of an unreachable user systemd bus.
+
+5. **Asset Compilation**
    - Runs `bundle exec rails assets:precompile`
 
-5. **Database Migration**
+6. **Database Migration**
    - Runs `bundle exec rails db:migrate`
 
-6. **Application Restart**
-   - Creates `tmp/restart.txt` for Passenger to restart the app
+7. **Application Restart**
+   - Runs `systemctl --user reload abt-puma.service`, which `ExecReload`s `SIGUSR2` for a Puma hot-restart. Sub-second window where the listener is briefly closed; Apache buffers the request and retries.
 
-7. **Jobs Worker Restart**
-   - Runs `systemctl --user restart abt-jobs.service` to restart the Solid Queue worker so it picks up new code and updated recurring schedules. See "Solid Queue jobs worker" below for one-time setup.
+8. **Jobs Worker Restart**
+   - Runs `systemctl --user restart abt-jobs.service` to restart the Solid Queue worker so it picks up new code and updated recurring schedules.
 
 ### Requirements
 
@@ -56,17 +61,43 @@ The script will stop immediately if any step fails (`set -e`). Common issues:
 - **Asset compilation errors**: Check for JavaScript/CSS syntax errors
 - **Migration errors**: Check database connectivity and migration files
 
+The systemd unit-install and restart steps are deliberately tolerant — they warn but do not abort the deploy — so a host without systemd reachable (or with units not yet enabled) still gets code/assets/migrations applied.
+
 ### Output
 
 The script provides colored output:
 - 🔵 **[INFO]** - Status information
-- 🟢 **[SUCCESS]** - Successful completion of a step  
+- 🟢 **[SUCCESS]** - Successful completion of a step
 - 🟡 **[WARNING]** - Warnings that don't stop execution
 - 🔴 **[ERROR]** - Errors that stop execution
 
 ### Application Restart
 
-The script creates `tmp/restart.txt` which tells Passenger to restart the application automatically. This handles the restart without requiring elevated privileges.
+`systemctl --user reload abt-puma.service` sends `SIGUSR2` (configured via `ExecReload` in the unit), triggering Puma's hot restart: the master forks a new process tree, boots a fresh app, and atomically swaps the listening socket. The single-worker setup has a sub-second window where new connections briefly fail; Apache's `ProxyPass` is configured to retry, so clients shouldn't notice.
+
+If you changed `config/puma.rb` itself, or upgraded the Puma gem, a hot reload won't pick up boot-time settings. Use a full restart instead:
+
+```bash
+systemctl --user restart abt-puma.service
+```
+
+## Apache reverse proxy
+
+Apache terminates TLS on `*:443` and reverse-proxies all dynamic requests to Puma over a Unix socket at `/srv/abt/tmp/sockets/puma.sock`. Precompiled assets (`/assets`, `/packs`, root-level `favicon.ico` etc.) are served by Apache directly.
+
+App-owned directives live in [`deploy/apache/abt-app.conf`](../deploy/apache/abt-app.conf) and are pulled into a thin host-specific VirtualHost via `Include`. The template for that wrapper is [`deploy/apache/abt-vhost.conf.tpl`](../deploy/apache/abt-vhost.conf.tpl).
+
+One-time setup on a fresh host:
+
+```bash
+sudo a2enmod proxy proxy_http headers
+sudo cp deploy/apache/abt-vhost.conf.tpl /etc/apache2/sites-available/abt.conf
+# edit ServerName, SSL cert paths, log paths in /etc/apache2/sites-available/abt.conf
+sudo a2ensite abt
+sudo apache2ctl configtest && sudo systemctl reload apache2
+```
+
+The `RequestHeader set X-Forwarded-Proto "https"` line in `abt-app.conf` is load-bearing — `config.action_dispatch.trusted_proxies` + `config.force_ssl` in `config/environments/production.rb` depend on it being set (not setifempty). Don't edit either file in isolation.
 
 ## Solid Queue jobs worker
 
@@ -87,33 +118,12 @@ The worker connects to the dedicated `queue` database defined in `config/databas
 
    Verify with `loginctl show-user <app-user> | grep Linger=yes` and confirm `/run/user/$(id -u <app-user>)/bus` exists.
 
-2. **Create the systemd user unit** at `~/.config/systemd/user/abt-jobs.service`:
+2. **Run `bin/production-update` once** — it symlinks `deploy/systemd/abt-jobs.service` (and `abt-puma.service`) into `~/.config/systemd/user/` and runs `daemon-reload`. The first run will warn that `abt-puma.service` and `abt-jobs.service` aren't enabled yet; that's expected.
 
-   ```ini
-   [Unit]
-   Description=ABT Solid Queue jobs worker
-   After=network.target
-
-   [Service]
-   Type=simple
-   WorkingDirectory=%h/abt
-   Environment=RAILS_ENV=production
-   Environment=PATH=%h/.rbenv/shims:/usr/local/bin:/usr/bin:/bin
-   ExecStart=%h/abt/bin/jobs
-   Restart=always
-   RestartSec=5
-
-   [Install]
-   WantedBy=default.target
-   ```
-
-   Adjust `WorkingDirectory` and `Environment=PATH` to match the host (Ruby version manager, app path).
-
-3. **Enable and start the service**:
+3. **Enable and start the services** (one-time; subsequent deploys reuse the enable state):
 
    ```bash
-   systemctl --user daemon-reload
-   systemctl --user enable --now abt-jobs.service
+   systemctl --user enable --now abt-puma.service abt-jobs.service
    ```
 
 ### Running manually
@@ -142,4 +152,4 @@ You should see `overdue_invoices_report` in the output alongside any other recur
 
 ### Updates and restarts
 
-The `production-update` script calls `systemctl --user restart abt-jobs.service` after the application restart. It is tolerant of the unit not being installed yet (prints a warning and continues) so the first deploy that introduces the worker does not abort. Once the unit is installed, every subsequent deploy restarts the worker so it picks up code changes and any updates to `config/recurring.yml`.
+The `production-update` script calls `systemctl --user restart abt-jobs.service` after the Puma reload. It is tolerant of the unit not being installed yet (prints a warning and continues) so the first deploy that introduces the worker does not abort. Once the unit is installed, every subsequent deploy restarts the worker so it picks up code changes and any updates to `config/recurring.yml`.

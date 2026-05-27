@@ -1,0 +1,14 @@
+[Unit]
+Description=ABT Solid Queue jobs worker
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h
+Environment=RAILS_ENV=production
+ExecStart=/usr/bin/bundle exec %h/bin/jobs
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

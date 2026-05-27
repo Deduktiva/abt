@@ -1,0 +1,16 @@
+[Unit]
+Description=ABT Puma application server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h
+Environment=RAILS_ENV=production
+ExecStartPre=/bin/mkdir -p %h/tmp/sockets
+ExecStart=/usr/bin/bundle exec puma -C %h/config/puma.rb
+ExecReload=/bin/kill -SIGUSR2 $MAINPID
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

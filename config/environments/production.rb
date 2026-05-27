@@ -1,4 +1,5 @@
 require "active_support/core_ext/integer/time"
+require "ipaddr"
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -35,11 +36,16 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
-  # Scheme detection is provided by Apache + mod_passenger: Apache's mod_ssl
-  # sets HTTPS=on in the CGI env on SSL requests, which Passenger forwards into
-  # the Rack env. Rack::Request#scheme reads it directly (no trusted_proxies
-  # gating), so request.ssl? reflects reality and force_ssl only redirects
-  # requests that actually arrived over plain HTTP.
+  # Apache terminates TLS and reverse-proxies to Puma over a Unix socket, so
+  # Puma sees plain HTTP. Apache sets `X-Forwarded-Proto: https` via
+  # `RequestHeader set` (which overrides any client-supplied value — see
+  # deploy/apache/abt-app.conf), and Rack reads that header so request.scheme
+  # / request.ssl? / force_ssl behave correctly. trusted_proxies marks
+  # loopback as a proxy so ActionDispatch::RemoteIp reads the real client IP
+  # from X-Forwarded-For rather than treating the proxy as the client. Do
+  # not edit this without checking deploy/apache/abt-app.conf — the two are
+  # load-bearing as a pair.
+  config.action_dispatch.trusted_proxies = [ IPAddr.new("127.0.0.1"), IPAddr.new("::1") ]
   config.force_ssl = true
 
   # Skip http-to-https redirect for the default health check endpoint.

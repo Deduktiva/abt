@@ -220,4 +220,14 @@ class CustomerTest < ActiveSupport::TestCase
     customer.update!(name: "Renamed Co.")
     assert_in_delta timestamp, customer.reload.vat_id_verified_at, 1.second
   end
+
+  test "normalises vat_id on save (uppercase, strips whitespace, dots, dashes)" do
+    customer = create_customer(vat_id: "  be 0123.456-749 ")
+    assert_equal "BE0123456749", customer.reload.vat_id
+  end
+
+  test "normalise_vat_id is the class-level normalisation entry point" do
+    assert_equal "ATU12345678", Customer.normalise_vat_id("at u 12.345-678")
+    assert_equal "", Customer.normalise_vat_id(nil)
+  end
 end

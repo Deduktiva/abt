@@ -8,7 +8,7 @@ This is "ABT", a Rails 8 application for invoice and delivery-note management. B
 
 ## Repository Layout
 
-- All repo-local executables live in `bin/` — Bundler binstubs plus custom scripts (`abt-fop`, `abt-fop-container`, `jobs`, `postgres-dev`, `production-update`, `setup`, `setup-fop`).
+- All repo-local executables live in `bin/` — Bundler binstubs plus custom scripts (`abt-fop`, `abt-fop-container`, `jobs`, `journal`, `postgres-dev`, `production-update`, `setup`, `setup-fop`).
 - Long-form documentation lives in `docs/` and uses lowercase kebab-case filenames (`postgres-dev.md`, `production-update.md`).
 - Do not reintroduce a `script/` directory.
 

@@ -1,27 +1,25 @@
 require "test_helper"
 
 class CustomerVatVerificationTest < ActiveSupport::TestCase
-  test "valid_per_vies? reflects valid_response=true" do
-    assert customer_vat_verifications(:good_eu_valid).valid_per_vies?
-    assert_not customer_vat_verifications(:good_eu_valid).invalid_per_vies?
-    assert_not customer_vat_verifications(:good_eu_valid).unavailable?
-  end
-
-  test "invalid_per_vies? reflects valid_response=false" do
-    assert customer_vat_verifications(:good_national_invalid).invalid_per_vies?
-    assert_not customer_vat_verifications(:good_national_invalid).valid_per_vies?
-    assert_not customer_vat_verifications(:good_national_invalid).unavailable?
-  end
-
-  test "unavailable? reflects valid_response=nil" do
+  test "predicates reflect valid_response state" do
+    truthy = customer_vat_verifications(:good_eu_valid)
+    falsy = customer_vat_verifications(:good_national_invalid)
     transient = CustomerVatVerification.create!(
-      customer: customers(:good_eu),
-      vat_id: "BE0123456749",
-      country_iso2: "BE",
-      valid_response: nil,
-      error_code: "MS_UNAVAILABLE"
+      customer: customers(:good_eu), vat_id: "BE0123456749",
+      valid_response: nil, error_code: "MS_UNAVAILABLE"
     )
+
+    assert truthy.valid_per_vies?
+    assert_not truthy.invalid_per_vies?
+    assert_not truthy.unavailable?
+
+    assert falsy.invalid_per_vies?
+    assert_not falsy.valid_per_vies?
+    assert_not falsy.unavailable?
+
     assert transient.unavailable?
+    assert_not transient.valid_per_vies?
+    assert_not transient.invalid_per_vies?
   end
 
   test "latest_first orders by created_at desc" do

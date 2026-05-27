@@ -297,7 +297,6 @@ class DeliveryNotesController < ApplicationController
       return
     end
     DeliveryNoteMailer.with(delivery_note: @delivery_note).customer_email.deliver_later
-    @delivery_note.update_column(:email_sent_at, Time.current)
     respond_to do |format|
       format.html { redirect_to @delivery_note, notice: "E-Mail queued for sending." }
       format.json { head :ok }
@@ -316,7 +315,6 @@ class DeliveryNotesController < ApplicationController
     delivery_notes = DeliveryNote.visible_to(current_user).where(id: delivery_note_ids, published: true)
     queued_count = 0
     skipped_count = 0
-    now = Time.current
 
     # Partition by [customer_id, resolved-recipient-set]. Two DNs to the same
     # customer with different project-scoped contacts must NOT be combined,
@@ -332,7 +330,6 @@ class DeliveryNotesController < ApplicationController
       else
         DeliveryNoteMailer.with(delivery_notes: dns, recipients: recipients).bulk_customer_email.deliver_later
       end
-      DeliveryNote.where(id: dns.map(&:id)).update_all(email_sent_at: now)
       queued_count += dns.length
     end
 

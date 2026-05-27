@@ -1,6 +1,8 @@
 require "test_helper"
 
 class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
+  include ActiveJob::TestHelper
+
   test "should get index" do
     get delivery_notes_url
     assert_response :success
@@ -366,8 +368,10 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     note = delivery_notes(:published_delivery_note)
     note.update_column(:email_sent_at, nil)
 
-    post send_email_delivery_note_url(note),
-         headers: { "Accept" => "application/json" }
+    perform_enqueued_jobs do
+      post send_email_delivery_note_url(note),
+           headers: { "Accept" => "application/json" }
+    end
 
     assert_response :success
     assert_not_nil note.reload.email_sent_at
@@ -412,9 +416,13 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     note1 = create_published_delivery_note(customer: customer, document_number: "DN-2025-002", cust_reference: "BULK-TEST-1")
     note2 = create_published_delivery_note(customer: customer, document_number: "DN-2025-003", cust_reference: "BULK-TEST-2")
 
-    post bulk_send_emails_delivery_notes_url, params: { delivery_note_ids: [ note1.id, note2.id ] }
+    perform_enqueued_jobs do
+      post bulk_send_emails_delivery_notes_url, params: { delivery_note_ids: [ note1.id, note2.id ] }
+    end
     assert_redirected_to delivery_notes_url
     assert_match "2 emails queued for sending", flash[:notice]
+    assert_not_nil note1.reload.email_sent_at
+    assert_not_nil note2.reload.email_sent_at
   end
 
   test "should send individual emails when delivery notes are for different customers" do

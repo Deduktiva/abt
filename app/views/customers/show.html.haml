@@ -52,9 +52,9 @@
                 %span.badge.bg-danger Invalid per VIES
               - else
                 %span.badge.bg-warning Not verified
-              = button_to "✅ Verify",
-                          verify_vat_id_customer_path(@customer),
+              = button_to "Verify", verify_vat_id_customer_path(@customer),
                           method: :post,
+                          class: "btn btn-sm btn-outline-secondary",
                           form: { class: "button_to ms-auto" }
         - else
           .row.mb-2

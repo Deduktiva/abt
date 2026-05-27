@@ -105,12 +105,7 @@
                   - elsif task.command.present?
                     %code= task.command
                 %td= task.queue_name || 'default'
-                %td
-                  - next_run = @next_recurring_runs[task.key]
-                  - if next_run
-                    = l(next_run)
-                  - else
-                    %span.text-muted —
+                %td= l(task.next_time)
 
 .card.mb-4
   .card-header

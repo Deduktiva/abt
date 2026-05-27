@@ -19,10 +19,6 @@ class JobsStatusController < ApplicationController
     }
 
     @recurring_tasks = SolidQueue::RecurringTask.order(:key).to_a
-    @next_recurring_runs = SolidQueue::RecurringExecution
-                             .where(task_key: @recurring_tasks.map(&:key))
-                             .group(:task_key)
-                             .minimum(:run_at)
 
     @failed_jobs = SolidQueue::FailedExecution
                      .includes(:job)

@@ -1,6 +1,6 @@
 # Production Deployment
 
-`bin/production-update` is the automated deployment script for the ABT application in production. Production runs **Puma** behind **Apache 2.4** as a TLS-terminating reverse proxy; both Puma and the Solid Queue jobs worker are supervised as systemd **user** units under the application user. The unit files live in [`deploy/systemd/`](../deploy/systemd/) and the Apache include lives in [`deploy/apache/`](../deploy/apache/).
+`bin/production-update` is the automated deployment script for the ABT application in production. The production target is **Debian 13 (trixie)** running **Puma** behind **Apache 2.4** as a TLS-terminating reverse proxy; both Puma and the Solid Queue jobs worker are supervised as systemd **user** units under the application user. The unit files live in [`deploy/systemd/`](../deploy/systemd/) and the Apache include lives in [`deploy/apache/`](../deploy/apache/).
 
 For a first-time cutover from the previous mod_passenger setup, see [`migrate-passenger-to-puma.md`](./migrate-passenger-to-puma.md).
 
@@ -90,14 +90,30 @@ App-owned directives live in [`deploy/apache/abt-app.conf`](../deploy/apache/abt
 One-time setup on a fresh host:
 
 ```bash
-sudo a2enmod proxy proxy_http headers
+sudo a2enmod proxy proxy_http headers remoteip md
 sudo cp deploy/apache/abt-vhost.conf.tpl /etc/apache2/sites-available/abt.conf
-# edit ServerName, SSL cert paths, log paths in /etc/apache2/sites-available/abt.conf
+# edit ServerName and log paths in /etc/apache2/sites-available/abt.conf
 sudo a2ensite abt
 sudo apache2ctl configtest && sudo systemctl reload apache2
 ```
 
 The `RequestHeader set X-Forwarded-Proto "https"` line in `abt-app.conf` is load-bearing — `config.action_dispatch.trusted_proxies` + `config.force_ssl` in `config/environments/production.rb` depend on it being set (not setifempty). Don't edit either file in isolation.
+
+### HAProxy frontend
+
+The `:443` vhost expects connections to arrive via an HAProxy SNI router using `send-proxy-v2` — `RemoteIPProxyProtocol On` relies on it for the real client IP. Any TCP client that can reach this listener directly can forge the client IP, so make sure `:443` on the Apache host is only reachable from HAProxy (bind Apache to an internal interface and/or restrict at the network layer). HAProxy's `:80` frontend 301-redirects all HTTP traffic to HTTPS and never forwards upstream; Apache has no `:80` vhost.
+
+### TLS certificates (mod_md)
+
+Apache's `mod_md` handles issuance and renewal in-process. Validation uses TLS-ALPN-01 over `:443`, which traverses HAProxy's SNI passthrough cleanly because HAProxy forwards the ClientHello (including the ALPN extension) verbatim upstream.
+
+First-time bootstrap on a fresh host:
+
+1. Make sure DNS for the names in `MDomain` already resolves to the HAProxy public IP and that HAProxy's `services.map` routes the SNI to this host.
+2. Reload Apache. mod_md will reach out to Let's Encrypt on its next wake-up (within minutes) and obtain the cert; until then Apache serves a self-signed placeholder.
+3. Watch `journalctl -u apache2 -f` to confirm issuance.
+
+Renewal happens automatically — mod_md wakes up daily, renews ~30 days before expiry, and triggers a graceful Apache reload. State lives under `/var/lib/apache2/md/`.
 
 ## Solid Queue jobs worker
 

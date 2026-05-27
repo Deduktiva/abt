@@ -1,0 +1,47 @@
+#!/bin/bash
+# View journalctl logs for the ABT systemd user units.
+#
+# Designed to be invoked via `sudo bin/journal <unit> [args...]` on the
+# production host. We can't use `journalctl --user-unit` as the abt user
+# because per-user journal files aren't accessible without
+# systemd-journal/adm group membership; running as root and filtering on
+# the journal fields directly avoids that requirement.
+
+set -euo pipefail
+
+usage() {
+    cat >&2 <<EOF
+Usage: $(basename "$0") {puma|jobs} [journalctl args...]
+
+View journalctl logs for the ABT systemd user units. Run via sudo (root
+can read all journals; the abt user typically cannot without being in
+the systemd-journal group).
+
+Examples:
+  sudo $(basename "$0") puma -f
+  sudo $(basename "$0") jobs --since "1 hour ago"
+  sudo $(basename "$0") puma -n 200 --no-pager
+EOF
+    exit 1
+}
+
+if [[ $# -lt 1 ]]; then
+    usage
+fi
+
+case "$1" in
+    puma) unit=abt-puma.service ;;
+    jobs) unit=abt-jobs.service ;;
+    -h|--help) usage ;;
+    *) echo "Unknown unit: $1 (expected 'puma' or 'jobs')" >&2; usage ;;
+esac
+shift
+
+abt_uid=$(id -u abt 2>/dev/null) || {
+    echo "User 'abt' does not exist on this host." >&2
+    exit 1
+}
+
+# _SYSTEMD_USER_UNIT + _UID filters to messages from the abt user's
+# systemd --user instance, regardless of which user is invoking journalctl.
+exec journalctl _SYSTEMD_USER_UNIT="$unit" _UID="$abt_uid" "$@"

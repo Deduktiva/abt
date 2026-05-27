@@ -8,6 +8,7 @@ WorkingDirectory=%h
 Environment=RAILS_ENV=production
 Environment=FOP_EXTRA_JAR_PATH=/srv/fop-extra-jars
 ExecStart=/usr/bin/bundle exec puma -C %h/config/puma.rb
+SyslogIdentifier=abt-puma
 ExecReload=/bin/kill -SIGUSR2 $MAINPID
 # SIGUSR2 hot-restart spawns a new process tree that systemd is unaware of;
 # KillMode=mixed sends the stop signal to only the main PID and lets Puma

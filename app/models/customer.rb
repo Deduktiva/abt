@@ -49,6 +49,10 @@ class Customer < ApplicationRecord
     invoices.exists?
   end
 
+  def latest_vat_verification
+    vat_verifications.latest_first.first
+  end
+
   def contacts_for_invoice(invoice)
     customer_contacts.for_invoices.select { |c| c.applies_to_project?(invoice.project) }
   end

@@ -123,7 +123,7 @@ class Invoice < ApplicationRecord
     return warnings unless customer&.vat_id.present?
     return warnings unless customer.sales_tax_customer_class&.vat_id_required?
 
-    latest = customer.vat_verifications.latest_first.first
+    latest = customer.latest_vat_verification
     recheck_days = IssuerCompany.get_the_issuer!.vat_id_recheck_days
 
     if latest&.invalid_per_vies?

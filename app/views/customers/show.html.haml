@@ -40,7 +40,7 @@
               = country_name(@customer.country_iso2)
 
         - if @customer.vat_id.present?
-          - latest_verification = @customer.vat_verifications.latest_first.first
+          - latest_verification = @customer.latest_vat_verification
           .row.mb-2
             .col-sm-4
               %strong VAT ID:

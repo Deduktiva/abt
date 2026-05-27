@@ -186,10 +186,9 @@
                 <xsl:with-param name="padding-before" select="$logo-sender-alignment-padding" />
             </xsl:call-template>
 
-            <!-- 8pt contact lines inherit the page-sequence's 12pt line-height
-                 (4pt of leading between www / voice lines), which is enough
-                 breathing room for two short lines under the logo. -->
-            <fo:block text-align="start" font-size="8pt" xsl:use-attribute-sets="accent-color">
+            <!-- 9pt contact lines inherit the page-sequence's 12pt line-height
+                 (3pt of leading between www / voice lines). -->
+            <fo:block text-align="start" font-size="9pt" xsl:use-attribute-sets="accent-color">
                 <fo:block white-space-collapse="false">
                     <xsl:value-of select="abt:strip-space(/document/issuer/contact-line1)" />
                 </fo:block>

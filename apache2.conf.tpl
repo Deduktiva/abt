@@ -1,3 +1,10 @@
+# To silence Phusion's phone-home checks (anonymous telemetry logs
+# spurious "End time can not be before or equal to begin time" notices;
+# the security update checker logs a "no update found" line every 24h),
+# set these in the global Apache server context (not inside a VirtualHost):
+#   PassengerDisableAnonymousTelemetry on
+#   PassengerDisableSecurityUpdateCheck on
+
 <VirtualHost *:443>
   ServerName abt
 

@@ -105,6 +105,24 @@ class IssuerCompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_nil @issuer_company.png_logo
   end
 
+  test "update permits vat_id_recheck_days and persists the new value" do
+    patch issuer_company_url, params: {
+      issuer_company: { vat_id_recheck_days: 30 }
+    }
+    assert_redirected_to issuer_company_url
+    assert_equal 30, @issuer_company.reload.vat_id_recheck_days
+  end
+
+  test "update rejects vat_id_recheck_days of zero" do
+    original = @issuer_company.vat_id_recheck_days
+    patch issuer_company_url, params: {
+      issuer_company: { vat_id_recheck_days: 0 }
+    }
+    assert_response :success
+    assert_select ".alert-danger"
+    assert_equal original, @issuer_company.reload.vat_id_recheck_days
+  end
+
   test "should preserve whitespace in contact lines on show page" do
     # Update the fixture to have explicit whitespace
     @issuer_company.update!(

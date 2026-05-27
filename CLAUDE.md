@@ -103,7 +103,8 @@ For testing against PostgreSQL (matches production environment):
 - Payment URL template for invoice tokens
 
 ### Deployment
-- Production runs Apache + mod_passenger on `*:443` (see `apache2.conf.tpl`). mod_passenger forwards Apache's `HTTPS=on` directly into the Rack env, so `request.ssl?` is honest — no `X-Forwarded-Proto` / `trusted_proxies` plumbing needed. If the topology ever changes (nginx, Caddy, a CDN in front), revisit `config.assume_ssl` / `config.action_dispatch.trusted_proxies` in `config/environments/production.rb`.
+- Production runs Apache 2.4 on `*:443` as a TLS-terminating reverse proxy in front of Puma listening on `127.0.0.1:3000`. Apache proxies dynamic requests and serves precompiled assets (`/assets`, root favicons, `robots.txt`) directly from `/srv/abt/public` via explicit `ProxyPass !` exclusions. Both Puma and the Solid Queue jobs worker run as systemd **user** units under the `abt` user. Unit files live in `deploy/systemd/`; the Apache include and vhost template live in `deploy/apache/`. `bin/production-update` installs/refreshes the unit symlinks on every deploy.
+- Scheme detection relies on Apache's `RequestHeader set X-Forwarded-Proto "https"` in `deploy/apache/abt-app.conf` and `config.action_dispatch.trusted_proxies = [127.0.0.1, ::1]` in `config/environments/production.rb`. The two are a load-bearing pair — don't edit either in isolation. `assume_ssl` is deliberately not used (it decouples Rails' belief about scheme from reality, which has burned us before).
 - `config.hosts` in production is populated from `Settings.app.host`. Adding a new domain means updating the settings overlay, not editing `production.rb`.
 - Absolute URLs in mailers and tokens go through `app/services/absolute_url.rb`, which reads `Settings.app.host` / `Settings.app.protocol` / `Settings.app.script_name` explicitly. `config.action_mailer.default_url_options` is intentionally unset in production — don't reach for it.
 

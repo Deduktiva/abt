@@ -1,0 +1,21 @@
+[Unit]
+Description=ABT Puma application server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h
+Environment=RAILS_ENV=production
+Environment=FOP_EXTRA_JAR_PATH=/srv/fop-extra-jars
+ExecStart=/usr/bin/bundle exec puma -C %h/config/puma.rb
+ExecReload=/bin/kill -SIGUSR2 $MAINPID
+# SIGUSR2 hot-restart spawns a new process tree that systemd is unaware of;
+# KillMode=mixed sends the stop signal to only the main PID and lets Puma
+# manage its children, so reload doesn't race with a kill of the new tree.
+KillMode=mixed
+TimeoutStopSec=30
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

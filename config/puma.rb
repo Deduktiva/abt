@@ -27,14 +27,18 @@
 threads_count = ENV.fetch("RAILS_MAX_THREADS", 3)
 threads threads_count, threads_count
 
-# Specifies the `port` that Puma will listen on to receive requests; default is 3000.
-port ENV.fetch("PORT", 3000)
+# In production, Apache reverse-proxies to Puma over loopback TCP (see
+# deploy/apache/abt-app.conf). Binding to 127.0.0.1 (rather than 0.0.0.0)
+# means the kernel only accepts connections from the same host — Puma is
+# unreachable from the network regardless of firewall configuration.
+if ENV["RAILS_ENV"] == "production"
+  bind "tcp://127.0.0.1:3000"
+else
+  port ENV.fetch("PORT", 3000)
+end
 
 # Allow puma to be restarted by `bin/rails restart` command.
 plugin :tmp_restart
-
-# Run the Solid Queue supervisor inside of Puma for single-server deployments
-plugin :solid_queue if ENV["SOLID_QUEUE_IN_PUMA"]
 
 # Specify the PID file. Defaults to tmp/pids/server.pid in development.
 # In other environments, only set the PID file if requested.

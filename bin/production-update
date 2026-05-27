@@ -144,53 +144,134 @@ migrate_database() {
     fi
 }
 
-# Function to handle Apache restart
-restart_apache() {
-    print_status "Handling application restart..."
-
-    # Create/touch restart.txt for Passenger
-    if touch tmp/restart.txt; then
-        print_success "Created tmp/restart.txt - Passenger will restart the application."
-    else
-        print_error "Could not create tmp/restart.txt"
-        exit 1
-    fi
+# systemctl --user needs XDG_RUNTIME_DIR pointing at the user's systemd
+# runtime directory. Non-login shells (deploys, cron, scripted ssh) don't
+# inherit it from PAM. With `loginctl enable-linger` configured (see
+# docs/production-update.md), /run/user/<uid> persists for the user.
+ensure_xdg_runtime_dir() {
+    export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 }
 
-# Function to restart the Solid Queue jobs worker
-restart_jobs_worker() {
-    print_status "Restarting Solid Queue jobs worker..."
+systemd_user_reachable() {
+    ensure_xdg_runtime_dir
+    [[ -S "${XDG_RUNTIME_DIR}/bus" ]]
+}
 
-    if ! command -v systemctl >/dev/null 2>&1; then
-        print_warning "systemctl not available; please restart the jobs worker manually."
+# Install / refresh the systemd user unit symlinks from deploy/systemd/.
+# Designed to be resilient: every failure mode warns and continues so a
+# partial systemd setup never aborts the rest of the deploy.
+install_systemd_units() {
+    print_status "Installing/refreshing systemd user unit symlinks..."
+
+    local source_dir
+    source_dir="$(pwd)/deploy/systemd"
+    local target_dir="${HOME}/.config/systemd/user"
+
+    if [[ ! -d "$source_dir" ]]; then
+        print_warning "Source directory $source_dir not found; skipping unit install."
         return 0
     fi
 
-    # systemctl --user needs XDG_RUNTIME_DIR pointing at the user's systemd
-    # runtime directory. Non-login shells (deploys, cron, scripted ssh) don't
-    # inherit it from PAM. With `loginctl enable-linger` configured (see
-    # docs/production-update.md), /run/user/<uid> persists for the user.
-    export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+    if ! mkdir -p "$target_dir" 2>/dev/null; then
+        print_warning "Could not create $target_dir; skipping unit install."
+        return 0
+    fi
 
-    if [[ ! -S "${XDG_RUNTIME_DIR}/bus" ]]; then
+    local unit_path unit_name target installed=0 skipped=0
+    shopt -s nullglob
+    for unit_path in "$source_dir"/*.service; do
+        unit_name="$(basename "$unit_path")"
+        target="$target_dir/$unit_name"
+
+        if [[ -e "$target" && ! -L "$target" ]]; then
+            print_warning "$target exists and is not a symlink; leaving it alone (operator may have customized)."
+            skipped=$((skipped + 1))
+            continue
+        fi
+
+        if [[ -d "$target" ]]; then
+            # -d on a symlink would follow it (caught above); reaching here means a real directory.
+            print_warning "$target is a directory; refusing to replace, skipping $unit_name."
+            skipped=$((skipped + 1))
+            continue
+        fi
+
+        if ! ln -sfn "$unit_path" "$target" 2>/dev/null; then
+            print_warning "Failed to symlink $unit_name → $target; continuing."
+            skipped=$((skipped + 1))
+            continue
+        fi
+
+        installed=$((installed + 1))
+    done
+    shopt -u nullglob
+
+    if (( installed > 0 )); then
+        print_success "Installed/refreshed $installed unit symlink(s) in $target_dir."
+    fi
+    if (( skipped > 0 )); then
+        print_warning "Skipped $skipped unit(s); review warnings above."
+    fi
+
+    if systemd_user_reachable; then
+        if systemctl --user daemon-reload 2>/dev/null; then
+            print_status "Ran systemctl --user daemon-reload."
+        else
+            print_warning "systemctl --user daemon-reload failed; please run it manually."
+        fi
+    else
+        print_warning "User systemd bus not reachable; skipping daemon-reload (run 'systemctl --user daemon-reload' manually once linger is enabled)."
+    fi
+}
+
+# Run `systemctl --user <action> <unit>`, tolerating an unreachable bus or a
+# unit that isn't installed/enabled yet (warns and returns 0 so the deploy
+# doesn't abort on the first cutover). `action` is typically reload or restart.
+systemctl_user_action() {
+    local unit="$1" action="$2" friendly="$3"
+
+    local gerund past
+    case "$action" in
+        reload)  gerund="Reloading"  past="reloaded"  ;;
+        restart) gerund="Restarting" past="restarted" ;;
+        *)       gerund="Running ${action} on" past="${action}ed" ;;
+    esac
+
+    print_status "${gerund} ${friendly}..."
+
+    if ! command -v systemctl >/dev/null 2>&1; then
+        print_warning "systemctl not available; please ${action} ${friendly} manually."
+        return 0
+    fi
+
+    if ! systemd_user_reachable; then
         print_warning "Cannot reach user systemd: ${XDG_RUNTIME_DIR}/bus is missing."
         print_warning "Ensure 'loginctl enable-linger $(whoami)' has been run (see docs/production-update.md)."
         return 0
     fi
 
     local cat_output
-    if cat_output=$(systemctl --user cat abt-jobs.service 2>&1); then
-        if systemctl --user restart abt-jobs.service; then
-            print_success "Solid Queue jobs worker restarted."
+    if cat_output=$(systemctl --user cat "$unit" 2>&1); then
+        if systemctl --user "$action" "$unit"; then
+            print_success "${friendly} ${past}."
         else
-            print_warning "systemctl --user restart abt-jobs.service failed; please restart manually."
+            print_warning "systemctl --user ${action} ${unit} failed; please ${action} manually."
         fi
     elif echo "$cat_output" | grep -qi "no .*unit\|not loaded\|not.found\|could not be found"; then
-        print_warning "abt-jobs.service is not installed; see docs/production-update.md for setup."
+        print_warning "${unit} is not installed or not enabled yet; see docs/production-update.md for setup."
     else
-        print_warning "systemctl --user cat abt-jobs.service failed:"
+        print_warning "systemctl --user cat ${unit} failed:"
         echo "$cat_output" | sed 's/^/    /'
     fi
+}
+
+# Hot-restart Puma via systemctl reload (ExecReload sends SIGUSR2).
+restart_puma() {
+    systemctl_user_action abt-puma.service reload "Puma application server"
+}
+
+restart_jobs_worker() {
+    systemctl_user_action abt-jobs.service restart "Solid Queue jobs worker"
 }
 
 # Main deployment function
@@ -205,9 +286,10 @@ main() {
     check_user
     update_git
     update_gems
+    install_systemd_units
     precompile_assets
     migrate_database
-    restart_apache
+    restart_puma
     restart_jobs_worker
 
     echo
@@ -216,9 +298,10 @@ main() {
     print_status "Summary of actions performed:"
     echo "  ✓ Updated code from Git repository"
     echo "  ✓ Installed/updated Ruby gems"
+    echo "  ✓ Installed/refreshed systemd unit symlinks"
     echo "  ✓ Precompiled assets for production"
     echo "  ✓ Ran database migrations"
-    echo "  ✓ Triggered application restart"
+    echo "  ✓ Hot-restarted Puma (SIGUSR2)"
     echo "  ✓ Restarted Solid Queue jobs worker"
     echo
     print_status "The application should now be running the latest version."

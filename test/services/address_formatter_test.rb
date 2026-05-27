@@ -23,4 +23,15 @@ class AddressFormatterTest < ActiveSupport::TestCase
     )
     assert_equal "Foo GmbH\nHauptstraße 1\n1010 Wien\nÖsterreich", result
   end
+
+  test "build omits the country line when self country is unknown" do
+    result = AddressFormatter.build(
+      name: "Foo",
+      address: "Bar",
+      self_country: AddressFormatter::UNKNOWN_COUNTRY,
+      other_country: "DE",
+      locale: :en
+    )
+    assert_equal "Foo\nBar", result
+  end
 end

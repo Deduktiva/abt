@@ -45,11 +45,4 @@ class InvoiceRendererTest < ActiveSupport::TestCase
     assert_match %r{<issuer>.*<address>[^<]*Österreich}m, xml
     assert_match %r{<recipient>.*<address>[^<]*Deutschland}m, xml
   end
-
-  test "omits country line when one side is the unknown sentinel" do
-    @invoice.update_columns(customer_country_iso2: AddressFormatter::UNKNOWN_COUNTRY)
-    xml = InvoiceRenderer.new(@invoice, @issuer).emit_xml(nil)
-    assert_no_match %r{<recipient>.*Unknown}m, xml
-    assert_no_match %r{<recipient>.*Unbekannt}m, xml
-  end
 end

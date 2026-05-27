@@ -101,6 +101,10 @@
             = f.fields_for :invoice_lines, new_line, child_index: 'NEW_RECORD' do |line_form|
               = render 'invoice_line_fields', f: line_form, line: new_line
 
+          = action_buttons_wrapper do
+            %button.btn.btn-info{type: 'button', data: {action: 'click->invoice-lines#addLine'}}
+              + Add Line
+
           .card.mb-3
             .card-body
               .row
@@ -109,8 +113,3 @@
                 .col-sm-2.text-end
                   %span{data: {invoice_lines_target: 'total'}}
                     = format_currency(0)
-
-          %br
-          = action_buttons_wrapper do
-            %button.btn.btn-info{type: 'button', data: {action: 'click->invoice-lines#addLine'}}
-              + Add Line

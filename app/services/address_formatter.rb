@@ -17,6 +17,6 @@ class AddressFormatter
 
   def self.country_name(code, locale:)
     country = ISO3166::Country.new(code)
-    country && (country.translation(locale.to_s) || country.iso_short_name)
+    country && (country.translation(locale) || country.iso_short_name)
   end
 end

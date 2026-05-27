@@ -33,7 +33,8 @@ class InvoiceRendererTest < ActiveSupport::TestCase
   test "omits country line on both sender and recipient when they share a country" do
     @invoice.update_columns(customer_country_iso2: @issuer.country_iso2)
     xml = InvoiceRenderer.new(@invoice, @issuer).emit_xml(nil)
-    assert_no_match %r{<address>[^<]*Niederlande|<address>[^<]*Netherlands}, xml
+    assert_no_match %r{<address>[^<]*Netherlands}, xml
+    assert_no_match %r{<address>[^<]*Niederlande}, xml
   end
 
   test "renders country lines in the customer's language" do
@@ -48,6 +49,7 @@ class InvoiceRendererTest < ActiveSupport::TestCase
   test "omits country line when one side is the unknown sentinel" do
     @invoice.update_columns(customer_country_iso2: AddressFormatter::UNKNOWN_COUNTRY)
     xml = InvoiceRenderer.new(@invoice, @issuer).emit_xml(nil)
-    assert_no_match %r{<recipient>.*Unknown|<recipient>.*Unbekannt}m, xml
+    assert_no_match %r{<recipient>.*Unknown}m, xml
+    assert_no_match %r{<recipient>.*Unbekannt}m, xml
   end
 end

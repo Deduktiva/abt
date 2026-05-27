@@ -115,6 +115,29 @@ class Invoice < ApplicationRecord
     problems
   end
 
+  # Soft warnings shown next to publish_problems. Do NOT block the Publish
+  # button — the user retains discretion.
+  def publish_warnings
+    warnings = []
+    customer = self.customer
+    return warnings unless customer&.vat_id.present?
+    return warnings unless customer.sales_tax_customer_class&.vat_id_required?
+
+    latest = customer.vat_verifications.latest_first.first
+    recheck_days = IssuerCompany.get_the_issuer!.vat_id_recheck_days
+
+    if latest&.invalid_per_vies?
+      warnings << "Customer's VAT ID was rejected by VIES on #{I18n.l(latest.created_at.to_date)}."
+    elsif customer.vat_id_verified_at.nil?
+      warnings << "Customer's VAT ID has never been verified against VIES."
+    elsif customer.vat_id_verified_at < recheck_days.days.ago
+      warnings << "Customer's VAT ID was last verified " \
+                  "#{ActionController::Base.helpers.distance_of_time_in_words(customer.vat_id_verified_at, Time.current)} " \
+                  "ago (threshold: #{recheck_days} days)."
+    end
+    warnings
+  end
+
   # Human-facing identifier without a type prefix — the document number once
   # published, or a "Draft #id" stand-in while still a draft. Used wherever
   # the surrounding context (column header, breadcrumb chain) already says

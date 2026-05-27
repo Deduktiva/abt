@@ -298,4 +298,62 @@ class InvoiceTest < ActiveSupport::TestCase
   test "display_name prepends the model name" do
     assert_equal "Invoice INV-2024-001", invoices(:published_invoice).display_name
   end
+
+  test "publish_warnings is empty when customer has no vat_id" do
+    invoice = invoices(:draft_invoice)
+    invoice.customer.update_columns(vat_id: nil)
+    assert_empty invoice.publish_warnings
+  end
+
+  test "publish_warnings is empty when customer class does not require a vat_id" do
+    invoice = invoices(:draft_invoice)
+    invoice.customer.update_columns(sales_tax_customer_class_id: sales_tax_customer_classes(:restoftheworld).id)
+    assert_empty invoice.publish_warnings
+  end
+
+  test "publish_warnings reports never verified when vat_id_verified_at is nil and no verifications exist" do
+    invoice = invoices(:draft_invoice)
+    customer = invoice.customer
+    customer.vat_verifications.destroy_all
+    customer.update_columns(vat_id_verified_at: nil)
+    warnings = invoice.publish_warnings
+    assert(warnings.any? { |w| w.include?("never been verified") })
+  end
+
+  test "publish_warnings reports rejected by VIES when latest verification is invalid even with no vat_id_verified_at" do
+    invoice = invoices(:draft_invoice)
+    customer = invoice.customer
+    customer.update_columns(vat_id_verified_at: nil)
+    rejection_date = Date.new(2026, 5, 21)
+    CustomerVatVerification.create!(
+      customer: customer,
+      vat_id: customer.vat_id,
+      country_iso2: customer.country_iso2,
+      valid_response: false,
+      request_date: rejection_date,
+      raw_response: "{}",
+      created_at: rejection_date.beginning_of_day + 11.hours
+    )
+    warnings = invoice.publish_warnings
+    assert(warnings.any? { |w| w.include?("rejected by VIES") && w.include?(I18n.l(rejection_date)) })
+    assert_not(warnings.any? { |w| w.include?("never been verified") })
+  end
+
+  test "publish_warnings reports last verified N days ago when vat_id_verified_at is older than recheck_days" do
+    invoice = invoices(:draft_invoice)
+    customer = invoice.customer
+    customer.vat_verifications.destroy_all
+    recheck_days = IssuerCompany.get_the_issuer!.vat_id_recheck_days
+    customer.update_columns(vat_id_verified_at: (recheck_days + 5).days.ago)
+    warnings = invoice.publish_warnings
+    assert(warnings.any? { |w| w.include?("last verified") && w.include?("threshold: #{recheck_days} days") })
+  end
+
+  test "publish_warnings is empty when vat_id_verified_at is fresh" do
+    invoice = invoices(:draft_invoice)
+    customer = invoice.customer
+    customer.vat_verifications.destroy_all
+    customer.update_columns(vat_id_verified_at: 1.day.ago)
+    assert_empty invoice.publish_warnings
+  end
 end

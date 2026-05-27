@@ -5,6 +5,7 @@ class IssuerCompany < ApplicationRecord
   validates :document_accent_color,
             format: { with: /\A#[0-9a-fA-F]{3,8}\z/, message: "must be a hex color like #rrggbb" },
             allow_blank: true
+  validates :vat_id_recheck_days, numericality: { only_integer: true, greater_than: 0 }
 
   # This app requires that there is exactly *one* issuer_company in the database.
   def self.get_the_issuer!

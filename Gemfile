@@ -68,3 +68,6 @@ gem "rack-attack", "~> 6.7"
 
 # ISO 3166 country list and EU/EEA membership data for the country dropdown.
 gem "countries", "~> 7.0"
+
+# EU VIES VAT ID lookup (SOAP), syntax + checksum validation per country.
+gem "valvat", "~> 2.0"

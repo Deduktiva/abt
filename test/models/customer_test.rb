@@ -192,4 +192,32 @@ class CustomerTest < ActiveSupport::TestCase
     customers(:good_eu).customer_contacts.update_all(receives_invoice_emails: false)
     assert_empty customers(:good_eu).reload.contacts_for_invoice(invoices(:published_invoice))
   end
+
+  test "vat_verification_required scope returns only active customers with vat_id and vat_id_required tax class" do
+    assert_includes Customer.vat_verification_required, customers(:good_eu)
+
+    inactive = create_customer(matchcode: "INACTIVE", active: false)
+    assert_not_includes Customer.vat_verification_required, inactive
+
+    not_required_class = create_customer(matchcode: "NOTREQ", vat_id: "EXP000", sales_tax_customer_class: sales_tax_customer_classes(:restoftheworld))
+    assert_not_includes Customer.vat_verification_required, not_required_class
+
+    blank_vat = create_customer(matchcode: "BLANKVAT", vat_id: nil, sales_tax_customer_class: sales_tax_customer_classes(:restoftheworld))
+    assert_not_includes Customer.vat_verification_required, blank_vat
+  end
+
+  test "changing vat_id clears vat_id_verified_at" do
+    customer = create_customer(vat_id: "BE0123456749")
+    customer.update!(vat_id_verified_at: Time.current)
+    customer.update!(vat_id: "BE0987654321")
+    assert_nil customer.reload.vat_id_verified_at
+  end
+
+  test "updating unrelated field preserves vat_id_verified_at" do
+    customer = create_customer(vat_id: "BE0123456749")
+    timestamp = 2.days.ago
+    customer.update!(vat_id_verified_at: timestamp)
+    customer.update!(name: "Renamed Co.")
+    assert_in_delta timestamp, customer.reload.vat_id_verified_at, 1.second
+  end
 end

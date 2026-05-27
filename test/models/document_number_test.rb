@@ -35,6 +35,11 @@ class DocumentNumberTest < ActiveSupport::TestCase
     end
   end
 
+  test "get_next accepts a date equal to last_date" do
+    dn = document_numbers(:used1) # last_date=2014-01-10
+    assert_nothing_raised { dn.get_next(Date.new(2014, 1, 10)) }
+  end
+
   test "get_next_for raises NoDocumentNumberRangeError for unknown code" do
     assert_raises(NoDocumentNumberRangeError) do
       DocumentNumber.get_next_for("does-not-exist", Date.current)

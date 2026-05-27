@@ -224,13 +224,23 @@ install_systemd_units() {
     fi
 }
 
-# Hot-restart Puma via systemctl reload (ExecReload sends SIGUSR2). Tolerant
-# of the unit not being installed yet so the first cutover doesn't abort.
-restart_puma() {
-    print_status "Reloading Puma application server..."
+# Run `systemctl --user <action> <unit>`, tolerating an unreachable bus or a
+# unit that isn't installed/enabled yet (warns and returns 0 so the deploy
+# doesn't abort on the first cutover). `action` is typically reload or restart.
+systemctl_user_action() {
+    local unit="$1" action="$2" friendly="$3"
+
+    local gerund past
+    case "$action" in
+        reload)  gerund="Reloading"  past="reloaded"  ;;
+        restart) gerund="Restarting" past="restarted" ;;
+        *)       gerund="Running ${action} on" past="${action}ed" ;;
+    esac
+
+    print_status "${gerund} ${friendly}..."
 
     if ! command -v systemctl >/dev/null 2>&1; then
-        print_warning "systemctl not available; please restart Puma manually."
+        print_warning "systemctl not available; please ${action} ${friendly} manually."
         return 0
     fi
 
@@ -241,48 +251,27 @@ restart_puma() {
     fi
 
     local cat_output
-    if cat_output=$(systemctl --user cat abt-puma.service 2>&1); then
-        if systemctl --user reload abt-puma.service; then
-            print_success "Puma hot-restarted (SIGUSR2)."
+    if cat_output=$(systemctl --user cat "$unit" 2>&1); then
+        if systemctl --user "$action" "$unit"; then
+            print_success "${friendly} ${past}."
         else
-            print_warning "systemctl --user reload abt-puma.service failed; please restart manually (a full 'restart' may be required after puma.rb or Puma gem changes)."
+            print_warning "systemctl --user ${action} ${unit} failed; please ${action} manually."
         fi
     elif echo "$cat_output" | grep -qi "no .*unit\|not loaded\|not.found\|could not be found"; then
-        print_warning "abt-puma.service is not installed or not enabled yet; see docs/production-update.md for setup."
+        print_warning "${unit} is not installed or not enabled yet; see docs/production-update.md for setup."
     else
-        print_warning "systemctl --user cat abt-puma.service failed:"
+        print_warning "systemctl --user cat ${unit} failed:"
         echo "$cat_output" | sed 's/^/    /'
     fi
 }
 
-# Function to restart the Solid Queue jobs worker
+# Hot-restart Puma via systemctl reload (ExecReload sends SIGUSR2).
+restart_puma() {
+    systemctl_user_action abt-puma.service reload "Puma application server"
+}
+
 restart_jobs_worker() {
-    print_status "Restarting Solid Queue jobs worker..."
-
-    if ! command -v systemctl >/dev/null 2>&1; then
-        print_warning "systemctl not available; please restart the jobs worker manually."
-        return 0
-    fi
-
-    if ! systemd_user_reachable; then
-        print_warning "Cannot reach user systemd: ${XDG_RUNTIME_DIR}/bus is missing."
-        print_warning "Ensure 'loginctl enable-linger $(whoami)' has been run (see docs/production-update.md)."
-        return 0
-    fi
-
-    local cat_output
-    if cat_output=$(systemctl --user cat abt-jobs.service 2>&1); then
-        if systemctl --user restart abt-jobs.service; then
-            print_success "Solid Queue jobs worker restarted."
-        else
-            print_warning "systemctl --user restart abt-jobs.service failed; please restart manually."
-        fi
-    elif echo "$cat_output" | grep -qi "no .*unit\|not loaded\|not.found\|could not be found"; then
-        print_warning "abt-jobs.service is not installed; see docs/production-update.md for setup."
-    else
-        print_warning "systemctl --user cat abt-jobs.service failed:"
-        echo "$cat_output" | sed 's/^/    /'
-    fi
+    systemctl_user_action abt-jobs.service restart "Solid Queue jobs worker"
 }
 
 # Main deployment function

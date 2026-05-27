@@ -161,7 +161,6 @@ class InvoicesController < ApplicationController
       return
     end
     InvoiceMailer.with(invoice: @invoice).customer_email.deliver_later
-    @invoice.update_column(:email_sent_at, Time.current)
     respond_to do |format|
       format.html { redirect_to @invoice, notice: "E-Mail queued for sending." }
       format.json { head :ok }
@@ -194,12 +193,10 @@ class InvoicesController < ApplicationController
     invoices = Invoice.visible_to(current_user).where(id: invoice_ids, published: true)
     queued_count = 0
     skipped_count = 0
-    now = Time.current
 
     invoices.each do |invoice|
       if invoice.emailable?
         InvoiceMailer.with(invoice: invoice).customer_email.deliver_later
-        invoice.update_column(:email_sent_at, now)
         queued_count += 1
       else
         skipped_count += 1

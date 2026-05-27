@@ -117,7 +117,27 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :success
-    assert_not_nil invoice.reload.email_sent_at
+  end
+
+  class RaisingInterceptor
+    def self.delivering_email(_mail)
+      raise StandardError, "simulated delivery failure"
+    end
+  end
+
+  test "send_email does not stamp email_sent_at when delivery fails" do
+    invoice = invoices(:published_invoice)
+    invoice.update_column(:email_sent_at, nil)
+
+    ActionMailer::Base.register_interceptor(RaisingInterceptor)
+    begin
+      post send_email_invoice_path(invoice)
+      assert_raises(StandardError) { perform_enqueued_jobs }
+    ensure
+      ActionMailer::Base.unregister_interceptor(RaisingInterceptor)
+    end
+
+    assert_nil invoice.reload.email_sent_at
   end
 
   test "send_email returns an error status for JSON when no recipient is configured" do

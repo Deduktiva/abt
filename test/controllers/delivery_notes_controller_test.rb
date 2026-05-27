@@ -24,6 +24,14 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "published delivery note show offers PDF action, not the unusable Preview" do
+    note = delivery_notes(:published_delivery_note)
+    get delivery_note_url(note)
+    assert_response :success
+    assert_select "a[href=?]", pdf_delivery_note_path(note)
+    assert_select "a[href=?]", preview_delivery_note_path(note), count: 0
+  end
+
   test "should get new" do
     get new_delivery_note_url
     assert_response :success
@@ -76,10 +84,8 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
 
   test "should not destroy numbered but unpublished delivery note" do
     note = delivery_notes(:published_delivery_note)
-    # Simulate the "withdrawn but still numbered" state without going through
-    # unpublish (which currently clears document_number).
-    note.update_column(:published, false)
-    assert note.document_number.present?, "fixture should retain its number"
+    post unpublish_delivery_note_url(note)
+    assert note.reload.document_number.present?, "unpublish must preserve the document number"
 
     assert_no_difference("DeliveryNote.count") do
       delete delivery_note_url(note)
@@ -137,15 +143,29 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
 
   test "should unpublish delivery note" do
     published_note = delivery_notes(:published_delivery_note)
+    original_number = published_note.document_number
+    original_date = published_note.date
 
     post unpublish_delivery_note_url(published_note)
     assert_redirected_to delivery_note_url(published_note)
 
     published_note.reload
     assert_not published_note.published?
-    assert_nil published_note.document_number
-    assert_nil published_note.date
+    assert_equal original_number, published_note.document_number,
+                 "document number must survive unpublish to keep the sequence gap-free"
+    assert_equal original_date, published_note.date
     assert_match "reverted to draft status", flash[:notice]
+
+    # Re-publishing keeps the preserved number but refreshes the date — the
+    # publish event genuinely happened now.
+    travel_to original_date + 2.days do
+      post publish_delivery_note_url(published_note)
+    end
+
+    published_note.reload
+    assert published_note.published?
+    assert_equal original_number, published_note.document_number
+    assert_equal original_date + 2.days, published_note.date
   end
 
   test "should not unpublish draft delivery note" do

@@ -29,6 +29,7 @@ class CustomerContactsController < ApplicationController
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
+            turbo_stream.remove("customer_contacts_empty_message"),
             turbo_stream.append("customer_contacts_tbody", partial: "customer_contacts/row", locals: { contact: @contact }),
             turbo_stream.replace("new_customer_contact", partial: "customer_contacts/add_link", locals: { customer: @customer })
           ]
@@ -58,10 +59,17 @@ class CustomerContactsController < ApplicationController
 
   # DELETE /customer_contacts/:id
   def destroy
+    customer = @contact.customer
     @contact.destroy
     respond_to do |format|
-      format.turbo_stream { render turbo_stream: turbo_stream.remove(helpers.dom_id(@contact)) }
-      format.html { redirect_to @contact.customer }
+      format.turbo_stream do
+        streams = [ turbo_stream.remove(helpers.dom_id(@contact)) ]
+        unless customer.customer_contacts.exists?
+          streams << turbo_stream.append("customer_contacts_tbody", partial: "customer_contacts/empty_message")
+        end
+        render turbo_stream: streams
+      end
+      format.html { redirect_to customer }
     end
   end
 

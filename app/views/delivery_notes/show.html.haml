@@ -145,6 +145,10 @@
           %th.text-end.col-quantity Quantity
           %th Description
       %tbody
+        - if @delivery_note.delivery_note_lines.empty? && !@delivery_note.published?
+          %tr
+            %td.text-center.py-4{colspan: 2}
+              = action_button 'Edit Lines', edit_delivery_note_path(@delivery_note), :info, permission: 'delivery_notes.edit'
         - @delivery_note.delivery_note_lines.each do |line|
           - case line.type
           - when 'item'

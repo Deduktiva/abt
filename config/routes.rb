@@ -24,7 +24,7 @@ Rails.application.routes.draw do
       end
     end
     resources :emails, only: [ :index, :create, :destroy ]
-    resources :email_confirmations, only: [ :show ], param: :token
+    get "email_confirmations", to: "email_confirmations#show", as: :email_confirmation
     resource :block, only: [ :create ]
     resources :audit_events, only: [ :index ]
   end

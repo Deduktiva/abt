@@ -42,6 +42,6 @@ class AbsoluteUrlTest < ActiveSupport::TestCase
 
     url = AbsoluteUrl.account_email_confirmation("tok-xyz")
 
-    assert_equal "https://example.test/abt/account/email_confirmations/tok-xyz", url
+    assert_equal "https://example.test/abt/account/email_confirmations?token=tok-xyz", url
   end
 end

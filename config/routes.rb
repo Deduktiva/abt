@@ -56,6 +56,9 @@ Rails.application.routes.draw do
 
   resources :attachments, only: [ :show ]
   resources :customers do
+    member do
+      post :verify_vat_id
+    end
     resources :customer_contacts, only: [ :new, :create ]
   end
   resources :customer_contacts, only: [ :show, :edit, :update, :destroy ]

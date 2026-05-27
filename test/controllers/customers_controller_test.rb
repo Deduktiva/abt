@@ -189,4 +189,58 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     assert_select "strong", text: "Supplier No.:"
     assert_select ".col-sm-8", text: /SUP-99/
   end
+
+  test "verify_vat_id with valid response sets vat_id_verified_at and flashes notice" do
+    ViesVerifier.lookup_strategy = ->(vat_id, requester:) {
+      {
+        valid_response: true,
+        request_identifier: "WAPIxxx",
+        request_date: Time.current,
+        trader_name: "A Good Company B.V.",
+        trader_address: "Lulzstreet 3/2/1\nLH234234 Shiphol",
+        country_iso2: "BE",
+        raw: { valid: true }
+      }
+    }
+
+    post verify_vat_id_customer_url(@customer)
+    assert_redirected_to customer_url(@customer)
+    assert_match(/verified against VIES/, flash[:notice])
+    assert_not_nil @customer.reload.vat_id_verified_at
+  end
+
+  test "verify_vat_id with invalid response leaves vat_id_verified_at nil and flashes alert" do
+    @customer.update_columns(vat_id_verified_at: nil)
+    ViesVerifier.lookup_strategy = ->(vat_id, requester:) {
+      { valid_response: false, error_code: "INVALID" }
+    }
+
+    post verify_vat_id_customer_url(@customer)
+    assert_redirected_to customer_url(@customer)
+    assert_match(/not confirmed by VIES/, flash[:alert])
+    assert_match(/INVALID/, flash[:alert])
+    assert_nil @customer.reload.vat_id_verified_at
+  end
+
+  test "verify_vat_id on customer without vat_id redirects with alert without calling ViesVerifier" do
+    @customer.update_columns(vat_id: nil)
+    # Default test_helper stub raises if called; this test relies on that.
+
+    assert_no_difference("CustomerVatVerification.count") do
+      post verify_vat_id_customer_url(@customer)
+    end
+    assert_redirected_to customer_url(@customer)
+    assert_match(/no VAT ID to verify/, flash[:alert])
+  end
+
+  test "verify_vat_id on transient failure flashes try-again alert" do
+    ViesVerifier.lookup_strategy = ->(*) {
+      raise Valvat::ServiceUnavailable.new("SERVICE_UNAVAILABLE", Valvat::Lookup::VIES)
+    }
+
+    post verify_vat_id_customer_url(@customer)
+    assert_redirected_to customer_url(@customer)
+    assert_match(/temporarily unavailable/, flash[:alert])
+    assert_match(/ServiceUnavailable/, flash[:alert])
+  end
 end

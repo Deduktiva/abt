@@ -1,6 +1,6 @@
 class CustomersController < ApplicationController
   before_action -> { require_permission!("customers.view") }, only: [ :index, :show ]
-  before_action -> { require_permission!("customers.edit") }, only: [ :new, :create, :edit, :update, :destroy ]
+  before_action -> { require_permission!("customers.edit") }, only: [ :new, :create, :edit, :update, :destroy, :verify_vat_id ]
 
   # GET /customers
   def index
@@ -76,6 +76,23 @@ class CustomersController < ApplicationController
     else
       render :edit, status: :unprocessable_content
     end
+  end
+
+  # POST /customers/1/verify_vat_id
+  def verify_vat_id
+    @customer = Customer.visible_to(current_user).find(params[:id])
+    if @customer.vat_id.blank?
+      redirect_to @customer, alert: "Customer has no VAT ID to verify." and return
+    end
+
+    verification = ViesVerifier.new(@customer, actor: current_user).run!
+    if verification.valid_per_vies?
+      redirect_to @customer, notice: "VAT ID verified against VIES."
+    else
+      redirect_to @customer, alert: "VAT ID was not confirmed by VIES (#{verification.error_code || 'invalid'})."
+    end
+  rescue *ViesVerifier::TRANSIENT_ERRORS => e
+    redirect_to @customer, alert: "VIES is temporarily unavailable (#{e.class.name.demodulize}). Try again later."
   end
 
   # DELETE /customers/1

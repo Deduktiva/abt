@@ -4,4 +4,4 @@
   = @issuer.legal_name
   - @issuer.address.split("\n").each do |line|
     = line
-  = AddressFormatter.country_name(@issuer.country_iso2)
+  = AddressFormatter.country_name(@issuer.country_iso2, locale: I18n.locale)

@@ -5,9 +5,9 @@ class AddressFormatter
   # treat ZZ-rows the same as any other invalid country.
   UNKNOWN_COUNTRY = "ZZ"
 
-  def self.build(name:, address:, self_country:, other_country:)
+  def self.build(name:, address:, self_country:, other_country:, locale:)
     lines = [ name, address ]
-    lines << country_name(self_country) if self_country != other_country
+    lines << country_name(self_country, locale: locale) if self_country != other_country
     lines.compact.join("\n")
   end
 
@@ -15,7 +15,8 @@ class AddressFormatter
     ISO3166::Country.codes.include?(code)
   end
 
-  def self.country_name(code)
-    ISO3166::Country.new(code)&.iso_short_name
+  def self.country_name(code, locale:)
+    country = ISO3166::Country.new(code)
+    country && (country.translation(locale) || country.iso_short_name)
   end
 end

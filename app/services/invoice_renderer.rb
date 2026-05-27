@@ -23,13 +23,15 @@ class InvoiceRenderer
       end
       issuer_country = @issuer.country_iso2
       recipient_country = @invoice.customer_country_iso2
+      locale = @invoice.customer.language.iso_code
 
       xml_root.issuer do |xml_issuer|
         xml_issuer.address AddressFormatter.build(
           name: @issuer.legal_name,
           address: @issuer.address,
           self_country: issuer_country,
-          other_country: recipient_country
+          other_country: recipient_country,
+          locale: locale
         )
         xml_issuer.tag! "short-name", @issuer.short_name
         xml_issuer.tag! "legal-name", @issuer.legal_name
@@ -51,7 +53,8 @@ class InvoiceRenderer
           name: @invoice.customer_name,
           address: @invoice.customer_address,
           self_country: recipient_country,
-          other_country: issuer_country
+          other_country: issuer_country,
+          locale: locale
         )
         xml_recipient.tag! "account-no", @invoice.customer_account_number
         xml_recipient.tag! "vat-id", @invoice.customer_vat_id

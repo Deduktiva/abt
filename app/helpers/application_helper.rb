@@ -177,7 +177,7 @@ module ApplicationHelper
   end
 
   def country_name(code)
-    AddressFormatter.country_name(code)
+    AddressFormatter.country_name(code, locale: I18n.locale)
   end
 
   def country_unknown?(code)

@@ -29,6 +29,7 @@ class ApplicationMailer < ActionMailer::Base
     )
   end
 
+  # The mailer layout's footer reads I18n.locale — wrap customer-facing mail() in this.
   def with_customer_locale(customer, &block)
     I18n.with_locale(customer.language.iso_code, &block)
   end

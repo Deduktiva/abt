@@ -10,6 +10,13 @@
     <!-- Common definitions -->
     <xsl:variable name="font-name-normal">Inter</xsl:variable>
     <xsl:variable name="font-name-display">InterDisplay</xsl:variable>
+    <!-- Padding applied to the first-page logo block so the image's top edge
+         lands on the sender-address cap top. Derived from FOP measurements:
+         an inline external-graphic taller than its 12pt line overflows ~1.9pt
+         above the container, and the sender's 11pt Inter cap sits ~2.9pt
+         below its own container top inside the inherited 12pt line. If those
+         constants change, recompute. -->
+    <xsl:variable name="logo-sender-alignment-padding">4.8pt</xsl:variable>
 
     <!-- Common utility functions -->
     <xsl:function name="abt:strip-space">
@@ -144,32 +151,45 @@
         </fo:block-container>
     </xsl:template>
 
-    <!-- implementation detail: logo only -->
+    <!-- implementation detail: logo only.
+         $padding-before lets the first-page header drop the image down to
+         align with the sender-address cap top (FOP baseline-aligns inline
+         images, so without padding the image overflows ~1.9pt above the
+         container and lands above the sender top). Continuation pages have
+         no sender to align against and pass the default 0pt. -->
     <xsl:template name="impl-company-logo">
-        <!-- line-height="1" keeps the logo flush with the block top; without it,
-             the enclosing block-container's line-height adds half-leading above
-             the logo line and shifts the logo down relative to the sender address. -->
-        <fo:block text-align="start" font-size="12pt" line-height="1" xsl:use-attribute-sets="accent-color">
-            <xsl:choose>
-                <xsl:when test="/document/logo-path">
+        <xsl:param name="padding-before" select="'0pt'" />
+        <xsl:choose>
+            <xsl:when test="/document/logo-path">
+                <fo:block text-align="start" font-size="12pt" line-height="1" padding-before="{$padding-before}">
                     <fo:external-graphic src="{/document/logo-path}"
                         content-width="{/document/logo-width}"
                         content-height="{/document/logo-height}"
                         scaling="uniform" />
-                </xsl:when>
-                <xsl:otherwise>
+                </fo:block>
+            </xsl:when>
+            <xsl:otherwise>
+                <!-- Text fallback intentionally does not apply $padding-before:
+                     the 12pt legal-name has its own cap-leading that already
+                     lines up with the 11pt sender (off by 0.5pt, imperceptible). -->
+                <fo:block text-align="start" font-size="12pt" line-height="1" xsl:use-attribute-sets="accent-color">
                     <xsl:value-of select="/document/issuer/legal-name" />
-                </xsl:otherwise>
-            </xsl:choose>
-        </fo:block>
+                </fo:block>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
     <!-- Component: company logo/name block with contact lines (typically on first page) -->
     <xsl:template name="company-header-block">
-        <fo:block-container height="1cm" width="8cm" top="0cm" left="0cm" position="absolute" line-height="120%">
-            <xsl:call-template name="impl-company-logo"/>
+        <fo:block-container height="1cm" width="8cm" top="0cm" left="0cm" position="absolute">
+            <xsl:call-template name="impl-company-logo">
+                <xsl:with-param name="padding-before" select="$logo-sender-alignment-padding" />
+            </xsl:call-template>
 
-            <fo:block text-align="start" font-size="9pt" xsl:use-attribute-sets="accent-color">
+            <!-- 8pt contact lines inherit the page-sequence's 12pt line-height
+                 (4pt of leading between www / voice lines), which is enough
+                 breathing room for two short lines under the logo. -->
+            <fo:block text-align="start" font-size="8pt" xsl:use-attribute-sets="accent-color">
                 <fo:block white-space-collapse="false">
                     <xsl:value-of select="abt:strip-space(/document/issuer/contact-line1)" />
                 </fo:block>

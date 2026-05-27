@@ -230,4 +230,25 @@ class CustomerTest < ActiveSupport::TestCase
     assert_equal "ATU12345678", Customer.normalise_vat_id("at u 12.345-678")
     assert_equal "", Customer.normalise_vat_id(nil)
   end
+
+  test "current_vat_verification returns the latest verification when vat_id matches" do
+    customer = customers(:good_eu)
+    customer.update_columns(vat_id: "BE0123456749")
+    verification = CustomerVatVerification.create!(
+      customer: customer, vat_id: "BE0123456749",
+      valid_response: false, error_code: "INVALID"
+    )
+    assert_equal verification, customer.current_vat_verification
+  end
+
+  test "current_vat_verification returns nil when vat_id differs from latest verification" do
+    customer = customers(:good_eu)
+    customer.update_columns(vat_id: "BE0123456749")
+    CustomerVatVerification.create!(
+      customer: customer, vat_id: "BE0123456749",
+      valid_response: false, error_code: "INVALID"
+    )
+    customer.update!(vat_id: "BE0987654321")
+    assert_nil customer.current_vat_verification
+  end
 end

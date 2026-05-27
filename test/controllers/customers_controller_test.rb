@@ -196,6 +196,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to customer_url(@customer)
     assert_match(/verification queued/, flash[:notice])
+    assert flash[:vat_verification_pending], "pending flag drives the meta refresh on the show page"
   end
 
   test "verify_vat_id on customer without vat_id redirects with alert without enqueuing" do

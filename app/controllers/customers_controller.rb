@@ -86,7 +86,8 @@ class CustomersController < ApplicationController
     end
 
     VerifyCustomerVatIdJob.perform_later(@customer, actor: current_user)
-    redirect_to @customer, notice: "VAT ID verification queued. Refresh in a moment to see the result."
+    flash[:vat_verification_pending] = true
+    redirect_to @customer, notice: "VAT ID verification queued."
   end
 
   # DELETE /customers/1

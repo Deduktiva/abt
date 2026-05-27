@@ -123,11 +123,11 @@ class Invoice < ApplicationRecord
     return warnings unless customer&.vat_id.present?
     return warnings unless customer.sales_tax_customer_class&.vat_id_required?
 
-    latest = customer.latest_vat_verification
+    current = customer.current_vat_verification
     recheck_days = IssuerCompany.get_the_issuer!.vat_id_recheck_days
 
-    if latest&.invalid_per_vies?
-      warnings << "Customer's VAT ID was rejected by VIES on #{I18n.l(latest.created_at.to_date)}."
+    if current&.invalid_per_vies?
+      warnings << "Customer's VAT ID was rejected by VIES on #{I18n.l(current.created_at.to_date)}."
     elsif customer.vat_id_verified_at.nil?
       warnings << "Customer's VAT ID has never been verified against VIES."
     elsif customer.vat_id_verified_at < recheck_days.days.ago

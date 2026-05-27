@@ -61,6 +61,15 @@ class Customer < ApplicationRecord
     value.to_s.upcase.gsub(/[\s.\-]/, "")
   end
 
+  # The most recent verification, only if it was taken against the customer's
+  # current vat_id. Returns nil when the vat_id has changed since the last
+  # verification — the UI then treats the customer as "Not verified" rather
+  # than rendering a stale "Invalid per VIES" / "verified" state.
+  def current_vat_verification
+    verification = latest_vat_verification
+    verification if verification && verification.vat_id == self.class.normalise_vat_id(vat_id)
+  end
+
   def contacts_for_invoice(invoice)
     customer_contacts.for_invoices.select { |c| c.applies_to_project?(invoice.project) }
   end

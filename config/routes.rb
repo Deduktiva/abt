@@ -81,7 +81,6 @@ Rails.application.routes.draw do
       get "preview"
       get "preview_email"
       get "preview_email_raw"
-      get "publish"
       post "publish"
       post "send_email"
       get "pdf"

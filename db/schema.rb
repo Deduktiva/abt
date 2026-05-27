@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_27_005356) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_27_020302) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -40,6 +40,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_005356) do
     t.index ["customer_id"], name: "index_customer_contacts_on_customer_id"
   end
 
+  create_table "customer_vat_verifications", force: :cascade do |t|
+    t.string "country_iso2", limit: 2
+    t.datetime "created_at", null: false
+    t.integer "customer_id", null: false
+    t.text "error_code"
+    t.integer "performed_by_user_id"
+    t.text "raw_response"
+    t.datetime "request_date"
+    t.text "request_identifier"
+    t.text "trader_address"
+    t.text "trader_name"
+    t.datetime "updated_at", null: false
+    t.boolean "valid_response"
+    t.text "vat_id", null: false
+    t.index ["customer_id", "created_at"], name: "index_customer_vat_verifications_on_customer_id_and_created_at"
+    t.index ["customer_id"], name: "index_customer_vat_verifications_on_customer_id"
+    t.index ["performed_by_user_id"], name: "index_customer_vat_verifications_on_performed_by_user_id"
+  end
+
   create_table "customers", force: :cascade do |t|
     t.boolean "active", default: true, null: false
     t.text "address"
@@ -59,6 +78,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_005356) do
     t.integer "team_id", null: false
     t.datetime "updated_at", null: false
     t.text "vat_id"
+    t.datetime "vat_id_verified_at"
     t.index "LOWER(matchcode)", name: "index_customers_on_lower_matchcode", unique: true
     t.index ["language_id"], name: "index_customers_on_language_id"
     t.index ["name"], name: "index_customers_on_name"
@@ -229,6 +249,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_005356) do
     t.string "short_name"
     t.datetime "updated_at", null: false
     t.string "vat_id"
+    t.integer "vat_id_recheck_days", default: 90, null: false
     t.index ["active"], name: "index_issuer_companies_on_active", unique: true
   end
 
@@ -401,6 +422,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_005356) do
   add_foreign_key "customer_contact_projects", "customer_contacts"
   add_foreign_key "customer_contact_projects", "projects"
   add_foreign_key "customer_contacts", "customers"
+  add_foreign_key "customer_vat_verifications", "customers"
+  add_foreign_key "customer_vat_verifications", "users", column: "performed_by_user_id"
   add_foreign_key "customers", "languages"
   add_foreign_key "customers", "teams"
   add_foreign_key "delivery_note_lines", "delivery_notes"

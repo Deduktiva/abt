@@ -74,7 +74,8 @@ class IssuerCompaniesController < ApplicationController
       :currency,
       :document_email_from,
       :document_email_auto_bcc,
-      :pdf_logo_width, :pdf_logo_height
+      :pdf_logo_width, :pdf_logo_height,
+      :vat_id_recheck_days
     )
   end
 end

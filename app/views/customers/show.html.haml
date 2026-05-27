@@ -39,11 +39,29 @@
             - else
               = country_name(@customer.country_iso2)
 
-        .row.mb-2
-          .col-sm-4
-            %strong VAT ID:
-          .col-sm-8
-            = @customer.vat_id
+        - if @customer.vat_id.present?
+          - latest_verification = @customer.latest_vat_verification
+          .row.mb-2
+            .col-sm-4
+              %strong VAT ID:
+            .col-sm-8.d-flex.align-items-center.gap-2
+              = @customer.vat_id
+              - if @customer.vat_id_verified_at
+                %span.text-muted.small= "verified #{l(@customer.vat_id_verified_at.to_date)}"
+              - elsif latest_verification&.invalid_per_vies?
+                %span.badge.bg-danger Invalid per VIES
+              - else
+                %span.badge.bg-warning Not verified
+              = button_to "✅ Verify",
+                          verify_vat_id_customer_path(@customer),
+                          method: :post,
+                          form: { class: "button_to ms-auto" }
+        - else
+          .row.mb-2
+            .col-sm-4
+              %strong VAT ID:
+            .col-sm-8
+              = @customer.vat_id
 
         - if @customer.supplier_number.present?
           .row.mb-2

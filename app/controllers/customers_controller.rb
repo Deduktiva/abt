@@ -1,6 +1,6 @@
 class CustomersController < ApplicationController
   before_action -> { require_permission!("customers.view") }, only: [ :index, :show ]
-  before_action -> { require_permission!("customers.edit") }, only: [ :new, :create, :edit, :update, :destroy ]
+  before_action -> { require_permission!("customers.edit") }, only: [ :new, :create, :edit, :update, :destroy, :verify_vat_id ]
 
   # GET /customers
   def index
@@ -76,6 +76,17 @@ class CustomersController < ApplicationController
     else
       render :edit, status: :unprocessable_content
     end
+  end
+
+  # POST /customers/1/verify_vat_id
+  def verify_vat_id
+    @customer = Customer.visible_to(current_user).find(params[:id])
+    if @customer.vat_id.blank?
+      redirect_to @customer, alert: "Customer has no VAT ID to verify." and return
+    end
+
+    VerifyCustomerVatIdJob.perform_later(@customer, actor: current_user)
+    redirect_to @customer, notice: "VAT ID verification queued. Refresh in a moment to see the result."
   end
 
   # DELETE /customers/1

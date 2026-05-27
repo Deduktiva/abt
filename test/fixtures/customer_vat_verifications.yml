@@ -1,0 +1,23 @@
+good_eu_valid:
+  customer: good_eu
+  vat_id: BE0123456749
+  country_iso2: BE
+  valid_response: true
+  request_identifier: WAPIAAAAabcdef01
+  request_date: 2026-05-20 10:00:00
+  trader_name: A Good Company B.V.
+  trader_address: |
+    Lulzstreet 3/2/1
+    LH234234 Shiphol
+  raw_response: '{"valid":true}'
+  created_at: 2026-05-20 10:00:00
+
+good_national_invalid:
+  customer: good_national
+  vat_id: NAT0000000
+  country_iso2: NL
+  valid_response: false
+  error_code: INVALID
+  request_date: 2026-05-21 11:00:00
+  raw_response: '{"valid":false}'
+  created_at: 2026-05-21 11:00:00

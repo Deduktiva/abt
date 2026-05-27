@@ -189,4 +189,22 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     assert_select "strong", text: "Supplier No.:"
     assert_select ".col-sm-8", text: /SUP-99/
   end
+
+  test "verify_vat_id enqueues VerifyCustomerVatIdJob and flashes queued" do
+    assert_enqueued_with(job: VerifyCustomerVatIdJob, args: [ @customer, { actor: users(:alice) } ]) do
+      post verify_vat_id_customer_url(@customer)
+    end
+    assert_redirected_to customer_url(@customer)
+    assert_match(/verification queued/, flash[:notice])
+  end
+
+  test "verify_vat_id on customer without vat_id redirects with alert without enqueuing" do
+    @customer.update_columns(vat_id: nil)
+
+    assert_no_enqueued_jobs do
+      post verify_vat_id_customer_url(@customer)
+    end
+    assert_redirected_to customer_url(@customer)
+    assert_match(/no VAT ID to verify/, flash[:alert])
+  end
 end

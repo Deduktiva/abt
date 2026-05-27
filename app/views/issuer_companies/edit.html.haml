@@ -30,6 +30,11 @@
             = form.text_field :vat_id, class: 'form-control'
 
           .mb-3
+            = form.label :vat_id_recheck_days, 'Re-check VAT IDs after (days)', class: 'form-label'
+            = form.number_field :vat_id_recheck_days, class: 'form-control', min: 1
+            %small.form-text.text-muted Customer VAT IDs are re-verified against VIES after this many days. Default 90.
+
+          .mb-3
             = form.label :currency, 'Currency', class: 'form-label'
             = form.text_field :currency, class: 'form-control'
 

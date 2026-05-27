@@ -144,6 +144,14 @@
         - problems.each do |p|
           %li= p
 
+  - warnings = @invoice.publish_warnings
+  - if !@invoice.published? && warnings.any?
+    .alert.alert-info.mb-3
+      %strong Heads up:
+      %ul.mb-0
+        - warnings.each do |w|
+          %li= w
+
   .document-lines.mb-2
     %table.table.table-bordered.document-lines-table
       %thead

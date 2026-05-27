@@ -17,3 +17,7 @@ production:
     class: OverdueInvoicesReportJob
     queue: default
     schedule: "0 8 */2 * *"
+  refresh_vat_verifications:
+    class: RefreshStaleVatVerificationsJob
+    queue: default
+    schedule: every day at 04:00

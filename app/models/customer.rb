@@ -14,6 +14,9 @@ class Customer < ApplicationRecord
   has_many :sales_tax_rates, through: :sales_tax_customer_class
   has_many :invoices
   has_many :customer_contacts, dependent: :destroy
+  has_many :vat_verifications, class_name: "CustomerVatVerification", dependent: :destroy
+
+  before_save :clear_vat_id_verified_at_if_vat_id_changed
 
   enum :invoice_email_auto_contact_mode, {
     replace_contacts: "replace_contacts",
@@ -35,9 +38,19 @@ class Customer < ApplicationRecord
   # Scopes for filtering
   scope :active, -> { where(active: true) }
   scope :inactive, -> { where(active: false) }
+  scope :vat_verification_required, -> {
+    active
+      .where.not(vat_id: [ nil, "" ])
+      .joins(:sales_tax_customer_class)
+      .where(sales_tax_customer_classes: { vat_id_required: true })
+  }
 
   def used_in_invoices?
     invoices.exists?
+  end
+
+  def latest_vat_verification
+    vat_verifications.latest_first.first
   end
 
   def contacts_for_invoice(invoice)
@@ -74,5 +87,9 @@ class Customer < ApplicationRecord
 
   def sync_project_teams
     Project.where(bill_to_customer_id: id).update_all(team_id: team_id, updated_at: Time.current)
+  end
+
+  def clear_vat_id_verified_at_if_vat_id_changed
+    self.vat_id_verified_at = nil if will_save_change_to_vat_id?
   end
 end

@@ -140,7 +140,10 @@ class DeliveryNotesController < ApplicationController
   end
 
   def unpublish
-    @delivery_note.update!(published: false, document_number: nil, date: nil)
+    # document_number and date are intentionally preserved: numbers come from a
+    # gap-free sequence (see require_unnumbered) and the original booking date
+    # is part of the audit trail.
+    @delivery_note.update!(published: false)
     flash[:notice] = "Delivery Note has been reverted to draft status."
 
     respond_to do |format|

@@ -48,8 +48,7 @@ class Rack::Attack
   # COSE parsing, attestation). Strict per-/64 budget.
   throttle("webauthn-verify/ip", limit: 10, period: 1.minute) do |req|
     next nil unless req.post?
-    if req.path == "/session/verify" ||
-       req.path.match?(%r{\A/invites/[^/]+/verify\z})
+    if req.path == "/session/verify" || req.path == "/invites/verify"
       ip_key(req)
     end
   end
@@ -58,7 +57,7 @@ class Rack::Attack
   throttle("auth-post/ip", limit: 30, period: 1.minute) do |req|
     next nil unless req.post?
     if req.path.match?(%r{\A/session/(options|verify)\z}) ||
-       req.path.match?(%r{\A/invites/[^/]+/(options|verify)\z})
+       req.path.match?(%r{\A/invites/(options|verify)\z})
       ip_key(req)
     end
   end
@@ -72,8 +71,8 @@ class Rack::Attack
   # Tokenized GETs.
   throttle("token-fetch/ip", limit: 60, period: 1.minute) do |req|
     next nil unless req.get?
-    if req.path.match?(%r{\A/invites/[^/]+\z}) ||
-       req.path.match?(%r{\A/account/email_confirmations/[^/]+\z})
+    if req.path == "/invites" ||
+       req.path == "/account/email_confirmations"
       ip_key(req)
     end
   end

@@ -6,12 +6,9 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :invites, only: [ :show ], param: :token do
-    member do
-      post :options
-      post :verify
-    end
-  end
+  get "invites", to: "invites#show", as: :invite
+  post "invites/options", to: "invites#options", as: :options_invite
+  post "invites/verify", to: "invites#verify", as: :verify_invite
 
   namespace :account do
     resource :profile, only: [ :show ]
@@ -27,7 +24,7 @@ Rails.application.routes.draw do
       end
     end
     resources :emails, only: [ :index, :create, :destroy ]
-    resources :email_confirmations, only: [ :show ], param: :token
+    get "email_confirmations", to: "email_confirmations#show", as: :email_confirmation
     resource :block, only: [ :create ]
     resources :audit_events, only: [ :index ]
   end
@@ -81,7 +78,6 @@ Rails.application.routes.draw do
       get "preview"
       get "preview_email"
       get "preview_email_raw"
-      get "publish"
       post "publish"
       post "send_email"
       get "pdf"

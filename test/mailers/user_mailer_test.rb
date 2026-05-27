@@ -18,7 +18,7 @@ class UserMailerTest < ActionMailer::TestCase
   test "email_confirmation includes confirmation URL" do
     email = users(:alice).emails.create!(address: "new@example.com")
     email.generate_confirmation_token!
-    url = "http://example.com/account/email_confirmations/sometoken"
+    url = "http://example.com/account/email_confirmations?token=sometoken"
 
     mail = UserMailer.email_confirmation(email, url)
     assert_equal [ "new@example.com" ], mail.to
@@ -48,7 +48,7 @@ class UserMailerTest < ActionMailer::TestCase
   end
 
   test "passkey_reset_invite includes the invite URL" do
-    url = "http://example.com/invites/abc123"
+    url = "http://example.com/invites?token=abc123"
     mail = UserMailer.passkey_reset_invite(users(:alice), url, "alice@example.com")
     assert_match url, body_text(mail)
   end

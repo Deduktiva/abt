@@ -14,6 +14,6 @@ class UserInvitesControllerTest < ActionDispatch::IntegrationTest
       post user_invites_path
     end
     assert_response :success
-    assert_select "code", /\/invites\//
+    assert_select "code", /\/invites\?token=/
   end
 end

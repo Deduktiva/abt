@@ -162,6 +162,10 @@
           %th.text-center.col-tax-class Tax Class
           %th.text-end.col-amount Amount
       %tbody
+        - if @invoice.invoice_lines.empty? && !@invoice.published?
+          %tr
+            %td.text-center.py-4{colspan: 5}
+              = action_button 'Edit Lines', edit_invoice_path(@invoice), :info, permission: 'invoices.edit'
         - @invoice.invoice_lines.each do |line|
           - case line.type
           - when 'item'

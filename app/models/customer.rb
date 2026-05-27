@@ -16,6 +16,7 @@ class Customer < ApplicationRecord
   has_many :customer_contacts, dependent: :destroy
   has_many :vat_verifications, class_name: "CustomerVatVerification", dependent: :destroy
 
+  before_save :normalise_vat_id
   before_save :clear_vat_id_verified_at_if_vat_id_changed
 
   enum :invoice_email_auto_contact_mode, {
@@ -53,6 +54,20 @@ class Customer < ApplicationRecord
     vat_verifications.latest_first.first
   end
 
+  # VIES rejects any separators or lowercase letters in the VAT ID.
+  def self.normalise_vat_id(value)
+    value.to_s.upcase.gsub(/[\s.\-]/, "")
+  end
+
+  # The most recent verification, only if it was taken against the customer's
+  # current vat_id. Returns nil when the vat_id has changed since the last
+  # verification — the UI then treats the customer as "Not verified" rather
+  # than rendering a stale "Invalid per VIES" / "verified" state.
+  def current_vat_verification
+    verification = latest_vat_verification
+    verification if verification && verification.vat_id == self.class.normalise_vat_id(vat_id)
+  end
+
   def contacts_for_invoice(invoice)
     customer_contacts.for_invoices.select { |c| c.applies_to_project?(invoice.project) }
   end
@@ -87,6 +102,10 @@ class Customer < ApplicationRecord
 
   def sync_project_teams
     Project.where(bill_to_customer_id: id).update_all(team_id: team_id, updated_at: Time.current)
+  end
+
+  def normalise_vat_id
+    self.vat_id = self.class.normalise_vat_id(vat_id) if vat_id.present?
   end
 
   def clear_vat_id_verified_at_if_vat_id_changed

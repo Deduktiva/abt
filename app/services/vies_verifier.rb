@@ -48,7 +48,7 @@ class ViesVerifier
   # from the exception, and re-raises so callers (jobs) can retry.
   def run!
     requester = IssuerCompany.get_the_issuer!.vat_id
-    result = self.class.lookup_strategy.call(normalised_vat_id, requester: requester)
+    result = self.class.lookup_strategy.call(@customer.vat_id, requester: requester)
     record_verification(result)
   rescue *TRANSIENT_ERRORS => e
     record_verification(valid_response: nil, error_code: e.class.name)
@@ -57,14 +57,10 @@ class ViesVerifier
 
   private
 
-  def normalised_vat_id
-    @customer.vat_id.to_s.upcase.gsub(/[\s.\-]/, "")
-  end
-
   def record_verification(result)
     verification = @customer.vat_verifications.create!(
-      vat_id: normalised_vat_id,
-      country_iso2: result[:country_iso2] || normalised_vat_id[0, 2],
+      vat_id: @customer.vat_id,
+      country_iso2: result[:country_iso2] || @customer.vat_id[0, 2],
       valid_response: result[:valid_response],
       request_identifier: result[:request_identifier],
       request_date: result[:request_date],

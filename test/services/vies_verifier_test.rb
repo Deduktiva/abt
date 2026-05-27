@@ -55,19 +55,6 @@ class ViesVerifierTest < ActiveSupport::TestCase
     assert_nil @customer.reload.vat_id_verified_at
   end
 
-  test "normalises whitespace, dots and dashes in vat_id before lookup" do
-    @customer.update_columns(vat_id: "be 0123.456-749")
-    captured = nil
-    ViesVerifier.lookup_strategy = ->(vat_id, requester:) {
-      captured = vat_id
-      { valid_response: true, country_iso2: "BE", raw: { valid: true } }
-    }
-
-    ViesVerifier.new(@customer).run!
-
-    assert_equal "BE0123456749", captured
-  end
-
   test "associates the verification with the actor user" do
     ViesVerifier.lookup_strategy = ->(*) {
       { valid_response: true, country_iso2: "BE", raw: { valid: true } }

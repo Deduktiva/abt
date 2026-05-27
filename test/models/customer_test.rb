@@ -220,4 +220,46 @@ class CustomerTest < ActiveSupport::TestCase
     customer.update!(name: "Renamed Co.")
     assert_in_delta timestamp, customer.reload.vat_id_verified_at, 1.second
   end
+
+  # Pins the before_save callback ordering: normalise must run BEFORE the
+  # clear callback, otherwise resaving "BE 0123.456-749" against a stored
+  # "BE0123456749" would spuriously clear vat_id_verified_at.
+  test "resaving cosmetically-different vat_id does not clear vat_id_verified_at" do
+    customer = create_customer(vat_id: "BE0123456749")
+    timestamp = 2.days.ago
+    customer.update!(vat_id_verified_at: timestamp)
+    customer.update!(vat_id: " BE 0123.456-749 ")
+    assert_in_delta timestamp, customer.reload.vat_id_verified_at, 1.second
+  end
+
+  test "normalises vat_id on save (uppercase, strips whitespace, dots, dashes)" do
+    customer = create_customer(vat_id: "  be 0123.456-749 ")
+    assert_equal "BE0123456749", customer.reload.vat_id
+  end
+
+  test "normalise_vat_id is the class-level normalisation entry point" do
+    assert_equal "ATU12345678", Customer.normalise_vat_id("at u 12.345-678")
+    assert_equal "", Customer.normalise_vat_id(nil)
+  end
+
+  test "current_vat_verification returns the latest verification when vat_id matches" do
+    customer = customers(:good_eu)
+    customer.update_columns(vat_id: "BE0123456749")
+    verification = CustomerVatVerification.create!(
+      customer: customer, vat_id: "BE0123456749",
+      valid_response: false, error_code: "INVALID"
+    )
+    assert_equal verification, customer.current_vat_verification
+  end
+
+  test "current_vat_verification returns nil when vat_id differs from latest verification" do
+    customer = customers(:good_eu)
+    customer.update_columns(vat_id: "BE0123456749")
+    CustomerVatVerification.create!(
+      customer: customer, vat_id: "BE0123456749",
+      valid_response: false, error_code: "INVALID"
+    )
+    customer.update!(vat_id: "BE0987654321")
+    assert_nil customer.current_vat_verification
+  end
 end

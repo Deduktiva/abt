@@ -30,7 +30,7 @@ class CustomerVatVerificationTest < ApplicationSystemTestCase
     visit customer_path(@customer)
     assert_selector ".badge.bg-warning", text: "Not verified"
 
-    click_on "✅ Verify"
+    click_on "Verify"
 
     assert_text "verified #{I18n.l(Date.current)}"
     assert_no_selector ".badge.bg-warning", text: "Not verified"
@@ -42,7 +42,7 @@ class CustomerVatVerificationTest < ApplicationSystemTestCase
     }
 
     visit customer_path(@customer)
-    click_on "✅ Verify"
+    click_on "Verify"
 
     assert_selector ".badge.bg-danger", text: "Invalid per VIES"
   end

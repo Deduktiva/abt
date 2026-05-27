@@ -85,14 +85,8 @@ class CustomersController < ApplicationController
       redirect_to @customer, alert: "Customer has no VAT ID to verify." and return
     end
 
-    verification = ViesVerifier.new(@customer, actor: current_user).run!
-    if verification.valid_per_vies?
-      redirect_to @customer, notice: "VAT ID verified against VIES."
-    else
-      redirect_to @customer, alert: "VAT ID was not confirmed by VIES (#{verification.error_code || 'invalid'})."
-    end
-  rescue *ViesVerifier::TRANSIENT_ERRORS => e
-    redirect_to @customer, alert: "VIES is temporarily unavailable (#{e.class.name.demodulize}). Try again later."
+    VerifyCustomerVatIdJob.perform_later(@customer, actor: current_user)
+    redirect_to @customer, notice: "VAT ID verification queued. Refresh in a moment to see the result."
   end
 
   # DELETE /customers/1

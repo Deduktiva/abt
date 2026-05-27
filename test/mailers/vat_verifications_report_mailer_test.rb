@@ -19,7 +19,7 @@ class VatVerificationsReportMailerTest < ActionMailer::TestCase
     ]
     @stuck = [
       CustomerVatVerification.create!(
-        customer: @customer_b, vat_id: "NAT0000000", country_iso2: "NL",
+        customer: @customer_b, vat_id: @customer_b.vat_id, country_iso2: "NL",
         valid_response: nil, error_code: "MS_UNAVAILABLE", raw_response: "{}",
         created_at: 1.hour.ago
       )
@@ -42,7 +42,18 @@ class VatVerificationsReportMailerTest < ActionMailer::TestCase
     assert_match @customer_a.matchcode, html
     assert_match "BE0123456749", html
     assert_match @customer_b.matchcode, html
-    assert_match "NAT0000000", html
+    assert_match @customer_b.vat_id, html
+  end
+
+  test "daily_report links each customer matchcode to its show page" do
+    mail = VatVerificationsReportMailer.with(newly_invalid: @newly_invalid, stuck_unavailable: @stuck).daily_report
+    html = mail.html_part.body.to_s
+    text = mail.text_part.body.to_s
+
+    [ @customer_a, @customer_b ].each do |c|
+      assert_match AbsoluteUrl.customer(c), html
+      assert_match AbsoluteUrl.customer(c), text
+    end
   end
 
   test "daily_report text body lists every customer in both sections" do
@@ -51,15 +62,6 @@ class VatVerificationsReportMailerTest < ActionMailer::TestCase
 
     assert_match @customer_a.matchcode, text
     assert_match @customer_b.matchcode, text
-  end
-
-  test "daily_report returns NullMail when issuer has no reporting_email" do
-    @issuer.update!(reporting_email: "")
-
-    mail = VatVerificationsReportMailer.with(newly_invalid: @newly_invalid, stuck_unavailable: @stuck).daily_report
-
-    assert_instance_of ActionMailer::Parameterized::MessageDelivery, mail
-    assert_instance_of ActionMailer::Base::NullMail, mail.message
   end
 
   test "daily_report returns NullMail when both event lists are empty" do

@@ -14,7 +14,7 @@ good_eu_valid:
 
 good_national_invalid:
   customer: good_national
-  vat_id: NAT0000000
+  vat_id: NL123456789B01
   country_iso2: NL
   valid_response: false
   error_code: INVALID

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_27_045742) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_27_052131) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -248,7 +248,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_045742) do
     t.string "pdf_logo_height"
     t.string "pdf_logo_width"
     t.binary "png_logo"
-    t.string "reporting_email"
+    t.string "reporting_email", default: "bcc@example.com", null: false
     t.string "short_name"
     t.datetime "updated_at", null: false
     t.string "vat_id"

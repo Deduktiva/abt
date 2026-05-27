@@ -54,13 +54,4 @@ class OverdueInvoicesMailerTest < ActionMailer::TestCase
     assert_match sprintf("%.2f", @overdue_a.sum_total), text
     assert_match "10 days overdue", text
   end
-
-  test "overdue_report returns NullMail when issuer has no reporting_email" do
-    issuer_companies(:one).update!(reporting_email: "")
-
-    mail = OverdueInvoicesMailer.with(invoices: [ @overdue_a ]).overdue_report
-
-    assert_instance_of ActionMailer::Parameterized::MessageDelivery, mail
-    assert_instance_of ActionMailer::Base::NullMail, mail.message
-  end
 end

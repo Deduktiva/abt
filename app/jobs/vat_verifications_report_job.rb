@@ -18,6 +18,12 @@ class VatVerificationsReportJob < ApplicationJob
     stuck_unavailable = CustomerVatVerification.where(id: stuck_unavailable_ids).includes(:customer).order(:created_at)
 
     if newly_invalid.any? || stuck_unavailable.any?
+      # Deliver synchronously so a delivery failure raises and skips the
+      # update_all below — pending rows stay unmarked and the job retries
+      # tomorrow. A delivery-then-update_all race could theoretically duplicate
+      # the email if update_all then fails, but for a low-volume daily digest
+      # to a single human that's an acceptable tradeoff vs. ever silently
+      # swallowing a transition.
       VatVerificationsReportMailer.with(
         newly_invalid: newly_invalid.to_a,
         stuck_unavailable: stuck_unavailable.to_a
@@ -34,10 +40,7 @@ class VatVerificationsReportJob < ApplicationJob
   def eligible_latest_verifications
     pending = CustomerVatVerification
                 .where(notified_at: nil)
-                .joins(customer: :sales_tax_customer_class)
-                .where(customers: { active: true })
-                .where.not(customers: { vat_id: [ nil, "" ] })
-                .where(sales_tax_customer_classes: { vat_id_required: true })
+                .joins(:customer).merge(Customer.vat_verification_required)
                 .includes(:customer)
 
     # Only consider rows that are actually the customer's latest verification.
@@ -67,7 +70,16 @@ class VatVerificationsReportJob < ApplicationJob
         newly_invalid_ids << latest.id
       end
     when nil
-      streak_start = current_nil_streak_start(latest)
+      most_recent_invalid_or_valid = most_recent_non_nil(latest.customer_id)
+      # If the customer's most recent non-nil verification was invalid, they
+      # were (or will be) reported via the newly-invalid path. Suppress the
+      # stuck-unavailable alert to avoid double-reporting the same trouble.
+      if most_recent_invalid_or_valid&.invalid_per_vies?
+        consumed_ids << latest.id
+        return
+      end
+
+      streak_start = current_nil_streak_start(latest, most_recent_invalid_or_valid)
       return if streak_start.created_at > STUCK_UNAVAILABLE_DAYS.days.ago
 
       already_notified_in_streak = CustomerVatVerification
@@ -88,24 +100,26 @@ class VatVerificationsReportJob < ApplicationJob
     CustomerVatVerification
       .where(customer_id: verification.customer_id)
       .where("created_at < ?", verification.created_at)
-      .order(created_at: :desc)
+      .order(created_at: :desc, id: :desc)
+      .first
+  end
+
+  def most_recent_non_nil(customer_id)
+    CustomerVatVerification
+      .where(customer_id: customer_id)
+      .where.not(valid_response: nil)
+      .order(created_at: :desc, id: :desc)
       .first
   end
 
   # Earliest verification in the current run of nil results (going back from
   # `latest` to just after the most recent non-nil verification, or to the
   # earliest verification if no non-nil priors exist).
-  def current_nil_streak_start(latest)
-    most_recent_non_nil = CustomerVatVerification
-                            .where(customer_id: latest.customer_id)
-                            .where.not(valid_response: nil)
-                            .order(created_at: :desc)
-                            .first
-
+  def current_nil_streak_start(latest, most_recent_non_nil)
     streak = CustomerVatVerification
                .where(customer_id: latest.customer_id)
                .where(valid_response: nil)
     streak = streak.where("created_at > ?", most_recent_non_nil.created_at) if most_recent_non_nil
-    streak.order(:created_at).first
+    streak.order(:created_at, :id).first
   end
 end

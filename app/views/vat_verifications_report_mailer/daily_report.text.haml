@@ -8,6 +8,7 @@
     - prior = @prior_states[v.id]
     - state = prior[:kind] == :was_valid ? t('mailers.vat_verifications_report.prior_state.was_valid', date: l(prior[:date])) : t('mailers.vat_verifications_report.prior_state.first_ever')
     = "#{v.customer.matchcode}  #{v.vat_id}  #{l(v.created_at.to_date)}  #{state}"
+    = AbsoluteUrl.customer(v.customer)
   \
 
 - if @stuck_unavailable.any?
@@ -16,3 +17,4 @@
   \
   - @stuck_unavailable.each do |v|
     = "#{v.customer.matchcode}  #{v.vat_id}  #{l(v.created_at.to_date)}  #{v.error_code}"
+    = AbsoluteUrl.customer(v.customer)

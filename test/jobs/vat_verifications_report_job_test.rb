@@ -4,16 +4,17 @@ class VatVerificationsReportJobTest < ActiveJob::TestCase
   include ActionMailer::TestHelper
 
   setup do
+    # The job's eligibility query starts from CustomerVatVerification rows,
+    # not from Customer — deleting all verifications scopes the test to
+    # whatever rows the individual case creates without having to deactivate
+    # other fixture customers.
     CustomerVatVerification.delete_all
     ActionMailer::Base.deliveries.clear
     @issuer = issuer_companies(:one)
     @issuer.update!(reporting_email: "reports@example.com")
 
-    # Only @customer is in scope by default; nudge the other vat_id_required
-    # customers out so each test controls its own scope.
     @customer = customers(:good_eu)
     @customer.update_columns(vat_id: "BE0123456749", vat_id_verified_at: nil)
-    Customer.where.not(id: @customer.id).update_all(active: false)
   end
 
   def make_verification(valid:, created_at:, notified_at: nil, customer: @customer, error_code: nil)
@@ -112,10 +113,26 @@ class VatVerificationsReportJobTest < ActiveJob::TestCase
       make_verification(valid: nil, created_at: days_ago.days.ago + 1.minute,
                         error_code: "MS_UNAVAILABLE")
     end
+    latest = CustomerVatVerification.order(:created_at).last
 
     assert_no_emails do
       VatVerificationsReportJob.perform_now
     end
+    assert_not_nil latest.reload.notified_at
+  end
+
+  test "does not report stuck-unavailable when the most recent non-nil was invalid" do
+    make_verification(valid: false, created_at: 10.days.ago, notified_at: 10.days.ago)
+    9.downto(0) do |days_ago|
+      make_verification(valid: nil, created_at: days_ago.days.ago,
+                        error_code: "MS_UNAVAILABLE")
+    end
+    latest = CustomerVatVerification.order(:created_at).last
+
+    assert_no_emails do
+      VatVerificationsReportJob.perform_now
+    end
+    assert_not_nil latest.reload.notified_at
   end
 
   test "skips inactive customers" do
@@ -145,15 +162,6 @@ class VatVerificationsReportJobTest < ActiveJob::TestCase
     assert_emails 1 do
       VatVerificationsReportJob.perform_now
     end
-    assert_no_emails do
-      VatVerificationsReportJob.perform_now
-    end
-  end
-
-  test "sends nothing when reporting_email is blank" do
-    @issuer.update!(reporting_email: "")
-    make_verification(valid: false, created_at: 1.hour.ago)
-
     assert_no_emails do
       VatVerificationsReportJob.perform_now
     end

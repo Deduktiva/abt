@@ -138,10 +138,7 @@
           .col-sm-4
             %strong Email for Reports:
           .col-sm-8
-            - if @issuer_company.reporting_email.present?
-              = @issuer_company.reporting_email
-            - else
-              %em Not set — reporting emails disabled
+            = @issuer_company.reporting_email
 
 .row.mt-4
   .col-md-6

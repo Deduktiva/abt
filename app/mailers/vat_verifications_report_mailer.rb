@@ -4,15 +4,13 @@ class VatVerificationsReportMailer < ApplicationMailer
     @stuck_unavailable = params[:stuck_unavailable] || []
     @today = Date.current
 
-    recipient = @issuer.reporting_email.presence
-    return if recipient.blank?
     return if @newly_invalid.empty? && @stuck_unavailable.empty?
 
     @prior_states = compute_prior_states(@newly_invalid)
 
     I18n.with_locale(I18n.default_locale) do
       mail(
-        to: recipient,
+        to: @issuer.reporting_email,
         subject: I18n.t("mailers.vat_verifications_report.subject",
                         issuer_name: sanitize_header_value(@issuer.short_name),
                         count: @newly_invalid.size + @stuck_unavailable.size)

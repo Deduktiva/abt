@@ -38,7 +38,7 @@
       - @newly_invalid.each do |v|
         - prior = @prior_states[v.id]
         %tr
-          %td= v.customer.matchcode
+          %td= link_to v.customer.matchcode, AbsoluteUrl.customer(v.customer)
           %td= v.vat_id
           %td= l(v.created_at.to_date)
           %td
@@ -60,7 +60,7 @@
     %tbody
       - @stuck_unavailable.each do |v|
         %tr
-          %td= v.customer.matchcode
+          %td= link_to v.customer.matchcode, AbsoluteUrl.customer(v.customer)
           %td= v.vat_id
           %td= l(v.created_at.to_date)
           %td= v.error_code

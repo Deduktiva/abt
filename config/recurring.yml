@@ -21,3 +21,7 @@ production:
     class: RefreshStaleVatVerificationsJob
     queue: default
     schedule: every day at 04:00
+  vat_verifications_report:
+    class: VatVerificationsReportJob
+    queue: default
+    schedule: every day at 11:00

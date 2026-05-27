@@ -113,6 +113,14 @@ class IssuerCompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 30, @issuer_company.reload.vat_id_recheck_days
   end
 
+  test "update permits reporting_email and persists the new value" do
+    patch issuer_company_url, params: {
+      issuer_company: { reporting_email: "reports@example.com" }
+    }
+    assert_redirected_to issuer_company_url
+    assert_equal "reports@example.com", @issuer_company.reload.reporting_email
+  end
+
   test "update rejects vat_id_recheck_days of zero" do
     original = @issuer_company.vat_id_recheck_days
     patch issuer_company_url, params: {

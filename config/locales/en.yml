@@ -61,6 +61,25 @@ en:
       required: "must be selected"
 
   mailers:
+    vat_verifications_report:
+      subject: "[%{issuer_name}] VAT verification report — %{count} customer(s)"
+      title: "VAT verification report"
+      heading: "VAT verification report as of %{date}"
+      newly_invalid_heading: "Newly invalid VAT IDs (%{count})"
+      newly_invalid_main_message: "These customers' VAT IDs were rejected by VIES since the last report. Review their tax classification."
+      stuck_unavailable_heading: "Stuck unavailable (%{count})"
+      stuck_unavailable_main_message: "VIES has been unable to validate these customers for at least 7 days. Tax assessment is currently flying blind."
+      empty_section_message: "(no events)"
+      columns:
+        customer: "Customer"
+        vat_id: "VAT ID"
+        checked_on: "Last checked"
+        prior_state: "Prior state"
+        error_code: "Error code"
+      prior_state:
+        was_valid: "was valid until %{date}"
+        first_ever: "first confirmed invalid result"
+
     overdue_invoices:
       subject: "[%{issuer_name}] %{count} overdue invoice(s)"
       title: "Overdue invoices report"

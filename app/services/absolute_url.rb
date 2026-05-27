@@ -16,4 +16,8 @@ module AbsoluteUrl
   def account_email_confirmation(token)
     Rails.application.routes.url_helpers.account_email_confirmation_url(token: token, **options)
   end
+
+  def customer(customer)
+    Rails.application.routes.url_helpers.customer_url(customer, **options)
+  end
 end

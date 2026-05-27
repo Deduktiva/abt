@@ -11,12 +11,13 @@ class OverdueInvoicesMailerTest < ActionMailer::TestCase
     @overdue_b.update_columns(due_date: 3.days.ago.to_date, paid_at: nil)
   end
 
-  test "overdue_report builds an email to the issuer's auto BCC address" do
+  test "overdue_report builds an email to the issuer's reporting_email" do
+    issuer_companies(:one).update!(reporting_email: "reports@example.com")
     invoices = [ @overdue_a, @overdue_b ]
 
     mail = OverdueInvoicesMailer.with(invoices: invoices).overdue_report
 
-    assert_equal [ "bcc@example.com" ], mail.to
+    assert_equal [ "reports@example.com" ], mail.to
     assert_equal [ "from@example.com" ], mail.from
     assert_match(/My Example/, mail.subject)
     assert_match(/2 overdue/, mail.subject)
@@ -52,14 +53,5 @@ class OverdueInvoicesMailerTest < ActionMailer::TestCase
     assert_match @overdue_a.due_date.strftime("%d.%m.%Y"), text
     assert_match sprintf("%.2f", @overdue_a.sum_total), text
     assert_match "10 days overdue", text
-  end
-
-  test "overdue_report returns NullMail when issuer has no auto BCC address" do
-    issuer_companies(:one).update!(document_email_auto_bcc: "")
-
-    mail = OverdueInvoicesMailer.with(invoices: [ @overdue_a ]).overdue_report
-
-    assert_instance_of ActionMailer::Parameterized::MessageDelivery, mail
-    assert_instance_of ActionMailer::Base::NullMail, mail.message
   end
 end

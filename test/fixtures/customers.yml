@@ -19,7 +19,7 @@ good_national:
     Lulzstreet 3/2/1
     LH234234 Heathrow
   country_iso2: NL
-  vat_id: NAT9999999
+  vat_id: NL123456789B01
   notes:
   sales_tax_customer_class: national
   language: german

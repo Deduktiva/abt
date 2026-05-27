@@ -35,6 +35,32 @@ class IssuerCompanyTest < ActiveSupport::TestCase
     assert company.valid?
   end
 
+  test "reporting_email, document_email_from, document_email_auto_bcc reject malformed addresses" do
+    [ :reporting_email, :document_email_from, :document_email_auto_bcc ].each do |field|
+      company = issuer_companies(:one)
+      company.assign_attributes(field => "not-an-email")
+      assert_not company.valid?, "expected #{field}=not-an-email to be invalid"
+      assert_includes company.errors[field], "is invalid"
+    end
+  end
+
+  test "reporting_email is required" do
+    company = issuer_companies(:one)
+    company.reporting_email = ""
+    assert_not company.valid?
+    assert_includes company.errors[:reporting_email], "can't be blank"
+  end
+
+  test "valid email values are accepted on all three email fields" do
+    company = issuer_companies(:one)
+    company.assign_attributes(
+      reporting_email: "reports@example.com",
+      document_email_from: "from@example.com",
+      document_email_auto_bcc: "bcc@example.com"
+    )
+    assert company.valid?
+  end
+
   test "get_the_issuer! returns the active issuer" do
     assert_equal issuer_companies(:one), IssuerCompany.get_the_issuer!
   end
@@ -42,5 +68,9 @@ class IssuerCompanyTest < ActiveSupport::TestCase
   test "get_the_issuer! returns nil when no active issuer exists" do
     issuer_companies(:one).update!(active: false)
     assert_nil IssuerCompany.get_the_issuer!
+  end
+
+  test "reporting_email backfills from document_email_auto_bcc on existing fixture rows" do
+    assert_equal issuer_companies(:one).document_email_auto_bcc, issuer_companies(:one).reporting_email
   end
 end

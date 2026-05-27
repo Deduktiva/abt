@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_27_020302) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_27_052131) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -45,6 +45,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_020302) do
     t.datetime "created_at", null: false
     t.integer "customer_id", null: false
     t.text "error_code"
+    t.datetime "notified_at"
     t.integer "performed_by_user_id"
     t.text "raw_response"
     t.datetime "request_date"
@@ -56,6 +57,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_020302) do
     t.text "vat_id", null: false
     t.index ["customer_id", "created_at"], name: "index_customer_vat_verifications_on_customer_id_and_created_at"
     t.index ["customer_id"], name: "index_customer_vat_verifications_on_customer_id"
+    t.index ["customer_id"], name: "index_cvv_pending_notification_on_customer_id", where: "notified_at IS NULL"
     t.index ["performed_by_user_id"], name: "index_customer_vat_verifications_on_performed_by_user_id"
   end
 
@@ -246,6 +248,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_020302) do
     t.string "pdf_logo_height"
     t.string "pdf_logo_width"
     t.binary "png_logo"
+    t.string "reporting_email", default: "bcc@example.com", null: false
     t.string "short_name"
     t.datetime "updated_at", null: false
     t.string "vat_id"

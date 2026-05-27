@@ -12,6 +12,7 @@ one:
   bankaccount_bank: My Bank B.V.
   bankaccount_bic: BICBICBICBIC
   bankaccount_number: NL91ABNA0417164300
+  reporting_email: bcc@example.com
   document_contact_line1: "www.example.com      hi@example.com"
   document_contact_line2: "voice + xxx xxxxxx"
   document_accent_color: "#3366cc"

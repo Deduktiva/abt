@@ -67,6 +67,17 @@
     .col-md-6
       .card
         .card-header
+          Reporting
+        .card-body
+          .mb-3
+            = form.label :reporting_email, 'Email for Reports', class: 'form-label'
+            = form.email_field :reporting_email, class: 'form-control', required: true
+            %small.form-text.text-muted Receives overdue invoice and VAT verification digest emails.
+
+  .row.mt-4
+    .col-md-6
+      .card
+        .card-header
           Document Settings
         .card-body
           .mb-3

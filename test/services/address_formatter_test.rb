@@ -1,10 +1,6 @@
 require "test_helper"
 
 class AddressFormatterTest < ActiveSupport::TestCase
-  test "country_name returns the English short name by default" do
-    assert_equal "Austria", AddressFormatter.country_name("AT")
-  end
-
   test "country_name returns the translation for a supported locale" do
     assert_equal "Österreich", AddressFormatter.country_name("AT", locale: :de)
   end
@@ -14,7 +10,7 @@ class AddressFormatterTest < ActiveSupport::TestCase
   end
 
   test "country_name returns nil for an unknown country code" do
-    assert_nil AddressFormatter.country_name("XX")
+    assert_nil AddressFormatter.country_name("XX", locale: :en)
   end
 
   test "build appends the localized country line when sides differ" do

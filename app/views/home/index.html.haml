@@ -51,7 +51,7 @@
           %div
             - @data[:issuer_company].address.split("\n").each do |line|
               %div= line
-            %div= AddressFormatter.country_name(@data[:issuer_company].country_iso2)
+            %div= country_name(@data[:issuer_company].country_iso2)
 
         .mb-2
           %strong VAT ID:

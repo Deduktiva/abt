@@ -54,9 +54,7 @@ class Customer < ApplicationRecord
     vat_verifications.latest_first.first
   end
 
-  # Same shape as the VIES normalisation: uppercase, no whitespace / dots /
-  # dashes. Used at save-time and at lookup-time so the stored value matches
-  # what the VIES SOAP requester expects and what verification rows snapshot.
+  # VIES rejects any separators or lowercase letters in the VAT ID.
   def self.normalise_vat_id(value)
     value.to_s.upcase.gsub(/[\s.\-]/, "")
   end

@@ -668,7 +668,6 @@ if Rails.env.development?
       cust_reference: 'PO-2025-001',
       cust_order: 'ORDER-WEB-2025',
       prelude: 'Delivery of completed web application components for Q1 2025 project',
-      date: 1.week.ago.to_date,
       delivery_start_date: 2.weeks.ago.to_date,
       delivery_end_date: 1.week.ago.to_date,
       published: false

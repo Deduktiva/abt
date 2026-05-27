@@ -146,7 +146,10 @@
 
     <!-- implementation detail: logo only -->
     <xsl:template name="impl-company-logo">
-        <fo:block text-align="start" font-size="12pt" xsl:use-attribute-sets="accent-color">
+        <!-- line-height="1" keeps the logo flush with the block top; without it,
+             the enclosing block-container's line-height adds half-leading above
+             the logo line and shifts the logo down relative to the sender address. -->
+        <fo:block text-align="start" font-size="12pt" line-height="1" xsl:use-attribute-sets="accent-color">
             <xsl:choose>
                 <xsl:when test="/document/logo-path">
                     <fo:external-graphic src="{/document/logo-path}"

@@ -3,7 +3,7 @@ class OverdueInvoicesMailer < ApplicationMailer
     @invoices = params[:invoices]
     @today = Date.current
 
-    recipient = @issuer.document_email_auto_bcc.presence
+    recipient = @issuer.reporting_email.presence
     return if recipient.blank?
 
     I18n.with_locale(I18n.default_locale) do

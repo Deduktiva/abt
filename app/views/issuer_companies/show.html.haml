@@ -132,6 +132,21 @@
   .col-md-6
     .card
       .card-header
+        Reporting
+      .card-body
+        .row.mb-2
+          .col-sm-4
+            %strong Email for Reports:
+          .col-sm-8
+            - if @issuer_company.reporting_email.present?
+              = @issuer_company.reporting_email
+            - else
+              %em Not set — reporting emails disabled
+
+.row.mt-4
+  .col-md-6
+    .card
+      .card-header
         Invoice Footer
       .card-body
         - if @issuer_company.invoice_footer.present?

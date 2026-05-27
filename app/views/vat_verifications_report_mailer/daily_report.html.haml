@@ -1,0 +1,66 @@
+- content_for :title, t('mailers.vat_verifications_report.title')
+
+:css
+  table.vatreport {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 12px 0 24px;
+    font-size: 14px;
+  }
+  table.vatreport th, table.vatreport td {
+    border: 1px solid #dee2e6;
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  table.vatreport th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+  }
+  h3.vatreport {
+    margin-top: 24px;
+  }
+
+.greeting
+  = t('mailers.vat_verifications_report.heading', date: l(@today))
+
+- if @newly_invalid.any?
+  %h3.vatreport= t('mailers.vat_verifications_report.newly_invalid_heading', count: @newly_invalid.size)
+  .main-message= t('mailers.vat_verifications_report.newly_invalid_main_message')
+  %table.vatreport
+    %thead
+      %tr
+        %th= t('mailers.vat_verifications_report.columns.customer')
+        %th= t('mailers.vat_verifications_report.columns.vat_id')
+        %th= t('mailers.vat_verifications_report.columns.checked_on')
+        %th= t('mailers.vat_verifications_report.columns.prior_state')
+    %tbody
+      - @newly_invalid.each do |v|
+        - prior = @prior_states[v.id]
+        %tr
+          %td= v.customer.matchcode
+          %td= v.vat_id
+          %td= l(v.created_at.to_date)
+          %td
+            - if prior[:kind] == :was_valid
+              = t('mailers.vat_verifications_report.prior_state.was_valid', date: l(prior[:date]))
+            - else
+              = t('mailers.vat_verifications_report.prior_state.first_ever')
+
+- if @stuck_unavailable.any?
+  %h3.vatreport= t('mailers.vat_verifications_report.stuck_unavailable_heading', count: @stuck_unavailable.size)
+  .main-message= t('mailers.vat_verifications_report.stuck_unavailable_main_message')
+  %table.vatreport
+    %thead
+      %tr
+        %th= t('mailers.vat_verifications_report.columns.customer')
+        %th= t('mailers.vat_verifications_report.columns.vat_id')
+        %th= t('mailers.vat_verifications_report.columns.checked_on')
+        %th= t('mailers.vat_verifications_report.columns.error_code')
+    %tbody
+      - @stuck_unavailable.each do |v|
+        %tr
+          %td= v.customer.matchcode
+          %td= v.vat_id
+          %td= l(v.created_at.to_date)
+          %td= v.error_code

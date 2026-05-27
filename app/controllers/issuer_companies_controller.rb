@@ -75,7 +75,8 @@ class IssuerCompaniesController < ApplicationController
       :document_email_from,
       :document_email_auto_bcc,
       :pdf_logo_width, :pdf_logo_height,
-      :vat_id_recheck_days
+      :vat_id_recheck_days,
+      :reporting_email
     )
   end
 end

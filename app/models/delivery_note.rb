@@ -21,7 +21,7 @@ class DeliveryNote < ApplicationRecord
   }
 
   def email_recipients
-    customer.contacts_for_delivery_note(self).map(&:email)
+    customer.contacts_for_delivery_note(self).map(&:to_email_address)
   end
 
   # The contact whose salutation_line should personalize this delivery note's

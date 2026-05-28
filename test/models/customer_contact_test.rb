@@ -25,6 +25,37 @@ class CustomerContactTest < ActiveSupport::TestCase
     assert_includes contact.errors[:email], "is invalid"
   end
 
+  test "strips surrounding whitespace from email before validation" do
+    contact = CustomerContact.create!(customer: customers(:good_eu), name: "X", email: "  x@example.com  ")
+    assert_equal "x@example.com", contact.reload.email
+  end
+
+  test "strips surrounding whitespace from name before validation" do
+    contact = CustomerContact.create!(customer: customers(:good_eu), name: "  X  ", email: "x@example.com")
+    assert_equal "X", contact.reload.name
+  end
+
+  test "whitespace-only email is rejected because strip makes it blank" do
+    contact = CustomerContact.new(customer: customers(:good_eu), name: "X", email: "   ")
+    assert_not contact.valid?
+    assert_includes contact.errors[:email], "can't be blank"
+  end
+
+  test "to_email_address formats as RFC 5322 mailbox with display name" do
+    contact = CustomerContact.new(name: "John Doe", email: "john@example.com")
+    assert_equal "John Doe <john@example.com>", contact.to_email_address
+  end
+
+  test "to_email_address quotes display names that contain special characters" do
+    contact = CustomerContact.new(name: "Doe, John", email: "john@example.com")
+    assert_equal '"Doe, John" <john@example.com>', contact.to_email_address
+  end
+
+  test "to_email_address strips CR/LF from the display name to prevent header injection" do
+    contact = CustomerContact.new(name: "Bad\r\nBcc: attacker@example.com", email: "ok@example.com")
+    assert_no_match(/[\r\n]/, contact.to_email_address)
+  end
+
   test "applies_to_project? returns true for any project when no projects assigned" do
     contact = customer_contacts(:good_eu_accounting)
     assert_empty contact.projects

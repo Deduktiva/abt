@@ -36,6 +36,8 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     assert_select "label.required[for='customer_team_id']"
     assert_select "label.required[for='customer_sales_tax_customer_class_id']"
     assert_select "label.required[for='customer_language_id']"
+    assert_select "label.required[for='customer_country_iso2']"
+    assert_select "select#customer_country_iso2[required]"
   end
 
   test "should create customer" do

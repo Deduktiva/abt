@@ -1,17 +1,20 @@
 name: Dependabot Auto-Merge
 
+# Deny-all by default; the job below grants only what it needs.
+permissions: {}
+
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
-permissions:
-  contents: write
-  pull-requests: write
-  checks: read
-
 jobs:
   dependabot:
+    name: Auto-merge Dependabot PRs
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: read
     if: github.event.pull_request.user.login == 'dependabot[bot]'
 
     steps:

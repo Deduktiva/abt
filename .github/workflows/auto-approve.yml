@@ -1,6 +1,7 @@
 name: Auto Approve
-permissions:
-  pull-requests: write
+
+# Deny-all by default; the job below grants only what it needs.
+permissions: {}
 
 on:
   issue_comment:
@@ -8,6 +9,9 @@ on:
 
 jobs:
   auto-approve:
+    name: Approve PR
+    permissions:
+      pull-requests: write
     if: |
       github.event.issue.pull_request &&
       github.event.comment.body == '/approve' &&

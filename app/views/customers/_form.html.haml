@@ -35,7 +35,7 @@
       .col-lg-5
         = f.text_area :address, :class => 'form-control', :rows => 3
     .row.mb-3
-      = f.label :country_iso2, 'Country', required: true, class: 'col-lg-2 col-md-3 col-form-label'
+      = f.label :country_iso2, label: 'Country', required: true, class: 'col-lg-2 col-md-3 col-form-label'
       .col-sm-5
         = f.select :country_iso2, country_options, { prompt: 'Select country...' }, { class: 'form-select', required: true }
     .row.mb-3

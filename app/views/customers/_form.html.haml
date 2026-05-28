@@ -20,7 +20,7 @@
           = f.label :active, class: 'form-check-label'
 
     .row.mb-3
-      = f.label :team_id, label: 'Team', required: true, class: 'col-lg-2 col-md-3 col-form-label'
+      = f.label :team_id, required: true, class: 'col-lg-2 col-md-3 col-form-label'
       .col-sm-5
         = f.collection_select :team_id, available_teams, :id, :name, { prompt: 'Select team...' }, {:class => 'form-select', :required => true}
         - if available_teams.empty?
@@ -35,7 +35,7 @@
       .col-lg-5
         = f.text_area :address, :class => 'form-control', :rows => 3
     .row.mb-3
-      = f.label :country_iso2, label: 'Country', required: true, class: 'col-lg-2 col-md-3 col-form-label'
+      = f.label :country_iso2, class: 'col-lg-2 col-md-3 col-form-label'
       .col-sm-5
         = f.select :country_iso2, country_options, { prompt: 'Select country...' }, { class: 'form-select', required: true }
     .row.mb-3
@@ -52,7 +52,7 @@
       .col-sm-5
         = f.collection_select :sales_tax_customer_class_id, SalesTaxCustomerClass.all, :id, :name, { prompt: 'Select tax class...' }, {:class => 'form-select', :required => true}
     .row.mb-3
-      = f.label :language_id, required: true, class: 'col-lg-2 col-md-3 col-form-label', label: "Language"
+      = f.label :language_id, required: true, class: 'col-lg-2 col-md-3 col-form-label'
       .col-sm-5
         = f.collection_select :language_id, Language.all, :id, :title, { prompt: 'Select language...' }, {:class => 'form-select', :required => true}
     %hr

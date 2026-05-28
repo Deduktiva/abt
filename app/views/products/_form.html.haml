@@ -11,7 +11,7 @@
 
   .form-inputs
     .row.mb-3
-      = f.label :title, required: true, class: 'col-lg-2 col-md-3 col-form-label'
+      = f.label :title, class: 'col-lg-2 col-md-3 col-form-label'
       .col-sm-3
         = f.text_field :title, {:class => 'form-control', :required => true}
     .row.mb-3
@@ -19,7 +19,7 @@
       .col-sm-9
         = f.text_area :description, {:class => 'form-control', :rows => 4}
     .row.mb-3
-      = f.label :rate, required: true, class: 'col-lg-2 col-md-3 col-form-label'
+      = f.label :rate, class: 'col-lg-2 col-md-3 col-form-label'
       .col-sm-3
         = f.number_field :rate, {:class => 'form-control', :required => true}
     .row.mb-3

@@ -57,17 +57,69 @@ class InvoiceMailerTest < ActionMailer::TestCase
     assert mail.cc.blank?, "expected mail.cc to be blank, got #{mail.cc.inspect}"
   end
 
-  test "customer_email with auto + cc_contacts deduplicates a contact whose email matches the auto address case-insensitively" do
+  test "customer_email strips surrounding whitespace from auto_to before emitting To header" do
     customer = customers(:auto_email_customer)
-    customer.customer_contacts.create!(name: "Shouty", email: customer.invoice_email_auto_to.upcase, receives_invoice_emails: true)
+    customer.update!(invoice_email_auto_to: "  billing@autoemail.com  ")
     invoice = invoices(:auto_email_invoice)
 
     mail = InvoiceMailer.with(invoice: invoice).customer_email
 
     assert_equal [ "billing@autoemail.com" ], mail.to
-    # backup@autoemail.com (from the auto_email_contact fixture) survives;
-    # the BILLING@AUTOEMAIL.COM contact was dropped from CC.
     assert_equal [ "backup@autoemail.com" ], mail.cc
+  end
+
+  test "customer_email deduplicates two contacts that share the same email" do
+    customer = customers(:auto_email_customer)
+    customer.customer_contacts.create!(name: "Backup Dup", email: "backup@autoemail.com", receives_invoice_emails: true)
+    invoice = invoices(:auto_email_invoice)
+
+    mail = InvoiceMailer.with(invoice: invoice).customer_email
+
+    assert_equal [ "billing@autoemail.com" ], mail.to
+    assert_equal [ "backup@autoemail.com" ], mail.cc
+  end
+
+  test "customer_email drops every contact whose email case-insensitively matches the auto_to" do
+    customer = customers(:auto_email_customer)
+    customer.customer_contacts.create!(name: "Variant One", email: "BILLING@autoemail.com", receives_invoice_emails: true)
+    customer.customer_contacts.create!(name: "Variant Two", email: "Billing@AUTOEMAIL.com", receives_invoice_emails: true)
+    invoice = invoices(:auto_email_invoice)
+
+    mail = InvoiceMailer.with(invoice: invoice).customer_email
+
+    assert_equal [ "billing@autoemail.com" ], mail.to
+    assert_equal [ "backup@autoemail.com" ], mail.cc
+  end
+
+  test "customer_email To header carries each contact's display name" do
+    invoice = invoices(:published_invoice)
+    mail = InvoiceMailer.with(invoice: invoice).customer_email
+
+    assert_equal [ "GOOD Accounting", "PROJ001 Lead" ].sort, mail[:to].display_names.sort
+  end
+
+  test "customer_email Cc header carries the contact display name" do
+    invoice = invoices(:auto_email_invoice)
+    mail = InvoiceMailer.with(invoice: invoice).customer_email
+
+    assert_equal [ "Auto Email Backup" ], mail[:cc].display_names
+  end
+
+  test "customer_email auto_to is emitted as a bare address with no display name" do
+    invoice = invoices(:auto_email_invoice)
+    mail = InvoiceMailer.with(invoice: invoice).customer_email
+
+    assert_equal [ nil ], mail[:to].display_names
+  end
+
+  test "customer_email strips CRLF from contact display names to prevent header injection" do
+    customer_contacts(:good_eu_accounting).update!(name: "Bad\r\nBcc: attacker@example.com")
+    invoice = invoices(:published_invoice)
+
+    mail = InvoiceMailer.with(invoice: invoice).customer_email
+
+    assert_no_match(/[\r\n]/, mail[:to].display_names.compact.join)
+    assert_equal [ "bcc@example.com" ], mail.bcc, "no extra Bcc injected"
   end
 
   test "customer_email with auto + cc_contacts but no matching contact omits cc" do

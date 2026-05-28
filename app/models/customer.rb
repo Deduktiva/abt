@@ -5,9 +5,11 @@ class Customer < ApplicationRecord
   validates :name, presence: true
   validates :vat_id, presence: true, if: -> { sales_tax_customer_class&.vat_id_required? }
   validates :country_iso2, presence: true, inclusion: { in: ISO3166::Country.codes, message: "must be a valid country" }
+  validates :invoice_email_auto_to, format: { with: URI::MailTo::EMAIL_REGEXP, allow_blank: true }
 
   # Set default language (English) for new customers
   before_validation :set_default_language, on: :create
+  before_validation :normalize_invoice_email_auto_to
 
   belongs_to :sales_tax_customer_class
   belongs_to :language
@@ -91,6 +93,10 @@ class Customer < ApplicationRecord
 
   def set_default_language
     self.language ||= Language.find_by(iso_code: "en")
+  end
+
+  def normalize_invoice_email_auto_to
+    self.invoice_email_auto_to = invoice_email_auto_to.to_s.strip if invoice_email_auto_to
   end
 
   def check_if_used

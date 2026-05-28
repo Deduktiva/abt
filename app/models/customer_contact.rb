@@ -2,6 +2,8 @@ class CustomerContact < ApplicationRecord
   belongs_to :customer
   has_and_belongs_to_many :projects, join_table: :customer_contact_projects
 
+  before_validation :normalize_email_and_name
+
   validates :name,  presence: true
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validate :customer_must_be_visible_to_current_user, if: :will_save_change_to_customer_id?
@@ -16,7 +18,20 @@ class CustomerContact < ApplicationRecord
     projects.empty? || projects.include?(project)
   end
 
+  def to_email_address
+    addr = Mail::Address.new
+    addr.address = email.to_s
+    # Collapse CR/LF so a malicious contact name can't inject headers.
+    addr.display_name = name.to_s.gsub(/[\r\n]+/, " ")
+    addr.format
+  end
+
   private
+
+  def normalize_email_and_name
+    self.email = email.to_s.strip if email
+    self.name  = name.to_s.strip  if name
+  end
 
   def projects_belong_to_customer_or_unassigned
     bad = projects.reject { |p| p.bill_to_customer_id.nil? || p.bill_to_customer_id == customer_id }

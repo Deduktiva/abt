@@ -262,4 +262,24 @@ class CustomerTest < ActiveSupport::TestCase
     customer.update!(vat_id: "BE0987654321")
     assert_nil customer.current_vat_verification
   end
+
+  test "strips surrounding whitespace from invoice_email_auto_to before save" do
+    customer = customers(:auto_email_customer)
+    customer.update!(invoice_email_auto_to: "  billing@autoemail.com  ")
+    assert_equal "billing@autoemail.com", customer.reload.invoice_email_auto_to
+  end
+
+  test "rejects an invoice_email_auto_to that is not a valid email" do
+    customer = build_customer(invoice_email_auto_to: "not-an-email")
+    assert_not customer.valid?
+    assert_includes customer.errors[:invoice_email_auto_to], "is invalid"
+  end
+
+  test "allows blank invoice_email_auto_to" do
+    customer = build_customer(invoice_email_auto_to: nil)
+    assert customer.valid?, customer.errors.full_messages.inspect
+
+    customer = build_customer(invoice_email_auto_to: "")
+    assert customer.valid?, customer.errors.full_messages.inspect
+  end
 end

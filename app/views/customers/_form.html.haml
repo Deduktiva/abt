@@ -63,7 +63,7 @@
           = f.input_field :invoice_email_auto_enabled, as: :boolean, class: 'form-check-input'
           = f.label :invoice_email_auto_enabled, class: 'form-check-label', label: 'On'
       .col-lg-4
-        = f.text_field :invoice_email_auto_to, {:class => 'form-control', :placeholder => 'To:'}
+        = f.email_field :invoice_email_auto_to, {:class => 'form-control', :placeholder => 'To:'}
       .col-lg-4
         = f.text_field :invoice_email_auto_subject_template, {:class => 'form-control', :placeholder => 'Subject: XXXX $CUST_REF$ $CUST_ORDER$'}
     .row.mb-3

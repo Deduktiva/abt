@@ -32,17 +32,20 @@ class Invoice < ApplicationRecord
   scope :unpaid, -> { where(paid_at: nil) }
 
   # Recipients for a real outbound send. Honors invoice_email_auto_contact_mode
-  # when the customer's auto-email feature is on. Returns an array of email
-  # strings; callers compose them into mail.to / mail.cc.
+  # when the customer's auto-email feature is on. Returns RFC 5322 mailbox
+  # strings (`"Name" <addr>`) for contacts, bare address for the auto-To.
   def email_recipients
-    return customer.contacts_for_invoice(self).map(&:email) unless customer.invoice_email_auto_enabled?
+    return customer.contacts_for_invoice(self).map(&:to_email_address) unless customer.invoice_email_auto_enabled?
     [ customer.invoice_email_auto_to ].compact_blank
   end
 
   def email_cc_recipients
     return [] unless customer.invoice_email_auto_enabled? && customer.cc_contacts?
-    auto_to = customer.invoice_email_auto_to.to_s.downcase.strip
-    customer.contacts_for_invoice(self).map(&:email).reject { |e| e.to_s.downcase.strip == auto_to }
+    auto_to = customer.invoice_email_auto_to.to_s.downcase
+    customer.contacts_for_invoice(self)
+      .uniq    { |c| c.email.to_s.downcase }
+      .reject  { |c| c.email.to_s.downcase == auto_to }
+      .map(&:to_email_address)
   end
 
   # The contact whose salutation_line should personalize this invoice's email,

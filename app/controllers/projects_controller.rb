@@ -4,7 +4,6 @@ class ProjectsController < ApplicationController
   before_action :load_customer_options, only: [ :new, :create, :edit, :update ]
 
   # GET /projects
-  # GET /projects.json
   def index
     params[:filter] ||= "active"
 
@@ -41,19 +40,6 @@ class ProjectsController < ApplicationController
       # so without this guard the post-delete redirect would render dropdown options
       # into a missing target and leave the index page stale.
       format.turbo_stream { render :filter_options } if request.xhr?
-      format.json {
-        render json: @projects.map { |project|
-          {
-            id: project.id,
-            name: project.display_name,
-            matchcode: project.matchcode,
-            description: project.description,
-            is_reusable: project.bill_to_customer_id.nil?,
-            team_id: project.team_id,
-            team_name: project.team&.name
-          }
-        }
-      }
     end
   end
 

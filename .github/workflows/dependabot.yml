@@ -1,23 +1,26 @@
 name: Dependabot Auto-Merge
 
+# Deny-all by default; the job below grants only what it needs.
+permissions: {}
+
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
-permissions:
-  contents: write
-  pull-requests: write
-  checks: read
-
 jobs:
   dependabot:
+    name: Auto-merge Dependabot PRs
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]'
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: read
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
 
     steps:
     - name: Get Dependabot metadata
       id: metadata
-      uses: dependabot/fetch-metadata@v3
+      uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
       with:
         github-token: "${{ secrets.GITHUB_TOKEN }}"
 

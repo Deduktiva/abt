@@ -124,21 +124,6 @@ class InvoicesController < ApplicationController
     end
   end
 
-  def send_email
-    unless @invoice.emailable?
-      respond_to do |format|
-        format.html { redirect_to @invoice, alert: "No recipient configured for this invoice." }
-        format.json { render json: { error: "No recipient configured for this invoice." }, status: :unprocessable_content }
-      end
-      return
-    end
-    InvoiceMailer.with(invoice: @invoice).customer_email.deliver_later
-    respond_to do |format|
-      format.html { redirect_to @invoice, notice: "E-Mail queued for sending." }
-      format.json { head :ok }
-    end
-  end
-
   def mark_paid
     paid_date = params[:paid_at].presence
     @invoice.paid_at = paid_date ? Date.parse(paid_date) : Date.current

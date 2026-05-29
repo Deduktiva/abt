@@ -47,4 +47,25 @@ module DocumentEmailPreview
       render plain: "No HTML body — check the plaintext version.", layout: false
     end
   end
+
+  # Queues the customer email for actual delivery. Keeps attachments (the
+  # default skip_attachments: false) since this sends for real. The noun in the
+  # no-recipient alert comes from #publishable_label, provided by
+  # PublishableDocument — both host controllers include both concerns.
+  def send_email
+    document = email_preview_document
+    unless document.emailable?
+      message = "No recipient configured for this #{self.class.publishable_label}."
+      respond_to do |format|
+        format.html { redirect_to document, alert: message }
+        format.json { render json: { error: message }, status: :unprocessable_content }
+      end
+      return
+    end
+    email_preview_mail.deliver_later
+    respond_to do |format|
+      format.html { redirect_to document, notice: "E-Mail queued for sending." }
+      format.json { head :ok }
+    end
+  end
 end

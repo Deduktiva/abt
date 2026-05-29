@@ -1,31 +1,13 @@
 class CustomersController < ApplicationController
+  include SearchableDropdownIndex
+
   before_action -> { require_permission!("customers.view") }, only: [ :index, :show ]
   before_action -> { require_permission!("customers.edit") }, only: [ :new, :create, :edit, :update, :destroy, :verify_vat_id ]
 
   # GET /customers
   def index
-    # Show active customers by default
-    params[:filter] ||= "active"
-    base = Customer.visible_to(current_user)
-    @customers = case params[:filter]
-    when "all"
-      base
-    when "inactive"
-      base.where(active: false)
-    else
-      base.where(active: true)
-    end
-
-    @customers = @customers.order(:matchcode)
-
-    respond_to do |format|
-      format.html # index.html.erb
-      # Only the searchable_dropdown Stimulus controller hits this branch; it sets
-      # X-Requested-With explicitly. Turbo's navigation Accept also lists turbo_stream,
-      # so without this guard the post-delete redirect would render dropdown options
-      # into a missing target and leave the index page stale.
-      format.turbo_stream { render :filter_options } if request.xhr?
-    end
+    @customers = filtered_by_active(Customer.visible_to(current_user)).order(:matchcode)
+    respond_to_index_or_dropdown
   end
 
   # GET /customers/1

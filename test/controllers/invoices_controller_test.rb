@@ -141,6 +141,26 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "preview_email reports emailable false without building a mail when there is no recipient" do
+    get preview_email_invoice_url(invoices(:no_email_invoice), format: :json)
+    assert_response :success
+    assert_equal({ "emailable" => false }, JSON.parse(response.body))
+  end
+
+  test "preview_email_html renders the email HTML body" do
+    invoice = invoices(:published_invoice)
+    get preview_email_html_invoice_url(invoice)
+    assert_response :success
+    assert_includes response.body, "Dear #{invoice.customer.name}"
+  end
+
+  test "preview_email_html renders a plaintext fallback when there is no HTML body" do
+    get preview_email_html_invoice_url(invoices(:no_email_invoice))
+    assert_response :success
+    assert_equal "text/plain", response.media_type
+    assert_match "No HTML body", response.body
+  end
+
   test "should show published invoice with tax classes" do
     invoice = Invoice.create!(
       customer: customers(:good_eu),

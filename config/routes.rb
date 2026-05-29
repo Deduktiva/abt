@@ -63,7 +63,7 @@ Rails.application.routes.draw do
     member do
       get "preview"
       get "preview_email"
-      get "preview_email_raw"
+      get "preview_email_html"
       post "publish"
       post "send_email"
       post "mark_paid"
@@ -77,7 +77,7 @@ Rails.application.routes.draw do
     member do
       get "preview"
       get "preview_email"
-      get "preview_email_raw"
+      get "preview_email_html"
       post "publish"
       post "send_email"
       get "pdf"

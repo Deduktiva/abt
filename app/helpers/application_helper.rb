@@ -192,7 +192,7 @@ module ApplicationHelper
     {
       controller: "generic-email-preview",
       "generic-email-preview-preview-url-value" => send("preview_email_#{prefix}_path", resource),
-      "generic-email-preview-raw-preview-url-value" => send("preview_email_raw_#{prefix}_path", resource),
+      "generic-email-preview-html-preview-url-value" => send("preview_email_html_#{prefix}_path", resource),
       "generic-email-preview-send-url-value" => send("send_email_#{prefix}_path", resource)
     }
   end

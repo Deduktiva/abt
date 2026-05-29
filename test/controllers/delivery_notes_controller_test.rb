@@ -361,7 +361,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     json_response = JSON.parse(response.body)
     assert json_response.key?("subject")
-    assert json_response.key?("has_html_body")
+    assert json_response["emailable"]
   end
 
   test "send_email returns 200 for JSON requests and marks email sent" do

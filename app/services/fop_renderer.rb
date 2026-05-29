@@ -18,9 +18,10 @@ class FopRenderer
     @template_path = Rails.root.join("lib", "foptemplate")
     @fop_conf = @template_path.join("fop-conf.xml")
     # Pin the font cache to tmp/. Otherwise FOP writes it relative to
-    # <base>.</base> in fop-conf.xml, which resolves to the cwd we set in
-    # build_fop_command (lib/foptemplate/), leaving an untracked .fop/
-    # directory in the source tree after every render.
+    # <base>.</base> in fop-conf.xml, which resolves to the cwd we set when
+    # spawning FOP (lib/foptemplate/, via the chdir: option in
+    # execute_fop_command), leaving an untracked .fop/ directory in the
+    # source tree after every render.
     @fop_cache = @rails_tmp.join("fop-fonts.cache")
   end
 
@@ -72,11 +73,15 @@ class FopRenderer
 
       fop_command = build_fop_command(fop_binary, xml_path, xsl_path, pdf_path)
 
-      Rails.logger.debug "Calling fop: #{fop_command}"
+      Rails.logger.debug "Calling fop: #{fop_command.inspect}"
 
       fop_result = nil
       exit_status = nil
-      IO.popen(fop_command, "r", err: [ :child, :out ]) do |fop_io|
+      # Array form (no shell): each argument is passed verbatim to FOP, so a
+      # path containing shell metacharacters can't be interpreted as a command.
+      # chdir runs FOP with cwd at the template dir, which fop-conf.xml's
+      # relative <base> requires.
+      IO.popen(fop_command, "r", err: [ :child, :out ], chdir: @template_path.to_s) do |fop_io|
         fop_result = fop_io.read
         fop_io.close
         exit_status = $?.exitstatus
@@ -116,11 +121,17 @@ class FopRenderer
     end
   end
 
+  # Returns an argv array for IO.popen; cwd is set via the popen chdir:
+  # option, so no shell is involved.
   def build_fop_command(fop_binary, xml_path, xsl_path, pdf_path)
-    "cd \"#{@template_path}\" && " +
-    "\"#{fop_binary}\" " +
-    "-xml \"#{xml_path}\" -xsl \"#{xsl_path}\" -pdf \"#{pdf_path}\" -c \"#{@fop_conf}\" " +
-    "-cache \"#{@fop_cache}\""
+    [
+      fop_binary.to_s,
+      "-xml", xml_path.to_s,
+      "-xsl", xsl_path.to_s,
+      "-pdf", pdf_path.to_s,
+      "-c", @fop_conf.to_s,
+      "-cache", @fop_cache.to_s
+    ]
   end
 
   # Write file with explicit permissions to work around restrictive umask

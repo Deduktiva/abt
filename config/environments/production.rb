@@ -18,7 +18,9 @@ Rails.application.configure do
 
   # Ensures that a master key has been made available in either ENV["RAILS_MASTER_KEY"]
   # or in config/master.key. This key is used to decrypt credentials (and other encrypted files).
-  # config.require_master_key = true
+  # Fail fast at boot rather than starting up with a silently-degraded crypto
+  # state (e.g. unreadable encrypted credentials / cookie signing material).
+  config.require_master_key = true
 
   # Cache assets for far-future expiry since they are all digest stamped.
   config.public_file_server.headers = { "cache-control" => "public, max-age=#{1.year.to_i}" }

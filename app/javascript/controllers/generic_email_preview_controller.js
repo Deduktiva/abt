@@ -4,9 +4,9 @@ import ModalController from "controllers/modal_controller"
 export default class extends ModalController {
   static targets = ["modal", "content"]
   static values = {
-    previewUrl: String,     // URL to fetch preview metadata as JSON
-    rawPreviewUrl: String,  // URL serving the raw email HTML for the iframe
-    sendUrl: String         // URL to send email
+    previewUrl: String,      // URL to fetch preview metadata as JSON
+    htmlPreviewUrl: String,  // URL serving the email HTML body for the iframe
+    sendUrl: String          // URL to send email
   }
 
   connect() {
@@ -89,6 +89,18 @@ export default class extends ModalController {
       }
 
       const data = await response.json()
+
+      // No recipient configured -> nothing to preview. Show a graceful empty
+      // state instead of an email with blank headers and an empty iframe.
+      if (!data.emailable) {
+        this.contentTarget.innerHTML = `
+          <div class="alert alert-info mb-0">
+            <h6 class="mb-1">No recipient configured</h6>
+            <p class="mb-0">This document has no email recipient, so there is nothing to preview. Add a contact with an email address to enable sending.</p>
+          </div>
+        `
+        return
+      }
 
       // Build the preview HTML
       this.contentTarget.innerHTML = this.buildPreviewHTML(data)
@@ -239,9 +251,7 @@ export default class extends ModalController {
               <h5>Content</h5>
             </div>
             <div class="card-body email-preview-content" data-format-content="html">
-              ${data.has_html_body ? `
-                <iframe class="email-preview-iframe" sandbox="allow-same-origin" src="${this.rawPreviewUrlValue}"></iframe>
-              ` : '<p class="text-muted"><i>No HTML content available</i></p>'}
+              <iframe class="email-preview-iframe" sandbox="allow-same-origin" src="${this.htmlPreviewUrlValue}"></iframe>
             </div>
 
             ${textContentSection}

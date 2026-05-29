@@ -1,10 +1,12 @@
 class InvoiceMailer < ApplicationMailer
   def customer_email
     @invoice = params[:invoice]
-    attachments[@invoice.attachment.filename] = {
-      mime_type: @invoice.attachment.content_type,
-      content: @invoice.attachment.data
-    }
+    unless params[:skip_attachments]
+      attachments[@invoice.attachment.filename] = {
+        mime_type: @invoice.attachment.content_type,
+        content: @invoice.attachment.data
+      }
+    end
 
     customer = @invoice.customer
     to = @invoice.email_recipients

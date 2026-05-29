@@ -93,6 +93,7 @@ For cross-resource navigation in a breadcrumb action cluster, use `nav_button` (
 ## Comments
 - Default to none. Add a one-liner only when the *why* isn't obvious from the code (workaround, invariant, hidden constraint).
 - Don't reference the current PR/task in comments — that belongs in the PR description.
+- Describe the present, not the history. Say what the code does now and why; don't note what it "previously" did, what a change "replaces", or contrast against an earlier version — that belongs in the commit message.
 
 ## Code quality
 - DRY when refactoring or fixing, but don't overdo it. Prefer clarity and maintainability over excessive abstraction.

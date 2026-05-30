@@ -39,7 +39,7 @@ check_directory() {
         print_error "This doesn't appear to be the ABT application root directory."
         exit 1
     fi
-    
+
     if [[ ! -f "$COMPOSE_FILE" ]]; then
         print_error "Development compose file ($COMPOSE_FILE) not found."
         exit 1
@@ -85,9 +85,9 @@ dev_start() {
     print_status "Starting development environment..."
     check_directory
     check_container_runtime
-    
+
     $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" up -d
-    
+
     print_success "Development environment started!"
     print_status "Services available:"
     echo "  - ABT webapp: http://localhost:3000"
@@ -102,7 +102,7 @@ dev_stop() {
     print_status "Stopping development environment..."
     check_directory
     check_container_runtime
-    
+
     $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" down
     print_success "Development environment stopped!"
 }
@@ -118,7 +118,7 @@ dev_restart() {
 dev_logs() {
     check_directory
     check_container_runtime
-    
+
     if [[ $# -gt 1 ]]; then
         # Show logs for specific service
         $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" logs -f "${@:2}"
@@ -132,7 +132,7 @@ dev_logs() {
 dev_shell() {
     check_directory
     check_container_runtime
-    
+
     print_status "Opening shell in webapp container..."
     $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" exec abt-webapp-dev /bin/bash
 }
@@ -141,7 +141,7 @@ dev_shell() {
 dev_console() {
     check_directory
     check_container_runtime
-    
+
     print_status "Opening Rails console..."
     $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" exec abt-webapp-dev bundle exec rails console
 }
@@ -150,7 +150,7 @@ dev_console() {
 dev_test() {
     check_directory
     check_container_runtime
-    
+
     print_status "Running test suite..."
     $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" exec abt-webapp-dev bundle exec rails test
 }
@@ -160,23 +160,23 @@ dev_setup() {
     print_status "Setting up development environment..."
     check_directory
     check_container_runtime
-    
+
     # Build images
     print_status "Building development images..."
     $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" build
-    
+
     # Start services
     print_status "Starting services..."
     $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" up -d abt-postgres-dev abt-redis-dev
-    
+
     # Wait for database
     print_status "Waiting for database to be ready..."
     sleep 10
-    
+
     # Setup database
     print_status "Setting up database..."
     $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" run --rm abt-webapp-dev bundle exec rails db:setup
-    
+
     print_success "Development environment setup complete!"
     print_status "Use '$0 start' to start the full environment"
 }
@@ -186,7 +186,7 @@ dev_clean() {
     print_status "Cleaning up development environment..."
     check_directory
     check_container_runtime
-    
+
     $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" down -v --remove-orphans
     print_warning "All containers and volumes have been removed!"
 }
@@ -195,7 +195,7 @@ dev_clean() {
 dev_status() {
     check_directory
     check_container_runtime
-    
+
     print_status "Development environment status:"
     $COMPOSE_CMD -f "$COMPOSE_FILE" -p "$PROJECT_NAME" ps
 }

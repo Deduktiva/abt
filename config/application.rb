@@ -33,10 +33,10 @@ module Abt
     config.solid_queue.connects_to = { database: { writing: :queue } }
 
     # Support for subdirectory deployment (e.g., /abt/ behind reverse proxy)
-    if ENV['RAILS_RELATIVE_URL_ROOT']
-      config.relative_url_root = ENV['RAILS_RELATIVE_URL_ROOT']
-    elsif ENV['X_FORWARDED_PREFIX']
-      config.relative_url_root = ENV['X_FORWARDED_PREFIX']
+    if ENV["RAILS_RELATIVE_URL_ROOT"]
+      config.relative_url_root = ENV["RAILS_RELATIVE_URL_ROOT"]
+    elsif ENV["X_FORWARDED_PREFIX"]
+      config.relative_url_root = ENV["X_FORWARDED_PREFIX"]
     end
   end
 end

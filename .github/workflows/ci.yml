@@ -6,8 +6,11 @@ permissions:
 on:
   push:
     branches: [ main ]
+  # No base-branch filter: run on every PR regardless of its target. This keeps
+  # stacked PRs (base != main) covered, and means an automatic retarget to main
+  # (which fires only an `edited` event, not a default trigger) can't leave a PR
+  # without CI — the checks are already attached to the head commit.
   pull_request:
-    branches: [ main ]
 
 jobs:
   rails-test:

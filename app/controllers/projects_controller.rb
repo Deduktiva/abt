@@ -1,21 +1,13 @@
 class ProjectsController < ApplicationController
+  include SearchableDropdownIndex
+
   before_action -> { require_permission!("projects.view") }, only: [ :index, :show ]
   before_action -> { require_permission!("projects.edit") }, only: [ :new, :create, :edit, :update, :destroy ]
   before_action :load_customer_options, only: [ :new, :create, :edit, :update ]
 
   # GET /projects
   def index
-    params[:filter] ||= "active"
-
-    base = Project.visible_to(current_user)
-    @projects = case params[:filter]
-    when "all"
-      base
-    when "inactive"
-      base.where(active: false)
-    else
-      base.where(active: true)
-    end
+    @projects = filtered_by_active(Project.visible_to(current_user))
 
     # Filters for AJAX requests
     if params[:customer_id].present?
@@ -32,15 +24,7 @@ class ProjectsController < ApplicationController
     end
 
     @projects = @projects.order(:matchcode, :description)
-
-    respond_to do |format|
-      format.html # index.html.erb
-      # Only the searchable_dropdown Stimulus controller hits this branch; it sets
-      # X-Requested-With explicitly. Turbo's navigation Accept also lists turbo_stream,
-      # so without this guard the post-delete redirect would render dropdown options
-      # into a missing target and leave the index page stale.
-      format.turbo_stream { render :filter_options } if request.xhr?
-    end
+    respond_to_index_or_dropdown
   end
 
   # GET /projects/1

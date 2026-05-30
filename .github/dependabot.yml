@@ -30,11 +30,9 @@ updates:
     commit-message:
       prefix: "ci"
       include: "scope"
+    # github-actions is not semver-aware, so only default-days is supported here.
     cooldown:
       default-days: 7
-      semver-major-days: 7
-      semver-minor-days: 7
-      semver-patch-days: 7
 
   # Enable version updates for Docker
   - package-ecosystem: "docker"
@@ -47,8 +45,6 @@ updates:
     commit-message:
       prefix: "docker"
       include: "scope"
+    # docker is not semver-aware, so only default-days is supported here.
     cooldown:
       default-days: 7
-      semver-major-days: 7
-      semver-minor-days: 7
-      semver-patch-days: 7

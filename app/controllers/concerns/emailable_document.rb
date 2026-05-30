@@ -49,16 +49,13 @@ module EmailableDocument
   end
 
   # Queues the customer email for actual delivery. Keeps attachments (the
-  # default skip_attachments: false) since this sends for real. The noun in the
-  # no-recipient alert comes from #publishable_label, provided by
-  # PublishableDocument — both host controllers include both concerns.
+  # default skip_attachments: false) since this sends for real.
   def send_email
     document = email_preview_document
     unless document.emailable?
-      message = "No recipient configured for this #{self.class.publishable_label}."
       respond_to do |format|
-        format.html { redirect_to document, alert: message }
-        format.json { render json: { error: message }, status: :unprocessable_content }
+        format.html { redirect_to document, alert: "No recipient configured." }
+        format.json { render json: { error: "No recipient configured." }, status: :unprocessable_content }
       end
       return
     end

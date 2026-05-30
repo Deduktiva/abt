@@ -65,7 +65,7 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to invoice
-    assert_equal "No recipient configured for this invoice.", flash[:alert]
+    assert_equal "No recipient configured.", flash[:alert]
 
     invoice.reload
     assert_nil invoice.email_sent_at

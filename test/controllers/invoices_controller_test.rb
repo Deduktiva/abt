@@ -147,13 +147,6 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_equal({ "emailable" => false }, JSON.parse(response.body))
   end
 
-  test "send_email redirects with an alert when no recipient is configured" do
-    invoice = invoices(:no_email_invoice)
-    post send_email_invoice_url(invoice)
-    assert_redirected_to invoice_url(invoice)
-    assert_match "No recipient configured for this invoice.", flash[:alert]
-  end
-
   test "preview_email_html renders the email HTML body" do
     invoice = invoices(:published_invoice)
     get preview_email_html_invoice_url(invoice)

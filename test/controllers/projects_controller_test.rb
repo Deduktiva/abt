@@ -257,7 +257,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Updated to have no customer", @project.description
   end
 
-  test "dropdown filters projects to the given customer" do
+  test "dropdown scopes projects to the customer plus reusable projects" do
     customer = customers(:good_eu)
     other = customers(:good_national)
     mine = Project.create!(matchcode: "MINE", description: "x", bill_to_customer: customer, active: true, team: teams(:default))
@@ -268,19 +268,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select %(turbo-stream[action="update"][target="project-dropdown-menu"]) do
       assert_select ".searchable-option[data-item-id=?]", mine.id.to_s
-      assert_select ".searchable-option[data-item-id=?]", theirs.id.to_s, count: 0
-      assert_select ".searchable-option[data-item-id=?]", reusable.id.to_s, count: 0
-    end
-  end
-
-  test "dropdown includes reusable projects when include_reusable is set" do
-    customer = customers(:good_eu)
-    reusable = Project.create!(matchcode: "REUSE", description: "x", bill_to_customer: nil, active: true, team: teams(:default))
-
-    get projects_url(customer_id: customer.id, include_reusable: "true"), headers: dropdown_xhr_headers
-
-    assert_select %(turbo-stream[action="update"][target="project-dropdown-menu"]) do
       assert_select ".searchable-option[data-item-id=?]", reusable.id.to_s
+      assert_select ".searchable-option[data-item-id=?]", theirs.id.to_s, count: 0
     end
   end
 

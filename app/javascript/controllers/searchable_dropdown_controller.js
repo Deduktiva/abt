@@ -129,7 +129,6 @@ export default class extends Controller {
       const params = new URLSearchParams()
       if (this.dependentParamValue && this.currentDependentIdValue) {
         params.append(this.dependentParamValue, this.currentDependentIdValue)
-        params.append('include_reusable', 'true')
       }
       params.append('filter', 'active')
 

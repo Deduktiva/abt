@@ -9,18 +9,10 @@ class ProjectsController < ApplicationController
   def index
     @projects = filtered_by_active(Project.visible_to(current_user))
 
-    # Filters for AJAX requests
+    # The dependent project dropdown (searchable_dropdown) scopes options to the
+    # chosen customer, always including reusable (customer-less) projects.
     if params[:customer_id].present?
-      want_reusable_projects = params[:include_reusable].present? && params[:include_reusable] == "true"
-
-      if want_reusable_projects
-        @projects = @projects.where(
-          "bill_to_customer_id = ? OR bill_to_customer_id IS NULL",
-          params[:customer_id]
-        )
-      else
-        @projects = @projects.where(bill_to_customer_id: params[:customer_id])
-      end
+      @projects = @projects.where("bill_to_customer_id = ? OR bill_to_customer_id IS NULL", params[:customer_id])
     end
 
     @projects = @projects.order(:matchcode, :description)

@@ -25,17 +25,6 @@ class CustomersController < ApplicationController
       # so without this guard the post-delete redirect would render dropdown options
       # into a missing target and leave the index page stale.
       format.turbo_stream { render :filter_options } if request.xhr?
-      format.json {
-        render json: @customers.map { |c|
-          {
-            id: c.id,
-            matchcode: c.matchcode,
-            name: c.name,
-            team_id: c.team_id,
-            team_name: c.team&.name
-          }
-        }
-      }
     end
   end
 

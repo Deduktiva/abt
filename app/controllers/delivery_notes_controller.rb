@@ -1,7 +1,7 @@
 require "json"
 
 class DeliveryNotesController < ApplicationController
-  include DocumentEmailPreview
+  include EmailableDocument
   include PublishableDocument
   include DocumentWithLines
 
@@ -300,7 +300,7 @@ protected
     @delivery_note = DeliveryNote.visible_to(current_user).find(params[:id])
   end
 
-  # DocumentEmailPreview hooks.
+  # EmailableDocument hooks.
   def email_preview_document = @delivery_note
 
   def email_preview_mail(skip_attachments: false)

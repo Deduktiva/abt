@@ -1,7 +1,7 @@
-# Email-preview actions shared by documents that can be mailed to a customer
-# (Invoice, DeliveryNote). The host controller supplies the document and the
-# preview mail via #email_preview_document and #email_preview_mail.
-module DocumentEmailPreview
+# Customer-email actions — preview and send — shared by documents that can be
+# emailed (Invoice, DeliveryNote). The host controller supplies the document
+# and the mail via #email_preview_document and #email_preview_mail.
+module EmailableDocument
   extend ActiveSupport::Concern
   include EmailPreviewHelper
 

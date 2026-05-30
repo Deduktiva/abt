@@ -1,7 +1,7 @@
 require "json"
 
 class InvoicesController < ApplicationController
-  include DocumentEmailPreview
+  include EmailableDocument
   include PublishableDocument
   include DocumentWithLines
 
@@ -170,7 +170,7 @@ protected
     @invoice = Invoice.visible_to(current_user).find(params[:id])
   end
 
-  # DocumentEmailPreview hooks.
+  # EmailableDocument hooks.
   def email_preview_document = @invoice
 
   def email_preview_mail(skip_attachments: false)

@@ -1,7 +1,7 @@
 require "json"
 
 class DeliveryNotesController < ApplicationController
-  include DocumentEmailPreview
+  include EmailableDocument
   include PublishableDocument
   include DocumentWithLines
 
@@ -260,21 +260,6 @@ class DeliveryNotesController < ApplicationController
     end
   end
 
-  def send_email
-    unless @delivery_note.emailable?
-      respond_to do |format|
-        format.html { redirect_to @delivery_note, alert: "No recipient configured for this delivery note." }
-        format.json { render json: { error: "No recipient configured for this delivery note." }, status: :unprocessable_content }
-      end
-      return
-    end
-    DeliveryNoteMailer.with(delivery_note: @delivery_note).customer_email.deliver_later
-    respond_to do |format|
-      format.html { redirect_to @delivery_note, notice: "E-Mail queued for sending." }
-      format.json { head :ok }
-    end
-  end
-
   def bulk_send_emails
     delivery_note_ids = params[:delivery_note_ids] || []
     delivery_note_ids = delivery_note_ids.reject(&:blank?)
@@ -315,7 +300,7 @@ protected
     @delivery_note = DeliveryNote.visible_to(current_user).find(params[:id])
   end
 
-  # DocumentEmailPreview hooks.
+  # EmailableDocument hooks.
   def email_preview_document = @delivery_note
 
   def email_preview_mail(skip_attachments: false)

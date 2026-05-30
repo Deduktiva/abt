@@ -1,7 +1,7 @@
-# Email-preview actions shared by documents that can be mailed to a customer
-# (Invoice, DeliveryNote). The host controller supplies the document and the
-# preview mail via #email_preview_document and #email_preview_mail.
-module DocumentEmailPreview
+# Customer-email actions — preview and send — shared by documents that can be
+# emailed (Invoice, DeliveryNote). The host controller supplies the document
+# and the mail via #email_preview_document and #email_preview_mail.
+module EmailableDocument
   extend ActiveSupport::Concern
   include EmailPreviewHelper
 
@@ -45,6 +45,24 @@ module DocumentEmailPreview
       render html: body.html_safe, layout: false
     else
       render plain: "No HTML body — check the plaintext version.", layout: false
+    end
+  end
+
+  # Queues the customer email for actual delivery. Keeps attachments (the
+  # default skip_attachments: false) since this sends for real.
+  def send_email
+    document = email_preview_document
+    unless document.emailable?
+      respond_to do |format|
+        format.html { redirect_to document, alert: "No recipient configured." }
+        format.json { render json: { error: "No recipient configured." }, status: :unprocessable_content }
+      end
+      return
+    end
+    email_preview_mail.deliver_later
+    respond_to do |format|
+      format.html { redirect_to document, notice: "E-Mail queued for sending." }
+      format.json { head :ok }
     end
   end
 end

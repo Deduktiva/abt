@@ -95,6 +95,12 @@
 
         .row.mb-2
           .col-sm-4
+            %strong Email Reply-To:
+          .col-sm-8
+            = @issuer_company.document_email_reply_to
+
+        .row.mb-2
+          .col-sm-4
             %strong Email Auto BCC:
           .col-sm-8
             = @issuer_company.document_email_auto_bcc

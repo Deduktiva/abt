@@ -23,6 +23,19 @@ class InvoiceMailerTest < ActionMailer::TestCase
     assert_equal "test_invoice.pdf", mail.attachments.first.filename
   end
 
+  test "customer_email sets Reply-To from the issuer when configured" do
+    issuer_companies(:one).update!(document_email_reply_to: "replies@example.com")
+    mail = InvoiceMailer.with(invoice: invoices(:published_invoice)).customer_email
+
+    assert_equal [ "replies@example.com" ], mail.reply_to
+  end
+
+  test "customer_email omits Reply-To when the issuer has none configured" do
+    mail = InvoiceMailer.with(invoice: invoices(:published_invoice)).customer_email
+
+    assert_nil mail.reply_to
+  end
+
   test "customer_email skips contacts whose project does not match the invoice's project" do
     # good_eu_project_one_lead is scoped to project `one`. An invoice on
     # project `two` should NOT include that contact.

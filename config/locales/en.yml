@@ -131,3 +131,6 @@ en:
 
   customer_contacts:
     salutation_line_hint: "Write in the customer's language: %{language_name}"
+
+  invoice_conversion:
+    reference_line: "Delivery Note %{number}, Date: %{date}"

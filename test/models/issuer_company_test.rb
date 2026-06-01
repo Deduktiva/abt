@@ -73,4 +73,12 @@ class IssuerCompanyTest < ActiveSupport::TestCase
   test "reporting_email backfills from document_email_auto_bcc on existing fixture rows" do
     assert_equal issuer_companies(:one).document_email_auto_bcc, issuer_companies(:one).reporting_email
   end
+
+  test "website_url must be http(s) when present" do
+    issuer = issuer_companies(:one)
+    issuer.website_url = "javascript:alert(1)"
+    assert_not issuer.valid?
+    issuer.website_url = "https://example.com"
+    assert issuer.valid?
+  end
 end

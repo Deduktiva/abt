@@ -1,4 +1,8 @@
 de:
+  date:
+    formats:
+      default: "%d.%m.%Y"
+
   mailers:
     overdue_invoices:
       subject: "[%{issuer_name}] %{count} überfällige Rechnung(en)"
@@ -51,3 +55,6 @@ de:
 
   customer_contacts:
     salutation_line_hint: "In der Sprache des Kunden verfassen: %{language_name}"
+
+  invoice_conversion:
+    reference_line: "Lieferschein %{number} vom %{date}"

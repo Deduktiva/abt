@@ -221,9 +221,18 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert_equal published_note.project, published_note.invoice.project
     assert_equal published_note.cust_reference, published_note.invoice.cust_reference
 
-    # Check that the enhanced prelude includes delivery note information
-    assert_match "Based on Delivery Note #{published_note.document_number}", published_note.invoice.prelude
-    assert_match "Delivery Note Date:", published_note.invoice.prelude
+    assert_match "Delivery Note #{published_note.document_number}, Date: #{I18n.l(published_note.date)}", published_note.invoice.prelude
+    assert_match published_note.prelude, published_note.invoice.prelude
+  end
+
+  test "convert_to_invoice renders the reference line in the customer's language" do
+    published_note = delivery_notes(:published_delivery_note)
+    published_note.customer.update!(language: languages(:german))
+
+    post convert_to_invoice_delivery_note_url(published_note)
+
+    published_note.reload
+    assert_match "Lieferschein #{published_note.document_number} vom #{I18n.l(published_note.date, locale: :de)}", published_note.invoice.prelude
   end
 
   test "convert_to_invoice uses the default sales tax product class for item lines" do
@@ -324,36 +333,6 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to delivery_note_url(published_note)
     assert_match "No acceptance document to delete", flash[:error]
-  end
-
-  test "should include acceptance document info in invoice prelude when converting" do
-    published_note = delivery_notes(:published_delivery_note)
-
-    # First upload an acceptance document
-    pdf_file = Rack::Test::UploadedFile.new(
-      Rails.root.join("test", "fixtures", "files", "example_logo.pdf"),
-      "application/pdf",
-      original_filename: "signed_acceptance.pdf"
-    )
-    post upload_acceptance_delivery_note_url(published_note), params: { acceptance_pdf: pdf_file }
-
-    published_note.reload
-    assert published_note.acceptance_attachment.present?
-
-    # Ensure there's a sales tax product class for the conversion
-    SalesTaxProductClass.find_or_create_by(name: "Standard") do |tax_class|
-      tax_class.indicator_code = "STD"
-    end
-
-    # Convert to invoice
-    post convert_to_invoice_delivery_note_url(published_note)
-
-    published_note.reload
-    assert published_note.invoice.present?
-
-    # Check that the prelude includes acceptance document information
-    assert_match "Based on Delivery Note #{published_note.document_number}", published_note.invoice.prelude
-    assert_match "Acceptance Document: signed_acceptance.pdf", published_note.invoice.prelude
   end
 
   test "should get email preview json" do

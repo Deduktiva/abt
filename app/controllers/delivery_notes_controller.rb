@@ -199,15 +199,13 @@ class DeliveryNotesController < ApplicationController
     end
 
     begin
-      # Build enhanced prelude with delivery note information
-      delivery_note_info = []
-      delivery_note_info << "Based on #{@delivery_note.display_name}"
-      delivery_note_info << "Delivery Note Date: #{I18n.l(@delivery_note.date)}" if @delivery_note.date
-      if @delivery_note.acceptance_attachment
-        delivery_note_info << "Acceptance Document: #{@delivery_note.acceptance_attachment.filename} (#{I18n.l(@delivery_note.acceptance_attachment.created_at.to_date)})"
+      reference_line = I18n.with_locale(@delivery_note.customer.language.iso_code) do
+        I18n.t("invoice_conversion.reference_line",
+               number: @delivery_note.display_label,
+               date: I18n.l(@delivery_note.date))
       end
 
-      enhanced_prelude = delivery_note_info.join("\n")
+      enhanced_prelude = reference_line
       enhanced_prelude += "\n\n#{@delivery_note.prelude}" if @delivery_note.prelude.present?
 
       # Create invoice from delivery note

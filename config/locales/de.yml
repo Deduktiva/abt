@@ -58,3 +58,9 @@ de:
 
   invoice_conversion:
     reference_line: "Lieferschein %{number} vom %{date}"
+
+  customer_portal:
+    pages:
+      portal_title: "%{issuer} Dokumentenportal"
+      portal_body: "Bitte verwenden Sie den Upload-Link aus der E-Mail, die wir Ihnen gesendet haben."
+      not_found_title: "Hier gibt es nichts zu sehen"

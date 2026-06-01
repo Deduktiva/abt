@@ -1,11 +1,11 @@
 module CustomerPortal
   class PagesController < BaseController
     def root
-      head :ok
+      render :root
     end
 
     def not_found
-      head :not_found
+      render :not_found, status: :not_found
     end
   end
 end

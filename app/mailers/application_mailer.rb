@@ -18,13 +18,15 @@ class ApplicationMailer < ActionMailer::Base
   end
 
   # Send the standard document email envelope. From comes from the default
-  # configured at class level, bcc from the issuer. No-op when `to` is blank.
+  # configured at class level, bcc from the issuer, reply-to from the issuer
+  # when set (blank → header omitted). No-op when `to` is blank.
   def document_mail(to:, subject:, cc: nil)
     return if to.blank?
     mail(
       to: to,
       cc: cc,
       bcc: @issuer.document_email_auto_bcc,
+      reply_to: @issuer.document_email_reply_to.presence,
       subject: subject
     )
   end

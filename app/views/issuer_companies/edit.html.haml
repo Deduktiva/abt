@@ -93,6 +93,10 @@
             = form.email_field :document_email_from, class: 'form-control'
 
           .mb-3
+            = form.label :document_email_reply_to, 'Email Reply-To', class: 'form-label'
+            = form.email_field :document_email_reply_to, class: 'form-control'
+
+          .mb-3
             = form.label :document_email_auto_bcc, 'Email Auto BCC', class: 'form-label'
             = form.email_field :document_email_auto_bcc, class: 'form-control'
 

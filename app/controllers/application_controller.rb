@@ -3,6 +3,7 @@ class ApplicationController < ActionController::Base
 
   AUTH_COOKIE = :abt_auth
 
+  before_action :reject_customer_portal_host
   before_action :authenticate
   after_action  :verify_permission_check_performed
 
@@ -101,6 +102,16 @@ class ApplicationController < ActionController::Base
       request: request,
       metadata: metadata
     )
+  end
+
+  # Defense in depth: the authenticated app must never answer on the public
+  # customer portal host. The host-constrained route block already swallows every
+  # path there, but this guarantees it even if route ordering changes.
+  def reject_customer_portal_host
+    host = Settings.customer_portal&.host.presence
+    return unless host.present? && request.host == host
+    @_permission_check_performed = true # deliberate short-circuit; no action runs
+    head :not_found
   end
 
   private

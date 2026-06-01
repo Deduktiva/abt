@@ -118,6 +118,12 @@ class InvoiceTest < ActiveSupport::TestCase
     assert(problems.any? { |p| p.include?(line.title) && p.include?("rate") })
   end
 
+  test "publish_problems does not flag an item line whose rate is intentionally zero" do
+    invoice = license_invoice_with_tax_config
+    invoice.invoice_lines.where(type: "item").update_all(rate: 0)
+    assert(invoice.reload.publish_problems.none? { |p| p.include?("rate") })
+  end
+
   test "publish_problems reports a missing quantity using the line title" do
     invoice = license_invoice_with_tax_config
     line = invoice.invoice_lines.find_by(type: "item")

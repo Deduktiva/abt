@@ -1,7 +1,6 @@
 class InvoiceLine < ApplicationRecord
   include LineItem
 
-  validates :rate, presence: true, if: :is_item?
   validates :quantity, presence: true, if: :is_item?
 
   belongs_to :invoice

@@ -19,11 +19,15 @@ class InvoiceLineTest < ActiveSupport::TestCase
     assert_includes line.errors[:type], "is not included in the list"
   end
 
-  test "item lines require rate and quantity" do
-    line = InvoiceLine.new(title: "x", type: "item", invoice: invoices(:draft_invoice))
+  test "item lines require quantity" do
+    line = InvoiceLine.new(title: "x", type: "item", rate: 10, invoice: invoices(:draft_invoice))
     assert_not line.valid?
-    assert_includes line.errors[:rate], "can't be blank"
     assert_includes line.errors[:quantity], "can't be blank"
+  end
+
+  test "item lines do not require a rate so converted drafts can defer pricing" do
+    line = InvoiceLine.new(title: "x", type: "item", quantity: 1, invoice: invoices(:draft_invoice))
+    assert line.valid?
   end
 
   test "non-item lines do not require rate or quantity" do

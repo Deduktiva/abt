@@ -147,6 +147,20 @@ class InvoicePublisherTest < ActiveSupport::TestCase
     assert_nil invoice.document_number
   end
 
+  test "publish! books a correction invoice whose lines sum to zero" do
+    klass = sales_tax_product_classes(:standard)
+    invoice = Invoice.create!(customer: customers(:good_national), project: projects(:test_project), cust_reference: "CORRECTION-0", date: Date.new(2024, 6, 1))
+    invoice.invoice_lines.create!(type: "item", title: "Overcharge reversal", quantity: 1.0, rate: -10000.0, position: 1, sales_tax_product_class: klass)
+    invoice.invoice_lines.create!(type: "item", title: "Correct charge", quantity: 1.0, rate: 10000.0, position: 2, sales_tax_product_class: klass)
+
+    publisher = InvoicePublisher.new(invoice.reload, issuer_companies(:one))
+    assert publisher.publish!, publisher.log.join("\n")
+
+    invoice.reload
+    assert invoice.published?
+    assert_in_delta 0.0, invoice.sum_total, 0.0001
+  end
+
   test "publish! returns false and does not publish an already-published invoice" do
     invoice = invoices(:published_invoice)
     assert invoice.published?

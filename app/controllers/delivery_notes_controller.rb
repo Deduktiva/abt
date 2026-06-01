@@ -235,9 +235,9 @@ class DeliveryNotesController < ApplicationController
           # Set appropriate fields based on line type
           if dn_line.type == "item"
             attrs[:quantity] = (dn_line.quantity&.to_f || 1.0).to_f
-            attrs[:rate] = 0.01 # Small non-zero rate
+            # Leave the rate blank: delivery notes carry no prices, and a blank
+            # rate blocks publishing until the user enters a real price.
             attrs[:sales_tax_product_class_id] = default_sales_tax_product_class_id
-            attrs[:amount] = attrs[:rate] * attrs[:quantity] # Pre-calculate amount
           else
             attrs[:amount] = 0
           end

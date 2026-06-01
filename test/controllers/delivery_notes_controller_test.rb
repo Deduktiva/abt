@@ -235,6 +235,16 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert_match "Lieferschein #{published_note.document_number} vom #{I18n.l(published_note.date, locale: :de)}", published_note.invoice.prelude
   end
 
+  test "convert_to_invoice leaves item line rates blank" do
+    published_note = delivery_notes(:published_delivery_note)
+
+    post convert_to_invoice_delivery_note_url(published_note)
+
+    item_lines = published_note.reload.invoice.invoice_lines.where(type: "item")
+    assert item_lines.any?, "expected at least one item line on the converted invoice"
+    item_lines.each { |line| assert_nil line.rate }
+  end
+
   test "convert_to_invoice uses the default sales tax product class for item lines" do
     published_note = delivery_notes(:published_delivery_note)
     default_class = sales_tax_product_classes(:standard)

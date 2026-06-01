@@ -35,4 +35,12 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".alert-warning h5", text: "Quick Setup Required"
   end
+
+  test "should display setup warning when no default product class is set" do
+    SalesTaxProductClass.update_all(is_default: false)
+
+    get root_url
+    assert_response :success
+    assert_select ".alert-warning h5", text: "Quick Setup Required"
+  end
 end

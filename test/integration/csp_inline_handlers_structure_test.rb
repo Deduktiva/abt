@@ -127,6 +127,15 @@ class CspInlineHandlersStructureTest < ActionDispatch::IntegrationTest
     assert_no_match(/\bstyle=['"]/, body, "no inline style attributes allowed on the edit customer-contact form")
   end
 
+  test "customer portal page carries no inline style attribute" do
+    issuer_companies(:one).update!(png_logo: "fakepng")
+    get public_root_url(host: Settings.customer_portal.host)
+    assert_response :success
+    body = @response.body
+
+    assert_no_match(/\bstyle=['"]/, body, "no inline style attributes allowed on the customer portal")
+  end
+
   private
 
   def csp_nonce(response)

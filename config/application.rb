@@ -20,6 +20,12 @@ module Abt
     require_relative "../app/middleware/permissions_policy_header"
     config.middleware.use PermissionsPolicyHeader
 
+    # Discourage search-engine indexing on every response. The layout's
+    # `robots` meta tag only covers HTML; this header also protects the PDFs
+    # (invoices, delivery notes) served through controllers.
+    config.action_dispatch.default_headers =
+      config.action_dispatch.default_headers.merge("X-Robots-Tag" => "noindex, nofollow")
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files

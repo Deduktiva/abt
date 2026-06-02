@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_01_113943) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_01_175606) do
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -254,6 +254,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_113943) do
     t.datetime "updated_at", null: false
     t.string "vat_id"
     t.integer "vat_id_recheck_days", default: 90, null: false
+    t.string "website_url"
     t.index ["active"], name: "index_issuer_companies_on_active", unique: true
   end
 

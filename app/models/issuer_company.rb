@@ -9,6 +9,9 @@ class IssuerCompany < ApplicationRecord
   validates :reporting_email, presence: true
   validates :reporting_email, :document_email_from, :document_email_auto_bcc, :document_email_reply_to,
             format: { with: URI::MailTo::EMAIL_REGEXP, allow_blank: true }
+  validates :website_url, allow_blank: true,
+            format: { with: %r{\Ahttps?://\S+\z}i, message: "must be a valid http:// or https:// URL" }
+  normalizes :website_url, with: ->(url) { url.strip }
 
   # This app requires that there is exactly *one* issuer_company in the database.
   def self.get_the_issuer!

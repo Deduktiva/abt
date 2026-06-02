@@ -46,6 +46,10 @@
             = form.label :country_iso2, 'Country', class: 'form-label'
             = form.select :country_iso2, country_options, { prompt: 'Select country...' }, { class: 'form-select', required: true }
 
+          .mb-3
+            = form.label :website_url, 'Website URL', class: 'form-label'
+            = form.url_field :website_url, class: 'form-control', placeholder: 'https://example.com'
+
     .col-md-6
       .card
         .card-header

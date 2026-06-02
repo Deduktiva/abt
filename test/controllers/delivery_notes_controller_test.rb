@@ -335,6 +335,21 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert_match "deleted successfully", flash[:notice]
   end
 
+  test "deleting an acceptance promoted from a submission does not error" do
+    dn = delivery_notes(:published_delivery_note)
+    dn.issue_acceptance_upload_token!
+    sub = AcceptanceSubmission.submit!(delivery_note: dn,
+      uploaded_file: fixture_file_upload("acceptance.pdf", "application/pdf"), ip: "1.1.1.1")
+    sub.accept!(by: users(:alice))
+    attachment_id = sub.attachment_id
+
+    post delete_acceptance_delivery_note_url(dn)
+    assert_redirected_to delivery_note_path(dn)
+    assert_nil dn.reload.acceptance_attachment_id
+    assert_nil sub.reload.attachment_id
+    assert_not Attachment.exists?(attachment_id)
+  end
+
   test "should not delete acceptance document if none exists" do
     published_note = delivery_notes(:published_delivery_note)
     assert_nil published_note.acceptance_attachment
@@ -457,5 +472,85 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
       Settings.customer_portal.host = original_host
     end
     assert_nil note.reload.acceptance_upload_token_digest
+  end
+
+  test "accept_acceptance promotes the submission and redirects" do
+    dn, sub = pending_submission
+    post accept_acceptance_delivery_note_url(dn, submission_id: sub.id)
+    assert_redirected_to delivery_note_path(dn)
+    assert_equal sub.attachment_id, dn.reload.acceptance_attachment_id
+  end
+
+  test "accept_acceptance of a superseded submission shows an error, no promotion" do
+    dn, sub = pending_submission
+    AcceptanceSubmission.submit!(delivery_note: dn,
+      uploaded_file: fixture_file_upload("acceptance.pdf", "application/pdf"), ip: "1.1.1.1")
+    post accept_acceptance_delivery_note_url(dn, submission_id: sub.id)
+    assert_redirected_to delivery_note_path(dn)
+    assert_nil dn.reload.acceptance_attachment_id
+    assert_match(/newer submission/i, flash[:alert])
+  end
+
+  test "reject_acceptance marks the submission rejected and redirects" do
+    dn, sub = pending_submission
+    post reject_acceptance_delivery_note_url(dn, submission_id: sub.id)
+    assert_redirected_to delivery_note_path(dn)
+    assert_equal "rejected", sub.reload.status
+  end
+
+  test "a user without review_acceptance cannot accept a submission" do
+    dn, sub = pending_submission
+    sign_in_as users(:bob)
+    post accept_acceptance_delivery_note_url(dn, submission_id: sub.id)
+    assert_redirected_to root_path
+    assert_nil dn.reload.acceptance_attachment_id
+  end
+
+  test "index filtered by pending acceptance lists only notes with a pending submission" do
+    dn, = pending_submission
+    other = create_published_delivery_note(document_number: "DN-2025-099", cust_reference: "NO-PENDING")
+
+    get delivery_notes_url(acceptance_filter: "pending")
+    assert_response :success
+    assert_select "a[href=?]", delivery_note_path(dn)
+    assert_select "a[href=?]", delivery_note_path(other), count: 0
+  end
+
+  test "reviewer can view a pending submission's attachment" do
+    _dn, sub = pending_submission
+    get attachment_url(sub.attachment)
+    assert_response :success
+  end
+
+  test "show keeps the submissions card while a submission is pending" do
+    dn, = pending_submission
+    get delivery_note_url(dn)
+    assert_select "h5", text: "Customer acceptance submissions"
+  end
+
+  test "show hides the submissions card once accepted with no pending submission" do
+    dn, sub = pending_submission
+    sub.accept!(by: users(:alice))
+    get delivery_note_url(dn)
+    assert_select "h5", text: "Customer acceptance submissions", count: 0
+  end
+
+  test "show hides the submissions card after an accepted document is deleted" do
+    dn, sub = pending_submission
+    sub.accept!(by: users(:alice))
+    post delete_acceptance_delivery_note_url(dn)
+    assert_nil dn.reload.acceptance_attachment_id
+    get delivery_note_url(dn)
+    assert_select "h5", text: "Customer acceptance submissions", count: 0
+  end
+
+  private
+
+  def pending_submission
+    dn = delivery_notes(:published_delivery_note)
+    dn.issue_acceptance_upload_token!
+    sub = AcceptanceSubmission.submit!(delivery_note: dn,
+      uploaded_file: fixture_file_upload("acceptance.pdf", "application/pdf"), ip: "1.1.1.1")
+    [ dn, sub ]
   end
 end

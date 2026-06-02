@@ -132,6 +132,9 @@
             %small.text-muted.d-block.mt-2
               Upload the signed acceptance document (PDF only)
 
+  - if can?("delivery_notes.review_acceptance")
+    = render "acceptance_submissions", delivery_note: @delivery_note
+
   - if @delivery_note.prelude.present?
     .mb-4
       .card

@@ -14,18 +14,20 @@ class DeliveryNotesController < ApplicationController
     publish unpublish send_email upload_acceptance delete_acceptance
     convert_to_invoice bulk_send_emails
   ]
+  before_action -> { require_permission!("delivery_notes.review_acceptance") }, only: %i[accept_acceptance reject_acceptance]
 
-  before_action :set_delivery_note, only: %i[show edit update destroy publish preview pdf unpublish upload_acceptance delete_acceptance convert_to_invoice preview_email preview_email_html send_email]
+  before_action :set_delivery_note, only: %i[show edit update destroy publish preview pdf unpublish upload_acceptance delete_acceptance convert_to_invoice preview_email preview_email_html send_email accept_acceptance reject_acceptance]
 
   before_action :require_unpublished, only: %i[edit update destroy publish preview]
   before_action :require_unnumbered, only: :destroy
-  before_action :require_published, only: %i[pdf unpublish upload_acceptance delete_acceptance convert_to_invoice send_email]
+  before_action :require_published, only: %i[pdf unpublish upload_acceptance delete_acceptance convert_to_invoice send_email accept_acceptance reject_acceptance]
   before_action :require_item_line, only: %i[preview preview_email]
 
   # GET /delivery_notes
   def index
     @selected_year = params[:year] == "all" ? "all" : (params[:year]&.to_i || Date.current.year)
     @email_filter = params[:email_filter] || "all"
+    @acceptance_filter = params[:acceptance_filter]
     @selected_customer_id = params[:customer_id].presence&.to_i
 
     @delivery_notes = DeliveryNote.visible_to(current_user).ordered
@@ -37,6 +39,8 @@ class DeliveryNotesController < ApplicationController
     when "unsent"
       @delivery_notes = @delivery_notes.email_unsent.published
     end
+
+    @delivery_notes = @delivery_notes.with_pending_acceptance.published if @acceptance_filter == "pending"
 
     @delivery_notes = @delivery_notes.where(customer_id: @selected_customer_id) if @selected_customer_id
 
@@ -131,6 +135,24 @@ class DeliveryNotesController < ApplicationController
     respond_to do |format|
       format.html { redirect_to @delivery_note }
     end
+  end
+
+  def accept_acceptance
+    submission = @delivery_note.acceptance_submissions.find(params[:submission_id])
+    submission.accept!(by: current_user)
+    redirect_to @delivery_note, notice: "Acceptance document confirmed."
+  rescue AcceptanceSubmission::StaleSubmission
+    redirect_to @delivery_note, alert: "A newer submission arrived — review it before accepting."
+  rescue AcceptanceSubmission::AlreadyAccepted
+    redirect_to @delivery_note, alert: "This note already has an accepted acceptance document."
+  end
+
+  def reject_acceptance
+    submission = @delivery_note.acceptance_submissions.find(params[:submission_id])
+    submission.reject!(by: current_user)
+    redirect_to @delivery_note, notice: "Submission rejected; the upload link is open again."
+  rescue AcceptanceSubmission::StaleSubmission
+    redirect_to @delivery_note, alert: "That submission is no longer pending."
   end
 
   def upload_acceptance

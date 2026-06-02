@@ -1,0 +1,20 @@
+- pending = delivery_note.acceptance_submissions.pending.first
+-# The card only exists to review a pending customer submission; with nothing
+-# pending there is nothing actionable, so hide it (covers awaiting-upload,
+-# accepted, and accepted-then-deleted notes alike).
+- if pending
+  - history = delivery_note.acceptance_submissions.where.not(id: pending.id).recent_first
+  .mb-4
+    .card
+      .card-header
+        %h5.mb-0 Customer acceptance submissions
+      .card-body
+        .d-flex.align-items-center.gap-2.mb-3
+          %i.fas.fa-file-pdf.text-danger
+          = link_to pending.attachment.filename, attachment_path(pending.attachment), target: "_blank", class: "me-auto"
+          = button_to "Accept", accept_acceptance_delivery_note_path(delivery_note, submission_id: pending.id), method: :post, class: "btn btn-success btn-sm"
+          = button_to "Reject", reject_acceptance_delivery_note_path(delivery_note, submission_id: pending.id), method: :post, class: "btn btn-outline-danger btn-sm", form: { data: { turbo_confirm: "Reject this submission?" } }
+        - if history.any?
+          %ul.list-unstyled.small.mb-0
+            - history.each do |s|
+              %li= "#{s.status.titleize} · #{l(s.submitted_at)}"

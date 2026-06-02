@@ -40,4 +40,8 @@ class PermissionTest < ActiveSupport::TestCase
     assert_equal %w[users.reset_passkeys users.auto_confirm_email].sort,
                  Permission::ADMIN_ONLY_KEYS.to_a.sort
   end
+
+  test "review_acceptance permission is registered" do
+    assert Permission.valid?("delivery_notes.review_acceptance")
+  end
 end

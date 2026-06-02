@@ -10,7 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_01_175606) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_01_210051) do
+  create_table "acceptance_submissions", force: :cascade do |t|
+    t.integer "attachment_id"
+    t.datetime "created_at", null: false
+    t.integer "delivery_note_id", null: false
+    t.datetime "reviewed_at"
+    t.integer "reviewed_by_id"
+    t.string "status", default: "pending", null: false
+    t.datetime "submitted_at", null: false
+    t.string "submitted_ip"
+    t.datetime "updated_at", null: false
+    t.index ["attachment_id"], name: "index_acceptance_submissions_on_attachment_id"
+    t.index ["delivery_note_id"], name: "index_acceptance_submissions_on_delivery_note_id"
+    t.index ["delivery_note_id"], name: "index_one_pending_submission_per_note", unique: true, where: "status = 'pending'"
+    t.index ["reviewed_by_id"], name: "index_acceptance_submissions_on_reviewed_by_id"
+  end
+
   create_table "attachments", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -102,6 +118,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_175606) do
 
   create_table "delivery_notes", force: :cascade do |t|
     t.integer "acceptance_attachment_id"
+    t.string "acceptance_upload_token_digest"
+    t.datetime "acceptance_upload_token_expires_at"
+    t.datetime "acceptance_upload_token_minted_at"
     t.datetime "created_at", null: false
     t.string "cust_order"
     t.string "cust_reference"
@@ -117,6 +136,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_175606) do
     t.boolean "published"
     t.datetime "updated_at", null: false
     t.index ["acceptance_attachment_id"], name: "index_delivery_notes_on_acceptance_attachment_id"
+    t.index ["acceptance_upload_token_digest"], name: "index_delivery_notes_on_acceptance_upload_token_digest", unique: true
     t.index ["customer_id"], name: "index_delivery_notes_on_customer_id"
     t.index ["date"], name: "index_delivery_notes_on_date"
     t.index ["document_number"], name: "index_delivery_notes_on_document_number", unique: true
@@ -424,6 +444,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_175606) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
+  add_foreign_key "acceptance_submissions", "attachments", on_delete: :nullify
+  add_foreign_key "acceptance_submissions", "delivery_notes"
+  add_foreign_key "acceptance_submissions", "users", column: "reviewed_by_id"
   add_foreign_key "customer_contact_projects", "customer_contacts"
   add_foreign_key "customer_contact_projects", "projects"
   add_foreign_key "customer_contacts", "customers"

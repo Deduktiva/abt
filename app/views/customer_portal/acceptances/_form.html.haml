@@ -1,0 +1,7 @@
+- if flash.now[:error] || flash[:error]
+  .alert.alert-danger= flash.now[:error] || flash[:error]
+= form_with url: delivery_acceptance_upload_submit_path(token: params[:token]), method: :post, multipart: true do |f|
+  .mb-2
+    = f.file_field :acceptance_pdf, accept: "application/pdf", class: "form-control", required: true
+  %small.text-muted.d-block.mb-3= t("customer_portal.acceptance.hint", max: Attachment::MAX_SIZE_BYTES / 1.megabyte)
+  = f.submit t("customer_portal.acceptance.submit"), class: "btn btn-primary"

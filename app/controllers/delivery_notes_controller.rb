@@ -281,9 +281,14 @@ class DeliveryNotesController < ApplicationController
       end
 
       if dns.length == 1
-        DeliveryNoteMailer.with(delivery_note: dns.first).customer_email.deliver_later
+        token = acceptance_token_for(dns.first)
+        DeliveryNoteMailer.with(delivery_note: dns.first, acceptance_token: token).customer_email.deliver_later
       else
-        DeliveryNoteMailer.with(delivery_notes: dns, recipients: recipients).bulk_customer_email.deliver_later
+        acceptance_tokens = dns.each_with_object({}) do |dn, tokens|
+          token = acceptance_token_for(dn)
+          tokens[dn.id.to_s] = token if token
+        end
+        DeliveryNoteMailer.with(delivery_notes: dns, recipients: recipients, acceptance_tokens: acceptance_tokens).bulk_customer_email.deliver_later
       end
       queued_count += dns.length
     end
@@ -301,8 +306,26 @@ protected
   # EmailableDocument hooks.
   def email_preview_document = @delivery_note
 
-  def email_preview_mail(skip_attachments: false)
-    DeliveryNoteMailer.with(delivery_note: @delivery_note, skip_attachments:).customer_email
+  def email_preview_mail(skip_attachments: false, acceptance_token: preview_acceptance_token)
+    DeliveryNoteMailer.with(delivery_note: @delivery_note, skip_attachments:, acceptance_token:).customer_email
+  end
+
+  # Sending mints a fresh upload token; the preview uses a placeholder instead
+  # (see email_preview_mail's default), so previewing never rotates the token.
+  def email_for_sending
+    email_preview_mail(acceptance_token: acceptance_token_for(@delivery_note))
+  end
+
+  def acceptance_token_for(delivery_note)
+    return nil if Settings.customer_portal.host.blank?
+    delivery_note.acceptance_attachment_id.nil? ? delivery_note.issue_acceptance_upload_token! : nil
+  end
+
+  # A non-persisted placeholder token so the email preview shows the acceptance
+  # link the customer will receive, without minting or rotating a real token.
+  def preview_acceptance_token
+    return nil if Settings.customer_portal.host.blank?
+    @delivery_note&.acceptance_attachment_id.nil? ? "preview" : nil
   end
 
   # Document numbers are issued from a gap-free sequence; once assigned they

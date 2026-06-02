@@ -44,4 +44,10 @@ class AbsoluteUrlTest < ActiveSupport::TestCase
 
     assert_equal "https://example.test/abt/account/email_confirmations?token=tok-xyz", url
   end
+
+  test "delivery_acceptance_upload uses the customer portal host" do
+    url = AbsoluteUrl.delivery_acceptance_upload("tok123")
+    assert_includes url, "/delivery-acceptance/tok123"
+    assert_includes url, Settings.customer_portal.host
+  end
 end

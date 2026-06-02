@@ -21,6 +21,9 @@
       - if delivery_note.delivery_timeframe.present?
         .document-detail
           #{t('mailers.delivery_note.delivery_period_label')} #{delivery_note.delivery_timeframe}
+      - if @acceptance_upload_urls[delivery_note.id.to_s]
+        .document-detail
+          = link_to t('mailers.delivery_note.next_steps_upload'), @acceptance_upload_urls[delivery_note.id.to_s]
 
 .instructions
   %strong= t('mailers.delivery_note.next_steps_title')

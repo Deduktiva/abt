@@ -21,6 +21,10 @@ class RackAttackTest < ActiveSupport::TestCase
     assert_equal "203.0.113.7", Rack::Attack.client_ip(stub_req(env))
   end
 
+  test "delivery-acceptance-upload/ip throttle is registered" do
+    assert Rack::Attack.throttles.key?("delivery-acceptance-upload/ip")
+  end
+
   private
 
   def stub_req(env_or_ip)

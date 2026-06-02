@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   constraints(CustomerPortalHostConstraint.new) do
     scope module: :customer_portal do
+      get  "delivery-acceptance/:token", to: "acceptances#show",   as: :delivery_acceptance_upload
+      post "delivery-acceptance/:token", to: "acceptances#create", as: :delivery_acceptance_upload_submit
       get  "/", to: "pages#root", as: :public_root
       get  "*path", to: "pages#not_found", format: false
     end

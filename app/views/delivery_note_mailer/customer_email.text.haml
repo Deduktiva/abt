@@ -14,7 +14,11 @@
   #{t('mailers.delivery_note.delivery_period_label')} #{@delivery_note.delivery_timeframe}
 \
 #{t('mailers.delivery_note.next_steps_title')}
-- t('mailers.delivery_note.next_steps').each_with_index do |step, index|
-  #{index + 1}. #{step}
+- steps = t('mailers.delivery_note.next_steps')
+- steps.each_with_index do |step, index|
+  - if @delivery_acceptance_upload_url && index == steps.size - 1
+    #{index + 1}. #{t('mailers.delivery_note.next_steps_upload')}: #{@delivery_acceptance_upload_url}
+  - else
+    #{index + 1}. #{step}
 \
 #{t('mailers.delivery_note.closing')}

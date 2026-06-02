@@ -59,10 +59,14 @@ module EmailableDocument
       end
       return
     end
-    email_preview_mail.deliver_later
+    email_for_sending.deliver_later
     respond_to do |format|
       format.html { redirect_to document, notice: "E-Mail queued for sending." }
       format.json { head :ok }
     end
   end
+
+  # The mail to actually deliver. Defaults to the previewed mail; subclasses that
+  # need a send-only side effect (e.g. minting a one-time token) override this.
+  def email_for_sending = email_preview_mail
 end

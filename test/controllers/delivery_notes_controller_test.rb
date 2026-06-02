@@ -422,4 +422,40 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to delivery_notes_url
     assert_match "2 emails queued for sending", flash[:notice]
   end
+
+  test "send_email mints an acceptance upload token" do
+    note = delivery_notes(:published_delivery_note)
+    note.update!(email_sent_at: nil, acceptance_upload_token_digest: nil)
+    assert_nil note.acceptance_upload_token_digest
+    post send_email_delivery_note_url(note)
+    assert note.reload.acceptance_upload_token_digest.present?
+  end
+
+  test "previewing the email does not mint a token" do
+    note = delivery_notes(:published_delivery_note)
+    note.update!(acceptance_upload_token_digest: nil)
+    get preview_email_html_delivery_note_url(note)
+    assert_nil note.reload.acceptance_upload_token_digest
+  end
+
+  test "email preview shows the acceptance link without minting a token" do
+    note = delivery_notes(:published_delivery_note)
+    note.update!(acceptance_upload_token_digest: nil)
+    get preview_email_html_delivery_note_url(note)
+    assert_match "/delivery-acceptance/", response.body
+    assert_nil note.reload.acceptance_upload_token_digest
+  end
+
+  test "send_email does not mint a token when the customer portal is disabled" do
+    note = delivery_notes(:published_delivery_note)
+    note.update!(email_sent_at: nil, acceptance_upload_token_digest: nil)
+    original_host = Settings.customer_portal.host
+    Settings.customer_portal.host = ""
+    begin
+      post send_email_delivery_note_url(note)
+    ensure
+      Settings.customer_portal.host = original_host
+    end
+    assert_nil note.reload.acceptance_upload_token_digest
+  end
 end

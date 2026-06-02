@@ -1,0 +1,4 @@
+- content_for :title, t("customer_portal.acceptance.title", number: @delivery_note.document_number)
+%h1.h4= t("customer_portal.acceptance.title", number: @delivery_note.document_number)
+%p.text-muted= t("customer_portal.acceptance.dated", date: l(@delivery_note.date))
+= render "form"

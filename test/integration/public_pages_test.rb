@@ -14,4 +14,10 @@ class PublicPagesTest < ActionDispatch::IntegrationTest
     assert_response :not_found
     assert_select "h1"
   end
+
+  test "root localizes from Accept-Language" do
+    get public_root_url(host: Settings.customer_portal.host),
+        headers: { "Accept-Language" => "de" }
+    assert_select "p", text: /Bitte verwenden Sie/
+  end
 end

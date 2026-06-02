@@ -8,6 +8,12 @@ payments:
 #  public_url: 'https://pay.deduktiva.com/p/%token%'
   public_url: ''
 
+customer_portal:
+  # Separate public hostname for the customer portal page. Leave
+  # blank to disable the public flow (no route is mounted). In production set
+  # to e.g. 'accept.example.com' and add a matching Apache ServerAlias.
+  host: ''
+
 webauthn:
   rp_name: 'ABT'
   rp_id: 'localhost'

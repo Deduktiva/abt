@@ -134,3 +134,9 @@ en:
 
   invoice_conversion:
     reference_line: "Delivery Note %{number}, Date: %{date}"
+
+  customer_portal:
+    pages:
+      portal_title: "%{issuer} document portal"
+      portal_body: "Please use the upload link from the email we sent you."
+      not_found_title: "Nothing to see here"

@@ -1,4 +1,11 @@
 Rails.application.routes.draw do
+  constraints(CustomerPortalHostConstraint.new) do
+    scope module: :customer_portal do
+      get  "/", to: "pages#root", as: :public_root
+      get  "*path", to: "pages#not_found", format: false
+    end
+  end
+
   resource :session, only: [ :new, :destroy ], controller: "sessions" do
     collection do
       post :options

@@ -5,3 +5,6 @@ fop:
   # override via config/settings/development.local.yml with
   # binary_path: "./bin/abt-fop".
   binary_path: "./bin/abt-fop-container"
+
+customer_portal:
+  host: 'customer-portal.localhost'

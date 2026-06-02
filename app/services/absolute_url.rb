@@ -20,4 +20,8 @@ module AbsoluteUrl
   def customer(customer)
     Rails.application.routes.url_helpers.customer_url(customer, **options)
   end
+
+  def customer_portal_host_options
+    options.merge(host: Settings.customer_portal.host.presence || Settings.app.host)
+  end
 end

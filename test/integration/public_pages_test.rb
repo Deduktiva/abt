@@ -20,4 +20,10 @@ class PublicPagesTest < ActionDispatch::IntegrationTest
         headers: { "Accept-Language" => "de" }
     assert_select "p", text: /Bitte verwenden Sie/
   end
+
+  test "root renders even when no issuer is active" do
+    IssuerCompany.update_all(active: false)
+    get public_root_url(host: Settings.customer_portal.host)
+    assert_response :success
+  end
 end

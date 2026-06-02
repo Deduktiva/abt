@@ -10,12 +10,12 @@
       = tag.style ":root { --issuer-accent-color: #{@issuer.document_accent_color}; }", nonce: content_security_policy_nonce
   %body.d-flex.flex-column.min-vh-100
     %main.flex-grow-1
-      .container.py-5{style: "max-width: 640px;"}
+      .container.py-5.customer-portal-container
         - if @issuer&.png_logo.present?
-          .mb-4= image_tag "data:image/png;base64,#{Base64.strict_encode64(@issuer.png_logo)}", alt: @issuer.short_name, style: "max-height: 64px;"
+          .mb-4= image_tag "data:image/png;base64,#{Base64.strict_encode64(@issuer.png_logo)}", alt: @issuer.short_name, class: "customer-portal-logo"
         = yield
     %footer.footer.mt-auto.py-3
-      .container.text-center.text-muted{style: "max-width: 640px;"}
+      .container.text-center.text-muted.customer-portal-container
         - name = @issuer&.legal_name.presence || @issuer&.short_name
         - if @issuer&.website_url.present?
           = link_to name, @issuer.website_url, target: "_blank", rel: "noopener noreferrer"

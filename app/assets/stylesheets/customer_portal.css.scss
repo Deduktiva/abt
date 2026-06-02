@@ -1,0 +1,10 @@
+// Customer portal layout (layouts/customer_portal). Replaces inline
+// style="..." attributes so the portal renders under the app's strict CSP.
+
+.customer-portal-container {
+  max-width: 640px;
+}
+
+.customer-portal-logo {
+  max-height: 64px;
+}

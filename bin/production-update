@@ -69,12 +69,6 @@ check_user() {
 update_git() {
     print_status "Updating code from Git repository..."
 
-    # Check if we're in a git repository
-    if [[ ! -d ".git" ]]; then
-        print_error "This directory is not a Git repository."
-        exit 1
-    fi
-
     # Check for uncommitted changes
     if ! git diff --quiet || ! git diff --cached --quiet; then
         print_warning "There are uncommitted changes in the working directory."

@@ -75,6 +75,8 @@ jobs:
         RAILS_ENV: test
         DATABASE_URL: postgres://postgres:postgres@localhost:5432/abt_test
         RAILS_LOG_LEVEL: debug
+        COVERAGE: "1"
+        COVERAGE_COMMAND: unit
       run: |
         bundle exec rails test --verbose
 
@@ -83,8 +85,21 @@ jobs:
         RAILS_ENV: test
         DATABASE_URL: postgres://postgres:postgres@localhost:5432/abt_test
         RAILS_LOG_LEVEL: debug
+        COVERAGE: "1"
+        COVERAGE_COMMAND: system
       run: |
         HEADLESS=1 bundle exec rails test:system --verbose
+
+    # The system run merges its results with the unit run's (same coverage/ dir)
+    # and rewrites coverage/coverage.xml, so this uploads the combined report.
+    # Runs even if a test step failed so partial coverage still lands.
+    - name: Upload coverage to Codecov
+      if: ${{ !cancelled() }}
+      uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      with:
+        files: ./coverage/coverage.xml
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: false
 
   brakeman:
     name: Brakeman

@@ -1,0 +1,15 @@
+# Coverage is reported for information only — neither a project-wide drop nor an
+# uncovered patch fails a PR. Flip informational to false (and set a target) to
+# start enforcing once a baseline settles.
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true
+
+comment:
+  layout: "reach, diff, files"
+  require_changes: true

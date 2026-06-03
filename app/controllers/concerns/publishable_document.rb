@@ -34,6 +34,19 @@ module PublishableDocument
 
   protected
 
+  # The shared "check problems → publish → redirect" shape. The block performs
+  # the type-specific publish and must return truthy on success, false when
+  # publish_problems block it (Invoice via InvoicePublisher#publish!,
+  # DeliveryNote via DeliveryNote#publish!).
+  def publish_document
+    if yield
+      redirect_to polymorphic_path(publishable_record, published: 1)
+    else
+      flash[:error] = "Publishing failed: #{publishable_record.publish_problems.join('; ')}"
+      redirect_to publishable_record
+    end
+  end
+
   def require_unpublished
     if publishable_record.published?
       flash[:error] = "Published #{self.class.publishable_label.pluralize} can not be modified."

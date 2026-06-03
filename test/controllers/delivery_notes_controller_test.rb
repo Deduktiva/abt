@@ -158,8 +158,9 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert_equal original_date, published_note.date
     assert_match "reverted to draft status", flash[:notice]
 
-    # Re-publishing keeps the preserved number but refreshes the date — the
-    # publish event genuinely happened now.
+    # Re-publishing keeps the preserved number without consuming a new one,
+    # and refreshes the date — the publish event genuinely happened now.
+    sequence_before = DocumentNumber.find_by_code("delivery_note").sequence
     travel_to original_date + 2.days do
       post publish_delivery_note_url(published_note)
     end
@@ -167,6 +168,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     published_note.reload
     assert published_note.published?
     assert_equal original_number, published_note.document_number
+    assert_equal sequence_before, DocumentNumber.find_by_code("delivery_note").sequence
     assert_equal original_date + 2.days, published_note.date
   end
 

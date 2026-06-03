@@ -1,11 +1,23 @@
 ENV["RAILS_ENV"] = "test"
 
-# Opt-in line + branch coverage. Off by default (no overhead on normal runs
-# or CI); enable with COVERAGE=1 bin/rails test.
+# Opt-in line + branch coverage. Off by default (no overhead on normal runs);
+# enable with COVERAGE=1 bin/rails test. CI sets it on both the unit and system
+# steps and uploads the merged report to Codecov.
 if ENV["COVERAGE"]
   require "simplecov"
+  require "simplecov-cobertura"
   SimpleCov.start "rails" do
     enable_coverage :branch
+    # Distinct per run (unit vs system in CI) so the two results merge in
+    # .resultset.json instead of overwriting each other.
+    command_name ENV.fetch("COVERAGE_COMMAND", "test")
+    # CI runs the suites in separate steps; widen the window so the later run
+    # still merges the earlier run's results.
+    merge_timeout 3600
+    formatter SimpleCov::Formatter::MultiFormatter.new([
+      SimpleCov::Formatter::HTMLFormatter,
+      SimpleCov::Formatter::CoberturaFormatter
+    ])
   end
 end
 

@@ -46,6 +46,7 @@ group :test do
   gem "cuprite"
   # Opt-in test coverage: COVERAGE=1 bin/rails test (see test_helper.rb).
   gem "simplecov", require: false
+  gem "simplecov-cobertura", require: false # Cobertura XML for Codecov in CI
 end
 
 group :test, :prod do

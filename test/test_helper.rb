@@ -1,4 +1,14 @@
 ENV["RAILS_ENV"] = "test"
+
+# Opt-in line + branch coverage. Off by default (no overhead on normal runs
+# or CI); enable with COVERAGE=1 bin/rails test.
+if ENV["COVERAGE"]
+  require "simplecov"
+  SimpleCov.start "rails" do
+    enable_coverage :branch
+  end
+end
+
 require File.expand_path("../../config/environment", __FILE__)
 require "rails/test_help"
 

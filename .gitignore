@@ -51,3 +51,6 @@
 /config/settings/production.yml
 /node_modules
 /vendor
+
+# Ignore opt-in test coverage reports (COVERAGE=1 bin/rails test).
+/coverage

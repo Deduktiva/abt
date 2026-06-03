@@ -44,6 +44,8 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "cuprite"
+  # Opt-in test coverage: COVERAGE=1 bin/rails test (see test_helper.rb).
+  gem "simplecov", require: false
 end
 
 group :test, :prod do

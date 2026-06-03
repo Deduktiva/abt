@@ -119,6 +119,7 @@ GEM
       irb (~> 1.10)
       reline (>= 0.3.8)
     deep_merge (1.2.2)
+    docile (1.4.1)
     drb (2.2.3)
     erb (6.0.4)
     erubi (1.13.1)
@@ -355,6 +356,12 @@ GEM
     simple_form (5.4.1)
       actionpack (>= 7.0)
       activemodel (>= 7.0)
+    simplecov (0.22.0)
+      docile (~> 1.1)
+      simplecov-html (~> 0.11)
+      simplecov_json_formatter (~> 0.1)
+    simplecov-html (0.13.2)
+    simplecov_json_formatter (0.1.4)
     solid_cache (1.0.10)
       activejob (>= 7.2)
       activerecord (>= 7.2)
@@ -462,6 +469,7 @@ DEPENDENCIES
   rubocop-rails-omakase
   sass-rails
   simple_form
+  simplecov
   solid_cache
   solid_queue
   sqlite3 (>= 2.1)

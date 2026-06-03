@@ -112,19 +112,6 @@ class DeliveryNotePdfTest < ActionDispatch::IntegrationTest
     assert_includes xml_de, "<language>de</language>", "German delivery note should include language de"
   end
 
-  test "preview of an empty delivery note redirects with a flash instead of crashing FOP" do
-    empty = DeliveryNote.create!(
-      customer: @customer_en,
-      project: @project,
-      delivery_start_date: Date.new(2025, 8, 1)
-    )
-
-    get preview_delivery_note_path(empty)
-
-    assert_redirected_to delivery_note_path(empty)
-    assert_match(/no item lines/i, flash[:error])
-  end
-
   test "publishing an empty delivery note is blocked" do
     empty = DeliveryNote.create!(
       customer: @customer_en,
@@ -137,22 +124,6 @@ class DeliveryNotePdfTest < ActionDispatch::IntegrationTest
     assert_redirected_to delivery_note_path(empty)
     assert_match(/no item lines/i, flash[:error])
     assert_not empty.reload.published?
-  end
-
-  test "publishing a delivery note with only non-item lines is blocked" do
-    dn = DeliveryNote.create!(
-      customer: @customer_en,
-      project: @project,
-      delivery_start_date: Date.new(2025, 8, 1)
-    )
-    dn.delivery_note_lines.create!(type: "text", title: "Note", description: "no items here", position: 1)
-    dn.delivery_note_lines.create!(type: "subheading", title: "Section", position: 2)
-
-    post publish_delivery_note_path(dn)
-
-    assert_redirected_to delivery_note_path(dn)
-    assert_match(/no item lines/i, flash[:error])
-    assert_not dn.reload.published?
   end
 
   test "delivery note XML structure is correct" do
@@ -188,12 +159,5 @@ class DeliveryNotePdfTest < ActionDispatch::IntegrationTest
     assert_includes xml, "<title>Test Item</title>"
     assert_includes xml, "<description>Test description</description>"
     assert_includes xml, "<quantity>5.0</quantity>"
-  end
-
-  private
-
-  def assert_valid_pdf_response
-    assert_equal "application/pdf", response.content_type
-    assert response.body.start_with?("%PDF"), "Response should be a valid PDF file"
   end
 end

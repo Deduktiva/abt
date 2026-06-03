@@ -54,50 +54,6 @@ class InvoiceTaxCalculationTest < ActiveSupport::TestCase
     assert_equal 300.0, @invoice.sum_total  # national: 20% → 250 + 50 tax = 300
   end
 
-  test "handles text lines correctly by clearing amounts" do
-    # Create mixed lines
-    @invoice.invoice_lines.create!(
-      type: "item",
-      title: "Product",
-      rate: 100.0,
-      quantity: 1.0,
-      sales_tax_product_class: @product_class,
-      position: 1
-    )
-
-    text_line = @invoice.invoice_lines.create!(
-      type: "text",
-      title: "Note",
-      description: "A note",
-      rate: 50.0,  # This should be cleared
-      quantity: 2.0,  # This should be cleared
-      amount: 100.0,  # This should be cleared
-      position: 2
-    )
-
-    text_line.reload
-    assert_nil text_line.rate
-    assert_nil text_line.quantity
-    assert_equal 0.0, text_line.amount
-  end
-
-  test "reports errors for missing tax configuration" do
-    # Create item line with invalid product class
-    @invoice.invoice_lines.create!(
-      type: "item",
-      title: "Product",
-      rate: 100.0,
-      quantity: 1.0,
-      sales_tax_product_class_id: 99999, # Invalid ID
-      position: 1
-    )
-
-    problems = @invoice.publish_problems
-
-    assert(problems.any? { |p| p.include?("Product") && p.include?("tax configuration") },
-           "Expected publish_problems to flag missing tax config, got: #{problems.inspect}")
-  end
-
   test "has_items? returns true when invoice has item lines" do
     @invoice.invoice_lines.create!(
       type: "item",

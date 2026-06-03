@@ -64,6 +64,11 @@ end
 
 class ActionDispatch::IntegrationTest
   include TestAuthHelpers
+
+  def assert_valid_pdf_response
+    assert_equal "application/pdf", response.content_type
+    assert response.body.start_with?("%PDF"), "Response should be a valid PDF file"
+  end
 end
 
 class ActionDispatch::SystemTestCase

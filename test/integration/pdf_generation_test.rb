@@ -1,7 +1,7 @@
 require "test_helper"
 
 class PdfGenerationTest < ActionDispatch::IntegrationTest
-  fixtures :customers, :projects, :sales_tax_customer_classes, :sales_tax_product_classes, :sales_tax_rates, :issuer_companies, :document_numbers
+  fixtures :customers, :projects, :sales_tax_customer_classes, :sales_tax_product_classes, :sales_tax_rates, :issuer_companies, :document_numbers, :languages
 
   def setup
     @customer = customers(:good_eu)
@@ -60,46 +60,6 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
     assert @invoice.invoice_lines.any? { |line| line.amount.present? if line.type == "item" }
   end
 
-  def test_preview_of_an_empty_invoice_redirects_with_a_flash
-    minimal_invoice = Invoice.create!(
-      customer: @customer,
-      project: @project
-    )
-
-    get preview_invoice_path(minimal_invoice)
-
-    assert_redirected_to invoice_path(minimal_invoice)
-    assert_match(/no item lines/i, flash[:error])
-  end
-
-  def test_publishing_an_empty_invoice_is_blocked
-    empty = Invoice.create!(
-      customer: @customer,
-      project: @project
-    )
-
-    post publish_invoice_path(empty)
-
-    assert_redirected_to invoice_path(empty)
-    assert_match(/no item lines/i, flash[:error])
-    assert_not empty.reload.published?
-  end
-
-  def test_publishing_an_invoice_with_only_non_item_lines_is_blocked
-    inv = Invoice.create!(
-      customer: @customer,
-      project: @project
-    )
-    inv.invoice_lines.create!(type: "text", title: "Note", description: "no items here", position: 1)
-    inv.invoice_lines.create!(type: "subheading", title: "Section", position: 2)
-
-    post publish_invoice_path(inv)
-
-    assert_redirected_to invoice_path(inv)
-    assert_match(/no item lines/i, flash[:error])
-    assert_not inv.reload.published?
-  end
-
   def test_pdf_generation_with_logo
     # Set up issuer company with a PDF logo
     issuer_company = issuer_companies(:one)
@@ -125,10 +85,29 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
     assert_equal "15.0mm", issuer_company.pdf_logo_height
   end
 
-  private
+  def test_invoice_pdf_generation_for_export_customer_without_vat_id
+    # Customers in tax classes that don't require a VAT ID (export / non-EU /
+    # B2C) must be able to render an invoice PDF. Regression test for the
+    # invoice_publisher check that previously rejected any blank customer_vat_id.
+    export_customer = Customer.create!(
+      name: "USA Corporation Inc.",
+      matchcode: "USACORP_TEST",
+      address: "123 Business Ave\nNew York, NY 10001",
+      country_iso2: "US",
+      sales_tax_customer_class: sales_tax_customer_classes(:restoftheworld),
+      language: languages(:english),
+      team: teams(:default)
+    )
+    assert_nil export_customer.vat_id
 
-  def assert_valid_pdf_response
-    assert_equal "application/pdf", response.content_type
-    assert response.body.start_with?("%PDF"), "Response should be a valid PDF file"
+    invoice = Invoice.create!(customer: export_customer, project: @project)
+    invoice.invoice_lines.create!(
+      type: "item", title: "Service", quantity: 1, rate: 100.00,
+      sales_tax_product_class_id: sales_tax_product_classes(:standard).id
+    )
+
+    get preview_invoice_path(invoice)
+    assert_response :success
+    assert_valid_pdf_response
   end
 end

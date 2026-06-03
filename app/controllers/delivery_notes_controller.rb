@@ -43,10 +43,7 @@ class DeliveryNotesController < ApplicationController
     @delivery_notes = @delivery_notes.where(customer_id: @selected_customer_id) if @selected_customer_id
 
     @available_years = DeliveryNote.visible_to(current_user).available_years
-    @available_customers = Customer.visible_to(current_user)
-                                   .where(id: DeliveryNote.visible_to(current_user).select(:customer_id))
-                                   .where("active = ? OR id = ?", true, @selected_customer_id)
-                                   .order(:name)
+    @available_customers = DeliveryNote.available_customers(current_user, including: @selected_customer_id)
   end
 
   # GET /delivery_notes/1

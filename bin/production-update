@@ -45,7 +45,8 @@ check_directory() {
 check_user() {
     print_status "Checking user permissions..."
 
-    local current_user=$(whoami)
+    local current_user
+    current_user=$(whoami)
     print_status "Running as user: $current_user"
 
     # Check if we can write to the application directory

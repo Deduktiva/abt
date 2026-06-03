@@ -25,8 +25,12 @@
 .instructions
   %strong= t('mailers.delivery_note.next_steps_title')
   %ol
-    - t('mailers.delivery_note.next_steps').each do |step|
-      %li= step
+    - steps = t('mailers.delivery_note.next_steps')
+    - steps.each_with_index do |step, i|
+      - if @delivery_acceptance_upload_url && i == steps.size - 1
+        %li= link_to t('mailers.delivery_note.next_steps_upload'), @delivery_acceptance_upload_url
+      - else
+        %li= step
 
 .closing
   = t('mailers.delivery_note.closing')

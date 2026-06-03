@@ -8,15 +8,17 @@
     -# intentionally empty
 
   .btn-toolbar.mb-3{:role=>"toolbar", "aria-label"=>"List toolbar"}
-    .btn-group.btn-group-sm.me-2.email-filter{:role=>"group", "aria-label"=>"E-Mail status"}
-      = link_to 'All', delivery_notes_path(year: @selected_year, email_filter: 'all', customer_id: @selected_customer_id), class: (@email_filter == 'all' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+    .btn-group.btn-group-sm.me-2.status-filter{:role=>"group", "aria-label"=>"Status filter"}
+      = link_to 'All', delivery_notes_path(year: @selected_year, email_filter: 'all', customer_id: @selected_customer_id), class: (@email_filter == 'all' && @acceptance_filter != 'pending' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
       = link_to 'Unsent', delivery_notes_path(year: @selected_year, email_filter: 'unsent', customer_id: @selected_customer_id), class: (@email_filter == 'unsent' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+      - if can?('delivery_notes.review_acceptance')
+        = link_to 'Pending acceptance', delivery_notes_path(year: @selected_year, customer_id: @selected_customer_id, acceptance_filter: 'pending'), class: (@acceptance_filter == 'pending' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
 
     = render 'shared/customer_filter',
         form_url: delivery_notes_path,
         customers: @available_customers,
         selected_customer_id: @selected_customer_id,
-        hidden_fields: { year: @selected_year, email_filter: @email_filter }
+        hidden_fields: { year: @selected_year, email_filter: @email_filter, acceptance_filter: @acceptance_filter }
 
     - if @email_filter == 'unsent'
       = submit_tag 'Send Selected Emails', form: 'bulk-email-form', class: 'btn btn-warning btn-sm me-2 align-self-start', disabled: true, data: { confirm: 'Are you sure you want to send emails for the selected delivery notes?', 'bulk-select-target': 'submitButton' }

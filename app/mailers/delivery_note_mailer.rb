@@ -1,6 +1,9 @@
 class DeliveryNoteMailer < ApplicationMailer
   def customer_email
     @delivery_note = params[:delivery_note]
+    if params[:acceptance_token].present?
+      @delivery_acceptance_upload_url = AbsoluteUrl.delivery_acceptance_upload(params[:acceptance_token])
+    end
     attach_pdf(@delivery_note) unless params[:skip_attachments]
 
     customer = @delivery_note.customer
@@ -23,6 +26,9 @@ class DeliveryNoteMailer < ApplicationMailer
   def bulk_customer_email
     @delivery_notes = params[:delivery_notes]
     @customer = @delivery_notes.first.customer
+    # Per-note upload links, keyed by delivery-note id (string keys keep the
+    # mailer params serializable for deliver_later).
+    @acceptance_upload_urls = (params[:acceptance_tokens] || {}).transform_values { |token| AbsoluteUrl.delivery_acceptance_upload(token) }
     to = params[:recipients] || @customer.contacts_for_delivery_note(@delivery_notes.first).map(&:email)
 
     @delivery_notes.each { |dn| attach_pdf(dn) }

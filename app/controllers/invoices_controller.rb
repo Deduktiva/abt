@@ -173,7 +173,11 @@ protected
   # EmailableDocument hooks.
   def email_preview_document = @invoice
 
-  def email_preview_mail(skip_attachments: false)
+  def email_preview_mail = build_customer_email(skip_attachments: false)
+  def email_preview_html_mail = build_customer_email(skip_attachments: true)
+  def email_for_sending = build_customer_email(skip_attachments: false)
+
+  def build_customer_email(skip_attachments:)
     InvoiceMailer.with(invoice: @invoice, skip_attachments:).customer_email
   end
 

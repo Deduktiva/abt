@@ -24,4 +24,12 @@ module AbsoluteUrl
   def customer_portal_host_options
     options.merge(host: Settings.customer_portal.host.presence || Settings.app.host)
   end
+
+  def delivery_acceptance_upload(token)
+    Rails.application.routes.url_helpers.delivery_acceptance_upload_url(token: token, **customer_portal_host_options)
+  end
+
+  def delivery_note(dn)
+    Rails.application.routes.url_helpers.delivery_note_url(dn, **options)
+  end
 end

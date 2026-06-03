@@ -2,12 +2,16 @@ class DeliveryNote < ApplicationRecord
   include YearFilterable
   include HasLineItems
   include ScopedThroughCustomer
+  include DigestedToken
 
+  ACCEPTANCE_TOKEN_TTL = (Settings.customer_portal.link_expiry_days || 30).days
+  ACCEPTANCE_SUBMISSIONS_PER_TOKEN = Settings.customer_portal.submissions_per_token || 20
   has_line_items :delivery_note_lines
 
   validates :customer_id, presence: true
   validates :delivery_start_date, presence: true
   validate :delivery_end_date_after_start_date
+  scope :with_pending_acceptance, -> { where(id: AcceptanceSubmission.pending.select(:delivery_note_id)) }
   scope :email_unsent, -> {
     where(email_sent_at: nil).where(<<~SQL.squish)
       EXISTS (
@@ -43,6 +47,34 @@ class DeliveryNote < ApplicationRecord
 
   has_many :delivery_note_lines, -> { order(:position, :id) }, dependent: :delete_all
   accepts_nested_attributes_for :delivery_note_lines, allow_destroy: true, reject_if: :all_blank
+
+  has_many :acceptance_submissions, dependent: :destroy
+
+  def issue_acceptance_upload_token!(now: Time.current)
+    plaintext, digest = self.class.generate_token
+    update!(acceptance_upload_token_digest: digest,
+            acceptance_upload_token_minted_at: now,
+            acceptance_upload_token_expires_at: now + ACCEPTANCE_TOKEN_TTL)
+    plaintext
+  end
+
+  def self.find_by_acceptance_upload_token(plaintext)
+    return nil if plaintext.blank?
+    find_by(acceptance_upload_token_digest: digest_token(plaintext))
+  end
+
+  def acceptance_upload_open?(now: Time.current)
+    published? && acceptance_attachment_id.nil? &&
+      acceptance_upload_token_expires_at.present? &&
+      acceptance_upload_token_expires_at > now
+  end
+
+  def acceptance_upload_cap_reached?
+    return false if acceptance_upload_token_minted_at.blank?
+    acceptance_submissions
+      .where("submitted_at >= ?", acceptance_upload_token_minted_at)
+      .count >= ACCEPTANCE_SUBMISSIONS_PER_TOKEN
+  end
 
   def publish!
     return if self.published?

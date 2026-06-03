@@ -56,6 +56,28 @@ class DeliveryNoteTest < ActiveSupport::TestCase
     assert_includes delivery_note.publish_problems, "Delivery note has no item lines."
   end
 
+  test "issue_acceptance_upload_token! mints, persists digest and 30-day expiry" do
+    dn = delivery_notes(:published_delivery_note)
+    token = dn.issue_acceptance_upload_token!
+    assert token.present?
+    dn.reload
+    assert_equal Digest::SHA256.hexdigest(token), dn.acceptance_upload_token_digest
+    assert_in_delta 30.days.from_now.to_i, dn.acceptance_upload_token_expires_at.to_i, 5
+  end
+
+  test "rotating the token invalidates the old one" do
+    dn = delivery_notes(:published_delivery_note)
+    old = dn.issue_acceptance_upload_token!
+    dn.issue_acceptance_upload_token!
+    assert_nil DeliveryNote.find_by_acceptance_upload_token(old)
+  end
+
+  test "find_by_acceptance_upload_token resolves the current token" do
+    dn = delivery_notes(:published_delivery_note)
+    token = dn.issue_acceptance_upload_token!
+    assert_equal dn, DeliveryNote.find_by_acceptance_upload_token(token)
+  end
+
   test "delivery_timeframe formats single day correctly" do
     delivery_note = DeliveryNote.new(
       delivery_start_date: Date.new(2025, 5, 1),

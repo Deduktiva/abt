@@ -51,7 +51,13 @@ de:
         - "Abnahme der gelieferten Leistungen"
         - "Bestätigung der Leistungserbringung"
         - "Rücksendung des unterfertigten Lieferscheins per E-Mail"
+      next_steps_upload: "Unterfertigen Lieferschein hochladen"
       closing: "Vielen Dank für Ihr Vertrauen. Wir freuen uns auf die weitere Zusammenarbeit."
+
+    acceptance_submission:
+      subject: "Neues Abnahmedokument für %{document_number}"
+      body: "Ein Kunde hat ein unterschriebenes Abnahmedokument für Lieferschein %{document_number} hochgeladen. Bitte prüfen Sie es."
+      cta: "Lieferschein prüfen"
 
   customer_contacts:
     salutation_line_hint: "In der Sprache des Kunden verfassen: %{language_name}"
@@ -64,3 +70,22 @@ de:
       portal_title: "%{issuer} Dokumentenportal"
       portal_body: "Bitte verwenden Sie den Upload-Link aus der E-Mail, die wir Ihnen gesendet haben."
       not_found_title: "Hier gibt es nichts zu sehen"
+
+    acceptance:
+      title: "Abnahme für Lieferschein %{number}"
+      dated: "Datiert %{date}"
+      hint: "Nur PDF · maximal %{max} MB"
+      submit: "Unterschriebene Abnahme senden"
+      success_title: "Erhalten – vielen Dank"
+      success_body: "Ihre unterschriebene Abnahme wurde empfangen und wird geprüft."
+      errors:
+        missing: "Bitte wählen Sie eine PDF-Datei zum Hochladen."
+        not_pdf: "Es werden nur PDF-Dateien akzeptiert."
+        too_large: "Die Datei ist zu groß – maximal %{max} MB."
+      closed:
+        invalid_title: "Dieser Link ist nicht mehr gültig"
+        invalid_body: "Bitte kontaktieren Sie uns, falls Sie Ihre Abnahme noch senden möchten."
+        accepted_title: "Bereits abgenommen"
+        accepted_body: "Dieser Lieferschein wurde bereits abgenommen. Vielen Dank."
+        capped_title: "Zu viele Uploads"
+        capped_body: "Bitte kontaktieren Sie uns, um Ihre Abnahme auf anderem Weg zu senden."

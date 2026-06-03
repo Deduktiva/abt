@@ -1,0 +1,3 @@
+- reason = @closed_reason || (@delivery_note&.acceptance_attachment_id ? :accepted : :invalid)
+%h1.h4= t("customer_portal.acceptance.closed.#{reason}_title")
+%p.text-muted= t("customer_portal.acceptance.closed.#{reason}_body")

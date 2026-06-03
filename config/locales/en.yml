@@ -127,7 +127,13 @@ en:
         - "Please review the delivery note and verify all details are correct"
         - "Sign the delivery note to confirm acceptance of the delivered services"
         - "Return the signed delivery note to us via email"
+      next_steps_upload: "Upload the signed delivery note"
       closing: "Thank you for your business. We appreciate your continued partnership."
+
+    acceptance_submission:
+      subject: "New acceptance document for %{document_number}"
+      body: "A customer uploaded a signed acceptance document for delivery note %{document_number}. Please review it."
+      cta: "Review the delivery note"
 
   customer_contacts:
     salutation_line_hint: "Write in the customer's language: %{language_name}"
@@ -140,3 +146,22 @@ en:
       portal_title: "%{issuer} document portal"
       portal_body: "Please use the upload link from the email we sent you."
       not_found_title: "Nothing to see here"
+
+    acceptance:
+      title: "Acceptance for Delivery Note %{number}"
+      dated: "Dated %{date}"
+      hint: "PDF only · maximum %{max} MB"
+      submit: "Submit signed acceptance"
+      success_title: "Received — thank you"
+      success_body: "Your signed acceptance was received and is pending review."
+      errors:
+        missing: "Please choose a PDF file to upload."
+        not_pdf: "Only PDF files are accepted."
+        too_large: "File is too large — maximum %{max} MB."
+      closed:
+        invalid_title: "This link is no longer valid"
+        invalid_body: "Please contact us if you still need to send your acceptance."
+        accepted_title: "Already accepted"
+        accepted_body: "This delivery note has already been accepted. Thank you."
+        capped_title: "Too many uploads"
+        capped_body: "Please contact us to send your acceptance another way."

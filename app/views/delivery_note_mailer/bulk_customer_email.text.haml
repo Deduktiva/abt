@@ -12,6 +12,8 @@
     #{t('mailers.delivery_note.reference_label')} #{delivery_note.cust_reference}
   - if delivery_note.delivery_timeframe.present?
     #{t('mailers.delivery_note.delivery_period_label')} #{delivery_note.delivery_timeframe}
+  - if @acceptance_upload_urls[delivery_note.id.to_s]
+    #{t('mailers.delivery_note.next_steps_upload')}: #{@acceptance_upload_urls[delivery_note.id.to_s]}
 \
 #{t('mailers.delivery_note.next_steps_title')}
 - t('mailers.delivery_note.bulk_next_steps').each_with_index do |step, index|

@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   constraints(CustomerPortalHostConstraint.new) do
     scope module: :customer_portal do
+      get  "delivery-acceptance/:token", to: "acceptances#show",   as: :delivery_acceptance_upload
+      post "delivery-acceptance/:token", to: "acceptances#create", as: :delivery_acceptance_upload_submit
       get  "/", to: "pages#root", as: :public_root
       get  "*path", to: "pages#not_found", format: false
     end
@@ -92,11 +94,14 @@ Rails.application.routes.draw do
       post "upload_acceptance"
       post "delete_acceptance"
       post "convert_to_invoice"
+      post "accept_acceptance"
+      post "reject_acceptance"
     end
     collection do
       post "bulk_send_emails"
     end
   end
+
   resources :products
   resources :projects
   resources :sales_tax_customer_classes

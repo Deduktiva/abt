@@ -77,6 +77,15 @@ class Rack::Attack
     end
   end
 
+  # Customer portal delivery-acceptance page (separate host, unauthenticated).
+  throttle("delivery-acceptance-fetch/ip", limit: 60, period: 1.minute) do |req|
+    ip_key(req) if req.get? && req.path.start_with?("/delivery-acceptance/")
+  end
+
+  throttle("delivery-acceptance-upload/ip", limit: 10, period: 1.minute) do |req|
+    ip_key(req) if req.post? && req.path.start_with?("/delivery-acceptance/")
+  end
+
   # Backstop. Skips static assets and authenticated requests (signed auth
   # cookie present) so a chatty SPA does not hit this limit. /up is NOT
   # exempted: see the file-level note above.

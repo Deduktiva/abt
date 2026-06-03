@@ -22,6 +22,9 @@ admin_delivery_notes_view:
 admin_delivery_notes_edit:
   group: admin
   permission: delivery_notes.edit
+admin_delivery_notes_review_acceptance:
+  group: admin
+  permission: delivery_notes.review_acceptance
 admin_products_view:
   group: admin
   permission: products.view

@@ -26,6 +26,12 @@ class AttachmentsController < ApplicationController
     if DeliveryNote.visible_to(current_user).where(acceptance_attachment_id: attachment.id).exists?
       return require_permission!("delivery_notes.view")
     end
+    pending_scope = AcceptanceSubmission.pending
+      .where(attachment_id: attachment.id)
+      .where(delivery_note_id: DeliveryNote.visible_to(current_user).select(:id))
+    if pending_scope.exists?
+      return require_permission!("delivery_notes.review_acceptance")
+    end
     raise ApplicationController::PermissionDenied, "attachment##{attachment.id}"
   end
 end

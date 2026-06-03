@@ -77,15 +77,18 @@ class DeliveryNote < ApplicationRecord
       .count >= ACCEPTANCE_SUBMISSIONS_PER_TOKEN
   end
 
+  # Mirrors InvoicePublisher#publish!: returns false without mutating when the
+  # document can't be published (already published, or publish_problems present)
+  # and true after a successful publish.
   def publish!
-    return if self.published?
+    return false if published?
+    return false if publish_problems.any?
 
     self.date = Date.today
-    if self.document_number.nil?
-      self.document_number = DocumentNumber.get_next_for "delivery_note", self.date
-    end
+    self.document_number ||= DocumentNumber.get_next_for("delivery_note", date)
     self.published = true
-    self.save!
+    save!
+    true
   end
 
   # Mirrors Invoice#publish_problems: returns user-facing strings describing

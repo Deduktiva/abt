@@ -91,13 +91,7 @@ class InvoicesController < ApplicationController
   end
 
   def publish
-    publisher = InvoicePublisher.new @invoice, IssuerCompany.get_the_issuer!
-    if publisher.publish!
-      redirect_to invoice_path(@invoice, published: 1)
-    else
-      flash[:error] = "Publishing failed: #{@invoice.publish_problems.join('; ')}"
-      redirect_to @invoice
-    end
+    publish_document { InvoicePublisher.new(@invoice, IssuerCompany.get_the_issuer!).publish! }
   end
 
   def preview

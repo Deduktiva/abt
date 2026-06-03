@@ -37,14 +37,22 @@ class DeliveryNoteTest < ActiveSupport::TestCase
     assert_equal Date.today, delivery_note.date
   end
 
-  test "publish! does nothing if already published" do
+  test "publish! does nothing and returns false if already published" do
     delivery_note = delivery_notes(:published_delivery_note)
     original_document_number = delivery_note.document_number
 
-    delivery_note.publish!
+    assert_not delivery_note.publish!
 
     delivery_note.reload
     assert_equal original_document_number, delivery_note.document_number
+  end
+
+  test "publish! returns false without publishing when there are problems" do
+    delivery_note = create_draft_delivery_note
+    delivery_note.delivery_note_lines.create!(type: "text", title: "Just a note", position: 1)
+
+    assert_not delivery_note.publish!
+    assert_not delivery_note.reload.published?
   end
 
   # Method shape (empty for valid draft / for published doc) is verified

@@ -328,14 +328,14 @@ protected
   # EmailableDocument hooks.
   def email_preview_document = @delivery_note
 
-  def email_preview_mail(skip_attachments: false, acceptance_token: preview_acceptance_token)
-    DeliveryNoteMailer.with(delivery_note: @delivery_note, skip_attachments:, acceptance_token:).customer_email
-  end
+  # Previews carry a non-persisted placeholder token; sending mints a fresh real
+  # one. Keeping the two apart means previewing never rotates the live token.
+  def email_preview_mail = build_customer_email(skip_attachments: false, acceptance_token: preview_acceptance_token)
+  def email_preview_html_mail = build_customer_email(skip_attachments: true, acceptance_token: preview_acceptance_token)
+  def email_for_sending = build_customer_email(skip_attachments: false, acceptance_token: acceptance_token_for(@delivery_note))
 
-  # Sending mints a fresh upload token; the preview uses a placeholder instead
-  # (see email_preview_mail's default), so previewing never rotates the token.
-  def email_for_sending
-    email_preview_mail(acceptance_token: acceptance_token_for(@delivery_note))
+  def build_customer_email(skip_attachments:, acceptance_token:)
+    DeliveryNoteMailer.with(delivery_note: @delivery_note, skip_attachments:, acceptance_token:).customer_email
   end
 
   def acceptance_token_for(delivery_note)

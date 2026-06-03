@@ -121,7 +121,6 @@ class LineManagementTest < ApplicationSystemTestCase
     assert_not_equal original_second, new_second
   end
 
-  # Test line type field visibility
   test "invoice line field visibility changes with type selection" do
     visit edit_invoice_path(@invoice)
 
@@ -130,20 +129,16 @@ class LineManagementTest < ApplicationSystemTestCase
 
     within new_line do
       type_select = find('select[name*="[type]"]')
-
-      # Test item type (default)
       assert_equal "item", type_select.value
       assert_selector 'div[data-line-type-target="itemOnly"]', visible: true
       assert_selector '[data-line-type-target="notSubheading"]', visible: true
 
-      # Test subheading type
       select "Subheading", from: type_select[:name]
-      assert_selector 'div[data-line-type-target="itemOnly"]', visible: false
-      assert_selector '[data-line-type-target="notSubheading"]', visible: false
+      assert_selector 'div[data-line-type-target="itemOnly"]', visible: :hidden
+      assert_selector '[data-line-type-target="notSubheading"]', visible: :hidden
 
-      # Test text type
       select "Text", from: type_select[:name]
-      assert_selector 'div[data-line-type-target="itemOnly"]', visible: false
+      assert_selector 'div[data-line-type-target="itemOnly"]', visible: :hidden
       assert_selector '[data-line-type-target="notSubheading"]', visible: true
     end
   end

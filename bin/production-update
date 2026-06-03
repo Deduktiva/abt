@@ -260,7 +260,7 @@ restart_jobs_worker() {
 # Main deployment function
 main() {
     echo "========================================"
-    echo "  ABT Production Deployment Script"
+    echo "    ABT Production Deployment Script    "
     echo "========================================"
     echo
 

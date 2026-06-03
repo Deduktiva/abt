@@ -278,15 +278,6 @@ main() {
     echo
     print_success "Production deployment completed successfully!"
     echo
-    print_status "Summary of actions performed:"
-    echo "  ✓ Updated code from Git repository"
-    echo "  ✓ Installed/updated Ruby gems"
-    echo "  ✓ Installed/refreshed systemd unit symlinks"
-    echo "  ✓ Precompiled assets for production"
-    echo "  ✓ Ran database migrations"
-    echo "  ✓ Hot-restarted Puma (SIGUSR2)"
-    echo "  ✓ Restarted Solid Queue jobs worker"
-    echo
     print_status "The application should now be running the latest version."
 }
 

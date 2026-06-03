@@ -3,6 +3,7 @@ class DeliveryNote < ApplicationRecord
   include HasLineItems
   include ScopedThroughCustomer
   include DigestedToken
+  include DocumentIdentity
 
   ACCEPTANCE_TOKEN_TTL = (Settings.customer_portal.link_expiry_days || 30).days
   ACCEPTANCE_SUBMISSIONS_PER_TOKEN = Settings.customer_portal.submissions_per_token || 20
@@ -129,21 +130,6 @@ class DeliveryNote < ApplicationRecord
         "#{format_date_for_timeframe(delivery_start_date)} to #{format_date_for_timeframe(delivery_end_date)}"
       end
     end
-  end
-
-  # Human-facing identifier without a type prefix — the document number once
-  # published, or a "Draft #id" stand-in while still a draft. Used wherever
-  # the surrounding context (column header, breadcrumb chain) already says
-  # "Delivery Note".
-  def display_label
-    document_number || "Draft ##{id}"
-  end
-
-  # Same identifier with the model name in front, e.g. "Delivery Note
-  # 20240301" or "Delivery Note Draft #42". Used in cross-references, modal
-  # titles, PDF attachment names, and the browser <title> tag.
-  def display_name
-    "#{self.class.model_name.human} #{display_label}"
   end
 
   private

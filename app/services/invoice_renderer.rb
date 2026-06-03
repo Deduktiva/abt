@@ -109,9 +109,6 @@ class InvoiceRenderer
         end
       end
 
-      Rails.logger.debug @invoice.invoice_tax_classes.inspect
-      Rails.logger.debug "len: #{@invoice.invoice_tax_classes.length}"
-
       xml_root.sums do |xml_sums|
         xml_sums.tag! "tax-classes" do |xml_tax_classes|
           @invoice.invoice_tax_classes.all.each do |tax_class|

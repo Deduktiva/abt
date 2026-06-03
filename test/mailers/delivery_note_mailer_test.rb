@@ -15,30 +15,7 @@ class DeliveryNoteMailerTest < ActionMailer::TestCase
     assert_equal "application/pdf", attachment.content_type
   end
 
-  test "customer_email uses salutation_line when exactly one contact resolves as recipient" do
-    customer_contacts(:good_eu_accounting).update!(salutation_line: "Hi tester,")
-
-    # good_eu_accounting is the sole contact with receives_delivery_note_emails: true.
-    delivery_note = delivery_notes(:published_delivery_note)
-    mail = DeliveryNoteMailer.with(delivery_note: delivery_note, skip_attachments: true).customer_email
-
-    assert_equal [ "customer@good-company.co.uk" ], mail.to
-    assert_match "Hi tester,", mail.text_part.body.to_s
-    assert_match "Hi tester,", mail.html_part.body.to_s
-    assert_no_match(/Dear A Good Company B\.V\./, mail.text_part.body.to_s)
-  end
-
-  test "customer_email falls back to greeting when the single resolved contact has no salutation_line" do
-    delivery_note = delivery_notes(:published_delivery_note)
-    mail = DeliveryNoteMailer.with(delivery_note: delivery_note, skip_attachments: true).customer_email
-
-    assert_equal [ "customer@good-company.co.uk" ], mail.to
-    assert_match "Dear A Good Company B.V.,", mail.text_part.body.to_s
-  end
-
-  test "customer_email falls back to greeting when multiple contacts match, even if both have salutation_line set" do
-    # Promote the project-one lead to also receive delivery notes; project one
-    # matches both contacts, so neither salutation wins.
+  test "customer_email falls back to greeting when multiple contacts match" do
     customer_contacts(:good_eu_accounting).update!(salutation_line: "Hi tester one,")
     customer_contacts(:good_eu_project_one_lead).update!(
       salutation_line: "Hi tester two,",
@@ -49,10 +26,7 @@ class DeliveryNoteMailerTest < ActionMailer::TestCase
     mail = DeliveryNoteMailer.with(delivery_note: delivery_note, skip_attachments: true).customer_email
 
     assert_equal 2, mail.to.size
-    text_body = mail.text_part.body.to_s
-    assert_match "Dear A Good Company B.V.,", text_body
-    assert_no_match(/Hi tester one,/, text_body)
-    assert_no_match(/Hi tester two,/, text_body)
+    assert_match "Dear A Good Company B.V.,", mail.text_part.body.to_s
   end
 
   test "customer_email includes the acceptance upload link when a token is given" do

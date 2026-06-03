@@ -3,7 +3,7 @@
 # Production Update Script for ABT
 # Automates the manual deployment process for production environment
 
-set -e  # Exit on any error
+set -e # Exit on any error
 
 # Set production environment for all Rails commands
 export RAILS_ENV=production
@@ -206,10 +206,10 @@ install_systemd_units() {
     done
     shopt -u nullglob
 
-    if (( installed > 0 )); then
+    if ((installed > 0)); then
         print_success "Installed/refreshed $installed unit symlink(s) in $target_dir."
     fi
-    if (( skipped > 0 )); then
+    if ((skipped > 0)); then
         print_warning "Skipped $skipped unit(s); review warnings above."
     fi
 
@@ -232,9 +232,9 @@ systemctl_user_action() {
 
     local gerund past
     case "$action" in
-        reload)  gerund="Reloading"  past="reloaded"  ;;
-        restart) gerund="Restarting" past="restarted" ;;
-        *)       gerund="Running ${action} on" past="${action}ed" ;;
+    reload) gerund="Reloading" past="reloaded" ;;
+    restart) gerund="Restarting" past="restarted" ;;
+    *) gerund="Running ${action} on" past="${action}ed" ;;
     esac
 
     print_status "${gerund} ${friendly}..."

@@ -34,23 +34,11 @@ print_error() {
 
 # Function to check if we're in the correct directory
 check_directory() {
-    print_status "Checking if we're in the correct directory..."
-
-    # Check for Rails application files
-    if [[ ! -f "config.ru" || ! -f "Gemfile" || ! -d "app" ]]; then
+    if [[ ! -e .git || ! -d "lib/foptemplate" ]]; then
         print_error "This doesn't appear to be the ABT application root directory."
         print_error "Please run this script from the ABT application root directory."
         exit 1
     fi
-
-    # Check for ABT-specific files
-    if [[ ! -f "app/models/invoice.rb" || ! -d "lib/foptemplate" ]]; then
-        print_error "This doesn't appear to be the ABT application directory."
-        print_error "Missing ABT-specific files."
-        exit 1
-    fi
-
-    print_success "Directory check passed - we're in the ABT application root."
 }
 
 # Function to check if we're running as the correct user

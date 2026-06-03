@@ -68,4 +68,24 @@ module EmailableDocument
       format.json { head :ok }
     end
   end
+
+  # Shared scaffolding for the bulk "email the selected published documents"
+  # action: parse the checkbox ids, guard an empty selection, load the
+  # visible-and-published scope, and build the queued/skipped notice. The block
+  # receives that scope and returns [queued, skipped]; how each document type
+  # groups recipients and delivers differs, so that stays in the host.
+  def bulk_send_document_emails(model, ids_param:, redirect_path:, noun:)
+    ids = (params[ids_param] || []).reject(&:blank?)
+    if ids.empty?
+      redirect_to redirect_path, alert: "No #{noun} selected."
+      return
+    end
+
+    scope = model.visible_to(current_user).where(id: ids, published: true)
+    queued, skipped = yield(scope)
+
+    notice = "#{queued} emails queued for sending."
+    notice += " #{skipped} skipped (no recipients)." if skipped > 0
+    redirect_to redirect_path, notice: notice
+  end
 end

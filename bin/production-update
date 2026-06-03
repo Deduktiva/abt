@@ -3,7 +3,7 @@
 # Production Update Script for ABT
 # Automates the manual deployment process for production environment
 
-set -e  # Exit on any error
+set -e # Exit on any error
 
 # Set production environment for all Rails commands
 export RAILS_ENV=production
@@ -17,47 +17,36 @@ NC='\033[0m' # No Color
 
 # Function to print colored output
 print_status() {
-    echo -e "${BLUE}[INFO]${NC} $1"
+    echo -e "${BLUE}I:${NC} $1"
 }
 
 print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
+    echo -e "${GREEN}OK:${NC} $1"
 }
 
 print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
+    echo -e "${YELLOW}WARN:${NC} $1"
 }
 
 print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+    echo -e "${RED}ERROR:${NC} $1"
 }
 
 # Function to check if we're in the correct directory
 check_directory() {
-    print_status "Checking if we're in the correct directory..."
-
-    # Check for Rails application files
-    if [[ ! -f "config.ru" || ! -f "Gemfile" || ! -d "app" ]]; then
+    if [[ ! -e .git || ! -d "lib/foptemplate" ]]; then
         print_error "This doesn't appear to be the ABT application root directory."
         print_error "Please run this script from the ABT application root directory."
         exit 1
     fi
-
-    # Check for ABT-specific files
-    if [[ ! -f "app/models/invoice.rb" || ! -d "lib/foptemplate" ]]; then
-        print_error "This doesn't appear to be the ABT application directory."
-        print_error "Missing ABT-specific files."
-        exit 1
-    fi
-
-    print_success "Directory check passed - we're in the ABT application root."
 }
 
 # Function to check if we're running as the correct user
 check_user() {
     print_status "Checking user permissions..."
 
-    local current_user=$(whoami)
+    local current_user
+    current_user=$(whoami)
     print_status "Running as user: $current_user"
 
     # Check if we can write to the application directory
@@ -79,12 +68,6 @@ check_user() {
 # Function to update code from git
 update_git() {
     print_status "Updating code from Git repository..."
-
-    # Check if we're in a git repository
-    if [[ ! -d ".git" ]]; then
-        print_error "This directory is not a Git repository."
-        exit 1
-    fi
 
     # Check for uncommitted changes
     if ! git diff --quiet || ! git diff --cached --quiet; then
@@ -206,10 +189,10 @@ install_systemd_units() {
     done
     shopt -u nullglob
 
-    if (( installed > 0 )); then
+    if ((installed > 0)); then
         print_success "Installed/refreshed $installed unit symlink(s) in $target_dir."
     fi
-    if (( skipped > 0 )); then
+    if ((skipped > 0)); then
         print_warning "Skipped $skipped unit(s); review warnings above."
     fi
 
@@ -232,9 +215,9 @@ systemctl_user_action() {
 
     local gerund past
     case "$action" in
-        reload)  gerund="Reloading"  past="reloaded"  ;;
-        restart) gerund="Restarting" past="restarted" ;;
-        *)       gerund="Running ${action} on" past="${action}ed" ;;
+    reload) gerund="Reloading" past="reloaded" ;;
+    restart) gerund="Restarting" past="restarted" ;;
+    *) gerund="Running ${action} on" past="${action}ed" ;;
     esac
 
     print_status "${gerund} ${friendly}..."
@@ -277,7 +260,7 @@ restart_jobs_worker() {
 # Main deployment function
 main() {
     echo "========================================"
-    echo "  ABT Production Deployment Script"
+    echo "    ABT Production Deployment Script    "
     echo "========================================"
     echo
 
@@ -294,15 +277,6 @@ main() {
 
     echo
     print_success "Production deployment completed successfully!"
-    echo
-    print_status "Summary of actions performed:"
-    echo "  ✓ Updated code from Git repository"
-    echo "  ✓ Installed/updated Ruby gems"
-    echo "  ✓ Installed/refreshed systemd unit symlinks"
-    echo "  ✓ Precompiled assets for production"
-    echo "  ✓ Ran database migrations"
-    echo "  ✓ Hot-restarted Puma (SIGUSR2)"
-    echo "  ✓ Restarted Solid Queue jobs worker"
     echo
     print_status "The application should now be running the latest version."
 }

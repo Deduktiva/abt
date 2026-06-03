@@ -105,28 +105,3 @@ nav[aria-label="breadcrumb"] > div {
 .document-details .row {
   border-bottom: 1px solid var(--bs-border-color-translucent);
 }
-
-.document-lines table th {
-  background-color: var(--bs-secondary-bg) !important;
-  color: var(--bs-secondary-color) !important;
-  border-color: var(--bs-border-color);
-  font-weight: 600;
-  padding: 0.75rem 0.5rem;
-}
-
-.document-lines table td {
-  padding: 0.5rem;
-  vertical-align: top;
-  background-color: var(--bs-body-bg);
-  color: var(--bs-body-color);
-  border-color: var(--bs-border-color);
-}
-
-.document-lines table tr:nth-child(even) td {
-  background-color: var(--bs-secondary-bg-subtle);
-}
-
-.document-lines table .table-secondary {
-  background-color: var(--bs-secondary-bg) !important;
-  color: var(--bs-secondary-color) !important;
-}

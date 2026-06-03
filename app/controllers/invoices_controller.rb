@@ -1,5 +1,3 @@
-require "json"
-
 class InvoicesController < ApplicationController
   include EmailableDocument
   include PublishableDocument

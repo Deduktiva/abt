@@ -1,5 +1,3 @@
-require "json"
-
 class DeliveryNotesController < ApplicationController
   include EmailableDocument
   include PublishableDocument

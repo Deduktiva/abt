@@ -42,10 +42,7 @@ class InvoicesController < ApplicationController
     @invoices = @invoices.where(customer_id: @selected_customer_id) if @selected_customer_id
 
     @available_years = Invoice.visible_to(current_user).available_years
-    @available_customers = Customer.visible_to(current_user)
-                                   .where(id: Invoice.visible_to(current_user).select(:customer_id))
-                                   .where("active = ? OR id = ?", true, @selected_customer_id)
-                                   .order(:name)
+    @available_customers = Invoice.available_customers(current_user, including: @selected_customer_id)
   end
 
   # GET /invoices/1
@@ -131,30 +128,18 @@ class InvoicesController < ApplicationController
   end
 
   def bulk_send_emails
-    invoice_ids = params[:invoice_ids] || []
-    invoice_ids = invoice_ids.reject(&:blank?)
-
-    if invoice_ids.empty?
-      redirect_to invoices_path, alert: "No invoices selected."
-      return
-    end
-
-    invoices = Invoice.visible_to(current_user).where(id: invoice_ids, published: true)
-    queued_count = 0
-    skipped_count = 0
-
-    invoices.each do |invoice|
-      if invoice.emailable?
-        InvoiceMailer.with(invoice: invoice).customer_email.deliver_later
-        queued_count += 1
-      else
-        skipped_count += 1
+    bulk_send_document_emails(Invoice, ids_param: :invoice_ids, redirect_path: invoices_path, noun: "invoices") do |invoices|
+      queued = skipped = 0
+      invoices.each do |invoice|
+        if invoice.emailable?
+          InvoiceMailer.with(invoice: invoice).customer_email.deliver_later
+          queued += 1
+        else
+          skipped += 1
+        end
       end
+      [ queued, skipped ]
     end
-
-    notice = "#{queued_count} emails queued for sending."
-    notice += " #{skipped_count} skipped (no recipients)." if skipped_count > 0
-    redirect_to invoices_path, notice: notice
   end
 
 protected

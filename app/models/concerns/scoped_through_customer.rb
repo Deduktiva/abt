@@ -32,6 +32,17 @@ module ScopedThroughCustomer
       return all if user.bypass_team_scoping?
       where(customer_id: Customer.visible_to(user).select(:id))
     end
+
+    # Customers owning at least one of these documents visible to the user,
+    # for the index filter dropdown. `including:` keeps a specific customer in
+    # the list even when inactive, so an active-only default doesn't drop the
+    # currently-selected one.
+    def available_customers(user, including: nil)
+      Customer.visible_to(user)
+              .where(id: visible_to(user).select(:customer_id))
+              .where("active = ? OR id = ?", true, including)
+              .order(:name)
+    end
   end
 
   private

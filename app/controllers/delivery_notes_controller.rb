@@ -43,10 +43,7 @@ class DeliveryNotesController < ApplicationController
     @delivery_notes = @delivery_notes.where(customer_id: @selected_customer_id) if @selected_customer_id
 
     @available_years = DeliveryNote.visible_to(current_user).available_years
-    @available_customers = Customer.visible_to(current_user)
-                                   .where(id: DeliveryNote.visible_to(current_user).select(:customer_id))
-                                   .where("active = ? OR id = ?", true, @selected_customer_id)
-                                   .order(:name)
+    @available_customers = DeliveryNote.available_customers(current_user, including: @selected_customer_id)
   end
 
   # GET /delivery_notes/1
@@ -268,43 +265,33 @@ class DeliveryNotesController < ApplicationController
   end
 
   def bulk_send_emails
-    delivery_note_ids = params[:delivery_note_ids] || []
-    delivery_note_ids = delivery_note_ids.reject(&:blank?)
+    bulk_send_document_emails(DeliveryNote, ids_param: :delivery_note_ids, redirect_path: delivery_notes_path, noun: "delivery notes") do |delivery_notes|
+      queued = skipped = 0
 
-    if delivery_note_ids.empty?
-      redirect_to delivery_notes_path, alert: "No delivery notes selected."
-      return
-    end
-
-    delivery_notes = DeliveryNote.visible_to(current_user).where(id: delivery_note_ids, published: true)
-    queued_count = 0
-    skipped_count = 0
-
-    # Partition by [customer_id, resolved-recipient-set]. Two DNs to the same
-    # customer with different project-scoped contacts must NOT be combined,
-    # otherwise we leak DN A's recipients onto DN B.
-    delivery_notes.group_by { |dn| [ dn.customer_id, dn.email_recipients.sort ] }.each do |(_cid, recipients), dns|
-      if recipients.empty?
-        skipped_count += dns.length
-        next
-      end
-
-      if dns.length == 1
-        token = acceptance_token_for(dns.first)
-        DeliveryNoteMailer.with(delivery_note: dns.first, acceptance_token: token).customer_email.deliver_later
-      else
-        acceptance_tokens = dns.each_with_object({}) do |dn, tokens|
-          token = acceptance_token_for(dn)
-          tokens[dn.id.to_s] = token if token
+      # Partition by [customer_id, resolved-recipient-set]. Two DNs to the same
+      # customer with different project-scoped contacts must NOT be combined,
+      # otherwise we leak DN A's recipients onto DN B.
+      delivery_notes.group_by { |dn| [ dn.customer_id, dn.email_recipients.sort ] }.each do |(_cid, recipients), dns|
+        if recipients.empty?
+          skipped += dns.length
+          next
         end
-        DeliveryNoteMailer.with(delivery_notes: dns, recipients: recipients, acceptance_tokens: acceptance_tokens).bulk_customer_email.deliver_later
-      end
-      queued_count += dns.length
-    end
 
-    notice = "#{queued_count} emails queued for sending."
-    notice += " #{skipped_count} skipped (no recipients)." if skipped_count > 0
-    redirect_to delivery_notes_path, notice: notice
+        if dns.length == 1
+          token = acceptance_token_for(dns.first)
+          DeliveryNoteMailer.with(delivery_note: dns.first, acceptance_token: token).customer_email.deliver_later
+        else
+          acceptance_tokens = dns.each_with_object({}) do |dn, tokens|
+            token = acceptance_token_for(dn)
+            tokens[dn.id.to_s] = token if token
+          end
+          DeliveryNoteMailer.with(delivery_notes: dns, recipients: recipients, acceptance_tokens: acceptance_tokens).bulk_customer_email.deliver_later
+        end
+        queued += dns.length
+      end
+
+      [ queued, skipped ]
+    end
   end
 
 protected

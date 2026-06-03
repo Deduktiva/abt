@@ -1,12 +1,38 @@
 // Document line tables on invoices/show and delivery_notes/show
-// (shared via the DocumentWithLines concern).
+// (shared via the DocumentWithLines concern). The `table.` prefix keeps these
+// at the same specificity the cell rules need to win over Bootstrap's .table.
 
-.document-lines-table {
+table.document-lines-table {
   th.col-description { width: 55%; }
   th.col-quantity    { width: 10%; }
   th.col-rate        { width: 15%; }
   th.col-tax-class   { width: 10%; }
   th.col-amount      { width: 15%; }
+
+  th {
+    background-color: var(--bs-secondary-bg) !important;
+    color: var(--bs-secondary-color) !important;
+    border-color: var(--bs-border-color);
+    font-weight: 600;
+    padding: 0.75rem 0.5rem;
+  }
+
+  td {
+    padding: 0.5rem;
+    vertical-align: top;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    border-color: var(--bs-border-color);
+  }
+
+  tr:nth-child(even) td {
+    background-color: var(--bs-secondary-bg-subtle);
+  }
+
+  .table-secondary {
+    background-color: var(--bs-secondary-bg) !important;
+    color: var(--bs-secondary-color) !important;
+  }
 
   td.document-section-row { padding: 12px 8px; }
   td.document-text-row    { padding: 8px; }

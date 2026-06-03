@@ -3,6 +3,7 @@ class ProjectsController < ApplicationController
 
   before_action -> { require_permission!("projects.view") }, only: [ :index, :show ]
   before_action -> { require_permission!("projects.edit") }, only: [ :new, :create, :edit, :update, :destroy ]
+  before_action :set_project, only: %i[show edit update destroy]
   before_action :load_customer_options, only: [ :new, :create, :edit, :update ]
 
   # GET /projects
@@ -21,7 +22,6 @@ class ProjectsController < ApplicationController
 
   # GET /projects/1
   def show
-    @project = Project.visible_to(current_user).find(params[:id])
   end
 
   # GET /projects/new
@@ -33,7 +33,6 @@ class ProjectsController < ApplicationController
 
   # GET /projects/1/edit
   def edit
-    @project = Project.visible_to(current_user).find(params[:id])
   end
 
   # POST /projects
@@ -49,8 +48,6 @@ class ProjectsController < ApplicationController
 
   # PUT /projects/1
   def update
-    @project = Project.visible_to(current_user).find(params[:id])
-
     if @project.update(projects_params)
       redirect_to @project, notice: "Project was successfully updated."
     else
@@ -60,8 +57,6 @@ class ProjectsController < ApplicationController
 
   # DELETE /projects/1
   def destroy
-    @project = Project.visible_to(current_user).find(params[:id])
-
     if @project.destroy
       redirect_to projects_url, notice: "Project was successfully deleted."
     else
@@ -70,6 +65,10 @@ class ProjectsController < ApplicationController
   end
 
 private
+  def set_project
+    @project = Project.visible_to(current_user).find(params[:id])
+  end
+
   def projects_params
     params.require(:project).permit(:bill_to_customer_id, :description, :matchcode, :active, :team_id, :department)
   end

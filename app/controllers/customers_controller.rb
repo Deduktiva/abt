@@ -3,6 +3,7 @@ class CustomersController < ApplicationController
 
   before_action -> { require_permission!("customers.view") }, only: [ :index, :show ]
   before_action -> { require_permission!("customers.edit") }, only: [ :new, :create, :edit, :update, :destroy, :verify_vat_id ]
+  before_action :set_customer, only: %i[show edit update destroy verify_vat_id]
 
   # GET /customers
   def index
@@ -12,7 +13,6 @@ class CustomersController < ApplicationController
 
   # GET /customers/1
   def show
-    @customer = Customer.visible_to(current_user).find(params[:id])
   end
 
   # GET /customers/new
@@ -24,7 +24,6 @@ class CustomersController < ApplicationController
 
   # GET /customers/1/edit
   def edit
-    @customer = Customer.visible_to(current_user).find(params[:id])
   end
 
   # POST /customers
@@ -40,8 +39,6 @@ class CustomersController < ApplicationController
 
   # PUT /customers/1
   def update
-    @customer = Customer.visible_to(current_user).find(params[:id])
-
     if @customer.update(customers_params)
       redirect_to @customer, notice: "Customer was successfully updated."
     else
@@ -51,7 +48,6 @@ class CustomersController < ApplicationController
 
   # POST /customers/1/verify_vat_id
   def verify_vat_id
-    @customer = Customer.visible_to(current_user).find(params[:id])
     if @customer.vat_id.blank?
       redirect_to @customer, alert: "Customer has no VAT ID to verify." and return
     end
@@ -63,8 +59,6 @@ class CustomersController < ApplicationController
 
   # DELETE /customers/1
   def destroy
-    @customer = Customer.visible_to(current_user).find(params[:id])
-
     if @customer.destroy
       redirect_to customers_url, notice: "Customer was successfully deleted."
     else
@@ -73,6 +67,10 @@ class CustomersController < ApplicationController
   end
 
 private
+  def set_customer
+    @customer = Customer.visible_to(current_user).find(params[:id])
+  end
+
   def customers_params
     params.require(:customer).permit(
         :matchcode, :name, :address, :country_iso2, :vat_id, :supplier_number, :notes, :sales_tax_customer_class_id, :language_id, :payment_terms_days,

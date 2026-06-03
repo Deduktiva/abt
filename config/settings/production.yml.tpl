@@ -5,13 +5,16 @@ fop:
   binary_path: "./bin/abt-fop"
 
 payments:
-  public_url: "https://your-domain.com/payments/%token%"
+  public_url: "https://example.com/payments/%token%"
 
 app:
-  host: 'your-domain.com'
+  host: 'example.com'
   protocol: 'https'
+
+customer_portal:
+  host: 'customer-portal.example.com'
 
 webauthn:
   rp_name: 'ABT'
-  rp_id: 'your-domain.com'
-  origin: 'https://your-domain.com'
+  rp_id: 'example.com'
+  origin: 'https://example.com'

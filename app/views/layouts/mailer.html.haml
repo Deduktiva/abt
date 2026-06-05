@@ -5,13 +5,27 @@
     %meta{"name" => "viewport", "content" => "width=device-width, initial-scale=1.0"}
     %title= content_for?(:title) ? yield(:title) : "#{@issuer&.short_name || 'Email'}"
     :css
-      body {
+      html, body {
+        height: 100%;
         margin: 0;
         padding: 0;
+      }
+      body {
         background-color: #f8f9fa;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         line-height: 1.6;
         color: #333;
+      }
+      /* Email clients don't propagate the body background to the viewport the
+         way browsers do, so the gray canvas is carried by a full-height wrapper.
+         Its vertical padding also frames the card with a gutter, so the footer
+         reads as a finished edge instead of a truncated page. */
+      .email-wrapper {
+        width: 100%;
+        min-height: 100%;
+        background-color: #f8f9fa;
+        padding: 30px 0;
+        box-sizing: border-box;
       }
       .email-container {
         max-width: 600px;
@@ -92,17 +106,18 @@
         margin-bottom: 30px;
       }
   %body
-    .email-container
-      .header-stripe
-      .email-content
-        = yield
+    .email-wrapper
+      .email-container
+        .header-stripe
+        .email-content
+          = yield
 
-        - if @issuer
-          .footer
-            .company-info
-              .company-name= @issuer.legal_name
-              - @issuer.address.split("\n").each do |line|
-                .address-line= line
-              .address-line= AddressFormatter.country_name(@issuer.country_iso2, locale: I18n.locale)
-            - if @issuer.png_logo.present?
-              %img.company-logo{src: "data:image/png;base64,#{Base64.encode64(@issuer.png_logo).gsub(/\n/, '')}", alt: @issuer.legal_name}
+          - if @issuer
+            .footer
+              .company-info
+                .company-name= @issuer.legal_name
+                - @issuer.address.split("\n").each do |line|
+                  .address-line= line
+                .address-line= AddressFormatter.country_name(@issuer.country_iso2, locale: I18n.locale)
+              - if @issuer.png_logo.present?
+                %img.company-logo{src: "data:image/png;base64,#{Base64.encode64(@issuer.png_logo).gsub(/\n/, '')}", alt: @issuer.legal_name}

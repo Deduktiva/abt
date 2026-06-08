@@ -131,7 +131,7 @@ GEM
       logger
     faraday-multipart (1.2.0)
       multipart-post (~> 2.0)
-    faraday-net_http (3.4.2)
+    faraday-net_http (3.4.4)
       net-http (~> 0.5)
     ferrum (0.17.1)
       addressable (~> 2.5)
@@ -192,7 +192,7 @@ GEM
       net-imap
       net-pop
       net-smtp
-    mailgun-ruby (1.4.3)
+    mailgun-ruby (1.4.4)
       faraday (~> 2.1)
       faraday-multipart (< 2)
       mini_mime
@@ -436,7 +436,7 @@ GEM
     websocket-extensions (0.1.5)
     xpath (3.2.0)
       nokogiri (~> 1.8)
-    zeitwerk (2.7.5)
+    zeitwerk (2.8.2)
 
 PLATFORMS
   aarch64-linux
@@ -464,7 +464,7 @@ DEPENDENCIES
   image_processing (~> 2.0)
   importmap-rails
   jbuilder
-  mailgun-ruby (~> 1.4.3)
+  mailgun-ruby (~> 1.4.4)
   pg (~> 1.6)
   puma (>= 6.0)
   rack-attack (~> 6.7)

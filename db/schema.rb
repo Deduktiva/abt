@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_01_210051) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_09_153655) do
   create_table "acceptance_submissions", force: :cascade do |t|
     t.integer "attachment_id"
     t.datetime "created_at", null: false
@@ -127,13 +127,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_210051) do
     t.integer "customer_id", null: false
     t.date "date"
     t.date "delivery_end_date"
-    t.date "delivery_start_date"
+    t.date "delivery_start_date", null: false
     t.string "document_number"
     t.datetime "email_sent_at"
     t.integer "invoice_id"
     t.text "prelude"
     t.integer "project_id", null: false
-    t.boolean "published"
+    t.boolean "published", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["acceptance_attachment_id"], name: "index_delivery_notes_on_acceptance_attachment_id"
     t.index ["acceptance_upload_token_digest"], name: "index_delivery_notes_on_acceptance_upload_token_digest", unique: true
@@ -223,7 +223,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_210051) do
     t.text "customer_account_number"
     t.text "customer_address"
     t.string "customer_country_iso2", limit: 2, null: false
-    t.integer "customer_id"
+    t.integer "customer_id", null: false
     t.text "customer_name"
     t.text "customer_supplier_number"
     t.text "customer_vat_id"
@@ -234,10 +234,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_210051) do
     t.date "paid_at"
     t.integer "payment_terms_days", default: 30, null: false
     t.text "prelude"
-    t.integer "project_id"
-    t.boolean "published"
-    t.decimal "sum_net"
-    t.decimal "sum_total"
+    t.integer "project_id", null: false
+    t.boolean "published", default: false, null: false
+    t.decimal "sum_net", default: "0.0", null: false
+    t.decimal "sum_total", default: "0.0", null: false
     t.text "tax_note"
     t.string "token"
     t.datetime "updated_at", null: false

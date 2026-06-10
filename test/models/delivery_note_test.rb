@@ -47,6 +47,18 @@ class DeliveryNoteTest < ActiveSupport::TestCase
     assert_equal original_document_number, delivery_note.document_number
   end
 
+  test "publish! re-dates an unpublished-and-republished note but keeps its number" do
+    delivery_note = delivery_notes(:published_delivery_note)
+    delivery_note.update_columns(published: false, date: Date.today - 30)
+    original_document_number = delivery_note.document_number
+
+    delivery_note.publish!
+
+    delivery_note.reload
+    assert_equal Date.today, delivery_note.date
+    assert_equal original_document_number, delivery_note.document_number
+  end
+
   test "publish! returns false without publishing when there are problems" do
     delivery_note = create_draft_delivery_note
     delivery_note.delivery_note_lines.create!(type: "text", title: "Just a note", position: 1)

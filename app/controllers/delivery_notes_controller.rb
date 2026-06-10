@@ -110,9 +110,11 @@ class DeliveryNotesController < ApplicationController
   end
 
   def unpublish
-    # document_number and date are intentionally preserved: numbers come from a
-    # gap-free sequence (see require_unnumbered) and the original booking date
-    # is part of the audit trail.
+    # document_number is intentionally preserved: numbers come from a gap-free
+    # sequence (see require_unnumbered). The date is left untouched here, but
+    # publish! re-stamps it to the day of the next publish by design (see
+    # DeliveryNote#publish!), so a republished note re-dates to its new booking
+    # day rather than keeping the old one.
     @delivery_note.update!(published: false)
     flash[:notice] = "Delivery Note has been reverted to draft status."
 

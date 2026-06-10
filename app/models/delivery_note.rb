@@ -87,6 +87,11 @@ class DeliveryNote < ApplicationRecord
       next false if published?
       next false if publish_problems.any?
 
+      # Re-date on every publish, deliberately unlike InvoicePublisher's
+      # `date ||= Date.today`. A delivery note's date is the day it was booked,
+      # so unpublish-then-republish re-stamps it to the new booking day. The
+      # document_number is gap-free and stays put via `||=`, so a republished
+      # note can carry a newer date than a later number — that's accepted.
       self.date = Date.today
       self.document_number ||= DocumentNumber.get_next_for("delivery_note", date)
       self.published = true

@@ -169,6 +169,22 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_nil action_buttons_wrapper { "" }
   end
 
+  test "currency_symbol maps each currency to its symbol, falling back to the raw code" do
+    { "EUR" => "€", "USD" => "$", "GBP" => "£", "CHF" => "CHF" }.each do |currency, symbol|
+      @current_currency = currency
+      assert_equal symbol, currency_symbol
+    end
+  end
+
+  test "format_currency prefixes the amount with the currency symbol" do
+    @current_currency = "EUR"
+    assert_equal "€60.00", format_currency(60)
+  end
+
+  test "format_currency returns blank for nil" do
+    assert_equal "", format_currency(nil)
+  end
+
   test "breadcrumbs renders plain-label middle crumbs without a link" do
     html = Nokogiri::HTML.fragment(breadcrumbs("Configuration", [ "Sales Tax", "/sales_tax_rates" ], "Edit"))
     items = html.css("li.breadcrumb-item")

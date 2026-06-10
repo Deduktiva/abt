@@ -31,21 +31,26 @@ class FopRenderer
     # Resolve FOP binary path, can be relative
     fop_binary = resolve_fop_binary_path
 
-    # Create dedicated temp directory with proper permissions
+    # Dedicated owner-only temp dir. The input XML carries customer data and
+    # the payment token, and the output PDF is attached/emailed verbatim, so
+    # no other local OS user may read or substitute these files. FOP always
+    # runs as this same uid (native bin/abt-fop directly; bin/abt-fop-container
+    # via -u "$(id -u):$(id -g)" + podman --userns=keep-id), so 0700/0600
+    # suffices everywhere — group/other bits would only widen exposure.
     Dir.mktmpdir("abt-fop-", @rails_tmp) do |temp_dir|
-      File.chmod(0755, temp_dir)
+      File.chmod(0700, temp_dir)
 
       logo_path = nil
       if logo_data
         logo_path = File.join(temp_dir, "logo.pdf")
-        write_file_with_permissions(logo_path, logo_data, 0644, binary: true)
+        write_file_with_permissions(logo_path, logo_data, 0600, binary: true)
       end
 
       # Call block to emit XML
       xml_data = yield logo_path
 
       xml_path = File.join(temp_dir, "input.xml")
-      write_file_with_permissions(xml_path, xml_data, 0644)
+      write_file_with_permissions(xml_path, xml_data, 0600)
 
       Rails.logger.info "FopRenderer wrote XML to: #{xml_path}"
       Rails.logger.debug File.read(xml_path)
@@ -68,24 +73,12 @@ class FopRenderer
     begin
       pdf_path = File.join(temp_dir, "output.pdf")
 
-      # Create empty output file with correct permissions that FOP can write to
-      write_file_with_permissions(pdf_path, "", 0666)
+      # Pre-create the output file owner-only; FOP (same uid) overwrites it.
+      write_file_with_permissions(pdf_path, "", 0600)
 
       fop_command = build_fop_command(fop_binary, xml_path, xsl_path, pdf_path)
 
-      Rails.logger.debug "Calling fop: #{fop_command.inspect}"
-
-      fop_result = nil
-      exit_status = nil
-      # Array form (no shell): each argument is passed verbatim to FOP, so a
-      # path containing shell metacharacters can't be interpreted as a command.
-      # chdir runs FOP with cwd at the template dir, which fop-conf.xml's
-      # relative <base> requires.
-      IO.popen(fop_command, "r", err: [ :child, :out ], chdir: @template_path.to_s) do |fop_io|
-        fop_result = fop_io.read
-        fop_io.close
-        exit_status = $?.exitstatus
-      end
+      fop_result, exit_status = run_fop(fop_command)
 
       Rails.logger.debug "fop result: #{fop_result}"
       Rails.logger.debug "fop exit status: #{exit_status}"
@@ -121,6 +114,24 @@ class FopRenderer
     end
   end
 
+  # Spawn FOP and return [combined stdout/stderr, exit status].
+  # Array form (no shell): each argument is passed verbatim to FOP, so a
+  # path containing shell metacharacters can't be interpreted as a command.
+  # chdir runs FOP with cwd at the template dir, which fop-conf.xml's
+  # relative <base> requires.
+  def run_fop(fop_command)
+    Rails.logger.debug "Calling fop: #{fop_command.inspect}"
+
+    fop_result = nil
+    exit_status = nil
+    IO.popen(fop_command, "r", err: [ :child, :out ], chdir: @template_path.to_s) do |fop_io|
+      fop_result = fop_io.read
+      fop_io.close
+      exit_status = $?.exitstatus
+    end
+    [ fop_result, exit_status ]
+  end
+
   # Returns an argv array for IO.popen; cwd is set via the popen chdir:
   # option, so no shell is involved.
   def build_fop_command(fop_binary, xml_path, xsl_path, pdf_path)
@@ -134,8 +145,9 @@ class FopRenderer
     ]
   end
 
-  # Write file with explicit permissions to work around restrictive umask
-  # This ensures FOP can access the files regardless of process umask setting
+  # Write a file and chmod it explicitly, so the mode is exactly `permissions`
+  # regardless of the process umask (a strict umask must not further restrict
+  # FOP's access; a loose one must not widen it).
   def write_file_with_permissions(path, content, permissions, binary: false)
     if binary
       File.binwrite(path, content)

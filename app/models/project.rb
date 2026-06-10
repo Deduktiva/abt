@@ -4,6 +4,7 @@ class Project < ApplicationRecord
 
   belongs_to :bill_to_customer, class_name: "Customer", optional: true
   has_many :invoices
+  has_many :delivery_notes
 
   validate :team_must_match_customer
 
@@ -16,12 +17,16 @@ class Project < ApplicationRecord
     invoices.exists?
   end
 
+  def used_in_delivery_notes?
+    delivery_notes.exists?
+  end
+
   # Prevent deletion if project has been used
   before_destroy :check_if_used
 
   # Allow deactivation instead of deletion for used projects
   def can_be_deleted?
-    !used_in_invoices?
+    deletion_blocker.nil?
   end
 
   def display_name
@@ -34,11 +39,17 @@ class Project < ApplicationRecord
 
   private
 
+  # The document type (if any) that blocks deletion. Single source for both the
+  # UI gate (can_be_deleted?) and the destroy guard's error message.
+  def deletion_blocker
+    return "invoices" if used_in_invoices?
+    "delivery notes" if used_in_delivery_notes?
+  end
+
   def check_if_used
-    if used_in_invoices?
-      errors.add(:base, "Cannot delete project that has been used in invoices")
-      throw :abort
-    end
+    return unless (blocker = deletion_blocker)
+    errors.add(:base, "Cannot delete project that has been used in #{blocker}")
+    throw :abort
   end
 
   # Reusable projects (no bill_to_customer) are free to pick any team.

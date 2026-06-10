@@ -15,6 +15,7 @@ class Customer < ApplicationRecord
   belongs_to :language
   has_many :sales_tax_rates, through: :sales_tax_customer_class
   has_many :invoices
+  has_many :delivery_notes
   has_many :customer_contacts, dependent: :destroy
   has_many :vat_verifications, class_name: "CustomerVatVerification", dependent: :destroy
 
@@ -50,6 +51,14 @@ class Customer < ApplicationRecord
 
   def used_in_invoices?
     invoices.exists?
+  end
+
+  def used_in_delivery_notes?
+    delivery_notes.exists?
+  end
+
+  def can_be_deleted?
+    deletion_blocker.nil?
   end
 
   def latest_vat_verification
@@ -99,11 +108,17 @@ class Customer < ApplicationRecord
     self.invoice_email_auto_to = invoice_email_auto_to.to_s.strip if invoice_email_auto_to
   end
 
+  # The document type (if any) that blocks deletion. Single source for both the
+  # UI gate (can_be_deleted?) and the destroy guard's error message.
+  def deletion_blocker
+    return "invoices" if used_in_invoices?
+    "delivery notes" if used_in_delivery_notes?
+  end
+
   def check_if_used
-    if used_in_invoices?
-      errors.add(:base, "Cannot delete customer that has been used in invoices")
-      throw :abort
-    end
+    return unless (blocker = deletion_blocker)
+    errors.add(:base, "Cannot delete customer that has been used in #{blocker}")
+    throw :abort
   end
 
   def sync_project_teams

@@ -120,6 +120,25 @@ class CustomerTest < ActiveSupport::TestCase
     assert create_customer.destroy
   end
 
+  test "before_destroy rejects destroy when delivery notes reference the customer" do
+    customer = create_customer
+    DeliveryNote.create!(customer: customer, project: projects(:reusable_project), delivery_start_date: Date.current)
+    assert_not customer.destroy
+    assert_includes customer.errors[:base], "Cannot delete customer that has been used in delivery notes"
+  end
+
+  test "used_in_delivery_notes? is true for a customer with delivery notes" do
+    customer = create_customer
+    DeliveryNote.create!(customer: customer, project: projects(:reusable_project), delivery_start_date: Date.current)
+    assert customer.used_in_delivery_notes?
+  end
+
+  test "database rejects deleting a customer still referenced by an invoice" do
+    # no_email_customer has an invoice but no delivery note, so this exercises
+    # the invoices FK specifically (not the pre-existing delivery_notes FK).
+    assert_raises(ActiveRecord::InvalidForeignKey) { customers(:no_email_customer).delete }
+  end
+
   test "active scope returns only active customers" do
     inactive = create_customer(active: false)
     assert_includes Customer.active, customers(:good_eu)

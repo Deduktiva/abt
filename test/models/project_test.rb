@@ -113,6 +113,11 @@ class ProjectTest < ActiveSupport::TestCase
     assert @project.destroy
   end
 
+  test "database rejects deleting a project still referenced by an invoice" do
+    Invoice.create!(customer: @customer, project: @project)
+    assert_raises(ActiveRecord::InvalidForeignKey) { @project.delete }
+  end
+
   test "display_name should return description when present" do
     @project.description = "My Project Description"
     assert_equal "My Project Description", @project.display_name

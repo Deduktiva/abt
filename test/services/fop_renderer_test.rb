@@ -104,6 +104,40 @@ class FopRendererTest < ActiveSupport::TestCase
     File.umask(old_umask) if old_umask
   end
 
+  # Subclass that intercepts the FOP subprocess to record the on-disk
+  # permissions of every temp artifact the renderer created, then fakes a
+  # successful render so the surrounding pipeline runs unchanged.
+  class PermissionCapturingRenderer < FopRenderer
+    attr_reader :captured
+
+    def run_fop(fop_command)
+      pdf_path = fop_command[fop_command.index("-pdf") + 1]
+      temp_dir = File.dirname(pdf_path)
+      @captured = {
+        dir: File.stat(temp_dir).mode & 0777,
+        xml: File.stat(File.join(temp_dir, "input.xml")).mode & 0777,
+        logo: File.stat(File.join(temp_dir, "logo.pdf")).mode & 0777,
+        output: File.stat(pdf_path).mode & 0777
+      }
+      File.write(pdf_path, "%PDF-1.4\n%%EOF\n")
+      [ "", 0 ]
+    end
+  end
+
+  def test_temp_files_are_not_accessible_to_other_local_users
+    old_umask = File.umask(0022)
+    renderer = PermissionCapturingRenderer.new
+
+    renderer.render_pdf_with_logo("simple_test.xsl", "logo-bytes") { |_logo_path| "<x/>" }
+
+    assert_equal 0700, renderer.captured[:dir], "temp dir must be owner-only"
+    assert_equal 0600, renderer.captured[:xml], "invoice XML must be owner-only"
+    assert_equal 0600, renderer.captured[:logo], "logo must be owner-only"
+    assert_equal 0600, renderer.captured[:output], "output PDF must be owner-only"
+  ensure
+    File.umask(old_umask) if old_umask
+  end
+
   def test_fop_renderer_handles_invalid_data
     # Test with more permissive umask for temp files
     old_umask = File.umask(0022)

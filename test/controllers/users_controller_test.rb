@@ -114,6 +114,20 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_empty carol.reload.credentials
   end
 
+  test "reset_passkeys only emails confirmed addresses" do
+    sign_in_as(users(:alice))
+    carol = users(:blocked_carol)
+    carol.emails.create!(address: "attacker@example.com", confirmed_at: nil)
+
+    perform_enqueued_jobs do
+      post reset_passkeys_user_path(carol)
+    end
+
+    recipients = ActionMailer::Base.deliveries.flat_map(&:to)
+    assert_includes recipients, "carol@example.com"
+    refute_includes recipients, "attacker@example.com"
+  end
+
   test "audit returns events for the user" do
     sign_in_as(users(:alice))
     UserAuditEvent.record!(action: "login_success", user: users(:bob), actor: users(:bob))

@@ -57,11 +57,11 @@ class UsersController < ApplicationController
                             request: request,
                             metadata: { purpose: "passkey_reset", username: @user.username })
 
-    @user.emails.find_each do |email|
+    @user.confirmed_emails.find_each do |email|
       UserMailer.passkey_reset_invite(@user, invite_url, email.address).deliver_later
     end
 
-    redirect_to user_path(@user), notice: "Passkeys reset; invite sent to #{@user.emails.count} email address(es)."
+    redirect_to user_path(@user), notice: "Passkeys reset; invite sent to #{@user.confirmed_emails.count} email address(es)."
   end
 
   def audit

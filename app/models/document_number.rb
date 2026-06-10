@@ -23,8 +23,11 @@ class DocumentNumber < ApplicationRecord
     self.format % { year: date.year, number: self.sequence }
   end
 
+  # Must run inside the caller's publish transaction: `lock` takes a row lock
+  # (SELECT ... FOR UPDATE) so two concurrent publishes can't read the same
+  # sequence and mint the same number.
   def self.get_next_for(code, date)
-    dn = DocumentNumber.find_by_code code
+    dn = lock.find_by(code: code)
     raise NoDocumentNumberRangeError.new "No document number config for code #{code}" if dn.nil?
     number = dn.get_next date
     dn.save!

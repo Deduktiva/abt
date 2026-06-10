@@ -19,7 +19,22 @@ class InvoicePublisher
 
   # Performs the irreversible publish. Returns true on success, false otherwise.
   # On failure, problems are accessible via @invoice.publish_problems.
+  #
+  # with_lock reloads the invoice under a row lock and runs the whole publish —
+  # number assignment, token, and PDF render — in one transaction. The lock
+  # serializes concurrent publishes (the guard is re-checked against fresh DB
+  # state), and the transaction means a render failure rolls back the published
+  # flag, document number and token instead of stranding a numbered invoice
+  # with no PDF.
   def publish!
+    result = false
+    @invoice.with_lock { result = publish_locked! }
+    result
+  end
+
+  private
+
+  def publish_locked!
     if @invoice.published?
       @log << "E: already published"
       return false

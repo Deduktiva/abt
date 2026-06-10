@@ -169,4 +169,53 @@ class InvoicePublisherTest < ActiveSupport::TestCase
     assert_not publisher.publish!
     assert_includes publisher.log, "E: already published"
   end
+
+  test "publish! rolls back the published flag, number, token and sequence when rendering fails" do
+    klass = sales_tax_product_classes(:standard)
+    invoice = Invoice.create!(customer: customers(:good_national), project: projects(:test_project), cust_reference: "RENDER-FAIL", date: Date.new(2024, 6, 1))
+    invoice.invoice_lines.create!(type: "item", title: "Widget", quantity: 1.0, rate: 100.0, position: 1, sales_tax_product_class: klass)
+    sequence_before = DocumentNumber.find_by!(code: "invoice").sequence
+
+    publisher = InvoicePublisher.new(invoice.reload, issuer_companies(:one))
+    assert_raises(RuntimeError) do
+      with_failing_renderer { publisher.publish! }
+    end
+
+    invoice.reload
+    assert_not invoice.published?
+    assert_nil invoice.document_number
+    assert_nil invoice.token
+    assert_nil invoice.attachment_id
+    assert_equal sequence_before, DocumentNumber.find_by!(code: "invoice").sequence
+  end
+
+  test "publish! bails without re-minting when the row was published by a concurrent request" do
+    klass = sales_tax_product_classes(:standard)
+    invoice = Invoice.create!(customer: customers(:good_national), project: projects(:test_project), cust_reference: "RACE-1", date: Date.new(2024, 6, 1))
+    invoice.invoice_lines.create!(type: "item", title: "Widget", quantity: 1.0, rate: 100.0, position: 1, sales_tax_product_class: klass)
+
+    stale = InvoicePublisher.new(Invoice.find(invoice.id), issuer_companies(:one))
+    assert InvoicePublisher.new(Invoice.find(invoice.id), issuer_companies(:one)).publish!
+    invoice.reload
+    first_number = invoice.document_number
+    first_token = invoice.token
+
+    assert_not stale.publish!
+    assert_includes stale.log, "E: already published"
+
+    invoice.reload
+    assert_equal first_number, invoice.document_number
+    assert_equal first_token, invoice.token
+  end
+
+  private
+
+  def with_failing_renderer
+    failing = Object.new
+    def failing.render = raise("FOP exploded")
+    InvoiceRenderer.define_singleton_method(:new) { |*| failing }
+    yield
+  ensure
+    InvoiceRenderer.singleton_class.send(:remove_method, :new)
+  end
 end

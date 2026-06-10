@@ -79,16 +79,20 @@ class DeliveryNote < ApplicationRecord
 
   # Mirrors InvoicePublisher#publish!: returns false without mutating when the
   # document can't be published (already published, or publish_problems present)
-  # and true after a successful publish.
+  # and true after a successful publish. with_lock reloads under a row lock and
+  # wraps the work in a transaction so concurrent publishes are serialized and
+  # the guard is re-checked against fresh DB state.
   def publish!
-    return false if published?
-    return false if publish_problems.any?
+    with_lock do
+      next false if published?
+      next false if publish_problems.any?
 
-    self.date = Date.today
-    self.document_number ||= DocumentNumber.get_next_for("delivery_note", date)
-    self.published = true
-    save!
-    true
+      self.date = Date.today
+      self.document_number ||= DocumentNumber.get_next_for("delivery_note", date)
+      self.published = true
+      save!
+      true
+    end
   end
 
   # Mirrors Invoice#publish_problems: returns user-facing strings describing

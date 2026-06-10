@@ -21,6 +21,11 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_equal "test-version", app_version
   end
 
+  test "format_currency uses the issuer's money_decimal_places" do
+    issuer_companies(:one).update!(money_decimal_places: 3)
+    assert_equal "€12.340", format_currency(12.34)
+  end
+
   test "app_version caches result to avoid repeated calls" do
     # First call should set the instance variable
     first_call = app_version

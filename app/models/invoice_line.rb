@@ -11,7 +11,7 @@ class InvoiceLine < ApplicationRecord
 
   def calculate_amount
     if is_item? && !self[:rate].nil? && !self[:quantity].nil?
-      self[:amount] = self[:rate] * self[:quantity]
+      self[:amount] = (self[:rate] * self[:quantity]).round(invoice.money_decimal_places)
     else
       self[:amount] = 0
     end

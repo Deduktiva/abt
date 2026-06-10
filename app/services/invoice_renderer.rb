@@ -62,6 +62,7 @@ class InvoiceRenderer
       end
 
       xml_root.currency "EUR"
+      xml_root.tag! "money-decimal-places", @issuer.money_decimal_places
       xml_root.prelude @invoice.prelude
       xml_root.tag! "tax-note", @invoice.tax_note
       xml_root.number @invoice.document_number

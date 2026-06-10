@@ -79,6 +79,11 @@ class Invoice < ApplicationRecord
   before_save :update_customer
   before_save :update_sums
 
+  # Memoized so lines and tax classes resolve the issuer once, not per row.
+  def money_decimal_places
+    @money_decimal_places ||= IssuerCompany.get_the_issuer!.money_decimal_places
+  end
+
   def paid?
     self.paid_at.present?
   end
@@ -248,15 +253,15 @@ private
         # autosave will write this record (with the correct FK) when it saves.
         itc.save if itc.persisted?
       else
-        # Create new tax class
-        self.invoice_tax_classes << InvoiceTaxClass.new(
+        # build (not <<) attaches the record to the invoice before net= runs.
+        itc = self.invoice_tax_classes.build(
           sales_tax_product_class: cst.sales_tax_product_class,
           name: cst.sales_tax_product_class.name,
           indicator_code: cst.sales_tax_product_class.indicator_code,
-          rate: cst.rate,
-          net: 0,
-          total: 0
+          rate: cst.rate
         )
+        itc.net = 0
+        itc.total = 0
       end
     end
 

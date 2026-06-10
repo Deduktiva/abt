@@ -61,6 +61,14 @@ class IssuerCompanyTest < ActiveSupport::TestCase
     assert company.valid?
   end
 
+  test "money_decimal_places rejects out-of-range and non-integer values" do
+    [ -1, 5, 2.5 ].each do |value|
+      company = issuer_companies(:one)
+      company.money_decimal_places = value
+      assert_not company.valid?, "expected money_decimal_places=#{value} to be invalid"
+    end
+  end
+
   test "get_the_issuer! returns the active issuer" do
     assert_equal issuer_companies(:one), IssuerCompany.get_the_issuer!
   end

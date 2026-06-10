@@ -32,6 +32,12 @@
 
         .row.mb-2
           .col-sm-4
+            %strong Money decimal places:
+          .col-sm-8
+            = @issuer_company.money_decimal_places
+
+        .row.mb-2
+          .col-sm-4
             %strong Address:
           .col-sm-8
             - @issuer_company.address.split("\n").each do |line|

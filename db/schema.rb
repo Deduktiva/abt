@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_10_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_10_130001) do
   create_table "acceptance_submissions", force: :cascade do |t|
     t.integer "attachment_id"
     t.datetime "created_at", null: false
@@ -108,7 +108,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_10_120000) do
     t.integer "delivery_note_id", null: false
     t.text "description"
     t.integer "position"
-    t.float "quantity"
+    t.decimal "quantity"
     t.text "title"
     t.text "type"
     t.datetime "updated_at", null: false
@@ -185,17 +185,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_10_120000) do
   end
 
   create_table "invoice_lines", force: :cascade do |t|
-    t.float "amount"
+    t.decimal "amount"
     t.datetime "created_at", null: false
     t.text "description"
     t.integer "invoice_id"
     t.integer "position"
-    t.float "quantity"
-    t.float "rate"
+    t.decimal "quantity"
+    t.decimal "rate"
     t.text "sales_tax_indicator_code"
     t.text "sales_tax_name"
     t.integer "sales_tax_product_class_id"
-    t.integer "sales_tax_rate"
+    t.decimal "sales_tax_rate"
     t.text "title"
     t.text "type"
     t.datetime "updated_at", null: false
@@ -265,6 +265,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_10_120000) do
     t.string "document_email_reply_to"
     t.string "invoice_footer"
     t.string "legal_name"
+    t.integer "money_decimal_places", default: 2, null: false
     t.binary "pdf_logo"
     t.string "pdf_logo_height"
     t.string "pdf_logo_width"

@@ -20,6 +20,13 @@ class InvoiceRendererTest < ActiveSupport::TestCase
     assert_no_match %r{supplier-no}, xml
   end
 
+  test "forwards the issuer's money_decimal_places into the PDF (FOP smoke)" do
+    @issuer.update!(money_decimal_places: 0)
+    renderer = InvoiceRenderer.new(@invoice, @issuer)
+    assert_match %r{<money-decimal-places>0</money-decimal-places>}, renderer.emit_xml(nil)
+    assert renderer.render.start_with?("%PDF"), "expected a PDF"
+  end
+
   test "renders a valid PDF with and without supplier number (FOP smoke)" do
     @invoice.update_columns(customer_supplier_number: "ACME-VEND-7")
     pdf = InvoiceRenderer.new(@invoice, @issuer).render

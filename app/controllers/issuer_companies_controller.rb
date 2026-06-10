@@ -72,6 +72,7 @@ class IssuerCompaniesController < ApplicationController
       :document_accent_color,
       :invoice_footer,
       :currency,
+      :money_decimal_places,
       :document_email_from,
       :document_email_reply_to,
       :document_email_auto_bcc,

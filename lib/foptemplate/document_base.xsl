@@ -2,6 +2,7 @@
 <xsl:stylesheet version="2.0"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:fo="http://www.w3.org/1999/XSL/Format"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
                 xmlns:abt="http://deduktiva.com/Namespace/ABT/XSLT">
     <xsl:output method="xml" indent="yes"/>
     <xsl:strip-space elements="*" />
@@ -18,6 +19,12 @@
          constants change, recompute. -->
     <xsl:variable name="logo-sender-alignment-padding">4.8pt</xsl:variable>
 
+    <!-- Decimal places for money amounts, forwarded from IssuerCompany. Falls
+         back to 2 for documents that don't carry it (e.g. delivery notes). -->
+    <xsl:variable name="money-decimal-places" as="xs:integer"
+                  select="if (/document/money-decimal-places castable as xs:integer)
+                          then xs:integer(/document/money-decimal-places) else 2" />
+
     <!-- Common utility functions -->
     <xsl:function name="abt:strip-space">
         <xsl:param name="string" />
@@ -26,7 +33,10 @@
 
     <xsl:function name="abt:format-amount">
         <xsl:param name="value" />
-        <xsl:value-of select="format-number($value, '###.##0,00', 'european')" />
+        <xsl:variable name="picture" select="if ($money-decimal-places gt 0)
+            then concat('###.##0,', string-join(for $i in 1 to $money-decimal-places return '0', ''))
+            else '###.##0'" />
+        <xsl:value-of select="format-number($value, $picture, 'european')" />
     </xsl:function>
 
     <xsl:function name="abt:format-number">

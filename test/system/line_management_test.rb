@@ -143,8 +143,8 @@ class LineManagementTest < ApplicationSystemTestCase
     end
   end
 
-  # Test total calculation for invoices (delivery notes don't have totals)
-  test "invoice total updates when modifying line values" do
+  test "invoice total updates in the issuer currency when modifying line values" do
+    issuer_companies(:one).update!(currency: "USD")
     visit edit_invoice_path(@invoice)
 
     total_element = find('[data-invoice-lines-target="total"]')
@@ -159,9 +159,8 @@ class LineManagementTest < ApplicationSystemTestCase
       find('input[name*="[rate]"]').native.send_keys(:tab)
     end
 
-    # Capybara auto-waits on assert_selector with :text — wait for the line
-    # total to update before reading the running total.
-    assert_selector "[data-line-total]", text: "€60.00"
+    # assert_selector auto-waits for the line total before we read the running total.
+    assert_selector "[data-line-total]", text: "$60.00"
     assert_not_equal initial_total, total_element.text
   end
 

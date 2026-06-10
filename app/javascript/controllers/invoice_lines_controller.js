@@ -2,6 +2,7 @@ import BaseLinesController from "controllers/base_lines_controller"
 
 export default class extends BaseLinesController {
   static targets = ["container", "total"]
+  static values = { currency: String }
 
   connect() {
     super.connect()
@@ -106,8 +107,7 @@ export default class extends BaseLinesController {
   }
 
   formatCurrency(amount) {
-    // Get currency from a data attribute or default to EUR
-    const currency = document.querySelector('[data-currency]')?.getAttribute('data-currency') || 'EUR'
+    const currency = this.currencyValue
     const formatted = parseFloat(amount).toFixed(2)
 
     switch(currency) {

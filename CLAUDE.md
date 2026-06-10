@@ -95,7 +95,8 @@ For testing against PostgreSQL (matches production environment):
 ### Database
 - Development: SQLite3
 - Production: PostgreSQL 17
-- Template files: `config/database.yml.tpl`, `config/secrets.yml.tpl`
+- Template file: `config/database.yml.sample`
+- `SECRET_KEY_BASE` is read by Rails directly from `ENV["SECRET_KEY_BASE"]`, falling back to `config/credentials.yml.enc`. There is no `secrets.yml` — `Rails.application.secrets` / `config/secrets.yml` was removed in Rails 7.2.
 
 ### Settings
 - Configuration via `config/settings.yml` and environment-specific files

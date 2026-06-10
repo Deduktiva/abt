@@ -22,7 +22,13 @@ class UserSessionTest < ActiveSupport::TestCase
   test "active scope excludes terminated and expired" do
     session, _plaintext = UserSession.create_for!(user: users(:alice), request: fake_request)
     assert_includes UserSession.active.to_a, session
-    session.update_column(:last_seen_at, 31.days.ago)
+    session.update_column(:created_at, 31.days.ago)
+    assert_not_includes UserSession.active.to_a, session
+  end
+
+  test "active scope expires by absolute age regardless of recent activity" do
+    session, _plaintext = UserSession.create_for!(user: users(:alice), request: fake_request)
+    session.update_columns(created_at: 31.days.ago, last_seen_at: Time.current)
     assert_not_includes UserSession.active.to_a, session
   end
 

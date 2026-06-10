@@ -1,13 +1,16 @@
 class UserSession < ApplicationRecord
   include DigestedToken
 
+  # Absolute lifetime measured from sign-in (created_at). There is no sliding
+  # renewal: activity refreshes last_seen_at for display only, never the expiry.
+  # A stolen cookie is therefore guaranteed dead this long after it was issued.
   EXPIRY = 30.days
 
   belongs_to :user
   belongs_to :terminated_by_user, class_name: "User", optional: true
 
   scope :active, -> {
-    where(terminated_at: nil).where("last_seen_at > ?", EXPIRY.ago)
+    where(terminated_at: nil).where("created_at > ?", EXPIRY.ago)
   }
 
   def self.create_for!(user:, request:)

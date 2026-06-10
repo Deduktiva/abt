@@ -26,7 +26,7 @@ class Project < ApplicationRecord
 
   # Allow deactivation instead of deletion for used projects
   def can_be_deleted?
-    !used_in_invoices? && !used_in_delivery_notes?
+    deletion_blocker.nil?
   end
 
   def display_name
@@ -39,14 +39,17 @@ class Project < ApplicationRecord
 
   private
 
+  # The document type (if any) that blocks deletion. Single source for both the
+  # UI gate (can_be_deleted?) and the destroy guard's error message.
+  def deletion_blocker
+    return "invoices" if used_in_invoices?
+    "delivery notes" if used_in_delivery_notes?
+  end
+
   def check_if_used
-    if used_in_invoices?
-      errors.add(:base, "Cannot delete project that has been used in invoices")
-      throw :abort
-    elsif used_in_delivery_notes?
-      errors.add(:base, "Cannot delete project that has been used in delivery notes")
-      throw :abort
-    end
+    return unless (blocker = deletion_blocker)
+    errors.add(:base, "Cannot delete project that has been used in #{blocker}")
+    throw :abort
   end
 
   # Reusable projects (no bill_to_customer) are free to pick any team.

@@ -15,6 +15,7 @@ class Customer < ApplicationRecord
   belongs_to :language
   has_many :sales_tax_rates, through: :sales_tax_customer_class
   has_many :invoices
+  has_many :delivery_notes
   has_many :customer_contacts, dependent: :destroy
   has_many :vat_verifications, class_name: "CustomerVatVerification", dependent: :destroy
 
@@ -50,6 +51,14 @@ class Customer < ApplicationRecord
 
   def used_in_invoices?
     invoices.exists?
+  end
+
+  def used_in_delivery_notes?
+    delivery_notes.exists?
+  end
+
+  def can_be_deleted?
+    !used_in_invoices? && !used_in_delivery_notes?
   end
 
   def latest_vat_verification
@@ -102,6 +111,9 @@ class Customer < ApplicationRecord
   def check_if_used
     if used_in_invoices?
       errors.add(:base, "Cannot delete customer that has been used in invoices")
+      throw :abort
+    elsif used_in_delivery_notes?
+      errors.add(:base, "Cannot delete customer that has been used in delivery notes")
       throw :abort
     end
   end

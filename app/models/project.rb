@@ -4,6 +4,7 @@ class Project < ApplicationRecord
 
   belongs_to :bill_to_customer, class_name: "Customer", optional: true
   has_many :invoices
+  has_many :delivery_notes
 
   validate :team_must_match_customer
 
@@ -16,12 +17,16 @@ class Project < ApplicationRecord
     invoices.exists?
   end
 
+  def used_in_delivery_notes?
+    delivery_notes.exists?
+  end
+
   # Prevent deletion if project has been used
   before_destroy :check_if_used
 
   # Allow deactivation instead of deletion for used projects
   def can_be_deleted?
-    !used_in_invoices?
+    !used_in_invoices? && !used_in_delivery_notes?
   end
 
   def display_name
@@ -37,6 +42,9 @@ class Project < ApplicationRecord
   def check_if_used
     if used_in_invoices?
       errors.add(:base, "Cannot delete project that has been used in invoices")
+      throw :abort
+    elsif used_in_delivery_notes?
+      errors.add(:base, "Cannot delete project that has been used in delivery notes")
       throw :abort
     end
   end

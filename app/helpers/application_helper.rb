@@ -9,18 +9,22 @@ module ApplicationHelper
     @current_currency ||= IssuerCompany.get_the_issuer!&.currency || "EUR"
   end
 
+  # Symbol for the issuer currency, falling back to the raw code. Single source
+  # of truth — the invoice line-total JS reads this via a Stimulus value rather
+  # than mapping symbols itself. Never carries a trailing space, so callers
+  # always prepend it the same way.
+  def currency_symbol
+    case current_currency
+    when "EUR" then "€"
+    when "USD" then "$"
+    when "GBP" then "£"
+    else current_currency
+    end
+  end
+
   def format_currency(amount)
     return "" if amount.nil?
-    case current_currency
-    when "EUR"
-      "€#{sprintf('%.2f', amount)}"
-    when "USD"
-      "$#{sprintf('%.2f', amount)}"
-    when "GBP"
-      "£#{sprintf('%.2f', amount)}"
-    else
-      "#{current_currency} #{sprintf('%.2f', amount)}"
-    end
+    "#{currency_symbol}#{sprintf('%.2f', amount)}"
   end
 
   # Renders the breadcrumb strip that serves as the page header on every

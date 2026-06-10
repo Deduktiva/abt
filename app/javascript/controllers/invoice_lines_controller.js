@@ -2,7 +2,7 @@ import BaseLinesController from "controllers/base_lines_controller"
 
 export default class extends BaseLinesController {
   static targets = ["container", "total"]
-  static values = { currency: String }
+  static values = { currencySymbol: String }
 
   connect() {
     super.connect()
@@ -107,19 +107,7 @@ export default class extends BaseLinesController {
   }
 
   formatCurrency(amount) {
-    const currency = this.currencyValue
-    const formatted = parseFloat(amount).toFixed(2)
-
-    switch(currency) {
-      case 'EUR':
-        return '€' + formatted
-      case 'USD':
-        return '$' + formatted
-      case 'GBP':
-        return '£' + formatted
-      default:
-        return currency + ' ' + formatted
-    }
+    return this.currencySymbolValue + parseFloat(amount).toFixed(2)
   }
 
   getLineType() {

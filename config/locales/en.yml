@@ -146,7 +146,7 @@ en:
   invoices:
     import:
       line_title: "IT Consulting per hour: %{project}"
-      end_customer: "End customer: %{client}"
+      end_customer: "End client: %{client}"
       month_year: "%{month} %{year}"
 
   customer_portal:

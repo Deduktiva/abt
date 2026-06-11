@@ -53,7 +53,7 @@ class TymeCsvImporterTest < ActiveSupport::TestCase
 
   test "includes the end-customer line when the project differs from the customer" do
     assert_includes import(customer: customers(:good_eu)).first[:description],
-      "End customer: Northwind Ltd"
+      "End client: Northwind Ltd"
   end
 
   test "omits the end-customer line when the project matches the customer name" do
@@ -67,7 +67,7 @@ class TymeCsvImporterTest < ActiveSupport::TestCase
     customer = customers(:good_eu)
     customer.matchcode = "Northwind Ltd GmbH"
     refute_includes TymeCsvImporter.new(csv, customer: customer).lines.first[:description],
-      "End customer:"
+      "End client:"
   end
 
   test "groups by the tracked local date regardless of the application time zone" do

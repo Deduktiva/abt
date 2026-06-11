@@ -30,7 +30,9 @@ export default class extends Controller {
 
   // Clones the line template, appends a fresh row, and returns it so callers
   // (addLine, CSV import) can populate its fields. Returns null if no template.
-  appendLineFromTemplate() {
+  // openProductDropdown opens the product picker on the new row — wanted for a
+  // blank manual add, but not for CSV import where the line is already filled.
+  appendLineFromTemplate({ openProductDropdown = true } = {}) {
     const template = document.querySelector(`[data-${this.getLineType().replace(/_/g, '-')}-target="template"]`)
     if (!template) return null
 
@@ -61,7 +63,9 @@ export default class extends Controller {
       this.updateFieldVisibility(newLine, typeField.value)
     }
 
-    this.toggleProductDropdownForLine(newLine)
+    if (openProductDropdown) {
+      this.toggleProductDropdownForLine(newLine)
+    }
     this.initializeAutoResizeTextareas(newLine)
 
     return newLine

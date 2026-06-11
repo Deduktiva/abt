@@ -60,7 +60,7 @@ export default class extends BaseLinesController {
         return
       }
 
-      data.lines.forEach(line => this.fillLine(this.appendLineFromTemplate(), line))
+      data.lines.forEach(line => this.fillLine(this.appendLineFromTemplate({ openProductDropdown: false }), line))
       this.updateTotal()
     } catch (e) {
       this.showError(e.message)

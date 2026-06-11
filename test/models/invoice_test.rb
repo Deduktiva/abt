@@ -95,6 +95,23 @@ class InvoiceTest < ActiveSupport::TestCase
     assert_in_delta 21600.0, invoice.sum_total, 0.0001
   end
 
+  test "update_sums keeps cent-exact sums with no float dust under a fractional tax rate" do
+    invoice = license_invoice_with_tax_config
+    SalesTaxRate.find_by(
+      sales_tax_customer_class: sales_tax_customer_classes(:national),
+      sales_tax_product_class: sales_tax_product_classes(:standard)
+    ).update!(rate: 8.25)
+    invoice.invoice_lines.where(type: "item").update_all(rate: 33.33, quantity: 1)
+    invoice.reload.save!
+    invoice.reload
+
+    itc = invoice.invoice_tax_classes.first
+    assert_equal BigDecimal("66.66"), invoice.sum_net
+    assert_equal BigDecimal("5.50"), itc.value
+    assert_equal BigDecimal("72.16"), invoice.sum_total
+    assert_equal invoice.sum_net + itc.value, invoice.sum_total
+  end
+
   test "update_sums skips a published invoice" do
     invoice = invoices(:published_invoice)
     invoice.update_columns(sum_net: 999.99, sum_total: 1234.56)

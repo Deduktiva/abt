@@ -7,7 +7,7 @@ class InvoiceTaxClass < ApplicationRecord
 
   def net=(value)
     self[:net] = value
-    self[:value] = self[:net] * (self[:rate]/100.0)
+    self[:value] = (self[:net] * self[:rate] / 100).round(invoice.money_decimal_places)
     self[:total] = self[:net] + self[:value]
   end
 end

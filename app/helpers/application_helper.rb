@@ -9,6 +9,10 @@ module ApplicationHelper
     @current_currency ||= IssuerCompany.get_the_issuer!&.currency || "EUR"
   end
 
+  def current_money_decimal_places
+    @current_money_decimal_places ||= IssuerCompany.get_the_issuer!&.money_decimal_places || 2
+  end
+
   # Symbol for the issuer currency, falling back to the raw code. Single source
   # of truth — the invoice line-total JS reads this via a Stimulus value rather
   # than mapping symbols itself. Never carries a trailing space, so callers
@@ -24,7 +28,7 @@ module ApplicationHelper
 
   def format_currency(amount)
     return "" if amount.nil?
-    "#{currency_symbol}#{sprintf('%.2f', amount)}"
+    "#{currency_symbol}#{sprintf("%.#{current_money_decimal_places}f", amount)}"
   end
 
   # Renders the breadcrumb strip that serves as the page header on every

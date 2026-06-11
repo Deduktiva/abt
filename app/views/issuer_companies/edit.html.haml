@@ -39,6 +39,11 @@
             = form.text_field :currency, class: 'form-control'
 
           .mb-3
+            = form.label :money_decimal_places, 'Money decimal places', class: 'form-label'
+            = form.number_field :money_decimal_places, class: 'form-control', min: 0, max: 4
+            %small.form-text.text-muted Decimal places money amounts are rounded to and displayed with (0–4).
+
+          .mb-3
             = form.label :address, 'Address', class: 'form-label'
             = form.text_area :address, rows: 4, class: 'form-control'
 

@@ -27,12 +27,12 @@ class InvoiceTaxClassTest < ActiveSupport::TestCase
     assert_includes itc.errors[:rate], "can't be blank"
   end
 
-  test "net= computes value and total from rate" do
-    itc = build_tax_class
-    itc.net = 100
-    assert_equal 100, itc.net
-    assert_in_delta 20.0, itc.value, 0.0001
-    assert_in_delta 120.0, itc.total, 0.0001
+  test "net= rounds tax value to cents with total = net + value" do
+    itc = build_tax_class(rate: 8.25)
+    itc.net = 33.33
+    assert_equal BigDecimal("2.75"), itc.value
+    assert_equal BigDecimal("36.08"), itc.total
+    assert_equal itc.net + itc.value, itc.total
   end
 
   test "net= recomputes value and total on reassignment" do

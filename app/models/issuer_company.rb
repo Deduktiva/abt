@@ -6,6 +6,10 @@ class IssuerCompany < ApplicationRecord
             format: { with: /\A#[0-9a-fA-F]{3,8}\z/, message: "must be a hex color like #rrggbb" },
             allow_blank: true
   validates :vat_id_recheck_days, numericality: { only_integer: true, greater_than: 0 }
+  # 0..4 covers all ISO 4217 minor units (2 typical, 0 for JPY, 3 for KWD, 4 for
+  # CLF). Bounding it also keeps stored values exact on SQLite's float-backed
+  # decimal columns.
+  validates :money_decimal_places, numericality: { only_integer: true, in: 0..4 }
   validates :reporting_email, presence: true
   validates :reporting_email, :document_email_from, :document_email_auto_bcc, :document_email_reply_to,
             format: { with: URI::MailTo::EMAIL_REGEXP, allow_blank: true }

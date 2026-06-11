@@ -53,16 +53,29 @@ class InvoiceLineTest < ActiveSupport::TestCase
     assert_equal 0, line.amount
   end
 
-  test "calculate_amount sets amount = rate * quantity for item lines" do
+  test "calculate_amount rounds rate * quantity to cents" do
     line = InvoiceLine.new(
       invoice: invoices(:draft_invoice),
       title: "Widget",
       type: "item",
-      rate: 12.5,
-      quantity: 4
+      rate: 10.10,
+      quantity: 3.33
     )
     line.calculate_amount
-    assert_equal 50.0, line.amount
+    assert_equal BigDecimal("33.63"), line.amount
+  end
+
+  test "calculate_amount honors the issuer's money_decimal_places" do
+    IssuerCompany.get_the_issuer!.update!(money_decimal_places: 0)
+    line = InvoiceLine.new(invoice: invoices(:draft_invoice), title: "x", type: "item", rate: 1.005, quantity: 1)
+    line.calculate_amount
+    assert_equal BigDecimal("1"), line.amount
+  end
+
+  test "sales_tax_rate snapshot keeps decimal precision" do
+    line = InvoiceLine.new(type: "item")
+    line.sales_tax_rate = 7.7
+    assert_equal BigDecimal("7.7"), line.sales_tax_rate
   end
 
   test "calculate_amount sets amount = 0 for non-item lines" do

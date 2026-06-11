@@ -113,6 +113,14 @@ class IssuerCompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 30, @issuer_company.reload.vat_id_recheck_days
   end
 
+  test "update permits money_decimal_places and persists the new value" do
+    patch issuer_company_url, params: {
+      issuer_company: { money_decimal_places: 3 }
+    }
+    assert_redirected_to issuer_company_url
+    assert_equal 3, @issuer_company.reload.money_decimal_places
+  end
+
   test "update permits reporting_email and persists the new value" do
     patch issuer_company_url, params: {
       issuer_company: { reporting_email: "reports@example.com" }

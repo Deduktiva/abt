@@ -22,6 +22,9 @@ gem "solid_queue"
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
 
+# CSV parsing for Tyme invoice-line imports (no longer a default gem on Ruby 3.4+)
+gem "csv"
+
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

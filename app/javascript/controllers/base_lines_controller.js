@@ -25,8 +25,14 @@ export default class extends Controller {
   }
 
   addLine() {
+    this.appendLineFromTemplate()
+  }
+
+  // Clones the line template, appends a fresh row, and returns it so callers
+  // (addLine, CSV import) can populate its fields. Returns null if no template.
+  appendLineFromTemplate() {
     const template = document.querySelector(`[data-${this.getLineType().replace(/_/g, '-')}-target="template"]`)
-    if (!template) return
+    if (!template) return null
 
     const newContent = template.content.cloneNode(true)
 
@@ -57,6 +63,8 @@ export default class extends Controller {
 
     this.toggleProductDropdownForLine(newLine)
     this.initializeAutoResizeTextareas(newLine)
+
+    return newLine
   }
 
   removeLine(event) {

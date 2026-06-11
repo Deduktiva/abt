@@ -9,10 +9,10 @@ class InvoicesController < ApplicationController
   before_action -> { require_permission!("invoices.view") }, only: %i[index show preview preview_email preview_email_html]
   before_action -> { require_permission!("invoices.edit") }, only: %i[
     new create edit update destroy
-    publish send_email mark_paid mark_unpaid bulk_send_emails
+    publish send_email mark_paid mark_unpaid bulk_send_emails import_lines
   ]
 
-  before_action :set_invoice, only: %i[show edit update destroy publish preview preview_email preview_email_html send_email mark_paid mark_unpaid]
+  before_action :set_invoice, only: %i[show edit update destroy publish preview preview_email preview_email_html send_email mark_paid mark_unpaid import_lines]
 
   before_action :require_unpublished, only: %i[edit update destroy preview publish]
   before_action :require_published, only: %i[send_email mark_paid mark_unpaid]
@@ -125,6 +125,19 @@ class InvoicesController < ApplicationController
   def mark_unpaid
     @invoice.update!(paid_at: nil)
     redirect_to @invoice, notice: "Invoice marked as unpaid."
+  end
+
+  # Parses an uploaded Tyme CSV into invoice line attributes and returns them as
+  # JSON. The client (invoice-lines Stimulus controller) injects the lines into
+  # the open editor for review — nothing is persisted here.
+  def import_lines
+    file = params[:file]
+    raise ArgumentError, "No file uploaded" if file.blank?
+
+    lines = TymeCsvImporter.new(file, customer: @invoice.customer).lines
+    render json: { lines: lines }
+  rescue ArgumentError => e
+    render json: { error: e.message }, status: :unprocessable_content
   end
 
   def bulk_send_emails

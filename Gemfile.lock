@@ -111,6 +111,7 @@ GEM
     countries (8.1.0)
       unaccent (~> 0.3)
     crass (1.0.6)
+    csv (3.3.5)
     cuprite (0.17)
       capybara (~> 3.0)
       ferrum (~> 0.17.0)
@@ -458,6 +459,7 @@ DEPENDENCIES
   capybara
   config
   countries (~> 8.1)
+  csv
   cuprite
   debug
   haml-rails

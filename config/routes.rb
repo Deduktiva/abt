@@ -77,6 +77,7 @@ Rails.application.routes.draw do
       post "send_email"
       post "mark_paid"
       post "mark_unpaid"
+      post "import_lines"
     end
     collection do
       post "bulk_send_emails"

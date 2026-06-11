@@ -2,6 +2,8 @@ de:
   date:
     formats:
       default: "%d.%m.%Y"
+    month_names:
+      [~, Jänner, Februar, März, April, Mai, Juni, Juli, August, September, Oktober, November, Dezember]
 
   mailers:
     overdue_invoices:
@@ -64,6 +66,12 @@ de:
 
   invoice_conversion:
     reference_line: "Lieferschein %{number} vom %{date}"
+
+  invoices:
+    import:
+      line_title: "IT-Beratung pro Stunde: %{project}"
+      end_customer: "Endkunde: %{client}"
+      month_year: "%{month} %{year}"
 
   customer_portal:
     pages:

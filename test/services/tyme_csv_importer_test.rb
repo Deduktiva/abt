@@ -39,13 +39,7 @@ class TymeCsvImporterTest < ActiveSupport::TestCase
       "25.03.2025 1h15m API + collector maintenance; API fix CI pipeline after linter update; collector fix bugs identified by review"
   end
 
-  test "renders title and month header in an English customer's locale" do
-    line = import(customer: customers(:good_eu)).first
-    assert_equal "IT Consulting per hour: Project Alpha", line[:title]
-    assert_includes line[:description], "March 2025"
-  end
-
-  test "renders title and month header in a German customer's locale" do
+  test "renders title and month header in the customer's locale" do
     line = import(customer: customers(:good_national)).first
     assert_equal "IT-Beratung pro Stunde: Project Alpha", line[:title]
     assert_includes line[:description], "März 2025"

@@ -127,9 +127,8 @@ class InvoicesController < ApplicationController
     redirect_to @invoice, notice: "Invoice marked as unpaid."
   end
 
-  # Parses an uploaded Tyme CSV into invoice line attributes and returns them as
-  # JSON. The client (invoice-lines Stimulus controller) injects the lines into
-  # the open editor for review — nothing is persisted here.
+  # Parses an uploaded Tyme CSV into invoice line attributes, returned as JSON for
+  # the editor to inject. Read-only — nothing is persisted here.
   def import_lines
     file = params[:file]
     raise ArgumentError, "No file uploaded" if file.blank?

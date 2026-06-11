@@ -31,8 +31,7 @@ export default class extends BaseLinesController {
     this.updateTotal()
   }
 
-  // Uploads the chosen Tyme CSV, then injects the parsed lines into the open
-  // editor as new rows the user reviews before saving.
+  // Uploads the CSV and injects the parsed lines into the open editor for review.
   async importCsv(event) {
     const input = event.target
     const file = input.files[0]
@@ -60,6 +59,7 @@ export default class extends BaseLinesController {
         return
       }
 
+      // Append, don't replace: imports add to whatever is already in the editor.
       data.lines.forEach(line => this.fillLine(this.appendLineFromTemplate({ openProductDropdown: false }), line))
       this.updateTotal()
     } catch (e) {
@@ -85,8 +85,7 @@ export default class extends BaseLinesController {
     this.autoSelectSoleTaxClass(line)
   }
 
-  // Imported lines have no tax class. When the catalogue offers exactly one,
-  // pre-select it so the line is publish-ready without manual input.
+  // Imported lines have no tax class; when the catalogue has exactly one, pick it.
   autoSelectSoleTaxClass(line) {
     const taxClass = line.querySelector('select[name*="[sales_tax_product_class_id]"]')
     if (!taxClass) return

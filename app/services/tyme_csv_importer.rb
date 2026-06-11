@@ -1,14 +1,9 @@
 require "csv"
 require "time"
 
-# Parses a Tyme time-tracking CSV export into invoice line attributes.
-#
-# One line is produced per (task, calendar month). The rate comes from the CSV;
-# the quantity is the group's summed duration in decimal hours. The description
-# itemizes each entry as "<date> <duration> <note>" (no clock times), prefixed by
-# a localized month header and an optional "end customer" line when the tracked
-# client differs from the invoice's customer. All text is rendered in the
-# customer's locale.
+# Parses a Tyme time-tracking CSV export into invoice line attributes, one line
+# per (task, calendar month). Rate comes from the CSV, quantity is the summed
+# duration in decimal hours, and all text is rendered in the customer's locale.
 class TymeCsvImporter
   REQUIRED_COLUMNS = %w[project task start duration rate note].freeze
   LEGAL_SUFFIXES = /\b(gmbh|ag|ltd|inc|llc|kg|co|corp|b\.?v|e\.?u)\.?\b/

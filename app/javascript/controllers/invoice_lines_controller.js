@@ -82,6 +82,19 @@ export default class extends BaseLinesController {
 
     this.updateFieldVisibility(line, "item")
     this.autoResizeTextarea(description)
+    this.autoSelectSoleTaxClass(line)
+  }
+
+  // Imported lines have no tax class. When the catalogue offers exactly one,
+  // pre-select it so the line is publish-ready without manual input.
+  autoSelectSoleTaxClass(line) {
+    const taxClass = line.querySelector('select[name*="[sales_tax_product_class_id]"]')
+    if (!taxClass) return
+
+    const options = Array.from(taxClass.options).filter(option => option.value)
+    if (options.length === 1) {
+      taxClass.value = options[0].value
+    }
   }
 
   showError(message) {

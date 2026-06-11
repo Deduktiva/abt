@@ -28,5 +28,11 @@ class InvoiceCsvImportTest < ApplicationSystemTestCase
       assert line.has_no_selector?("[data-product-dropdown]", visible: true),
         "imported lines should not open the product picker"
     end
+
+    sole_tax_class = sales_tax_product_classes(:standard).id.to_s
+    new_lines.each do |line|
+      assert_equal sole_tax_class, line.find('select[name*="[sales_tax_product_class_id]"]').value,
+        "the only tax class should be auto-selected"
+    end
   end
 end

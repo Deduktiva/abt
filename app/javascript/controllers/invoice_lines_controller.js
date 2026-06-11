@@ -1,8 +1,8 @@
 import BaseLinesController from "controllers/base_lines_controller"
 
 export default class extends BaseLinesController {
-  static targets = ["container", "total"]
-  static values = { currencySymbol: String, moneyDecimalPlaces: Number }
+  static targets = ["container", "total", "importError"]
+  static values = { currencySymbol: String, moneyDecimalPlaces: Number, importUrl: String }
 
   connect() {
     super.connect()
@@ -29,6 +29,83 @@ export default class extends BaseLinesController {
   typeChanged(event) {
     super.typeChanged(event)
     this.updateTotal()
+  }
+
+  // Uploads the CSV and injects the parsed lines into the open editor for review.
+  async importCsv(event) {
+    const input = event.target
+    const file = input.files[0]
+    if (!file) return
+
+    this.clearImportError()
+
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const response = await fetch(this.importUrlValue, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Accept": "application/json",
+          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content
+        },
+        body: formData
+      })
+
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        this.showError(data.error || `Import failed (${response.status})`)
+        return
+      }
+
+      // Append, don't replace: imports add to whatever is already in the editor.
+      data.lines.forEach(line => this.fillLine(this.appendLineFromTemplate({ openProductDropdown: false }), line))
+      this.updateTotal()
+    } catch (e) {
+      this.showError(e.message)
+    } finally {
+      input.value = "" // allow re-selecting the same file
+    }
+  }
+
+  fillLine(line, data) {
+    if (!line) return
+
+    line.querySelector('select[name*="[type]"]').value = "item"
+    line.querySelector('input[name*="[title]"]').value = data.title
+    line.querySelector('input[name*="[rate]"]').value = data.rate
+    line.querySelector('input[name*="[quantity]"]').value = data.quantity
+
+    const description = line.querySelector('textarea[name*="[description]"]')
+    description.value = data.description
+
+    this.updateFieldVisibility(line, "item")
+    this.autoResizeTextarea(description)
+    this.autoSelectSoleTaxClass(line)
+  }
+
+  // Imported lines have no tax class; when the catalogue has exactly one, pick it.
+  autoSelectSoleTaxClass(line) {
+    const taxClass = line.querySelector('select[name*="[sales_tax_product_class_id]"]')
+    if (!taxClass) return
+
+    const options = Array.from(taxClass.options).filter(option => option.value)
+    if (options.length === 1) {
+      taxClass.value = options[0].value
+    }
+  }
+
+  showError(message) {
+    if (!this.hasImportErrorTarget) return
+    this.importErrorTarget.textContent = message
+    this.importErrorTarget.classList.remove("d-none")
+  }
+
+  clearImportError() {
+    if (!this.hasImportErrorTarget) return
+    this.importErrorTarget.textContent = ""
+    this.importErrorTarget.classList.add("d-none")
   }
 
   updateFieldVisibility(line, type) {

@@ -33,6 +33,8 @@ en:
   date:
     formats:
       default: "%d.%m.%Y"
+    month_names:
+      [~, January, February, March, April, May, June, July, August, September, October, November, December]
   time:
     formats:
       default: "%d.%m.%Y %H:%M"
@@ -140,6 +142,12 @@ en:
 
   invoice_conversion:
     reference_line: "Delivery Note %{number}, Date: %{date}"
+
+  invoices:
+    import:
+      line_title: "IT Consulting per hour: %{project}"
+      end_customer: "End client: %{client}"
+      month_year: "%{month} %{year}"
 
   customer_portal:
     pages:

@@ -422,4 +422,26 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
 
   # Published-invoice guards (edit/update/destroy/preview/publish) live in
   # test/controllers/concerns/publishable_document_test.rb.
+
+  test "import_lines returns invoice lines parsed from the uploaded CSV" do
+    invoice = create_draft_invoice(cust_reference: "IMPORT")
+
+    post import_lines_invoice_url(invoice),
+      params: { file: fixture_file_upload("tyme_sample.csv", "text/csv") }
+
+    assert_response :success
+    lines = JSON.parse(response.body)["lines"]
+    assert_equal 3, lines.length
+    assert_equal "IT Consulting per hour: Project Alpha", lines.first["title"]
+    assert_equal "1.25", lines.first["quantity"]
+  end
+
+  test "import_lines returns a 422 error when no file is uploaded" do
+    invoice = create_draft_invoice(cust_reference: "IMPORT")
+
+    post import_lines_invoice_url(invoice)
+
+    assert_response :unprocessable_content
+    assert JSON.parse(response.body)["error"].present?
+  end
 end

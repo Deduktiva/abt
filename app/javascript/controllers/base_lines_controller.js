@@ -25,8 +25,14 @@ export default class extends Controller {
   }
 
   addLine() {
+    this.appendLineFromTemplate()
+  }
+
+  // Clones the template, appends the row, and returns it for callers to fill.
+  // openProductDropdown: open the product picker (wanted for manual add, not import).
+  appendLineFromTemplate({ openProductDropdown = true } = {}) {
     const template = document.querySelector(`[data-${this.getLineType().replace(/_/g, '-')}-target="template"]`)
-    if (!template) return
+    if (!template) return null
 
     const newContent = template.content.cloneNode(true)
 
@@ -55,8 +61,12 @@ export default class extends Controller {
       this.updateFieldVisibility(newLine, typeField.value)
     }
 
-    this.toggleProductDropdownForLine(newLine)
+    if (openProductDropdown) {
+      this.toggleProductDropdownForLine(newLine)
+    }
     this.initializeAutoResizeTextareas(newLine)
+
+    return newLine
   }
 
   removeLine(event) {

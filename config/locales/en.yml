@@ -33,6 +33,7 @@ en:
   date:
     formats:
       default: "%d.%m.%Y"
+      timeframe_day: "%B %-d, %Y"
     month_names:
       [~, January, February, March, April, May, June, July, August, September, October, November, December]
   time:
@@ -142,6 +143,10 @@ en:
 
   invoice_conversion:
     reference_line: "Delivery Note %{number}, Date: %{date}"
+
+  delivery_notes:
+    timeframe:
+      connector: "to"
 
   invoices:
     import:

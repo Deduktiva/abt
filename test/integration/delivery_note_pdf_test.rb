@@ -107,9 +107,12 @@ class DeliveryNotePdfTest < ActionDispatch::IntegrationTest
     xml_en = renderer_en.emit_xml(nil)
     assert_includes xml_en, "<language>en</language>", "English delivery note should include language en"
 
+    assert_includes xml_en, "<delivery-timeframe>August 1, 2025</delivery-timeframe>"
+
     renderer_de = DeliveryNoteRenderer.new(delivery_note_de, @issuer)
     xml_de = renderer_de.emit_xml(nil)
     assert_includes xml_de, "<language>de</language>", "German delivery note should include language de"
+    assert_includes xml_de, "<delivery-timeframe>1. August 2025</delivery-timeframe>"
   end
 
   test "publishing an empty delivery note is blocked" do

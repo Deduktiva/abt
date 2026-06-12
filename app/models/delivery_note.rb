@@ -117,29 +117,28 @@ class DeliveryNote < ApplicationRecord
   def delivery_timeframe
     return nil unless delivery_start_date
 
+    connector = I18n.t("delivery_notes.timeframe.connector")
+    month_year = ->(date) { I18n.l(date, format: "%B %Y") }
+
     if delivery_end_date.nil? || delivery_start_date == delivery_end_date
-      # Single day
       format_date_for_timeframe(delivery_start_date)
     elsif same_month?(delivery_start_date, delivery_end_date)
-      # Same month - show date range or just month if full month
       if full_month?(delivery_start_date, delivery_end_date)
-        delivery_start_date.strftime("%B %Y")
+        month_year.call(delivery_start_date)
       else
-        "#{delivery_start_date.day}. to #{delivery_end_date.day}. #{delivery_start_date.strftime("%B %Y")}"
+        "#{delivery_start_date.day}. #{connector} #{delivery_end_date.day}. #{month_year.call(delivery_start_date)}"
       end
     elsif same_year?(delivery_start_date, delivery_end_date)
-      # Same year - show month range
       if day_is_first_of_month?(delivery_start_date) && day_is_last_of_month?(delivery_end_date)
-        "#{delivery_start_date.strftime("%B")} to #{delivery_end_date.strftime("%B %Y")}"
+        "#{I18n.l(delivery_start_date, format: "%B")} #{connector} #{month_year.call(delivery_end_date)}"
       else
-        "#{format_date_for_timeframe(delivery_start_date)} to #{format_date_for_timeframe(delivery_end_date)}"
+        "#{format_date_for_timeframe(delivery_start_date)} #{connector} #{format_date_for_timeframe(delivery_end_date)}"
       end
     else
-      # Different years
       if day_is_first_of_month?(delivery_start_date) && day_is_last_of_month?(delivery_end_date)
-        "#{delivery_start_date.strftime("%B %Y")} to #{delivery_end_date.strftime("%B %Y")}"
+        "#{month_year.call(delivery_start_date)} #{connector} #{month_year.call(delivery_end_date)}"
       else
-        "#{format_date_for_timeframe(delivery_start_date)} to #{format_date_for_timeframe(delivery_end_date)}"
+        "#{format_date_for_timeframe(delivery_start_date)} #{connector} #{format_date_for_timeframe(delivery_end_date)}"
       end
     end
   end
@@ -147,7 +146,7 @@ class DeliveryNote < ApplicationRecord
   private
 
   def format_date_for_timeframe(date)
-    date.strftime("%B %-d, %Y")
+    I18n.l(date, format: :timeframe_day)
   end
 
   def same_month?(date1, date2)

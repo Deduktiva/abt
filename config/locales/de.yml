@@ -2,6 +2,7 @@ de:
   date:
     formats:
       default: "%d.%m.%Y"
+      timeframe_day: "%-d. %B %Y"
     month_names:
       [~, Jänner, Februar, März, April, Mai, Juni, Juli, August, September, Oktober, November, Dezember]
 
@@ -66,6 +67,10 @@ de:
 
   invoice_conversion:
     reference_line: "Lieferschein %{number} vom %{date}"
+
+  delivery_notes:
+    timeframe:
+      connector: "bis"
 
   invoices:
     import:

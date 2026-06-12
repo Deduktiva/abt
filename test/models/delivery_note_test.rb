@@ -135,6 +135,36 @@ class DeliveryNoteTest < ActiveSupport::TestCase
     assert_nil delivery_note.delivery_timeframe
   end
 
+  test "delivery_timeframe localizes single day in German" do
+    delivery_note = DeliveryNote.new(
+      delivery_start_date: Date.new(2025, 5, 1),
+      delivery_end_date: Date.new(2025, 5, 1)
+    )
+    I18n.with_locale(:de) do
+      assert_equal "1. Mai 2025", delivery_note.delivery_timeframe
+    end
+  end
+
+  test "delivery_timeframe localizes date range in same month in German" do
+    delivery_note = DeliveryNote.new(
+      delivery_start_date: Date.new(2025, 5, 1),
+      delivery_end_date: Date.new(2025, 5, 10)
+    )
+    I18n.with_locale(:de) do
+      assert_equal "1. bis 10. Mai 2025", delivery_note.delivery_timeframe
+    end
+  end
+
+  test "delivery_timeframe localizes month range in German" do
+    delivery_note = DeliveryNote.new(
+      delivery_start_date: Date.new(2025, 4, 1),
+      delivery_end_date: Date.new(2025, 8, 31)
+    )
+    I18n.with_locale(:de) do
+      assert_equal "April bis August 2025", delivery_note.delivery_timeframe
+    end
+  end
+
   test "should validate delivery end date is not before start date" do
     delivery_note = DeliveryNote.new(
       customer: customers(:good_eu),

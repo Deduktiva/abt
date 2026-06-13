@@ -8,6 +8,11 @@ class UserTest < ActiveSupport::TestCase
     assert_includes user.errors[:full_name], "can't be blank"
   end
 
+  test "admin? is true only for members of the builtin Admin group" do
+    assert users(:alice).admin?
+    assert_not users(:bob).admin?
+  end
+
   test "auto-assigns webauthn_id on create" do
     user = User.new(username: "newone", full_name: "New User")
     assert user.valid?

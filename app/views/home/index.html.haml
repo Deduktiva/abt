@@ -65,6 +65,18 @@
             = " • "
             = @data[:issuer_company].bankaccount_number
 
+- if @consistency_issues.any?
+  .row.mt-4
+    .col-12
+      - @consistency_issues.each do |issue|
+        .alert.alert-warning{role: 'alert'}
+          %h5= issue.title
+          %ul.mb-0
+            - issue.details.each do |line|
+              %li= line
+          - if issue.fix_path
+            .mt-2= link_to issue.fix_label, issue.fix_path, class: 'alert-link'
+
 - if not @data[:is_setup_done]
   .row.mt-4
     .col-12

@@ -59,6 +59,11 @@ class DeliveryNotesController < ApplicationController
   # GET /delivery_notes/1/edit
   def edit
     set_form_options
+    # A freshly created delivery note arrives with one empty line, title focused, ready to fill in.
+    if flash[:build_starter_line]
+      @delivery_note.delivery_note_lines.build(type: "item", quantity: 1)
+      @autofocus_first_line = true
+    end
   end
 
   # POST /delivery_notes
@@ -66,7 +71,8 @@ class DeliveryNotesController < ApplicationController
     @delivery_note = DeliveryNote.new(delivery_note_params)
 
     if @delivery_note.save
-      redirect_to @delivery_note, notice: "Delivery Note was successfully created."
+      redirect_to edit_delivery_note_path(@delivery_note),
+        flash: { notice: "Delivery Note was successfully created.", build_starter_line: true }
     else
       render :new, status: :unprocessable_content
     end

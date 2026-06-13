@@ -11,7 +11,7 @@
       .col-sm-6.col-md-8
         .mb-3
           %label.form-label Title
-          = f.text_field :title, class: 'form-control', data: { action: 'input->invoice-lines#fieldChanged' }, required: true
+          = f.text_field :title, class: 'form-control', data: { action: 'input->invoice-lines#fieldChanged' }, required: true, autofocus: local_assigns[:autofocus]
       .col-sm-4.col-md-2.text-end
         %label.form-label &nbsp;
         %div

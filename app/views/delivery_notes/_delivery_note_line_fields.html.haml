@@ -11,7 +11,7 @@
       .col-6
         .mb-3
           %label.form-label Title
-          = f.text_field :title, class: 'form-control', data: { action: 'input->delivery-note-lines#fieldChanged' }, required: true
+          = f.text_field :title, class: 'form-control', data: { action: 'input->delivery-note-lines#fieldChanged' }, required: true, autofocus: local_assigns[:autofocus]
       .col-2
         %div{data: {line_type_target: 'itemOnly'}}
           .mb-3

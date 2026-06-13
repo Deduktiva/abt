@@ -7,7 +7,7 @@ Rails.application.config.x.app_version =
   else
     revision = IO.popen([ "git", "rev-parse", "--short", "HEAD" ], err: File::NULL, chdir: Rails.root.to_s, &:read).to_s.strip
     if $?.success? && !revision.empty?
-      "v#{revision}"
+      revision
     else
       "unknown"
     end

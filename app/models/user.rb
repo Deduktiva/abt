@@ -50,6 +50,10 @@ class User < ApplicationRecord
     permissions.include?(key)
   end
 
+  def admin?
+    groups.exists?(builtin: true, name: Group::ADMIN_NAME)
+  end
+
   # Same per-instance memoization caveat as #permissions — reload the user
   # if you mutate group memberships and need to re-check on the same object.
   def bypass_team_scoping?

@@ -132,7 +132,16 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
         }
       }
     end
-    assert_response :redirect
+    assert_redirected_to edit_invoice_url(Invoice.last)
+  end
+
+  test "editing a freshly created invoice shows a focused starter line" do
+    post invoices_url, params: { invoice: { customer_id: customers(:good_eu).id, project_id: projects(:test_project).id } }
+    follow_redirect!
+    assert_select "[data-invoice-lines-target='container']" do
+      assert_select "[data-line-index]", 1
+      assert_select "input[name*='[title]'][autofocus]", 1
+    end
   end
 
   test "should show invoice" do
@@ -232,6 +241,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     invoice = create_draft_invoice(cust_reference: "TEST")
     get edit_invoice_url(invoice)
     assert_response :success
+    assert_select "[data-invoice-lines-target='container'] [data-line-index]", 0
   end
 
   test "should get edit with existing lines" do

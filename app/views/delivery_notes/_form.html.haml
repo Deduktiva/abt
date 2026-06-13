@@ -109,7 +109,7 @@
         / Lines container
         %div{data: {delivery_note_lines_target: 'container'}}
           = f.fields_for :delivery_note_lines do |line_form|
-            = render 'delivery_note_line_fields', f: line_form, line: line_form.object
+            = render 'delivery_note_line_fields', f: line_form, line: line_form.object, autofocus: @autofocus_first_line && line_form.index.zero?
 
         / Template for new lines
         %template{data: {delivery_note_lines_target: 'template'}}

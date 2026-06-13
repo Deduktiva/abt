@@ -58,6 +58,11 @@ class InvoicesController < ApplicationController
   # GET /invoices/1/edit
   def edit
     set_form_options
+    # A freshly created invoice arrives with one empty line, title focused, ready to fill in.
+    if flash[:build_starter_line]
+      @invoice.invoice_lines.build(type: "item", amount: 0, rate: 0, quantity: 1)
+      @autofocus_first_line = true
+    end
   end
 
   # POST /invoices
@@ -65,7 +70,8 @@ class InvoicesController < ApplicationController
     @invoice = Invoice.new(invoice_params)
 
     if @invoice.save
-      redirect_to @invoice, notice: "Invoice was successfully created."
+      redirect_to edit_invoice_path(@invoice),
+        flash: { notice: "Invoice was successfully created.", build_starter_line: true }
     else
       render :new, status: :unprocessable_content
     end

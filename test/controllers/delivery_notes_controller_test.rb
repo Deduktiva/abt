@@ -53,7 +53,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
-    assert_redirected_to delivery_note_url(DeliveryNote.last)
+    assert_redirected_to edit_delivery_note_url(DeliveryNote.last)
 
     delivery_note = DeliveryNote.last
     assert_equal Date.new(2025, 5, 1), delivery_note.delivery_start_date

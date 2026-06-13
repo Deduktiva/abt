@@ -45,5 +45,5 @@
         %p.mb-0.text-center
           &copy; 2014-2026 Deduktiva GmbH
           - if Current.user
-            %span.text-muted.ms-3
+            %a.text-muted.ms-3{:href => "https://github.com/Deduktiva/abt/commit/#{app_version}", :target => "_blank"}
               = app_version

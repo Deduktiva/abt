@@ -4,14 +4,15 @@ class HomeController < ApplicationController
 
   def index
     ytd_range = Date.current.beginning_of_year..Date.current
+    yoy_range = Date.current.last_year.beginning_of_year..Date.current.last_year
 
-    visible = Invoice.visible_to(current_user)
+    billed = Invoice.visible_to(current_user).where(published: true)
 
     @stats = {
-      invoices_current_year: visible.where(date: ytd_range).count,
-      invoices_ytd_total: visible.where(published: true, date: ytd_range).sum(:sum_total),
-      invoices_total_count: visible.where(published: true).count,
-      invoices_total_amount: visible.where(published: true).sum(:sum_total)
+      cashflow_ytd_total: billed.where(date: ytd_range).where("paid_at IS NOT NULL").sum(:sum_total),
+      invoices_ytd_total: billed.where(date: ytd_range).sum(:sum_total),
+      invoices_ytd_count: billed.where(date: ytd_range).count,
+      invoices_yoy_total: billed.where(date: yoy_range).sum(:sum_total)
     }
 
     @data = {}

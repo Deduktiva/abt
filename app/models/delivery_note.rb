@@ -77,6 +77,22 @@ class DeliveryNote < ApplicationRecord
       .count >= ACCEPTANCE_SUBMISSIONS_PER_TOKEN
   end
 
+  def status_badge
+    if !published?
+      { level: :info, text: "Draft" }
+    elsif invoice.present?
+      if invoice.paid?
+        { level: :success, text: "Paid" }
+      elsif invoice.published?
+        { level: :warning, text: "Invoice unsent" }
+      else
+        { level: :warning, text: "Invoice drafted" }
+      end
+    elsif email_sent_at.nil?
+      { level: :warning, text: "Unsent" }
+    end
+  end
+
   # Mirrors InvoicePublisher#publish!: returns false without mutating when the
   # document can't be published (already published, or publish_problems present)
   # and true after a successful publish. with_lock reloads under a row lock and

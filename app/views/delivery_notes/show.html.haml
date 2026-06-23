@@ -8,12 +8,9 @@
 - main_action = @delivery_note.published? ? pdf_action : edit_action
 - workflow_actions = @delivery_note.published? ? [unpublish_action] : [preview_action, delete_action]
 = breadcrumbs ['Delivery Notes', delivery_notes_path], @delivery_note.display_label, actions: workflow_actions, action: main_action do
-  - if !@delivery_note.published?
-    %span.badge.bg-warning Draft
-  - elsif @delivery_note.email_sent_at.present?
-    %span.badge.bg-success Sent
-  - else
-    %span.badge.bg-success Published
+  - if badge = @delivery_note.status_badge
+    %span{class: "badge bg-#{badge[:level]}"}
+      =badge[:text]
 
 -# Single generic-email-preview controller scope so the modal can be rendered
 -# once at the bottom and serve every trigger site on the page.

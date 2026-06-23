@@ -29,7 +29,7 @@
           = link_to year, delivery_notes_path(year: year, email_filter: @email_filter, customer_id: @selected_customer_id), class: (@selected_year == year ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
         = link_to 'All', delivery_notes_path(year: 'all', email_filter: @email_filter, customer_id: @selected_customer_id), class: (@selected_year == 'all' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
 
-  - if @email_filter == 'unsent' && @delivery_notes.any?
+  - if @email_filter == 'unsent'
     %table.table.table-striped.table-sm
       %tr
         %th
@@ -37,10 +37,10 @@
         %th Document#
         %th Customer
         %th Project
-        %th Date
+        %th Doc.Date
+        %th Del.Date
         %th Cust.Reference
         %th Cust.Order No.
-        %th E-Mail
         %th{:width => "3%"}
 
       - @delivery_notes.each do |delivery_note|
@@ -55,13 +55,9 @@
           %td{:title => delivery_note.customer.name}= delivery_note.customer.matchcode
           %td{:title => delivery_note.project && delivery_note.project.display_name}= delivery_note.project && delivery_note.project.matchcode
           %td= l(delivery_note.date) if delivery_note.date
+          %td= l(delivery_note.delivery_end_date || delivery_note.delivery_start_date)
           %td= delivery_note.cust_reference
           %td= delivery_note.cust_order
-          %td
-            - if delivery_note.email_sent_at
-              %span.badge.bg-success Sent #{l(delivery_note.email_sent_at.to_date)}
-            - else
-              %span.badge.bg-warning Unsent
           %td
 
   - else
@@ -70,9 +66,11 @@
         %th Document#
         %th Customer
         %th Project
-        %th Date
+        %th Doc.Date
+        %th Del.Date
         %th Cust.Reference
         %th Cust.Order No.
+        %th Status
         %th{:width => "3%"}
 
       - @delivery_notes.each do |delivery_note|
@@ -82,8 +80,13 @@
           %td{:title => delivery_note.customer.name}= delivery_note.customer.matchcode
           %td{:title => delivery_note.project && delivery_note.project.display_name}= delivery_note.project && delivery_note.project.matchcode
           %td= l(delivery_note.date) if delivery_note.date
+          %td= l(delivery_note.delivery_end_date || delivery_note.delivery_start_date)
           %td= delivery_note.cust_reference
           %td= delivery_note.cust_order
+          %td
+            - if badge = delivery_note.status_badge
+              %span{class: "badge bg-#{badge[:level]}"}
+                =badge[:text]
           %td
             - if !delivery_note.published? && can?('delivery_notes.edit')
               = list_action_link('Edit', edit_delivery_note_path(delivery_note), :edit)

@@ -19,7 +19,7 @@ class CspInlineHandlersStructureTest < ActionDispatch::IntegrationTest
     assert_match(/data-toggle-visibility-target=['"]panel['"]/, body)
   end
 
-  test "delivery_notes form wires both clear-date buttons via Stimulus" do
+  test "delivery_notes form wires clear-date button via Stimulus" do
     get edit_delivery_note_path(delivery_notes(:draft_delivery_note))
     assert_response :success
     body = @response.body

@@ -75,6 +75,7 @@
         %th Cust.Reference
         %th Cust.Order No.
         %th Payment
+        %th.numeric Sum Net
         %th{:width => "3%"}
 
       - @invoices.each do |invoice|
@@ -94,8 +95,28 @@
                 %span.badge.bg-danger Overdue
               - else
                 %span.badge.bg-warning Unpaid
+          %td.numeric= format_currency(invoice.sum_net)
           %td
             - if invoice.published? and not invoice.attachment.nil?
               = link_to 'PDF', attachment_path(invoice.attachment), target: '_blank', data: { turbo: false }, class: 'btn btn-sm btn-outline-success py-0'
             - elsif can?('invoices.edit')
               = list_action_link('Edit', edit_invoice_path(invoice), :edit)
+
+      - if @selected_customer_id.present?
+        %tfoot
+          %tr
+            %th{colspan: 3} Sum, paid
+            %td
+            %td
+            %td
+            %td
+            %td.numeric= format_currency(@invoices.where("paid_at IS NOT NULL").sum(:sum_net))
+            %td
+          %tr
+            %th{colspan: 3} Sum, total
+            %td
+            %td
+            %td
+            %td
+            %td.numeric= format_currency(@invoices.sum(:sum_net))
+            %td

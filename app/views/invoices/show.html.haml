@@ -58,15 +58,21 @@
         - if @invoice.cust_order.present?
           .row.mb-2
             .col-sm-4
-              %strong Order No:
+              %strong Cust. Order No:
             .col-sm-8
               = @invoice.cust_order
         - if @invoice.cust_reference.present?
           .row.mb-2
             .col-sm-4
-              %strong Reference:
+              %strong Cust. Reference:
             .col-sm-8
               = @invoice.cust_reference
+        - if @invoice.internal_reference.present?
+          .row.mb-2
+            .col-sm-4
+              %strong Internal Reference:
+            .col-sm-8
+              = @invoice.internal_reference
 
     .col-md-6
       .document-details

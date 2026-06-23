@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_13_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_23_171756) do
   create_table "acceptance_submissions", force: :cascade do |t|
     t.integer "attachment_id"
     t.datetime "created_at", null: false
@@ -130,6 +130,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_13_120000) do
     t.date "delivery_start_date", null: false
     t.string "document_number"
     t.datetime "email_sent_at"
+    t.text "internal_reference"
     t.integer "invoice_id"
     t.text "prelude"
     t.integer "project_id", null: false
@@ -231,6 +232,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_13_120000) do
     t.string "document_number"
     t.date "due_date"
     t.datetime "email_sent_at"
+    t.text "internal_reference"
     t.date "paid_at"
     t.integer "payment_terms_days", default: 30, null: false
     t.text "prelude"

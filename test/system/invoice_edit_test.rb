@@ -10,7 +10,7 @@ class InvoiceEditTest < ApplicationSystemTestCase
     # Verify we're on the edit page with correct form
     assert_current_path("/invoices/#{invoices(:draft_invoice).id}/edit")
     assert_selector ".breadcrumb-item.active", text: "Edit"
-    assert_field "invoice_cust_reference"
+    assert_field "invoice_internal_reference"
     assert_field "invoice_cust_order"
     assert_field "invoice_prelude"
     assert_button "Save"
@@ -36,7 +36,7 @@ class InvoiceEditTest < ApplicationSystemTestCase
     end
 
     # Fill in test data
-    fill_in "invoice_cust_reference", with: "SAVED-REF-123"
+    fill_in "invoice_internal_reference", with: "SAVED-REF-123"
     fill_in "invoice_cust_order", with: "SAVED-ORDER-456"
     fill_in "invoice_prelude", with: "This is a saved prelude for testing."
 
@@ -52,7 +52,7 @@ class InvoiceEditTest < ApplicationSystemTestCase
 
     # Verify database persistence
     invoice.reload
-    assert_equal "SAVED-REF-123", invoice.cust_reference
+    assert_equal "SAVED-REF-123", invoice.internal_reference
     assert_equal "SAVED-ORDER-456", invoice.cust_order
     assert_equal "This is a saved prelude for testing.", invoice.prelude
   end
@@ -64,7 +64,7 @@ class InvoiceEditTest < ApplicationSystemTestCase
 
     # Trigger validation error by clearing required project field
     page.execute_script("document.getElementById('invoice_project_id').value = '';")
-    fill_in "invoice_cust_reference", with: "SHOULD-NOT-SAVE"
+    fill_in "invoice_internal_reference", with: "SHOULD-NOT-SAVE"
 
     click_button "Save"
 
@@ -77,7 +77,7 @@ class InvoiceEditTest < ApplicationSystemTestCase
 
     # Confirm invalid data was not persisted
     invoice.reload
-    assert_equal "DRAFT-REF", invoice.cust_reference
+    assert_equal "DRAFT-REF", invoice.internal_reference
   end
 
   test "can update customer with dynamic project loading" do

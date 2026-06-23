@@ -7,8 +7,8 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get index with year filter" do
-    create_draft_invoice(cust_reference: "2023-TEST", date: Date.new(2023, 6, 15))
-    create_draft_invoice(cust_reference: "2024-TEST", date: Date.new(2024, 6, 15))
+    create_draft_invoice(internal_reference: "2023-TEST", date: Date.new(2023, 6, 15))
+    create_draft_invoice(internal_reference: "2024-TEST", date: Date.new(2024, 6, 15))
 
     # Test current year (default)
     get invoices_url
@@ -31,8 +31,8 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should filter invoices by customer" do
-    create_draft_invoice(cust_reference: "EU-CUSTOMER-INV", date: Date.current)
-    create_draft_invoice(customer: customers(:good_national), cust_reference: "NATIONAL-CUSTOMER-INV", date: Date.current)
+    create_draft_invoice(internal_reference: "EU-CUSTOMER-INV", date: Date.current)
+    create_draft_invoice(customer: customers(:good_national), internal_reference: "NATIONAL-CUSTOMER-INV", date: Date.current)
 
     get invoices_url(customer_id: customers(:good_eu).id)
     assert_response :success
@@ -53,7 +53,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   test "customer dropdown excludes inactive customers" do
     inactive = customers(:good_national)
     inactive.update!(active: false)
-    create_draft_invoice(customer: inactive, cust_reference: "INACTIVE-CUST-INV", date: Date.current)
+    create_draft_invoice(customer: inactive, internal_reference: "INACTIVE-CUST-INV", date: Date.current)
 
     get invoices_url
     assert_response :success
@@ -65,7 +65,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   test "customer dropdown still includes inactive customer if currently selected" do
     inactive = customers(:good_national)
     inactive.update!(active: false)
-    create_draft_invoice(customer: inactive, cust_reference: "INACTIVE-CUST-INV", date: Date.current)
+    create_draft_invoice(customer: inactive, internal_reference: "INACTIVE-CUST-INV", date: Date.current)
 
     get invoices_url(customer_id: inactive.id)
     assert_response :success
@@ -78,8 +78,8 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   test "should include draft invoices with nil date in current year" do
     current_year = Date.current.year
 
-    create_draft_invoice(cust_reference: "DRAFT-NO-DATE")  # date is nil
-    create_draft_invoice(cust_reference: "OLD-BOOKED", date: Date.new(current_year - 1, 6, 15))
+    create_draft_invoice(internal_reference: "DRAFT-NO-DATE")  # date is nil
+    create_draft_invoice(internal_reference: "OLD-BOOKED", date: Date.new(current_year - 1, 6, 15))
 
     # Test current year (should include draft invoice)
     get invoices_url(year: current_year)
@@ -95,15 +95,15 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "drafts sort newest-first when document_number is null" do
-    first  = create_draft_invoice(cust_reference: "DRAFT-FIRST")
-    second = create_draft_invoice(cust_reference: "DRAFT-SECOND")
-    third  = create_draft_invoice(cust_reference: "DRAFT-THIRD")
+    first  = create_draft_invoice(internal_reference: "DRAFT-FIRST")
+    second = create_draft_invoice(internal_reference: "DRAFT-SECOND")
+    third  = create_draft_invoice(internal_reference: "DRAFT-THIRD")
 
     get invoices_url
     assert_response :success
 
     body = @response.body
-    positions = [ third, second, first ].map { |inv| body.index(inv.cust_reference) }
+    positions = [ third, second, first ].map { |inv| body.index(inv.internal_reference) }
     assert positions.all?, "all drafts should be rendered: #{positions.inspect}"
     assert_equal positions, positions.sort, "drafts should render in id DESC order (newest first): #{positions.inspect}"
   end
@@ -206,7 +206,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "draft invoice without lines renders inline Edit Lines button" do
-    invoice = create_draft_invoice(cust_reference: "EMPTY")
+    invoice = create_draft_invoice(internal_reference: "EMPTY")
 
     get invoice_url(invoice)
     assert_response :success
@@ -270,11 +270,11 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update invoice with nested attributes" do
-    invoice = create_draft_invoice(customer: customers(:good_national), cust_reference: "TEST")  # good_national has 20% tax
+    invoice = create_draft_invoice(customer: customers(:good_national), internal_reference: "TEST")  # good_national has 20% tax
 
     patch invoice_url(invoice), params: {
       invoice: {
-        cust_reference: "UPDATED_REF",
+        internal_reference: "UPDATED_REF",
         invoice_lines_attributes: {
           "0" => {
             type: "item",
@@ -297,7 +297,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to invoice_url(invoice)
     invoice.reload
-    assert_equal "UPDATED_REF", invoice.cust_reference
+    assert_equal "UPDATED_REF", invoice.internal_reference
     assert_equal 2, invoice.invoice_lines.count
     assert_equal "Test Product", invoice.invoice_lines.first.title
 

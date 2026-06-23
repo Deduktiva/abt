@@ -16,7 +16,7 @@ draft_delivery_note:
   document_number: null
   published: false
   date: <%= Date.current %>
-  cust_reference: "DRAFT-REF"
+  internal_reference: "DRAFT-REF"
   cust_order: "DRAFT-ORDER"
   prelude: "Draft delivery note."
   delivery_start_date: <%= Date.current %>

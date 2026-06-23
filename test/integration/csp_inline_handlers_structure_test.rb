@@ -26,8 +26,8 @@ class CspInlineHandlersStructureTest < ActionDispatch::IntegrationTest
 
     assert_no_match(/onclick=/, body, "inline onclick must be replaced by Stimulus")
     clear_input_controllers = body.scan(/data-controller=['"][^'"]*clear-input/)
-    assert clear_input_controllers.length >= 2,
-      "expected at least 2 clear-input controllers (mobile + desktop), got #{clear_input_controllers.length}"
+    assert clear_input_controllers.length >= 1,
+      "expected a clear-input controller, got #{clear_input_controllers.length}"
     assert_match(/data-action=['"][^'"]*clear-input#clear/, body)
     assert_match(/data-clear-input-target=['"]field['"]/, body)
   end

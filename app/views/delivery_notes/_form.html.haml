@@ -67,36 +67,32 @@
                     %input.form-control.form-control-sm{ type: 'text', placeholder: 'Search projects...', data: { searchable_dropdown_target: 'search' } }
                   .dropdown-content
                     .dropdown-item.text-muted Loading...
-        .col-sm-4.order-sm-3
+        .col-md-2.order-md-1
           .mb-3
             %label.form-label Delivery Start Date
             = f.date_field :delivery_start_date, class: 'form-control', required: true
-          .d-sm-none
-            .mb-3
-              %label.form-label Delivery End Date
-              .input-group{data: {controller: 'clear-input'}}
-                = f.date_field :delivery_end_date, class: 'form-control', data: { 'clear-input-target': 'field' }
-                %button.btn.btn-outline-secondary{type: 'button', data: { action: 'click->clear-input#clear' }, title: 'Clear date'}
-                  ×
-              .form-text.text-muted Leave empty if same as start date
-
-      .row
-        .col-sm-4.order-sm-1
-          .mb-3
-            %label.form-label Customer reference
-            = f.text_field :cust_reference, class: 'form-control'
-        .col-sm-4.order-sm-2
-          .mb-3
-            %label.form-label Customer Order No
-            = f.text_field :cust_order, class: 'form-control'
-        .col-sm-4.order-sm-3.d-none.d-sm-block
+        .col-md-2.order-md-2
           .mb-3
             %label.form-label Delivery End Date
             .input-group{data: {controller: 'clear-input'}}
               = f.date_field :delivery_end_date, class: 'form-control', data: { 'clear-input-target': 'field' }
               %button.btn.btn-outline-secondary{type: 'button', data: { action: 'click->clear-input#clear' }, title: 'Clear date'}
                 ×
-            .form-text.text-muted Leave empty if same as start date
+            .form-text.text-muted Leave empty if = start
+
+      .row
+        .col-sm-4.order-sm-1
+          .mb-3
+            %label.form-label Customer Order No
+            = f.text_field :cust_order, class: 'form-control'
+        .col-sm-4.order-sm-2
+          .mb-3
+            %label.form-label Customer Reference
+            = f.text_field :cust_reference, class: 'form-control'
+        .col-sm-4.order-sm-3
+          .mb-3
+            %label.form-label Internal Reference
+            = f.text_field :internal_reference, class: 'form-control'
 
       .row
         .col-sm-12

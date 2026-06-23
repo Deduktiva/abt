@@ -6,14 +6,25 @@ module ApplicationHelper
   end
 
   # Top-level navbar link that highlights the current section. Marks the link
-  # active (Bootstrap .active + aria-current) when the request is handled by one
-  # of the controllers in `active_for`, so show/edit/new pages of a section stay
+  # active (Bootstrap .active + aria-current) when the request belongs to one of
+  # the controllers in `active_for`, so show/edit/new pages of a section stay
   # highlighted, not just its index.
   def nav_link_to(label, path, active_for:)
-    active = Array(active_for).include?(params[:controller])
-    options = { class: "nav-link#{' active' if active}" }
-    options["aria-current"] = "page" if active
-    link_to(label, path, options)
+    active_nav_link("nav-link", label, path, active_for)
+  end
+
+  # Same as nav_link_to but for links inside a dropdown menu.
+  def dropdown_link_to(label, path, active_for:)
+    active_nav_link("dropdown-item", label, path, active_for)
+  end
+
+  # Whether the current request belongs to one of the given controller sections.
+  # A bare name matches that controller exactly and any controller namespaced
+  # below it ("account" matches "account/profiles"), so a whole namespace — or a
+  # dropdown's worth of sections — can be expressed compactly.
+  def nav_section_active?(*controllers)
+    current = params[:controller].to_s
+    controllers.flatten.any? { |c| current == c || current.start_with?("#{c}/") }
   end
 
   def current_currency
@@ -222,5 +233,14 @@ module ApplicationHelper
       "generic-email-preview-html-preview-url-value" => send("preview_email_html_#{prefix}_path", resource),
       "generic-email-preview-send-url-value" => send("send_email_#{prefix}_path", resource)
     }
+  end
+
+  private
+
+  def active_nav_link(base_class, label, path, active_for)
+    active = nav_section_active?(active_for)
+    options = { class: "#{base_class}#{' active' if active}" }
+    options["aria-current"] = "page" if active
+    link_to(label, path, options)
   end
 end

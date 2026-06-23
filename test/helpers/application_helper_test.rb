@@ -223,4 +223,19 @@ class ApplicationHelperTest < ActionView::TestCase
     refute_includes a["class"].split, "active"
     assert_nil a["aria-current"]
   end
+
+  test "dropdown_link_to keeps the dropdown-item base class and marks it active when matching" do
+    params[:controller] = "products"
+    html = Nokogiri::HTML.fragment(dropdown_link_to("Product Catalog", "/products", active_for: "products"))
+    a = html.at_css("a")
+    assert_includes a["class"].split, "dropdown-item"
+    assert_includes a["class"].split, "active"
+    assert_equal "page", a["aria-current"]
+  end
+
+  test "nav_section_active? matches a namespaced controller via its namespace token" do
+    params[:controller] = "account/profiles"
+    assert nav_section_active?("account")
+    refute nav_section_active?("accounts")
+  end
 end

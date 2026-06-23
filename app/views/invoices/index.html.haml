@@ -37,8 +37,8 @@
         %th Customer
         %th Project
         %th Date
-        %th Cust Reference
-        %th Cust Order No
+        %th Cust.Reference
+        %th Cust.Order No.
         %th E-Mail
         %th{:width => "3%"}
 
@@ -51,8 +51,8 @@
               'data-bulk-select-target': 'checkbox',
               class: 'invoice-checkbox'
           %td= link_to(invoice.document_number, invoice)
-          %td= invoice.customer.name
-          %td= invoice.project && invoice.project.display_name
+          %td{:title => invoice.customer.name}= invoice.customer.matchcode
+          %td{:title => invoice.project && invoice.project.display_name}= invoice.project && invoice.project.matchcode
           %td= l(invoice.date) if invoice.date
           %td= invoice.cust_reference
           %td= invoice.cust_order
@@ -72,8 +72,8 @@
         %th Customer
         %th Project
         %th Date
-        %th Cust Reference
-        %th Cust Order No
+        %th Cust.Reference
+        %th Cust.Order No.
         %th Payment
         %th{:width => "3%"}
 
@@ -81,8 +81,8 @@
         %tr
           %td
             = link_to(invoice.display_label, invoice)
-          %td= invoice.customer.name
-          %td= invoice.project && invoice.project.display_name
+          %td{:title => invoice.customer.name}= invoice.customer.matchcode
+          %td{:title => invoice.project && invoice.project.display_name}= invoice.project && invoice.project.matchcode
           %td= l(invoice.date) if invoice.date
           %td= invoice.cust_reference
           %td= invoice.cust_order

@@ -38,8 +38,8 @@
         %th Customer
         %th Project
         %th Date
-        %th Cust Reference
-        %th Cust Order No
+        %th Cust.Reference
+        %th Cust.Order No.
         %th E-Mail
         %th{:width => "3%"}
 
@@ -52,8 +52,8 @@
               'data-bulk-select-target': 'checkbox',
               class: 'delivery_note-checkbox'
           %td= link_to(delivery_note.document_number, delivery_note)
-          %td= delivery_note.customer.name
-          %td= delivery_note.project && delivery_note.project.display_name
+          %td{:title => delivery_note.customer.name}= delivery_note.customer.matchcode
+          %td{:title => delivery_note.project && delivery_note.project.display_name}= delivery_note.project && delivery_note.project.matchcode
           %td= l(delivery_note.date) if delivery_note.date
           %td= delivery_note.cust_reference
           %td= delivery_note.cust_order
@@ -71,16 +71,16 @@
         %th Customer
         %th Project
         %th Date
-        %th Cust Reference
-        %th Cust Order No
+        %th Cust.Reference
+        %th Cust.Order No.
         %th{:width => "3%"}
 
       - @delivery_notes.each do |delivery_note|
         %tr
           %td
             = link_to(delivery_note.display_label, delivery_note)
-          %td= delivery_note.customer.name
-          %td= delivery_note.project && delivery_note.project.display_name
+          %td{:title => delivery_note.customer.name}= delivery_note.customer.matchcode
+          %td{:title => delivery_note.project && delivery_note.project.display_name}= delivery_note.project && delivery_note.project.matchcode
           %td= l(delivery_note.date) if delivery_note.date
           %td= delivery_note.cust_reference
           %td= delivery_note.cust_order

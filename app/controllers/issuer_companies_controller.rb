@@ -1,7 +1,8 @@
 class IssuerCompaniesController < ApplicationController
   MAX_LOGO_SIZE_BYTES = 2.megabytes
 
-  before_action -> { require_permission!("issuer_company.view") }, only: [ :show, :png_logo ]
+  allow_without_permission_check only: [ :png_logo ]
+  before_action -> { require_permission!("issuer_company.view") }, only: [ :show ]
   before_action -> { require_permission!("issuer_company.edit") }, only: [ :edit, :update ]
   before_action :set_issuer_company
 

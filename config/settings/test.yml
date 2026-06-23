@@ -10,13 +10,13 @@ payments:
   public_url: 'https://example.com/pay/%token%'
 
 app:
-  host: 'www.example.com'
+  host: 'abt-test.localhost'
   protocol: 'http'
 
 webauthn:
   rp_name: 'ABT Test'
-  rp_id: 'www.example.com'
-  origin: 'http://www.example.com'
+  rp_id: 'abt-test.localhost'
+  origin: 'http://abt-test.localhost:3333'
 
 customer_portal:
-  host: 'customer-portal.example.test'
+  host: 'customer-portal-test.localhost'

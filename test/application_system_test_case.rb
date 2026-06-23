@@ -26,7 +26,7 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   end
 
   cuprite_options[:browser_options] = (cuprite_options[:browser_options] || {}).merge(
-    "host-resolver-rules" => "MAP customer-portal.example.test 127.0.0.1"
+    "host-resolver-rules" => "MAP customer-portal-test.localhost 127.0.0.1"
   )
 
   driven_by :cuprite, using: :chrome, screen_size: [ 1400, 1400 ], options: cuprite_options

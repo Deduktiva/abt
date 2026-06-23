@@ -23,6 +23,10 @@ body { padding-top: 60px; }
     font-weight: 500;
   }
 
+  .navbar-nav .nav-link.active, .navbar-nav .nav-link:hover {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  }
+
   .navbar-toggler {
     border-color: #333 !important;
   }

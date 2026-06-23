@@ -14,7 +14,7 @@
         - if @issuer&.png_logo.present?
           .mb-4= image_tag "data:image/png;base64,#{Base64.strict_encode64(@issuer.png_logo)}", alt: @issuer.short_name, class: "customer-portal-logo"
         = yield
-    %footer.footer.mt-auto.py-3
+    %footer.footer.mt-3.py-3
       .container.text-center.text-muted.customer-portal-container
         - name = @issuer&.legal_name.presence || @issuer&.short_name
         - if @issuer&.website_url.present?

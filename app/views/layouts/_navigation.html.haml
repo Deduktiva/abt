@@ -6,16 +6,16 @@
     %ul.navbar-nav.me-auto
       - if can?('customers.view')
         %li.nav-item
-          = link_to('Customers', customers_path, :class => 'nav-link')
+          = nav_link_to('Customers', customers_path, active_for: 'customers')
       - if can?('projects.view')
         %li.nav-item
-          = link_to('Projects', projects_path, :class => 'nav-link')
+          = nav_link_to('Projects', projects_path, active_for: 'projects')
       - if can?('delivery_notes.view')
         %li.nav-item
-          = link_to('Deliveries', delivery_notes_path, :class => 'nav-link')
+          = nav_link_to('Deliveries', delivery_notes_path, active_for: 'delivery_notes')
       - if can?('invoices.view')
         %li.nav-item
-          = link_to('Invoices', invoices_path, :class => 'nav-link')
+          = nav_link_to('Invoices', invoices_path, active_for: 'invoices')
     %ul.navbar-nav
       %li.nav-item.dropdown.initially-hidden{"data-controller" => "error-notification", "data-error-notification-max-errors-value" => "5", "data-error-notification-target" => "icon"}
         %a.nav-link{:href => "#", :role => "button", :"data-action" => "click->error-notification#toggle"}

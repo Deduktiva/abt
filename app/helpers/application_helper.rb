@@ -5,6 +5,17 @@ module ApplicationHelper
     !!Current.user&.permission?(key)
   end
 
+  # Top-level navbar link that highlights the current section. Marks the link
+  # active (Bootstrap .active + aria-current) when the request is handled by one
+  # of the controllers in `active_for`, so show/edit/new pages of a section stay
+  # highlighted, not just its index.
+  def nav_link_to(label, path, active_for:)
+    active = Array(active_for).include?(params[:controller])
+    options = { class: "nav-link#{' active' if active}" }
+    options["aria-current"] = "page" if active
+    link_to(label, path, options)
+  end
+
   def current_currency
     @current_currency ||= IssuerCompany.get_the_issuer!&.currency || "EUR"
   end

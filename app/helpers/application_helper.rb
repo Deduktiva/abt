@@ -192,6 +192,14 @@ module ApplicationHelper
     !AddressFormatter.valid_iso2?(code)
   end
 
+  def status_badge_tag(resource)
+    badge = resource.status_badge
+    return unless badge
+
+    bg = { info: "bg-info", success: "bg-success", warning: "bg-warning", danger: "bg-secondary" }.fetch(badge[:level])
+    content_tag(:span, badge[:text], class: "badge #{bg}")
+  end
+
   # Stimulus data attributes that wire an element up to the
   # generic-email-preview controller for a given Invoice or DeliveryNote.
   # Relies on the routes following the {action}_{resource}_path convention.

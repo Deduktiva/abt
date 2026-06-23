@@ -13,10 +13,18 @@ body { padding-top: 60px; }
     rgba(201, 203, 207, 0.8) 100%
   ) !important;
 
-  .navbar-brand, .navbar-nav .nav-link {
-    color: #333 !important;
+  .navbar-brand {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    font-weight: 700;
+  }
+
+  .navbar-nav .nav-link {
     text-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
     font-weight: 500;
+  }
+
+  .navbar-nav .nav-link.active, .navbar-nav .nav-link:hover {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
   }
 
   .navbar-toggler {
@@ -66,11 +74,10 @@ body { padding-top: 60px; }
 }
 
 .footer {
-  padding: 1.5rem 0;
-  border-top: 1px solid var(--bs-border-color);
+  padding: 1rem 0;
   background-color: var(--bs-body-bg);
   color: var(--bs-secondary-color);
-  font-size: 0.875rem;
+  font-size: 0.675rem;
 }
 .footer-links {
   margin: 10px 0;

@@ -7,13 +7,14 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get index with year filter" do
-    create_draft_invoice(internal_reference: "2023-TEST", date: Date.new(2023, 6, 15))
+    create_draft_invoice(customer: customers(:good_eu), internal_reference: "2023-TEST", date: Date.new(2023, 6, 15))
     create_draft_invoice(internal_reference: "2024-TEST", date: Date.new(2024, 6, 15))
 
     # Test current year (default)
     get invoices_url
     assert_response :success
     assert_select ".year-pagination"
+    assert_select "td", text: customers(:good_eu).matchcode
 
     # Test specific year filter
     get invoices_url(year: 2023)
@@ -31,11 +32,12 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should filter invoices by customer" do
-    create_draft_invoice(internal_reference: "EU-CUSTOMER-INV", date: Date.current)
+    create_draft_invoice(customer: customers(:good_eu), internal_reference: "EU-CUSTOMER-INV", date: Date.current)
     create_draft_invoice(customer: customers(:good_national), internal_reference: "NATIONAL-CUSTOMER-INV", date: Date.current)
 
     get invoices_url(customer_id: customers(:good_eu).id)
     assert_response :success
+    assert_select "td", text: customers(:good_eu).matchcode, count: 0
     assert_select "td", text: "EU-CUSTOMER-INV"
     assert_select "td", text: "NATIONAL-CUSTOMER-INV", count: 0
   end

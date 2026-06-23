@@ -83,10 +83,7 @@
           %td= l(delivery_note.delivery_end_date || delivery_note.delivery_start_date)
           %td= delivery_note.cust_reference
           %td= delivery_note.cust_order
-          %td
-            - if badge = delivery_note.status_badge
-              %span{class: "badge bg-#{badge[:level]}"}
-                =badge[:text]
+          %td= status_badge_tag(delivery_note)
           %td
             - if !delivery_note.published? && can?('delivery_notes.edit')
               = list_action_link('Edit', edit_delivery_note_path(delivery_note), :edit)

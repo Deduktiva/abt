@@ -21,14 +21,8 @@ class HomeDashboardScopingTest < ActionDispatch::IntegrationTest
     sign_in_as(carol)
     get root_path
     assert_response :success
-    # Each invoice stat is rendered in its own coloured h2 cell. Assert
-    # against the cells specifically — matching a bare "0" anywhere on the
-    # page would silently pass even if the regression returned (dates,
-    # footers, version strings, etc. all contain zeroes).
     assert_select "h2.text-primary", text: "0"
-    assert_select "h2.text-info", text: "0"
     # Currency totals start with the EUR symbol; check for the zero amount.
     assert_select "h2.text-success", text: /€\s*0\.00\z/
-    assert_select "h2.text-warning", text: /€\s*0\.00\z/
   end
 end

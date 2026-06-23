@@ -39,7 +39,7 @@
         %th Project
         %th Doc.Date
         %th Del.Date
-        %th Cust.Reference
+        %th Int.Reference
         %th Cust.Order No.
         %th{:width => "3%"}
 
@@ -56,7 +56,7 @@
           %td{:title => delivery_note.project && delivery_note.project.display_name}= delivery_note.project && delivery_note.project.matchcode
           %td= l(delivery_note.date) if delivery_note.date
           %td= l(delivery_note.delivery_end_date || delivery_note.delivery_start_date)
-          %td= delivery_note.cust_reference
+          %td= delivery_note.internal_reference
           %td= delivery_note.cust_order
           %td
 
@@ -68,7 +68,7 @@
         %th Project
         %th Doc.Date
         %th Del.Date
-        %th Cust.Reference
+        %th Int.Reference
         %th Cust.Order No.
         %th Status
         %th{:width => "3%"}
@@ -81,7 +81,7 @@
           %td{:title => delivery_note.project && delivery_note.project.display_name}= delivery_note.project && delivery_note.project.matchcode
           %td= l(delivery_note.date) if delivery_note.date
           %td= l(delivery_note.delivery_end_date || delivery_note.delivery_start_date)
-          %td= delivery_note.cust_reference
+          %td= delivery_note.internal_reference
           %td= delivery_note.cust_order
           %td= status_badge_tag(delivery_note)
           %td

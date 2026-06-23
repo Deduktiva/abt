@@ -177,7 +177,7 @@ protected
   end
 
   def invoice_params
-    params.require(:invoice).permit(:customer_id, :project_id, :cust_reference, :cust_order, :prelude,
+    params.require(:invoice).permit(:customer_id, :project_id, :cust_reference, :cust_order, :internal_reference, :prelude,
       invoice_lines_attributes: [ :id, :type, :title, :description, :rate, :quantity, :sales_tax_product_class_id, :position, :_destroy ])
   end
 end

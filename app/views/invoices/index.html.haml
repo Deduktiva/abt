@@ -37,7 +37,7 @@
         %th Customer
         %th Project
         %th Date
-        %th Cust.Reference
+        %th Int.Reference
         %th Cust.Order No.
         %th E-Mail
         %th{:width => "3%"}
@@ -54,7 +54,7 @@
           %td{:title => invoice.customer.name}= invoice.customer.matchcode
           %td{:title => invoice.project && invoice.project.display_name}= invoice.project && invoice.project.matchcode
           %td= l(invoice.date) if invoice.date
-          %td= invoice.cust_reference
+          %td= invoice.internal_reference
           %td= invoice.cust_order
           %td
             - if invoice.email_sent_at
@@ -72,7 +72,7 @@
         %th Customer
         %th Project
         %th Date
-        %th Cust.Reference
+        %th Int.Reference
         %th Cust.Order No.
         %th Payment
         %th.numeric Sum Net
@@ -85,7 +85,7 @@
           %td{:title => invoice.customer.name}= invoice.customer.matchcode
           %td{:title => invoice.project && invoice.project.display_name}= invoice.project && invoice.project.matchcode
           %td= l(invoice.date) if invoice.date
-          %td= invoice.cust_reference
+          %td= invoice.internal_reference
           %td= invoice.cust_order
           %td
             - if invoice.published?

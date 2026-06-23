@@ -75,12 +75,16 @@
       .row
         .col-sm-4
           .mb-3
-            %label.form-label Customer reference
+            %label.form-label Customer Order No
+            = f.text_field :cust_order, class: 'form-control'
+        .col-sm-4
+          .mb-3
+            %label.form-label Customer Reference
             = f.text_field :cust_reference, class: 'form-control'
         .col-sm-4
           .mb-3
-            %label.form-label Customer Order No
-            = f.text_field :cust_order, class: 'form-control'
+            %label.form-label Internal Reference
+            = f.text_field :internal_reference, class: 'form-control'
 
       .row
         .col-sm-12

@@ -35,7 +35,8 @@
         %th
           %input#select-all{type: 'checkbox', 'data-action': 'change->bulk-select#toggleAll', 'data-bulk-select-target': 'selectAll'}
         %th Document#
-        %th Customer
+        - if @selected_customer_id.nil?
+          %th Customer
         %th Project
         %th Doc.Date
         %th Del.Date
@@ -52,7 +53,8 @@
               'data-bulk-select-target': 'checkbox',
               class: 'delivery_note-checkbox'
           %td= link_to(delivery_note.document_number, delivery_note)
-          %td{:title => delivery_note.customer.name}= delivery_note.customer.matchcode
+          - if @selected_customer_id.nil?
+            %td{:title => delivery_note.customer.name}= delivery_note.customer.matchcode
           %td{:title => delivery_note.project && delivery_note.project.display_name}= delivery_note.project && delivery_note.project.matchcode
           %td= l(delivery_note.date) if delivery_note.date
           %td= l(delivery_note.delivery_end_date || delivery_note.delivery_start_date)
@@ -64,7 +66,8 @@
     %table.table.table-striped.table-sm
       %tr
         %th Document#
-        %th Customer
+        - if @selected_customer_id.nil?
+          %th Customer
         %th Project
         %th Doc.Date
         %th Del.Date
@@ -77,7 +80,8 @@
         %tr
           %td
             = link_to(delivery_note.display_label, delivery_note)
-          %td{:title => delivery_note.customer.name}= delivery_note.customer.matchcode
+          - if @selected_customer_id.nil?
+            %td{:title => delivery_note.customer.name}= delivery_note.customer.matchcode
           %td{:title => delivery_note.project && delivery_note.project.display_name}= delivery_note.project && delivery_note.project.matchcode
           %td= l(delivery_note.date) if delivery_note.date
           %td= l(delivery_note.delivery_end_date || delivery_note.delivery_start_date)

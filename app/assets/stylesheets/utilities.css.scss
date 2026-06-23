@@ -33,3 +33,8 @@
 .badge-issuer-accent {
   background-color: var(--issuer-accent-color);
 }
+
+th.numeric, td.numeric {
+  text-align: right;
+  white-space: nowrap;
+}

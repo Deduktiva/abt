@@ -30,7 +30,9 @@ class OffersController < ApplicationController
     @available_customers = Offer.available_customers(current_user, including: @selected_customer_id)
   end
 
-  def show; end
+  def show
+    @version = @offer.editable? ? @offer.draft_version : @offer.current_sent_version
+  end
 
   def new
     @offer = Offer.new(customer_id: params[:customer_id].presence)

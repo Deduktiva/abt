@@ -1,6 +1,6 @@
 draft_offer:
   customer: offer_only_customer
-  project: one
+  project: offer_only_project
   state: draft
 
 sent_offer:

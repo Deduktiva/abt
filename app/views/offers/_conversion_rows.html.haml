@@ -1,0 +1,29 @@
+%table.table.table-bordered
+  %thead
+    %tr
+      %th Milestone
+      %th Trigger
+      %th.numeric Amount
+      %th Conversion
+  %tbody
+    - @offer.accepted_version.milestones.each do |milestone|
+      %tr
+        %td
+          %strong= milestone.title
+          - if milestone.description.present?
+            %br
+            %small.text-muted= simple_format(milestone.description, {}, wrapper_tag: 'span')
+        %td= milestone.trigger_label
+        %td.numeric= format_currency(milestone.amount)
+        %td
+          -# Safari renders td borders oddly when the td itself is a flexbox,
+          -# so the flex classes live on an inner div.
+          .d-flex.align-items-center.gap-2.flex-wrap
+            - if milestone.converted?
+              = link_to milestone.invoice.display_name, milestone.invoice
+              - if milestone.delivery_note
+                = link_to milestone.delivery_note.display_name, milestone.delivery_note
+              - if can?('offers.convert')
+                = button_to 'Reopen link', reopen_milestone_link_offer_path(@offer, milestone_id: milestone.id), method: :post, class: 'btn btn-sm btn-outline-secondary', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Clear the conversion link for this milestone?' }
+            - elsif can?('offers.convert')
+              = button_to '🚀 Convert', convert_milestone_offer_path(@offer, milestone_id: milestone.id), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }

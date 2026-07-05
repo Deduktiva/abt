@@ -1,0 +1,42 @@
+.card.mb-3{data: {line_index: f.index}}
+  .card-body
+    = f.hidden_field :id
+    = f.hidden_field :position
+
+    .row
+      .col-sm-8.col-md-9
+        .mb-3
+          = f.label :title, 'Title', class: 'form-label'
+          = f.text_field :title, class: 'form-control', required: true, autofocus: local_assigns[:autofocus]
+      .col-sm-4.col-md-3.text-end
+        %label.form-label &nbsp;
+        %div
+          %button.btn.btn-sm.btn-secondary{type: 'button', data: {action: 'click->offer-milestones#moveLineUp'}} ▲
+          %button.btn.btn-sm.btn-secondary{type: 'button', data: {action: 'click->offer-milestones#moveLineDown'}} ▼
+          %button.btn.btn-sm.btn-danger{type: 'button', data: {action: 'click->offer-milestones#removeLine'}} 🗑
+
+    .row.mt-2
+      .col-sm-12
+        .mb-3
+          = f.label :description, 'Description', class: 'form-label'
+          = f.text_area :description, rows: 2, class: 'form-control'
+
+    .row.mt-2
+      .col-sm-4
+        .mb-3
+          = f.label :trigger, 'Trigger', class: 'form-label'
+          = f.select :trigger, OfferMilestone::TRIGGER_LABELS.invert.to_a, {}, class: 'form-select', data: { action: 'change->offer-milestones#triggerChanged' }
+      .col-sm-4{data: {trigger_date_wrap: true}, class: ('d-none' unless f.object.trigger == 'on_date')}
+        .mb-3
+          = f.label :trigger_date, 'Trigger date', class: 'form-label'
+          = f.date_field :trigger_date, class: 'form-control'
+      .col-sm-4
+        .mb-3
+          = f.label :amount, 'Amount', class: 'form-label'
+          = f.number_field :amount, step: :any, class: 'form-control', data: { action: 'change->offer-milestones#updateTotal' }
+
+    .row.mt-2
+      .col-sm-12
+        .form-check
+          = f.check_box :skip_delivery_note, class: 'form-check-input'
+          = f.label :skip_delivery_note, 'Skip delivery note', class: 'form-check-label'

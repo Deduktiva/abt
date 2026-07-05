@@ -12,6 +12,13 @@ two:
   active: true
   team: default
 
+offer_only_project:
+  matchcode: PROJOFFER
+  description: Project for the offer-only customer
+  bill_to_customer: offer_only_customer
+  active: true
+  team: default
+
 test_project:
   matchcode: TEST
   description: Test project for PDF generation tests

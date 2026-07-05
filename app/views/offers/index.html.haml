@@ -19,25 +19,25 @@
 
 %table.table.table-striped.table-sm
   %tr
-    %th Number
-    %th Int.Reference
+    %th Document#
     - if @selected_customer_id.nil?
       %th Customer
     %th Project
+    %th Int.Reference
     %th Subject
     - if @state_filter == 'all'
-      %th State
-    %th.numeric Total Net
+      %th Status
+    %th.numeric Sum Net
     %th Valid until
 
   - @offers.each do |offer|
     - version = offer.draft_version || offer.current_sent_version
     %tr
       %td= link_to(offer.display_label, offer)
-      %td= offer.internal_reference
       - if @selected_customer_id.nil?
         %td{:title => offer.customer.name}= offer.customer.matchcode
       %td{:title => offer.project && offer.project.display_name}= offer.project && offer.project.matchcode
+      %td= offer.internal_reference
       %td= version&.subject
       - if @state_filter == 'all'
         %td

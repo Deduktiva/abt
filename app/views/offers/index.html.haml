@@ -1,0 +1,47 @@
+= breadcrumbs 'Offers', action: action_button('+ New', new_offer_path(customer_id: @selected_customer_id), permission: 'offers.edit')
+
+.btn-toolbar.mb-3{:role=>"toolbar", "aria-label"=>"List toolbar"}
+  .btn-group.btn-group-sm.me-2.offer-filter{:role=>"group", "aria-label"=>"Filter"}
+    - ([ [ 'all', 'All' ] ] + Offer::STATES.map { |s| [ s, s.capitalize ] }).each do |state, label|
+      = link_to label, offers_path(state: state, year: @selected_year, customer_id: @selected_customer_id), class: (@state_filter == state ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+
+  = render 'shared/customer_filter',
+      form_url: offers_path,
+      customers: @available_customers,
+      selected_customer_id: @selected_customer_id,
+      hidden_fields: { year: @selected_year, state: @state_filter }
+
+  - if @available_years.any?
+    .btn-group.btn-group-sm.ms-auto.year-pagination{:role=>"group", "aria-label"=>"Year navigation"}
+      - @available_years.each do |year|
+        = link_to year, offers_path(year: year, state: @state_filter, customer_id: @selected_customer_id), class: (@selected_year == year ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+      = link_to 'All', offers_path(year: 'all', state: @state_filter, customer_id: @selected_customer_id), class: (@selected_year == 'all' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
+
+%table.table.table-striped.table-sm
+  %tr
+    %th Number
+    %th Int.Reference
+    - if @selected_customer_id.nil?
+      %th Customer
+    %th Project
+    %th Subject
+    - if @state_filter == 'all'
+      %th State
+    %th.numeric Total Net
+    %th Valid until
+
+  - @offers.each do |offer|
+    - version = offer.draft_version || offer.current_sent_version
+    %tr
+      %td= link_to(offer.display_label, offer)
+      %td= offer.internal_reference
+      - if @selected_customer_id.nil?
+        %td{:title => offer.customer.name}= offer.customer.matchcode
+      %td{:title => offer.project && offer.project.display_name}= offer.project && offer.project.matchcode
+      %td= version&.subject
+      - if @state_filter == 'all'
+        %td
+          - label, badge_class = offer.status_badge
+          %span.badge{class: badge_class}= label
+      %td.numeric= format_currency(version&.sum_net || 0)
+      %td= l(offer.expires_at) if offer.expires_at

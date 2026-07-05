@@ -102,6 +102,23 @@ Rails.application.routes.draw do
       post "bulk_send_emails"
     end
   end
+  resources :offers do
+    member do
+      get "preview"
+      get "preview_email"
+      get "preview_email_html"
+      post "send_offer"
+      post "accept"
+      post "reject"
+      post "reopen"
+      post "scaffold_milestones"
+      patch "update_internal_notes"
+      post "upload_order_pdf"
+      post "send_email"
+      post "milestones/:milestone_id/convert", action: :convert_milestone, as: :convert_milestone
+      post "milestones/:milestone_id/reopen_link", action: :reopen_milestone_link, as: :reopen_milestone_link
+    end
+  end
 
   resources :products
   resources :projects

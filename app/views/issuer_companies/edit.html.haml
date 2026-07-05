@@ -149,3 +149,18 @@
           .mb-3
             = form.label :invoice_footer, 'Invoice Footer', class: 'form-label'
             = form.text_area :invoice_footer, rows: 6, class: 'form-control'
+
+  .row.mt-4
+    .col-md-6
+      .card
+        .card-header
+          Offer Settings
+        .card-body
+          .mb-3
+            = form.label :offer_validity_days, 'Validity (days)', class: 'form-label'
+            = form.number_field :offer_validity_days, class: 'form-control', min: 1, required: true
+            %small.form-text.text-muted Default validity used when a customer has no override.
+
+          .mb-3
+            = form.label :offer_footer, 'Offer Footer', class: 'form-label'
+            = form.text_area :offer_footer, rows: 6, class: 'form-control'

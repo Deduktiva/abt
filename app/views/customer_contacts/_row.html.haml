@@ -1,7 +1,7 @@
 = turbo_frame_tag dom_id(contact), class: "contact-row d-block border-bottom py-2" do
   .row.align-items-center.gx-2
     .col-md-2.fw-medium= contact.name
-    .col-md-3= mail_to contact.email
+    .col-md-2= mail_to contact.email
     .col-md-1.text-center
       - if contact.receives_invoice_emails?
         %span.badge.bg-success Invoice
@@ -10,6 +10,11 @@
     .col-md-1.text-center
       - if contact.receives_delivery_note_emails?
         %span.badge.bg-success Del.Note
+      - else
+        %span.text-muted —
+    .col-md-1.text-center
+      - if contact.receives_offer_emails?
+        %span.badge.bg-success Offer
       - else
         %span.text-muted —
     .col-md-3

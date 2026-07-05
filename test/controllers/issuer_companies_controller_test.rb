@@ -139,6 +139,16 @@ class IssuerCompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_equal original, @issuer_company.reload.vat_id_recheck_days
   end
 
+  test "offer settings round-trip" do
+    patch issuer_company_url, params: {
+      issuer_company: { offer_validity_days: 45, offer_footer: "Offer footer" }
+    }
+    assert_redirected_to issuer_company_url
+    @issuer_company.reload
+    assert_equal 45, @issuer_company.offer_validity_days
+    assert_equal "Offer footer", @issuer_company.offer_footer
+  end
+
   test "should preserve whitespace in contact lines on show page" do
     # Update the fixture to have explicit whitespace
     @issuer_company.update!(

@@ -4,7 +4,7 @@
     = form.text_field :name, class: "form-control form-control-sm", required: true, autofocus: true, placeholder: "Name", autocomplete: "off"
     - if contact.errors[:name].any?
       .invalid-feedback.d-block= contact.errors[:name].to_sentence
-  .col-md-3
+  .col-md-2
     = form.email_field :email, class: "form-control form-control-sm", required: true, placeholder: "Email", autocomplete: "off"
     - if contact.errors[:email].any?
       .invalid-feedback.d-block= contact.errors[:email].to_sentence
@@ -14,6 +14,9 @@
   .col-md-1.text-center
     .form-check.d-inline-block
       = form.check_box :receives_delivery_note_emails, class: "form-check-input"
+  .col-md-1.text-center
+    .form-check.d-inline-block
+      = form.check_box :receives_offer_emails, class: "form-check-input"
   .col-md-3
     = form.select :project_ids,
                   options_from_collection_for_select(eligible_projects, :id, :matchcode, contact.project_ids),

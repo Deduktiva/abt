@@ -162,3 +162,23 @@
           = simple_format(@issuer_company.invoice_footer)
         - else
           %em No footer text set
+
+  .col-md-6
+    .card
+      .card-header
+        Offer Settings
+      .card-body
+        .row.mb-2
+          .col-sm-4
+            %strong Validity:
+          .col-sm-8
+            = pluralize(@issuer_company.offer_validity_days, 'day')
+
+        .row.mb-2
+          .col-sm-4
+            %strong Offer Footer:
+          .col-sm-8
+            - if @issuer_company.offer_footer.present?
+              = simple_format(@issuer_company.offer_footer)
+            - else
+              %em No footer text set

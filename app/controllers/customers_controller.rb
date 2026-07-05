@@ -75,7 +75,8 @@ private
     params.require(:customer).permit(
         :matchcode, :name, :address, :country_iso2, :vat_id, :supplier_number, :notes, :sales_tax_customer_class_id, :language_id, :payment_terms_days,
         :invoice_email_auto_to, :invoice_email_auto_subject_template, :invoice_email_auto_enabled, :invoice_email_auto_contact_mode, :active,
-        :team_id
+        :team_id,
+        :offer_validity_days, :offer_milestone_split_threshold, :offer_milestone_templates_below, :offer_milestone_templates_above, :offer_boilerplate
     )
   end
 end

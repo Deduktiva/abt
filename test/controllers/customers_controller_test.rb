@@ -210,4 +210,22 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to customer_url(@customer)
     assert_match(/no VAT ID to verify/, flash[:alert])
   end
+
+  test "offer settings round-trip" do
+    patch customer_url(@customer), params: { customer: {
+      offer_validity_days: 21,
+      offer_milestone_split_threshold: 5000,
+      offer_milestone_templates_below: "Full|on_acceptance|100",
+      offer_milestone_templates_above: "Deposit|on_order|50\nRest|on_acceptance|50",
+      offer_boilerplate: "<p>Standing offer terms</p>"
+    } }
+    assert_redirected_to customer_url(@customer)
+
+    @customer.reload
+    assert_equal 21, @customer.offer_validity_days
+    assert_equal 5000, @customer.offer_milestone_split_threshold
+    assert_equal "Full|on_acceptance|100", @customer.offer_milestone_templates_below
+    assert_equal "Deposit|on_order|50\nRest|on_acceptance|50", @customer.offer_milestone_templates_above
+    assert_includes @customer.offer_boilerplate.body.to_html, "Standing offer terms"
+  end
 end

@@ -223,8 +223,8 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert_equal published_note.project, published_note.invoice.project
     assert_equal published_note.cust_reference, published_note.invoice.cust_reference
 
-    assert_match "Delivery Note #{published_note.document_number}, Date: #{I18n.l(published_note.date)}", published_note.invoice.prelude
-    assert_match published_note.prelude, published_note.invoice.prelude
+    assert_includes published_note.invoice.prelude.to_plain_text, "Delivery Note #{published_note.document_number}, Date: #{I18n.l(published_note.date)}"
+    assert_includes published_note.invoice.prelude.to_plain_text, published_note.prelude.to_plain_text
   end
 
   test "convert_to_invoice renders the reference line in the customer's language" do
@@ -234,7 +234,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     post convert_to_invoice_delivery_note_url(published_note)
 
     published_note.reload
-    assert_match "Lieferschein #{published_note.document_number} vom #{I18n.l(published_note.date, locale: :de)}", published_note.invoice.prelude
+    assert_includes published_note.invoice.prelude.to_plain_text, "Lieferschein #{published_note.document_number} vom #{I18n.l(published_note.date, locale: :de)}"
   end
 
   test "convert_to_invoice leaves item line rates blank" do

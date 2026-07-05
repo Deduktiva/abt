@@ -395,4 +395,10 @@ class InvoiceTest < ActiveSupport::TestCase
     assert(warnings.any? { |w| w.include?("never been verified") })
     assert_not(warnings.any? { |w| w.include?("rejected by VIES") })
   end
+
+  test "prelude stores and reads rich text" do
+    invoice = invoices(:draft_invoice)
+    invoice.update!(prelude: "<div>Hello <strong>world</strong></div>")
+    assert_includes invoice.reload.prelude.body.to_html, "<strong>world</strong>"
+  end
 end

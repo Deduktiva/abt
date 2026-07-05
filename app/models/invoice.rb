@@ -5,6 +5,7 @@ class Invoice < ApplicationRecord
   include DocumentIdentity
 
   has_line_items :invoice_lines
+  has_rich_text :prelude
 
   validates :customer_id, presence: true
   # Mirror of emailable? in SQL — must agree.

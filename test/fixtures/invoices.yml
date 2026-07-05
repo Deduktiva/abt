@@ -10,7 +10,6 @@ published_invoice:
   payment_terms_days: 30
   cust_reference: "REF-12345"
   cust_order: "ORDER-67890"
-  prelude: "Thank you for your business."
   sum_net: 100.00
   sum_total: 121.00
 
@@ -26,7 +25,6 @@ auto_email_invoice:
   payment_terms_days: 45
   cust_reference: "AUTO-REF-999"
   cust_order: "AUTO-ORDER-111"
-  prelude: "Automated invoice processing."
   sum_net: 250.00
   sum_total: 297.50
 
@@ -66,6 +64,5 @@ license_invoice:
   date: <%= Date.current %>
   cust_reference: "LICENSE-REF"
   cust_order: "LICENSE-ORDER"
-  prelude: "Software license keys delivery for enterprise deployment with a very long prelude that should span multiple lines to test the auto-resize functionality.\n\nIt contains several paragraphs of text to demonstrate the auto-resize functionality.\n\nThe textarea should automatically adjust its height to fit all this content."
   sum_net: 18000.00
   sum_total: 21600.00

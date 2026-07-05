@@ -57,6 +57,15 @@ de:
       next_steps_upload: "Unterfertigen Lieferschein hochladen"
       closing: "Vielen Dank für Ihr Vertrauen. Wir freuen uns auf die weitere Zusammenarbeit."
 
+    offer:
+      subject: "%{issuer_name} Angebot %{document_number}"
+      greeting: "Sehr geehrte Damen und Herren,"
+      main_message: "Anbei finden Sie unser Angebot für die beschriebenen Leistungen. Bei Fragen dazu wenden Sie sich gerne an uns."
+      document_number: "Angebot %{document_number}"
+      subject_label: "Betreff:"
+      expires_label: "Gültig bis:"
+      closing: "Wir freuen uns auf die Zusammenarbeit mit Ihnen."
+
     acceptance_submission:
       subject: "Neues Abnahmedokument für %{document_number}"
       body: "Ein Kunde hat ein unterschriebenes Abnahmedokument für Lieferschein %{document_number} hochgeladen. Bitte prüfen Sie es."

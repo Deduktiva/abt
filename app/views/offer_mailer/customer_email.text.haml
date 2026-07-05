@@ -1,0 +1,14 @@
+- if @salutation.present?
+  #{@salutation}
+- else
+  #{t('mailers.offer.greeting', customer_name: @offer.customer.name)}
+\
+#{t('mailers.offer.main_message')}
+\
+#{t('mailers.offer.document_number', document_number: @offer.document_number)}
+- if @version&.subject.present?
+  #{t('mailers.offer.subject_label')} #{@version.subject}
+- if @offer.expires_at.present?
+  #{t('mailers.offer.expires_label')} #{l(@offer.expires_at)}
+\
+#{t('mailers.offer.closing')}

@@ -133,6 +133,15 @@ en:
       next_steps_upload: "Upload the signed delivery note"
       closing: "Thank you for your business. We appreciate your continued partnership."
 
+    offer:
+      subject: "%{issuer_name} Offer %{document_number}"
+      greeting: "Dear %{customer_name},"
+      main_message: "We've attached our offer for the services described below. Please review the details and let us know if you have any questions."
+      document_number: "Offer %{document_number}"
+      subject_label: "Subject:"
+      expires_label: "Valid until:"
+      closing: "We look forward to working with you."
+
     acceptance_submission:
       subject: "New acceptance document for %{document_number}"
       body: "A customer uploaded a signed acceptance document for delivery note %{document_number}. Please review it."

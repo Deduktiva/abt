@@ -33,6 +33,10 @@ class OfferMilestone < ApplicationRecord
     trigger == "on_order"
   end
 
+  def reopen_link!
+    update!(invoice: nil, delivery_note: nil)
+  end
+
   private
 
   def refresh_version_sum

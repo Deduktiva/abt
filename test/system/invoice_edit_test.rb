@@ -12,7 +12,7 @@ class InvoiceEditTest < ApplicationSystemTestCase
     assert_selector ".breadcrumb-item.active", text: "Edit"
     assert_field "invoice_internal_reference"
     assert_field "invoice_cust_order"
-    assert_field "invoice_prelude"
+    assert_selector "trix-editor"
     assert_button "Save"
   end
 
@@ -38,7 +38,10 @@ class InvoiceEditTest < ApplicationSystemTestCase
     # Fill in test data
     fill_in "invoice_internal_reference", with: "SAVED-REF-123"
     fill_in "invoice_cust_order", with: "SAVED-ORDER-456"
-    fill_in "invoice_prelude", with: "This is a saved prelude for testing."
+    assert_selector "trix-toolbar"
+    editor = find("trix-editor")
+    editor.click
+    editor.send_keys("This is a saved prelude for testing.")
 
     # Submit and verify success
     click_button "Save"
@@ -54,7 +57,7 @@ class InvoiceEditTest < ApplicationSystemTestCase
     invoice.reload
     assert_equal "SAVED-REF-123", invoice.internal_reference
     assert_equal "SAVED-ORDER-456", invoice.cust_order
-    assert_equal "This is a saved prelude for testing.", invoice.prelude
+    assert_includes invoice.prelude.to_plain_text.strip, "This is a saved prelude for testing."
   end
 
   test "displays validation errors for invalid data" do

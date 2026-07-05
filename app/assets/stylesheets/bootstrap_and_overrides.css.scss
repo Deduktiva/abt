@@ -31,8 +31,11 @@ body { padding-top: 60px; }
     border-color: #333 !important;
   }
 
+  // The gradient's right edge (where the toggler always sits) is light in
+  // both color modes, so pin the icon to the light-background variant
+  // instead of following data-bs-theme.
   .navbar-toggler-icon {
-    filter: invert(1);
+    --bs-navbar-toggler-icon-bg: #{escape-svg($navbar-light-toggler-icon-bg)};
   }
 }
 

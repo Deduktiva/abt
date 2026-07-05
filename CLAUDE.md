@@ -65,7 +65,7 @@ For testing against PostgreSQL (matches production environment):
 4. **Email System** - `DocumentMailer` delivered via `deliver_later` (Solid Queue). Bulk send marks `email_sent_at` for tracking.
 
 ### Background Jobs
-- Solid Queue (`bin/jobs` worker, `solid_queue` gem). Schedule lives in `config/recurring.yml` — currently `OverdueInvoicesReportJob` (every other day at 08:00) and finished-job cleanup.
+- Solid Queue (`bin/jobs` worker, `solid_queue` gem). Schedule lives in `config/recurring.yml` — currently `OverdueInvoicesReportJob` (every other day at 08:00), `RefreshStaleVatVerificationsJob` (daily at 04:00), `VatVerificationsReportJob` (daily at 11:00), and finished-job cleanup.
 - Worker status surfaced under **Configuration → Background Jobs** (`JobsStatusController`).
 
 ### Authentication

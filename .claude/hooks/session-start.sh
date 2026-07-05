@@ -67,3 +67,7 @@ echo "== Verifying FOP launcher =="
 ./bin/abt-fop -version
 
 echo "== FOP setup complete =="
+
+echo "== Installing superpowers plugin =="
+claude plugin marketplace add obra/superpowers-marketplace
+claude plugin install superpowers@superpowers-marketplace

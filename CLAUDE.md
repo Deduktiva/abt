@@ -46,6 +46,9 @@ For testing against PostgreSQL (matches production environment):
 - **InvoiceLine** / **DeliveryNoteLine** - Line items with types (item, text, subheading)
 - **Product** (`app/models/product.rb`) - Product catalog
 - **Project** (`app/models/project.rb`) - Project tracking
+- **Offer** (`app/models/offer.rb`) - Quote/proposal per customer+project; draft → sent → accepted/rejected/expired lifecycle
+- **OfferVersion** - Snapshot of offer content; live/editable while draft, frozen once sent
+- **OfferMilestone** - Billable line within a version; converts to an invoice or delivery note
 - **User** + `UserCredential`, `UserEmail`, `UserInvite`, `UserSession`, `UserAuditEvent` - Passkey/WebAuthn auth, invite-only signup, audit log
 
 ### Shared Concerns
@@ -64,8 +67,15 @@ For testing against PostgreSQL (matches production environment):
 3. **InvoiceRenderer** - PDF generation using Apache FOP with XML/XSL transformation
 4. **Email System** - `DocumentMailer` delivered via `deliver_later` (Solid Queue). Bulk send marks `email_sent_at` for tracking.
 
+### Offer Processing Pipeline
+- **OffersController** - Standard CRUD + send/accept/reject/reopen, milestone scaffolding/conversion, order-PDF upload, email
+- **OfferSender** - Freezes the current draft `OfferVersion` (assigns document number on first send, snapshots customer data), transitions the offer to `sent`, and branches a fresh draft version for further edits
+- **OfferRenderer** - PDF generation for offers using Apache FOP, `lib/foptemplate/offer.xsl`
+- Lifecycle: `draft` → `sent` → `accepted` / `rejected` / `expired`; sending an offer never mutates the sent version in place — it freezes that version and opens a new draft alongside it. Milestones convert individually to invoices or delivery notes (`OfferMilestoneConverter`); conversion can be reversed with a reopen link.
+- Permissions: `offers.view`, `offers.edit` (create/send/accept/reject/reopen), `offers.convert` (milestone → invoice/delivery-note)
+
 ### Background Jobs
-- Solid Queue (`bin/jobs` worker, `solid_queue` gem). Schedule lives in `config/recurring.yml` — currently `OverdueInvoicesReportJob` (every other day at 08:00), `RefreshStaleVatVerificationsJob` (daily at 04:00), `VatVerificationsReportJob` (daily at 11:00), and finished-job cleanup.
+- Solid Queue (`bin/jobs` worker, `solid_queue` gem). Schedule lives in `config/recurring.yml` — currently `OverdueInvoicesReportJob` (every other day at 08:00), `ExpiringOffersReportJob` (daily at 07:30), `RefreshStaleVatVerificationsJob` (daily at 04:00), `VatVerificationsReportJob` (daily at 11:00), and finished-job cleanup.
 - Worker status surfaced under **Configuration → Background Jobs** (`JobsStatusController`).
 
 ### Authentication
@@ -129,6 +139,7 @@ For testing against PostgreSQL (matches production environment):
 - Invoice model: `app/models/invoice.rb`
 - Main invoice controller: `app/controllers/invoices_controller.rb`
 - Delivery notes: `app/controllers/delivery_notes_controller.rb`, `app/models/delivery_note.rb`
+- Offers: `app/controllers/offers_controller.rb`, `app/services/offer_sender.rb`, PDF template `lib/foptemplate/offer.xsl`
 - Auth flows: `app/controllers/sessions_controller.rb`, `invites_controller.rb`, `account/`, `users_controller.rb`
 - UI helpers: `app/helpers/application_helper.rb`
 

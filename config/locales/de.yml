@@ -24,6 +24,23 @@ de:
         due_date: "Fällig:"
         days_overdue: "%{days} Tage überfällig"
 
+    expiring_offers:
+      subject:
+        one: "[%{issuer_name}] 1 abgelaufenes Angebot"
+        other: "[%{issuer_name}] %{count} abgelaufene Angebote"
+      title: "Bericht über abgelaufene Angebote"
+      heading: "Abgelaufene Angebote am %{date}"
+      main_message:
+        one: "Ein Angebot ist abgelaufen."
+        other: "Es gibt %{count} Angebote, deren Gültigkeit abgelaufen ist."
+      columns:
+        offer_number: "Angebotsnr."
+        customer: "Kunde"
+        expired_on: "Abgelaufen am"
+        total: "Summe"
+      short:
+        expired_on: "Abgelaufen:"
+
     invoice:
       subject: "%{issuer_name} Rechnung %{document_number}"
       greeting: "Sehr geehrte Damen und Herren,"

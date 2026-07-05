@@ -14,6 +14,7 @@ sent_offer_v1:
   customer_address: "Snapshot Street 1"
   customer_country_iso2: DE
   payment_terms_days: 30
+  sum_net: 3000
 
 sent_offer_v2_draft:
   offer: sent_offer

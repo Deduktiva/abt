@@ -1,0 +1,43 @@
+- content_for :title, t('mailers.expiring_offers.title', count: @offers.size)
+
+:css
+  table.expiring {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+  table.expiring th, table.expiring td {
+    border: 1px solid #dee2e6;
+    padding: 8px 10px;
+    text-align: left;
+  }
+  table.expiring th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+  }
+  table.expiring td.numeric {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+.greeting
+  = t('mailers.expiring_offers.heading', date: l(@today))
+
+.main-message
+  = t('mailers.expiring_offers.main_message', count: @offers.size)
+
+%table.expiring
+  %thead
+    %tr
+      %th= t('mailers.expiring_offers.columns.offer_number')
+      %th= t('mailers.expiring_offers.columns.customer')
+      %th= t('mailers.expiring_offers.columns.expired_on')
+      %th.numeric= t('mailers.expiring_offers.columns.total')
+  %tbody
+    - @offers.each do |offer|
+      %tr
+        %td= offer.document_number
+        %td= offer.customer.name
+        %td= l(offer.expires_at) if offer.expires_at
+        %td.numeric= sprintf('%.2f', offer.current_sent_version.sum_net)

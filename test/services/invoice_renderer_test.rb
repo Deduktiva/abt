@@ -52,4 +52,20 @@ class InvoiceRendererTest < ActiveSupport::TestCase
     assert_match %r{<issuer>.*<address>[^<]*Österreich}m, xml
     assert_match %r{<recipient>.*<address>[^<]*Deutschland}m, xml
   end
+
+  test "prelude is emitted as FO blocks inside the prelude element" do
+    @invoice.prelude = "<div>Hello <strong>world</strong></div>"
+    @invoice.save!
+    xml = InvoiceRenderer.new(@invoice, @issuer).emit_xml(nil)
+    assert_includes xml, "<prelude>"
+    assert_includes xml, %(<fo:inline font-weight="bold">world</fo:inline>)
+    assert_includes xml, %(xmlns:fo="http://www.w3.org/1999/XSL/Format")
+  end
+
+  test "renders a PDF with rich-text prelude formatting (FOP smoke)" do
+    @invoice.prelude = "<h1>Title</h1><div>Hello <strong>bold</strong> and <em>italic</em></div><ul><li>one</li><li>two</li></ul><ol><li>a</li><li>b<ol><li>nested</li></ol></li></ol>"
+    @invoice.save!
+    pdf = InvoiceRenderer.new(@invoice, @issuer).render
+    assert pdf.start_with?("%PDF"), "expected a PDF (got #{pdf[0, 16].inspect})"
+  end
 end

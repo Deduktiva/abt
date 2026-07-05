@@ -1,0 +1,24 @@
+published_invoice_prelude:
+  record: published_invoice (Invoice)
+  name: prelude
+  body: "<p>Thank you for your business.</p>"
+
+auto_email_invoice_prelude:
+  record: auto_email_invoice (Invoice)
+  name: prelude
+  body: "<p>Automated invoice processing.</p>"
+
+license_invoice_prelude:
+  record: license_invoice (Invoice)
+  name: prelude
+  body: "<p>Software license keys delivery for enterprise deployment with a very long prelude that should span multiple lines to test the auto-resize functionality.</p><p>It contains several paragraphs of text to demonstrate the auto-resize functionality.</p><p>The textarea should automatically adjust its height to fit all this content.</p>"
+
+published_delivery_note_prelude:
+  record: published_delivery_note (DeliveryNote)
+  name: prelude
+  body: "<p>Delivery note for your order.</p>"
+
+draft_delivery_note_prelude:
+  record: draft_delivery_note (DeliveryNote)
+  name: prelude
+  body: "<p>Draft delivery note.</p>"

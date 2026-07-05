@@ -8,6 +8,7 @@ class DeliveryNote < ApplicationRecord
   ACCEPTANCE_TOKEN_TTL = (Settings.customer_portal.link_expiry_days || 30).days
   ACCEPTANCE_SUBMISSIONS_PER_TOKEN = Settings.customer_portal.submissions_per_token || 20
   has_line_items :delivery_note_lines
+  has_rich_text :prelude
 
   validates :customer_id, presence: true
   validates :delivery_start_date, presence: true

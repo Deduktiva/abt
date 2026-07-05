@@ -141,7 +141,7 @@
     .mb-4
       .card
         .card-body
-          = simple_format(@invoice.prelude)
+          = @invoice.prelude
 
   - if !@invoice.published? && problems.any?
     .alert.alert-warning.mb-3

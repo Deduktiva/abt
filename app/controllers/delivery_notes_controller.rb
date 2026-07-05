@@ -219,8 +219,10 @@ class DeliveryNotesController < ApplicationController
                date: I18n.l(@delivery_note.date))
       end
 
-      enhanced_prelude = reference_line
-      enhanced_prelude += "\n\n#{@delivery_note.prelude}" if @delivery_note.prelude.present?
+      enhanced_prelude = ActionController::Base.helpers.simple_format(reference_line)
+      if @delivery_note.prelude.present?
+        enhanced_prelude += @delivery_note.prelude.body.to_html
+      end
 
       # Create invoice from delivery note
       invoice = Invoice.new(

@@ -154,7 +154,8 @@ class DeliveryNotePdfTest < ActionDispatch::IntegrationTest
 
     # Verify key XML elements
     assert_includes xml, "<language>en</language>"
-    assert_includes xml, "<prelude>Test prelude content</prelude>"
+    assert_includes xml, "<prelude>"
+    assert_includes xml, "Test prelude content"
     assert_includes xml, "<reference>XML-TEST-REF</reference>"
     assert_includes xml, "<order-no>XML-TEST-ORDER</order-no>"
     assert_includes xml, "<delivery-timeframe>August 2025</delivery-timeframe>"

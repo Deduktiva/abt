@@ -98,7 +98,7 @@
         .col-sm-12
           .mb-3
             %label.form-label Prelude
-            = f.text_area :prelude, class: 'form-control', rows: 2, placeholder: 'Thank you for your business...', data: { action: 'input->auto-resize-form#fieldChanged' }
+            = f.rich_text_area :prelude, data: { controller: 'rich-text' }
 
     - unless @delivery_note.id.nil?
       %div{data: {controller: 'delivery-note-lines'}}

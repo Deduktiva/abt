@@ -90,7 +90,7 @@
         .col-sm-12
           .mb-3
             %label.form-label Prelude
-            = f.text_area :prelude, class: 'form-control', rows: 2, placeholder: 'Thank you for your business...', data: { action: 'input->auto-resize-form#fieldChanged' }
+            = f.rich_text_area :prelude, data: { controller: 'rich-text' }
 
       - unless @invoice.id.nil?
         %div{data: {controller: 'invoice-lines', invoice_lines_currency_symbol_value: currency_symbol, invoice_lines_money_decimal_places_value: current_money_decimal_places, invoice_lines_import_url_value: import_lines_invoice_path(@invoice)}}

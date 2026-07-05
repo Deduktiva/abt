@@ -297,11 +297,9 @@
 
                 <!-- Actual invoice content -->
                 <fo:flow flow-name="body">
-                    <xsl:if test="/document/prelude != ''">
+                    <xsl:if test="/document/prelude/*">
                         <fo:block-container space-after="18pt">
-                            <fo:block linefeed-treatment="preserve">
-                                <xsl:value-of select="abt:strip-space(/document/prelude)" />
-                            </fo:block>
+                            <xsl:copy-of select="/document/prelude/*" />
                         </fo:block-container>
                     </xsl:if>
 

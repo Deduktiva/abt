@@ -10,7 +10,7 @@ class InvoiceRenderer
     xml = Builder::XmlMarkup.new(indent: 2)
     xml.instruct! :xml, encoding: "UTF-8", version: "1.0"
 
-    xml.document class: "invoice" do |xml_root|
+    xml.document class: "invoice", "xmlns:fo" => "http://www.w3.org/1999/XSL/Format" do |xml_root|
       xml_root.language @invoice.customer.language.iso_code
       xml_root.tag! "accent-color", @issuer.document_accent_color
       xml_root.tag! "footer", @issuer.invoice_footer
@@ -63,7 +63,9 @@ class InvoiceRenderer
 
       xml_root.currency "EUR"
       xml_root.tag! "money-decimal-places", @issuer.money_decimal_places
-      xml_root.prelude @invoice.prelude
+      xml_root.prelude do |xml_prelude|
+        xml_prelude << RichTextFoConverter.new(@invoice.prelude.body&.to_html).to_fo_fragment if @invoice.prelude.present?
+      end
       xml_root.tag! "tax-note", @invoice.tax_note
       xml_root.number @invoice.document_number
       xml_root.tag! "issue-date", @invoice.date

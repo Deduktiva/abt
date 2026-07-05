@@ -10,7 +10,7 @@ class DeliveryNoteRenderer
     xml = Builder::XmlMarkup.new(indent: 2)
     xml.instruct! :xml, encoding: "UTF-8", version: "1.0"
 
-    xml.document class: "delivery_note" do |xml_root|
+    xml.document class: "delivery_note", "xmlns:fo" => "http://www.w3.org/1999/XSL/Format" do |xml_root|
       xml_root.language @delivery_note.customer.language.iso_code
       xml_root.tag! "accent-color", @issuer.document_accent_color
 
@@ -55,7 +55,9 @@ class DeliveryNoteRenderer
         xml_recipient.tag! "supplier-no", @delivery_note.customer.supplier_number if @delivery_note.customer.supplier_number.present?
       end
 
-      xml_root.prelude @delivery_note.prelude
+      xml_root.prelude do |xml_prelude|
+        xml_prelude << RichTextFoConverter.new(@delivery_note.prelude.body&.to_html).to_fo_fragment if @delivery_note.prelude.present?
+      end
       xml_root.number draft_aware_number
       xml_root.tag! "issue-date", @delivery_note.date || "2999-01-01"
       timeframe = I18n.with_locale(locale) { @delivery_note.delivery_timeframe }

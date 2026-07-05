@@ -1,6 +1,7 @@
 class CustomerContact < ApplicationRecord
   belongs_to :customer
   has_and_belongs_to_many :projects, join_table: :customer_contact_projects
+  has_many :offers, dependent: :nullify
 
   before_validation :normalize_email_and_name
 
@@ -12,6 +13,7 @@ class CustomerContact < ApplicationRecord
 
   scope :for_invoices,       -> { where(receives_invoice_emails: true) }
   scope :for_delivery_notes, -> { where(receives_delivery_note_emails: true) }
+  scope :for_offers,         -> { where(receives_offer_emails: true) }
 
   # No projects assigned == applies to all projects of this customer.
   def applies_to_project?(project)

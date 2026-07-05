@@ -1,0 +1,13 @@
+draft_offer:
+  customer: offer_only_customer
+  project: one
+  state: draft
+
+sent_offer:
+  customer: good_eu
+  project: one
+  state: sent
+  document_number: 20260601-01
+  date: 2026-06-01
+  sent_at: 2026-06-01 10:00:00
+  expires_at: 2026-07-01

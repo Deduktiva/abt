@@ -1,11 +1,13 @@
 class Customer < ApplicationRecord
   include TeamOwned
   include HasMatchcode
+  include StripsRichTextEdges
 
   validates :name, presence: true
   validates :vat_id, presence: true, if: -> { sales_tax_customer_class&.vat_id_required? }
   validates :country_iso2, presence: true, inclusion: { in: ISO3166::Country.codes, message: "must be a valid country" }
   validates :invoice_email_auto_to, format: { with: URI::MailTo::EMAIL_REGEXP, allow_blank: true }
+  validates :offer_validity_days, numericality: { greater_than: 0, allow_nil: true }
 
   # Set default language (English) for new customers
   before_validation :set_default_language, on: :create
@@ -16,11 +18,15 @@ class Customer < ApplicationRecord
   has_many :sales_tax_rates, through: :sales_tax_customer_class
   has_many :invoices
   has_many :delivery_notes
+  has_many :offers
   has_many :customer_contacts, dependent: :destroy
   has_many :vat_verifications, class_name: "CustomerVatVerification", dependent: :destroy
 
   before_save :normalise_vat_id
   before_save :clear_vat_id_verified_at_if_vat_id_changed
+
+  has_rich_text :offer_boilerplate
+  strips_rich_text_edges :offer_boilerplate
 
   enum :invoice_email_auto_contact_mode, {
     replace_contacts: "replace_contacts",
@@ -57,6 +63,10 @@ class Customer < ApplicationRecord
     delivery_notes.exists?
   end
 
+  def used_in_offers?
+    offers.exists?
+  end
+
   def can_be_deleted?
     deletion_blocker.nil?
   end
@@ -87,6 +97,10 @@ class Customer < ApplicationRecord
     customer_contacts.for_delivery_notes.select { |c| c.applies_to_project?(delivery_note.project) }
   end
 
+  def contacts_for_offer(offer)
+    customer_contacts.for_offers.select { |c| c.applies_to_project?(offer.project) }
+  end
+
   before_destroy :check_if_used
 
   # When a customer moves to a different team, cascade the change to every
@@ -112,7 +126,8 @@ class Customer < ApplicationRecord
   # UI gate (can_be_deleted?) and the destroy guard's error message.
   def deletion_blocker
     return "invoices" if used_in_invoices?
-    "delivery notes" if used_in_delivery_notes?
+    return "delivery notes" if used_in_delivery_notes?
+    "offers" if used_in_offers?
   end
 
   def check_if_used

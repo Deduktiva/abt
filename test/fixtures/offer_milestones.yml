@@ -1,0 +1,29 @@
+draft_ms_one:
+  offer_version: draft_offer_v1
+  position: 1
+  title: Concept
+  amount: 500
+  trigger: on_acceptance
+
+sent_ms_one:
+  offer_version: sent_offer_v1
+  position: 1
+  title: Setup
+  amount: 1000
+  trigger: on_order
+  skip_delivery_note: true
+
+sent_ms_two:
+  offer_version: sent_offer_v1
+  position: 2
+  title: Delivery
+  amount: 2000
+  trigger: on_acceptance
+
+sent_draft_ms_one:
+  offer_version: sent_offer_v2_draft
+  position: 1
+  title: Setup
+  amount: 1000
+  trigger: on_order
+  skip_delivery_note: true

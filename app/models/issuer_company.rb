@@ -6,6 +6,7 @@ class IssuerCompany < ApplicationRecord
             format: { with: /\A#[0-9a-fA-F]{3,8}\z/, message: "must be a hex color like #rrggbb" },
             allow_blank: true
   validates :vat_id_recheck_days, numericality: { only_integer: true, greater_than: 0 }
+  validates :offer_validity_days, numericality: { greater_than: 0 }
   # 0..4 covers all ISO 4217 minor units (2 typical, 0 for JPY, 3 for KWD, 4 for
   # CLF). Bounding it also keeps stored values exact on SQLite's float-backed
   # decimal columns.

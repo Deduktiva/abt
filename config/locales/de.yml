@@ -48,8 +48,8 @@ de:
       title: "Bericht über anstehende Angebotslieferungen"
       heading: "Anstehende Angebotslieferungen am %{date}"
       main_message:
-        one: "1 angenommenes Angebot erreicht den Liefertermin innerhalb von 5 Tagen ohne vollständig gebuchte und versendete Rechnungen."
-        other: "%{count} angenommene Angebote erreichen den Liefertermin innerhalb von 5 Tagen ohne vollständig gebuchte und versendete Rechnungen."
+        one: "1 angenommenes Angebot braucht Verrechnungsaufmerksamkeit: Liefertermin innerhalb von 5 Tagen oder ein Meilenstein bei Auftrag ist noch nicht gebucht."
+        other: "%{count} angenommene Angebote brauchen Verrechnungsaufmerksamkeit: Liefertermin innerhalb von 5 Tagen oder ein Meilenstein bei Auftrag ist noch nicht gebucht."
       columns:
         offer_number: "Angebotsnr."
         customer: "Kunde"

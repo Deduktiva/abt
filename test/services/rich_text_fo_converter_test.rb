@@ -32,10 +32,15 @@ class RichTextFoConverterTest < ActiveSupport::TestCase
     assert_includes fo("<div><em>y</em></div>"), %(<fo:inline font-style="italic">y</fo:inline>)
   end
 
-  test "h1 becomes a styled fo:block" do
+  test "h1 becomes a spaced fo:block at body size" do
     out = fo("<h1>Title</h1>")
-    assert_includes out, %(font-weight="bold")
-    assert_includes out, "Title"
+    assert_includes out, %(<fo:block space-after="4pt">Title</fo:block>)
+    assert_not_includes out, "font-weight"
+  end
+
+  test "h1 carries the heading color when one is given" do
+    out = RichTextFoConverter.new("<h1>Title</h1>", heading_color: "#123456").to_fo_fragment
+    assert_includes out, %(color="#123456")
   end
 
   test "bullet list emits fo:list-block with bullet labels" do

@@ -10,8 +10,9 @@ require "nokogiri"
 class RichTextFoConverter
   LINE_SEPARATOR = " "
 
-  def initialize(html)
+  def initialize(html, heading_color: nil)
     @html = html.to_s
+    @heading_color = heading_color
   end
 
   def to_fo_fragment
@@ -28,8 +29,7 @@ class RichTextFoConverter
     when "ul", "ol"
       render_list(node, xml)
     when "h1"
-      xml.tag!("fo:block", "font-size" => "14pt", "font-weight" => "bold",
-               "space-before" => "6pt", "space-after" => "4pt") do |b|
+      xml.tag!("fo:block", heading_attributes) do |b|
         render_inline(node.children, b)
       end
     when "div", "p"
@@ -39,6 +39,15 @@ class RichTextFoConverter
     else
       xml.tag!("fo:block") { |b| render_inline(node.children, b) } if node.element?
     end
+  end
+
+  # Headings match the document line-table headers: accent color at body size,
+  # not the browser's big-and-bold default. No space-before: an author's empty
+  # line above a heading already carries the full line of spacing.
+  def heading_attributes
+    attrs = { "space-after" => "4pt" }
+    attrs["color"] = @heading_color if @heading_color
+    attrs
   end
 
   def render_list(node, xml)

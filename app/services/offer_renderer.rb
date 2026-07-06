@@ -78,10 +78,10 @@ class OfferRenderer
       xml_root.tag! "payment-terms-days", payment_terms
 
       xml_root.prelude do |xml_prelude|
-        xml_prelude << RichTextFoConverter.new(@version.prelude.body&.to_html).to_fo_fragment if @version.prelude.present?
+        xml_prelude << rich_text_fragment(@version.prelude.body&.to_html) if @version.prelude.present?
       end
       xml_root.boilerplate do |xml_boilerplate|
-        xml_boilerplate << RichTextFoConverter.new(boilerplate.body&.to_html).to_fo_fragment if boilerplate
+        xml_boilerplate << rich_text_fragment(boilerplate.body&.to_html) if boilerplate
       end
 
       xml_root.milestones do |xml_milestones|
@@ -105,5 +105,9 @@ class OfferRenderer
     FopRenderer.new.render_pdf_with_logo("offer.xsl", logo_data) do |logo_file_path|
       emit_xml(logo_file_path)
     end
+  end
+
+  def rich_text_fragment(html)
+    RichTextFoConverter.new(html, heading_color: @issuer.document_accent_color).to_fo_fragment
   end
 end

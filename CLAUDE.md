@@ -75,7 +75,7 @@ For testing against PostgreSQL (matches production environment):
 - Permissions: `offers.view`, `offers.edit` (create/send/accept/reject/reopen), `offers.convert` (milestone → invoice/delivery-note)
 
 ### Background Jobs
-- Solid Queue (`bin/jobs` worker, `solid_queue` gem). Schedule lives in `config/recurring.yml` — currently `OverdueInvoicesReportJob` (every other day at 08:00), `ExpiringOffersReportJob` (daily at 07:30), `RefreshStaleVatVerificationsJob` (daily at 04:00), `VatVerificationsReportJob` (daily at 11:00), and finished-job cleanup.
+- Solid Queue (`bin/jobs` worker, `solid_queue` gem). Schedule lives in `config/recurring.yml` — currently `OverdueInvoicesReportJob` (every other day at 08:00), `ExpiringOffersReportJob` (daily at 07:30), `UpcomingOfferDeliveriesReportJob` (daily at 07:45), `RefreshStaleVatVerificationsJob` (daily at 04:00), `VatVerificationsReportJob` (daily at 11:00), and finished-job cleanup.
 - Worker status surfaced under **Configuration → Background Jobs** (`JobsStatusController`).
 
 ### Authentication

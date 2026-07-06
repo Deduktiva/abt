@@ -89,7 +89,7 @@
                     %button.btn.btn-sm.btn-info{disabled: true} Publish…
         - if @delivery_note.published?
           = render 'shared/email_status_row', resource: @delivery_note, can_edit: can_edit_dn, show_send_button: true
-        - if @delivery_note.published?
+        - if @delivery_note.published? || @delivery_note.invoice
           .row.mb-2
             .col-sm-4
               %strong Invoice:

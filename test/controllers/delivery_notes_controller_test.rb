@@ -26,6 +26,17 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "draft delivery note show displays the linked invoice" do
+    note = delivery_notes(:published_delivery_note)
+    invoice = Invoice.create!(customer: note.customer, project: note.project)
+    note.update!(invoice: invoice, published: false)
+
+    get delivery_note_url(note)
+    assert_response :success
+    assert_select "strong", text: "Invoice:"
+    assert_select "a[href=?]", invoice_path(invoice)
+  end
+
   test "published delivery note show offers PDF action, not the unusable Preview" do
     note = delivery_notes(:published_delivery_note)
     get delivery_note_url(note)

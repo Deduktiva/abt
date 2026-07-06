@@ -2,6 +2,7 @@
 - edit_action = action_button('Edit', edit_offer_path(@offer), permission: 'offers.edit') if @offer.editable?
 - preview_action = preview_button(preview_offer_path(@offer), permission: 'offers.view') if @offer.draft_version && @offer.draft_version.milestones.any?
 - delete_action = delete_button(@offer) if @offer.deletable? && can?('offers.edit')
+- problems = @offer.editable? ? @offer.send_problems : []
 = breadcrumbs ['Offers', offers_path], @offer.display_label, actions: [preview_action, delete_action], action: edit_action do
   - label, badge_class = @offer.status_badge
   %span.badge{class: badge_class}= label
@@ -70,16 +71,23 @@
       .col-sm-4
         %strong Send:
       .col-sm-8.d-flex.align-items-center.gap-2
-        - problems = @offer.send_problems
         - if problems.any?
           %span.badge.bg-warning= pluralize(problems.size, 'problem')
-          - if can?('offers.edit')
-            %span.ms-auto{title: problems.join("\n")}
-              %button.btn.btn-sm.btn-info{disabled: true} 🚀 Send
         - else
           %span.badge.bg-success Ready
-          - if can?('offers.edit')
+        - if can?('offers.edit')
+          - if problems.any?
+            %span.ms-auto{title: problems.join("\n")}
+              %button.btn.btn-sm.btn-info{disabled: true} 🚀 Send
+          - else
             = button_to '🚀 Send', send_offer_offer_path(@offer), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Send this offer to the customer? A PDF is generated and this version is frozen.' }
+
+  - if problems.any?
+    .alert.alert-warning.mb-3
+      %strong This offer cannot be sent yet:
+      %ul.mb-0
+        - problems.each do |p|
+          %li= p
 
   - if @offer.current_sent_version
     - sent_version = @offer.current_sent_version

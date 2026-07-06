@@ -54,6 +54,7 @@ class Offer < ApplicationRecord
     problems = []
     problems << "No draft version to send." if draft_version.nil?
     problems << "Add at least one milestone before sending." if draft_version && draft_version.milestones.none?
+    problems << "Add a subject before sending." if draft_version && draft_version.subject.blank?
     problems << "Offer is #{state}; reopen it before sending a revision." unless %w[draft sent expired].include?(state)
     problems
   end

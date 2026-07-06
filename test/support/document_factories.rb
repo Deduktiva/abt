@@ -57,6 +57,7 @@ module DocumentFactories
 
   def create_offer_with_milestone(**kwargs)
     offer = create_draft_offer(**kwargs)
+    offer.draft_version.update!(subject: "Offer subject")
     offer.draft_version.milestones.create!(title: "Milestone", amount: 1000, trigger: "on_acceptance", position: 1)
     offer
   end

@@ -367,6 +367,14 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
+  test "preview is refused without a subject" do
+    offer = create_offer_with_milestone
+    offer.draft_version.update!(subject: "")
+    get preview_offer_url(offer)
+    assert_redirected_to offer_url(offer)
+    assert_match(/subject/i, flash[:alert])
+  end
+
   private
 
   def attach_pdf_to(version)

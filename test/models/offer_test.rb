@@ -195,6 +195,17 @@ class OfferTest < ActiveSupport::TestCase
     assert_not offer.delivery_date_urgent?
   end
 
+  test "send_problems requires a subject" do
+    offer = create_offer_with_milestone
+    offer.draft_version.update!(subject: "")
+    assert_includes offer.send_problems.join, "subject"
+  end
+
+  test "send_problems is empty for a complete draft" do
+    offer = create_offer_with_milestone
+    assert_empty offer.send_problems
+  end
+
   private
 
   def accepted_with_delivery(date)

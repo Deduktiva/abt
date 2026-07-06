@@ -1,6 +1,6 @@
 - content_for :title, @offer.display_name
 - edit_action = action_button('Edit', edit_offer_path(@offer), permission: 'offers.edit') if @offer.editable?
-- preview_action = preview_button(preview_offer_path(@offer), permission: 'offers.view') if @offer.draft_version && @offer.draft_version.milestones.any?
+- preview_action = preview_button(preview_offer_path(@offer), permission: 'offers.view') if @offer.draft_version && @offer.draft_version.milestones.any? && @offer.draft_version.subject.present?
 - delete_action = delete_button(@offer) if @offer.deletable? && can?('offers.edit')
 = breadcrumbs ['Offers', offers_path], @offer.display_label, actions: [preview_action, delete_action], action: edit_action do
   - label, badge_class = @offer.status_badge

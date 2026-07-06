@@ -234,6 +234,100 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     assert_select "td.delivery-urgent", false
   end
 
+  test "new preselects the customer from params" do
+    get new_offer_url(customer_id: customers(:good_eu).id)
+    assert_response :success
+    assert_select "input#offer_customer_id[value=?]", customers(:good_eu).id.to_s
+  end
+
+  test "create with invalid params re-renders the form" do
+    assert_no_difference("Offer.count") do
+      post offers_url, params: { offer: { customer_id: "", project_id: "" } }
+    end
+    assert_response :unprocessable_content
+  end
+
+  test "update with invalid params re-renders the form" do
+    offer = offers(:draft_offer)
+    patch offer_url(offer), params: { offer: { customer_contact_id: customer_contacts(:eu_contact).id } }
+    assert_response :unprocessable_content
+    assert_nil offer.reload.customer_contact_id
+  end
+
+  test "preview renders a PDF for a draft with milestones" do
+    offer = create_offer_with_milestone
+    get preview_offer_url(offer)
+    assert_response :success
+    assert_equal "application/pdf", response.media_type
+    assert response.body.start_with?("%PDF")
+  end
+
+  test "accept rejects a non-PDF order document" do
+    offer = offers(:sent_offer)
+    post accept_offer_url(offer), params: { order_number: "PO", ordered_on: "2026-07-01",
+                                            order_pdf: fixture_file_upload("notpdf.html", "text/html") }
+    assert_redirected_to offer_url(offer)
+    assert_match(/must be a PDF/, flash[:alert])
+    assert offer.reload.sent?
+  end
+
+  test "accept refused when the offer is already accepted" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO-1", ordered_on: Date.current)
+    post accept_offer_url(offer), params: { order_number: "PO-2", ordered_on: "2026-07-01" }
+    assert_redirected_to offer_url(offer)
+    assert flash[:alert].present?
+    assert_equal "PO-1", offer.reload.order_number
+  end
+
+  test "reject and reopen round-trip over HTTP" do
+    offer = offers(:sent_offer)
+    post reject_offer_url(offer)
+    assert_redirected_to offer_url(offer)
+    assert offer.reload.rejected?
+    post reopen_offer_url(offer)
+    assert offer.reload.sent?
+  end
+
+  test "upload_order_pdf stores the document" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    post upload_order_pdf_offer_url(offer), params: { order_pdf: fixture_file_upload("acceptance.pdf", "application/pdf") }
+    assert_redirected_to offer_url(offer)
+    assert offer.reload.order_attachment.present?
+  end
+
+  test "upload_order_pdf refuses a missing file" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    post upload_order_pdf_offer_url(offer)
+    assert_match(/must be a PDF/, flash[:alert])
+    assert_nil offer.reload.order_attachment_id
+  end
+
+  test "reopen_milestone_link clears the conversion over HTTP" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    milestone = offer_milestones(:sent_ms_two)
+    OfferMilestoneConverter.new(milestone).convert!
+    post reopen_milestone_link_offer_url(offer, milestone_id: milestone.id)
+    assert_redirected_to offer_url(offer)
+    milestone.reload
+    assert_nil milestone.invoice_id
+    assert_nil milestone.delivery_note_id
+  end
+
+  test "scaffold_milestones re-renders when the offer params are invalid" do
+    offer = offers(:draft_offer)
+    offer.draft_version.milestones.destroy_all
+    post scaffold_milestones_offer_url(offer), params: {
+      total: "1000",
+      offer: { customer_contact_id: customer_contacts(:eu_contact).id }
+    }
+    assert_response :unprocessable_content
+    assert_equal 0, offer.draft_version.milestones.count
+  end
+
   private
 
   def attach_pdf_to(version)

@@ -1,0 +1,39 @@
+- content_for :title, t('mailers.upcoming_offer_deliveries.title', count: @entries.size)
+
+:css
+  table.upcoming {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+  table.upcoming th, table.upcoming td {
+    border: 1px solid #dee2e6;
+    padding: 8px 10px;
+    text-align: left;
+  }
+  table.upcoming th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+  }
+
+.greeting
+  = t('mailers.upcoming_offer_deliveries.heading', date: l(@today))
+
+.main-message
+  = t('mailers.upcoming_offer_deliveries.main_message', count: @entries.size)
+
+%table.upcoming
+  %thead
+    %tr
+      %th= t('mailers.upcoming_offer_deliveries.columns.offer_number')
+      %th= t('mailers.upcoming_offer_deliveries.columns.customer')
+      %th= t('mailers.upcoming_offer_deliveries.columns.delivery_date')
+      %th= t('mailers.upcoming_offer_deliveries.columns.missing')
+  %tbody
+    - @entries.each do |entry|
+      %tr
+        %td= entry[:offer].document_number
+        %td= entry[:offer].customer.name
+        %td= l(entry[:offer].accepted_version.delivery_date)
+        %td= entry[:missing].join('; ')

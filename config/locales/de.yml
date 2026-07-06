@@ -41,6 +41,33 @@ de:
       short:
         expired_on: "Abgelaufen:"
 
+    upcoming_offer_deliveries:
+      subject:
+        one: "[%{issuer_name}] 1 Angebotslieferung naht mit offener Verrechnung"
+        other: "[%{issuer_name}] %{count} Angebotslieferungen nahen mit offener Verrechnung"
+      title: "Bericht über anstehende Angebotslieferungen"
+      heading: "Anstehende Angebotslieferungen am %{date}"
+      main_message:
+        one: "1 angenommenes Angebot erreicht den Liefertermin innerhalb von 5 Tagen ohne vollständig gebuchte und versendete Rechnungen."
+        other: "%{count} angenommene Angebote erreichen den Liefertermin innerhalb von 5 Tagen ohne vollständig gebuchte und versendete Rechnungen."
+      columns:
+        offer_number: "Angebotsnr."
+        customer: "Kunde"
+        delivery_date: "Liefertermin"
+        missing: "Offen"
+      short:
+        delivery: "Lieferung:"
+      status:
+        unconverted:
+          one: "1 Meilenstein nicht umgewandelt"
+          other: "%{count} Meilensteine nicht umgewandelt"
+        unbooked:
+          one: "1 Rechnung nicht gebucht"
+          other: "%{count} Rechnungen nicht gebucht"
+        unsent:
+          one: "1 Rechnung nicht versendet"
+          other: "%{count} Rechnungen nicht versendet"
+
     invoice:
       subject: "%{issuer_name} Rechnung %{document_number}"
       greeting: "Sehr geehrte Damen und Herren,"

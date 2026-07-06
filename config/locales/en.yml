@@ -117,6 +117,33 @@ en:
       short:
         expired_on: "Expired:"
 
+    upcoming_offer_deliveries:
+      subject:
+        one: "[%{issuer_name}] 1 offer delivery nearing with open invoicing"
+        other: "[%{issuer_name}] %{count} offer deliveries nearing with open invoicing"
+      title: "Upcoming offer deliveries report"
+      heading: "Offer deliveries nearing as of %{date}"
+      main_message:
+        one: "1 accepted offer reaches its delivery date within 5 days without fully booked and sent invoices."
+        other: "%{count} accepted offers reach their delivery date within 5 days without fully booked and sent invoices."
+      columns:
+        offer_number: "Offer no."
+        customer: "Customer"
+        delivery_date: "Delivery date"
+        missing: "Missing"
+      short:
+        delivery: "Delivery:"
+      status:
+        unconverted:
+          one: "1 milestone not converted"
+          other: "%{count} milestones not converted"
+        unbooked:
+          one: "1 invoice not booked"
+          other: "%{count} invoices not booked"
+        unsent:
+          one: "1 invoice not sent"
+          other: "%{count} invoices not sent"
+
     invoice:
       subject: "%{issuer_name} Invoice %{document_number}"
       greeting: "Dear %{customer_name},"

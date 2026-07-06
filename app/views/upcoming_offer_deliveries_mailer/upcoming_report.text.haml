@@ -1,0 +1,6 @@
+= t('mailers.upcoming_offer_deliveries.heading', date: l(@today))
+\
+= t('mailers.upcoming_offer_deliveries.main_message', count: @entries.size)
+\
+- @entries.each do |entry|
+  = "#{entry[:offer].document_number}  #{entry[:offer].customer.name}  #{t('mailers.upcoming_offer_deliveries.short.delivery')} #{l(entry[:offer].accepted_version.delivery_date)}  #{entry[:missing].join('; ')}"

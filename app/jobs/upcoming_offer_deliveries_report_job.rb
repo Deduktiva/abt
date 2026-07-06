@@ -1,12 +1,10 @@
 class UpcomingOfferDeliveriesReportJob < ApplicationJob
   queue_as :default
 
-  DELIVERY_WINDOW = 5.days
-
   def perform
     offers = Offer.where(state: "accepted")
                   .joins(:accepted_version)
-                  .where(offer_versions: { delivery_date: ..(Date.current + DELIVERY_WINDOW) })
+                  .where(offer_versions: { delivery_date: ..(Date.current + Offer::DELIVERY_SOON_WINDOW) })
                   .includes(:customer, accepted_version: { milestones: :invoice })
                   .order("offer_versions.delivery_date")
 

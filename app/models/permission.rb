@@ -20,6 +20,7 @@ module Permission
     Entry.new(key: "offers.view",    label: "View offers",                        category: "Operations"),
     Entry.new(key: "offers.edit",    label: "Create / send / accept offers",      category: "Operations"),
     Entry.new(key: "offers.convert", label: "Convert offer milestones to invoices", category: "Operations"),
+    Entry.new(key: "offers.edit_notes", label: "Edit offer internal notes", category: "Operations"),
 
     # Catalog & tax
     Entry.new(key: "products.view", label: "View product catalog",          category: "Catalog & tax"),

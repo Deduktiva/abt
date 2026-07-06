@@ -184,7 +184,7 @@
                 %td.numeric
                   %strong= format_currency(@version.milestones.sum(:amount))
 
-  - if can?('offers.edit')
+  - if can?('offers.edit_notes')
     .mb-4
       .card
         .card-header

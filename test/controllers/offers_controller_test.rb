@@ -206,7 +206,7 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     offer = offers(:sent_offer)
     offer.accept!(order_number: "PO", ordered_on: Date.current)
     get offer_url(offer)
-    assert_select ".badge.bg-success", text: "Accepted", minimum: 2
+    assert_select ".badge.bg-primary", text: "Ordered", minimum: 2
     assert_match offer.accepted_at.to_date.strftime("%d.%m.%Y"), response.body
   end
 

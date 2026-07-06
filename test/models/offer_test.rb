@@ -138,4 +138,42 @@ class OfferTest < ActiveSupport::TestCase
     offer.update!(internal_notes: "<div>keep<br><br>this</div><p><br></p>")
     assert_equal "<div>keep<br><br>this</div>", offer.reload.internal_notes.body.to_html
   end
+  test "accepted offer shows Ordered until milestones are invoiced" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    assert_equal [ "Ordered", "bg-primary" ], offer.status_badge
+  end
+
+  test "accepted offer shows Invoiced once every milestone has a booked invoice" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    offer.accepted_version.milestones.each { |m| m.update!(invoice: booked_invoice(offer)) }
+    assert_equal [ "Invoiced", "bg-info text-dark" ], offer.status_badge
+  end
+
+  test "a single unbooked invoice keeps the status at Ordered" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    milestones = offer.accepted_version.milestones.to_a
+    milestones.first.update!(invoice: booked_invoice(offer))
+    milestones.last.update!(invoice: Invoice.create!(customer: offer.customer, project: offer.project,
+                                                     customer_country_iso2: offer.customer.country_iso2,
+                                                     date: Date.current, published: false))
+    assert_equal [ "Ordered", "bg-primary" ], offer.status_badge
+  end
+
+  test "accepted offer shows Paid once every invoice is paid" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    offer.accepted_version.milestones.each { |m| m.update!(invoice: booked_invoice(offer, paid: true)) }
+    assert_equal [ "Paid", "bg-success" ], offer.status_badge
+  end
+
+  private
+
+  def booked_invoice(offer, paid: false)
+    Invoice.create!(customer: offer.customer, project: offer.project,
+                    customer_country_iso2: offer.customer.country_iso2,
+                    date: Date.current, published: true, paid_at: (Time.current if paid))
+  end
 end

@@ -103,7 +103,7 @@
                 %strong Decision:
               .col-sm-8.d-flex.align-items-center.gap-2
                 - if @offer.accepted?
-                  %span.badge.bg-success Accepted
+                  %span.badge.bg-primary Ordered
                   - if @offer.accepted_at
                     = l(@offer.accepted_at.to_date)
                 - elsif @offer.rejected?
@@ -126,7 +126,7 @@
         .card-body
           .row.mb-2
             .col-sm-4
-              %strong Accepted:
+              %strong Ordered:
             .col-sm-8
               = l(@offer.accepted_at.to_date) if @offer.accepted_at
               %span.text-muted.ms-2 (version #{@offer.accepted_version.version_number})

@@ -15,6 +15,10 @@ export default class extends Controller {
     this.element.addEventListener("trix-initialize", this.trimToolbar)
     this.element.addEventListener("trix-file-accept", this.blockAttachment)
     this.element.addEventListener("trix-attachment-add", this.blockAttachment)
+    // Trix may finish initializing before this controller connects, in which
+    // case the trix-initialize listener above misses the event. Trim now if the
+    // editor is already up.
+    if (this.element.editor) this.trimToolbar({ target: this.element })
   }
 
   disconnect() {

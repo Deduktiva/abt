@@ -435,6 +435,18 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
   # Published-invoice guards (edit/update/destroy/preview/publish) live in
   # test/controllers/concerns/publishable_document_test.rb.
 
+  test "destroying a draft invoice unlinks its delivery note" do
+    invoice = create_draft_invoice(cust_reference: "LINKED")
+    note = delivery_notes(:published_delivery_note)
+    note.update!(invoice: invoice)
+
+    assert_difference("Invoice.count", -1) do
+      delete invoice_url(invoice)
+    end
+
+    assert_nil note.reload.invoice_id
+  end
+
   test "import_lines returns invoice lines parsed from the uploaded CSV" do
     invoice = create_draft_invoice(cust_reference: "IMPORT")
 

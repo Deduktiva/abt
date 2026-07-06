@@ -20,7 +20,8 @@ class OffersController < ApplicationController
     @state_filter = params[:state].presence_in(Offer::STATES) || "all"
     @selected_customer_id = params[:customer_id].presence&.to_i
 
-    scope = Offer.visible_to(current_user).ordered.includes(:customer, :project)
+    scope = Offer.visible_to(current_user).ordered
+                 .includes(:customer, :project, draft_version: :milestones, accepted_version: { milestones: :invoice })
     scope = scope.in_year(@selected_year, include_drafts: @selected_year == Date.current.year) unless @selected_year == "all"
     scope = scope.where(state: @state_filter) unless @state_filter == "all"
     scope = scope.where(customer_id: @selected_customer_id) if @selected_customer_id

@@ -123,11 +123,31 @@ class Offer < ApplicationRecord
   end
 
   def status_badge
-    { "draft" => [ "Draft", "bg-secondary" ],
-      "sent" => [ "Sent", "bg-info text-dark" ],
-      "accepted" => [ "Accepted", "bg-success" ],
-      "rejected" => [ "Rejected", "bg-danger" ],
-      "expired" => [ "Expired", "bg-warning text-dark" ] }.fetch(state)
+    if accepted?
+      case accepted_invoicing_status
+      when :paid then [ "Paid", "bg-success" ]
+      when :invoiced then [ "Invoiced", "bg-info text-dark" ]
+      else [ "Ordered", "bg-primary" ]
+      end
+    else
+      { "draft" => [ "Draft", "bg-secondary" ],
+        "sent" => [ "Sent", "bg-warning text-dark" ],
+        "rejected" => [ "Rejected", "bg-danger" ],
+        "expired" => [ "Expired", "bg-warning text-dark" ] }.fetch(state)
+    end
+  end
+
+  # Once accepted, the status refines by invoicing progress: :invoiced when every
+  # milestone has a booked invoice, :paid when those invoices are all paid too,
+  # nil while any milestone is still un- or under-invoiced.
+  def accepted_invoicing_status
+    milestones = accepted_version&.milestones.to_a
+    return nil if milestones.empty?
+
+    invoices = milestones.map(&:invoice)
+    return nil unless invoices.all? { |invoice| invoice&.published? }
+
+    invoices.all?(&:paid?) ? :paid : :invoiced
   end
 
   def attach_order_pdf(uploaded_file)

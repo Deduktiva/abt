@@ -18,5 +18,7 @@ ActiveSupport::Notifications.subscribe("perform.active_job") do |*args|
     elsif (dns = params[:delivery_notes])
       DeliveryNote.where(id: dns.map(&:id)).update_all(email_sent_at: now)
     end
+  when "OfferMailer"
+    params[:offer]&.update_column(:email_sent_at, now)
   end
 end

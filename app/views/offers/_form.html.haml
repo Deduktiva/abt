@@ -1,0 +1,145 @@
+%div{data: {controller: 'auto-resize-form'}}
+  = form_with model: @offer, id: ActionButtonsHelper::PAGE_FORM_ID do |f|
+    - if @offer.errors.any?
+      .alert.alert-danger
+        %h4
+          = pluralize(@offer.errors.count, 'error')
+          prohibited saving:
+        %ul
+          - @offer.errors.full_messages.each do |msg|
+            %li= msg
+
+    .form-inputs
+      .row
+        .col-sm-4
+          .mb-3
+            %label.form-label Customer
+            %div{ data: {
+                controller: 'searchable-dropdown',
+                searchable_dropdown_current_item_id_value: @offer.customer_id,
+                searchable_dropdown_url_value: customers_path,
+                searchable_dropdown_item_name_value: 'customer',
+                searchable_dropdown_item_id_param_value: 'customer_id',
+                searchable_dropdown_select_prompt_value: 'Select customer...'
+              } }
+              = f.hidden_field :customer_id, id: 'offer_customer_id'
+              .dropdown.searchable-dropdown.customer-dropdown
+                %button.btn.btn-outline-secondary.form-control.text-start.d-flex.justify-content-between.align-items-center{ type: 'button', data: { searchable_dropdown_target: 'select' } }
+                  .select-display
+                    - if @offer.customer && @offer.customer.id
+                      .fw-normal= @offer.customer.name
+                      .small.text-muted= @offer.customer.matchcode
+                    - else
+                      %span.text-muted Select customer...
+                  %span.text-muted ▼
+                .dropdown-menu{ id: 'customer-dropdown-menu', data: { searchable_dropdown_target: 'dropdown' } }
+                  .p-2.border-bottom
+                    %input.form-control.form-control-sm{ type: 'text', placeholder: 'Search customers...', data: { searchable_dropdown_target: 'search' } }
+                  .dropdown-content
+                    .dropdown-item.text-muted Loading...
+        .col-sm-4
+          .mb-3
+            %label.form-label Project
+            %div{ data: {
+                controller: 'searchable-dropdown',
+                searchable_dropdown_current_dependent_id_value: @offer.customer_id,
+                searchable_dropdown_current_item_id_value: @offer.project_id,
+                searchable_dropdown_url_value: projects_path,
+                searchable_dropdown_dependent_param_value: 'customer_id',
+                searchable_dropdown_item_name_value: 'project',
+                searchable_dropdown_item_id_param_value: 'project_id',
+                searchable_dropdown_select_prompt_value: 'Select project...',
+                searchable_dropdown_dependent_select_prompt_value: 'Select customer first...',
+                searchable_dropdown_dependent_field_selector_value: '#offer_customer_id'
+              } }
+              = f.hidden_field :project_id, id: 'offer_project_id'
+              .dropdown.searchable-dropdown.project-dropdown
+                %button.btn.btn-outline-secondary.form-control.text-start.d-flex.justify-content-between.align-items-center{ type: 'button', data: { searchable_dropdown_target: 'select' } }
+                  .select-display
+                    - if @offer.project && @offer.project.id
+                      .fw-normal= @offer.project.display_name
+                      .small.text-muted= @offer.project.matchcode
+                    - else
+                      %span.text-muted Select project...
+                  %span.text-muted ▼
+                .dropdown-menu{ id: 'project-dropdown-menu', data: { searchable_dropdown_target: 'dropdown' } }
+                  .p-2.border-bottom
+                    %input.form-control.form-control-sm{ type: 'text', placeholder: 'Search projects...', data: { searchable_dropdown_target: 'search' } }
+                  .dropdown-content
+                    .dropdown-item.text-muted Loading...
+        .col-sm-4
+          .mb-3
+            = f.label :internal_reference, 'Internal Reference', class: 'form-label'
+            = f.text_field :internal_reference, class: 'form-control'
+
+      .row
+        .col-sm-4
+          .mb-3
+            = f.label :customer_contact_id, 'Addressed Contact', class: 'form-label'
+            = f.collection_select :customer_contact_id, @offer.customer&.customer_contacts || [], :id, :name, { include_blank: 'None' }, { class: 'form-select' }
+        .col-sm-4
+          .mb-3
+            %label.form-label Document number
+            .form-control-plaintext
+              = @offer.document_number.presence || '(assigned at first send)'
+
+      - if @offer.draft_version
+        = f.fields_for :draft_version, @offer.draft_version do |vf|
+          .row
+            .col-sm-8
+              .mb-3
+                = vf.label :subject, 'Subject', class: 'form-label'
+                = vf.text_field :subject, class: 'form-control'
+            .col-sm-4
+              .mb-3
+                = vf.label :delivery_date, 'Delivery date', class: 'form-label'
+                = vf.date_field :delivery_date, class: 'form-control'
+
+          .row
+            .col-sm-8
+              .mb-3
+                = vf.label :prelude, 'Prelude', class: 'form-label'
+                = vf.rich_text_area :prelude, data: { controller: 'rich-text' }
+            .col-sm-4
+              .mb-3
+                = vf.label :salutation_override, 'Salutation override', class: 'form-label'
+                = vf.text_field :salutation_override, class: 'form-control'
+              .mb-3
+                = vf.label :sales_tax_product_class_id, 'Tax class', class: 'form-label'
+                = vf.collection_select :sales_tax_product_class_id, SalesTaxProductClass.all, :id, :name, { prompt: 'Select tax class...' }, { class: 'form-select' }
+
+          - if @offer.customer
+            .card.mb-3
+              .card-header.d-flex.justify-content-between.align-items-center
+                %span Boilerplate
+                %small.text-muted live in drafts · frozen on send
+              .card-body
+                = @offer.customer.offer_boilerplate
+                = link_to 'Edit on customer', edit_customer_path(@offer.customer), class: 'btn btn-sm btn-outline-secondary mt-2', target: '_blank', rel: 'noopener'
+
+          .card.mb-3
+            .card-body
+              .row
+                .col-sm-10.text-end
+                  Total Net
+                .col-sm-2.text-end
+                  %span#offer-total-net
+                    = format_currency(@offer.draft_version.milestones.sum(:amount))
+
+          %div{data: { controller: 'offer-milestones', offer_milestones_currency_symbol_value: currency_symbol, offer_milestones_money_decimal_places_value: current_money_decimal_places }}
+            %div{data: { offer_milestones_target: 'container' }}
+              = vf.fields_for :milestones do |mf|
+                = render 'milestone_fields', f: mf, autofocus: @autofocus_first_milestone && mf.index.zero?
+            %template{data: { offer_milestones_target: 'template' }}
+              = vf.fields_for :milestones, OfferMilestone.new, child_index: 'NEW_RECORD' do |mf|
+                = render 'milestone_fields', f: mf
+            %button.btn.btn-outline-primary{type: 'button', data: { action: 'click->offer-milestones#addLine' }} + Add Milestone
+
+          - if @offer.persisted? && @offer.draft_version.milestones.none? && @offer.customer
+            .card.mb-3.mt-3
+              .card-header Scaffold milestones
+              .card-body
+                %p.text-muted Generate milestones from the customer's default rule for a target total. Your other changes are saved along the way.
+                .input-group.w-fixed-400
+                  = number_field_tag :total, nil, step: :any, class: 'form-control', placeholder: 'Target total net'
+                  %button.btn.btn-outline-primary{type: 'submit', formaction: scaffold_milestones_offer_path(@offer), formmethod: 'post'} Apply milestone rule

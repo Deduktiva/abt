@@ -93,6 +93,7 @@
 
     <!-- Page master templates -->
     <xsl:template name="standard-page-masters">
+        <xsl:param name="first-body-margin-top" select="'8.5cm'" />
         <fo:simple-page-master master-name="first"
                                margin-left="2.25cm"
                                margin-top="1.5cm"
@@ -100,7 +101,7 @@
                                margin-bottom="1.5cm"
                                page-width="21cm"
                                page-height="29.7cm">
-            <fo:region-body region-name="body" margin-top="8.5cm" margin-bottom="0.2cm" />
+            <fo:region-body region-name="body" margin-top="{$first-body-margin-top}" margin-bottom="0.2cm" />
             <fo:region-before region-name="first-page-header" />
             <fo:region-after region-name="any-page-footer" />
         </fo:simple-page-master>

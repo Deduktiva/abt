@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_23_211332) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_05_120007) do
   create_table "acceptance_submissions", force: :cascade do |t|
     t.integer "attachment_id"
     t.datetime "created_at", null: false
@@ -89,6 +89,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_23_211332) do
     t.string "name", null: false
     t.boolean "receives_delivery_note_emails", default: false, null: false
     t.boolean "receives_invoice_emails", default: false, null: false
+    t.boolean "receives_offer_emails", default: false, null: false
     t.string "salutation_line"
     t.datetime "updated_at", null: false
     t.index ["customer_id"], name: "index_customer_contacts_on_customer_id"
@@ -128,6 +129,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_23_211332) do
     t.string "matchcode", null: false
     t.text "name"
     t.text "notes"
+    t.decimal "offer_milestone_split_threshold"
+    t.text "offer_milestone_templates_above"
+    t.text "offer_milestone_templates_below"
+    t.integer "offer_validity_days"
     t.integer "payment_terms_days", default: 30, null: false
     t.integer "sales_tax_customer_class_id"
     t.text "supplier_number"
@@ -304,6 +309,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_23_211332) do
     t.string "invoice_footer"
     t.string "legal_name"
     t.integer "money_decimal_places", default: 2, null: false
+    t.string "offer_footer"
+    t.integer "offer_validity_days", default: 30, null: false
     t.binary "pdf_logo"
     t.string "pdf_logo_height"
     t.string "pdf_logo_width"
@@ -323,6 +330,78 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_23_211332) do
     t.string "title", null: false
     t.datetime "updated_at", null: false
     t.index ["iso_code"], name: "index_languages_on_iso_code", unique: true
+  end
+
+  create_table "offer_milestones", force: :cascade do |t|
+    t.decimal "amount", null: false
+    t.datetime "created_at", null: false
+    t.integer "delivery_note_id"
+    t.text "description"
+    t.integer "invoice_id"
+    t.integer "offer_version_id", null: false
+    t.integer "position"
+    t.boolean "skip_delivery_note", default: false, null: false
+    t.string "title", null: false
+    t.string "trigger", default: "on_acceptance", null: false
+    t.date "trigger_date"
+    t.datetime "updated_at", null: false
+    t.index ["delivery_note_id"], name: "index_offer_milestones_on_delivery_note_id", unique: true, where: "delivery_note_id IS NOT NULL"
+    t.index ["invoice_id"], name: "index_offer_milestones_on_invoice_id", unique: true, where: "invoice_id IS NOT NULL"
+    t.index ["offer_version_id"], name: "index_offer_milestones_on_offer_version_id"
+  end
+
+  create_table "offer_versions", force: :cascade do |t|
+    t.integer "attachment_id"
+    t.datetime "created_at", null: false
+    t.text "customer_address"
+    t.string "customer_country_iso2", limit: 2
+    t.text "customer_name"
+    t.text "customer_supplier_number"
+    t.date "date"
+    t.date "delivery_date"
+    t.integer "offer_id", null: false
+    t.integer "payment_terms_days"
+    t.integer "sales_tax_product_class_id"
+    t.string "salutation_override"
+    t.datetime "sent_at"
+    t.string "subject"
+    t.decimal "sum_net", default: "0.0"
+    t.datetime "updated_at", null: false
+    t.integer "version_number", null: false
+    t.index ["attachment_id"], name: "index_offer_versions_on_attachment_id"
+    t.index ["offer_id", "version_number"], name: "index_offer_versions_on_offer_id_and_version_number", unique: true
+    t.index ["offer_id"], name: "index_offer_versions_on_offer_id"
+    t.index ["offer_id"], name: "index_offer_versions_one_draft_per_offer", unique: true, where: "sent_at IS NULL"
+    t.index ["sales_tax_product_class_id"], name: "index_offer_versions_on_sales_tax_product_class_id"
+  end
+
+  create_table "offers", force: :cascade do |t|
+    t.datetime "accepted_at"
+    t.bigint "accepted_version_id"
+    t.datetime "created_at", null: false
+    t.integer "customer_contact_id"
+    t.integer "customer_id", null: false
+    t.date "date"
+    t.string "document_number"
+    t.datetime "email_sent_at"
+    t.date "expires_at"
+    t.text "internal_reference"
+    t.integer "order_attachment_id"
+    t.text "order_number"
+    t.date "ordered_on"
+    t.integer "project_id", null: false
+    t.datetime "rejected_at"
+    t.datetime "reported_expired_at"
+    t.datetime "sent_at"
+    t.string "state", default: "draft", null: false
+    t.datetime "updated_at", null: false
+    t.index ["customer_contact_id"], name: "index_offers_on_customer_contact_id"
+    t.index ["customer_id"], name: "index_offers_on_customer_id"
+    t.index ["date"], name: "index_offers_on_date"
+    t.index ["document_number"], name: "index_offers_on_document_number", unique: true
+    t.index ["order_attachment_id"], name: "index_offers_on_order_attachment_id"
+    t.index ["project_id"], name: "index_offers_on_project_id"
+    t.index ["state"], name: "index_offers_on_state"
   end
 
   create_table "products", force: :cascade do |t|
@@ -505,6 +584,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_23_211332) do
   add_foreign_key "group_permissions", "groups"
   add_foreign_key "invoices", "customers"
   add_foreign_key "invoices", "projects"
+  add_foreign_key "offer_milestones", "delivery_notes"
+  add_foreign_key "offer_milestones", "invoices"
+  add_foreign_key "offer_milestones", "offer_versions"
+  add_foreign_key "offer_versions", "attachments"
+  add_foreign_key "offer_versions", "offers"
+  add_foreign_key "offer_versions", "sales_tax_product_classes"
+  add_foreign_key "offers", "attachments", column: "order_attachment_id"
+  add_foreign_key "offers", "customer_contacts"
+  add_foreign_key "offers", "customers"
+  add_foreign_key "offers", "offer_versions", column: "accepted_version_id"
+  add_foreign_key "offers", "projects"
   add_foreign_key "projects", "teams"
   add_foreign_key "team_memberships", "teams"
   add_foreign_key "team_memberships", "users"

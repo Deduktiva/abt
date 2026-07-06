@@ -1,0 +1,27 @@
+-# Accept-offer modal. Caller must render this inside the element carrying
+-# data-controller="modal". The Accept button triggers modal#open.
+.modal.d-none.accept-order-modal{data: {"modal-target": "modal", action: "click->modal#closeOnBackdrop keydown@window->modal#closeOnEscape"}}
+  .modal-dialog.accept-order-modal-dialog
+    .modal-content
+      .modal-header.d-flex.justify-content-between.align-items-center
+        %h5.modal-title.mb-0 Accept offer
+        %button.btn-close{type: "button", data: {action: "click->modal#close"}, "aria-label": "Close"}
+      .modal-body
+        .alert.alert-warning
+          Version #{@offer.current_sent_version.version_number} (sent #{l(@offer.current_sent_version.sent_at.to_date)}) becomes the accepted version.
+          - if @offer.draft_version
+            The in-progress draft version #{@offer.draft_version.version_number} will be discarded.
+        = form_with url: accept_offer_path(@offer), method: :post, multipart: true do |form|
+          .mb-3
+            = form.label :order_number, 'Order number', class: 'form-label'
+            = text_field_tag :order_number, nil, class: 'form-control'
+          .mb-3
+            = form.label :ordered_on, 'Ordered on', class: 'form-label'
+            = date_field_tag :ordered_on, Date.current, class: 'form-control', required: true
+          .mb-3
+            = form.label :order_pdf, 'Order PDF', class: 'form-label'
+            = file_field_tag :order_pdf, accept: 'application/pdf', class: 'form-control'
+          .text-end
+            %button.btn.btn-secondary.me-2{type: "button", data: {action: "click->modal#close"}}
+              Cancel
+            = submit_tag 'Accept offer', class: 'btn btn-success'

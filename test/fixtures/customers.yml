@@ -55,3 +55,19 @@ no_email_customer:
   language: english
   active: true
   team: default
+
+# Deliberately untouched by any invoice/delivery-note fixture, so the
+# offers-only deletion-blocker branch can be exercised in isolation (see
+# OfferTest#test_customer_with_offers_cannot_be_deleted).
+offer_only_customer:
+  matchcode: OFFERONLY
+  name: Offer Only Customer Ltd
+  address: |
+    1 Offer Street
+    10000 Offer City
+  country_iso2: DE
+  vat_id: OFFERONLY789
+  sales_tax_customer_class: eu
+  language: english
+  active: true
+  team: default

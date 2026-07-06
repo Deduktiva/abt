@@ -46,6 +46,14 @@ DocumentNumber.find_or_create_by(code: 'delivery_note') do |dn|
   dn.last_date = nil
 end
 
+# Document number configuration for offers
+DocumentNumber.find_or_create_by(code: 'offer') do |dn|
+  dn.format = '%{date}-%<number>02d'
+  dn.sequence = 0
+  dn.last_number = nil
+  dn.last_date = nil
+end
+
 # Sales tax customer classes (required for the system to work)
 national_class = SalesTaxCustomerClass.find_or_create_by(name: 'National') do |stcc|
   stcc.invoice_note = ''

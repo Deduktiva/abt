@@ -64,7 +64,7 @@ class InvoiceRenderer
       xml_root.currency "EUR"
       xml_root.tag! "money-decimal-places", @issuer.money_decimal_places
       xml_root.prelude do |xml_prelude|
-        xml_prelude << RichTextFoConverter.new(@invoice.prelude.body&.to_html).to_fo_fragment if @invoice.prelude.present?
+        xml_prelude << RichTextFoConverter.new(@invoice.prelude.body&.to_html, heading_color: @issuer.document_accent_color).to_fo_fragment if @invoice.prelude.present?
       end
       xml_root.tag! "tax-note", @invoice.tax_note
       xml_root.number @invoice.document_number

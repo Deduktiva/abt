@@ -100,6 +100,23 @@ en:
         due_date: "Due:"
         days_overdue: "%{days} days overdue"
 
+    expiring_offers:
+      subject:
+        one: "[%{issuer_name}] 1 expired offer"
+        other: "[%{issuer_name}] %{count} expired offers"
+      title: "Expired offers report"
+      heading: "Expired offers as of %{date}"
+      main_message:
+        one: "There is 1 offer whose validity has expired."
+        other: "There are %{count} offers whose validity has expired."
+      columns:
+        offer_number: "Offer no."
+        customer: "Customer"
+        expired_on: "Expired on"
+        total: "Total"
+      short:
+        expired_on: "Expired:"
+
     invoice:
       subject: "%{issuer_name} Invoice %{document_number}"
       greeting: "Dear %{customer_name},"
@@ -132,6 +149,15 @@ en:
         - "Return the signed delivery note to us via email"
       next_steps_upload: "Upload the signed delivery note"
       closing: "Thank you for your business. We appreciate your continued partnership."
+
+    offer:
+      subject: "%{issuer_name} Offer %{document_number}"
+      greeting: "Dear %{customer_name},"
+      main_message: "We've attached our offer for the services described below. Please review the details and let us know if you have any questions."
+      document_number: "Offer %{document_number}"
+      subject_label: "Subject:"
+      expires_label: "Valid until:"
+      closing: "We look forward to working with you."
 
     acceptance_submission:
       subject: "New acceptance document for %{document_number}"

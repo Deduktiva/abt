@@ -5,6 +5,7 @@ class Project < ApplicationRecord
   belongs_to :bill_to_customer, class_name: "Customer", optional: true
   has_many :invoices
   has_many :delivery_notes
+  has_many :offers
 
   validate :team_must_match_customer
 
@@ -19,6 +20,10 @@ class Project < ApplicationRecord
 
   def used_in_delivery_notes?
     delivery_notes.exists?
+  end
+
+  def used_in_offers?
+    offers.exists?
   end
 
   # Prevent deletion if project has been used
@@ -43,7 +48,8 @@ class Project < ApplicationRecord
   # UI gate (can_be_deleted?) and the destroy guard's error message.
   def deletion_blocker
     return "invoices" if used_in_invoices?
-    "delivery notes" if used_in_delivery_notes?
+    return "delivery notes" if used_in_delivery_notes?
+    "offers" if used_in_offers?
   end
 
   def check_if_used

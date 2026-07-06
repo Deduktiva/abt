@@ -60,4 +60,50 @@ class AttachmentsControllerTest < ActionDispatch::IntegrationTest
     get attachment_url(outside_attachment)
     assert_redirected_to root_path
   end
+
+  test "show serves an offer-version PDF to alice" do
+    offer = offers(:sent_offer)
+    version = offer.versions.find_by(version_number: 1)
+    attachment = Attachment.create!(
+      title: "Offer PDF",
+      filename: "offer.pdf",
+      content_type: "application/pdf",
+      data: "%PDF-fake"
+    )
+    version.update!(attachment: attachment)
+
+    get attachment_url(attachment)
+    assert_response :success
+    assert_equal "application/pdf", response.media_type
+  end
+
+  test "show denies an offer-version PDF whose customer belongs to another team" do
+    other_team = Team.create!(name: "OutsideOffersTeam")
+    outside_customer = Customer.create!(
+      matchcode: "OUTOFF",
+      name: "Outside Offers Co.",
+      vat_id: "EU161616161",
+      country_iso2: "NL",
+      sales_tax_customer_class: sales_tax_customer_classes(:eu),
+      language: languages(:english),
+      team: other_team
+    )
+    outside_offer = Offer.create!(customer: outside_customer, project: projects(:reusable_project))
+    outside_attachment = Attachment.create!(
+      title: "secret offer",
+      filename: "secret.pdf",
+      content_type: "application/pdf",
+      data: "secret"
+    )
+    outside_offer.draft_version.update!(attachment: outside_attachment)
+
+    offers_viewer = Group.create!(name: "OffersViewerOnly")
+    GroupPermission.create!(group: offers_viewer, permission: "offers.view")
+    bob = users(:bob)
+    bob.groups << offers_viewer # offers.view, but bob's teams don't include OutsideOffersTeam
+    sign_in_as(bob)
+
+    get attachment_url(outside_attachment)
+    assert_redirected_to root_path
+  end
 end

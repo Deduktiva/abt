@@ -56,6 +56,14 @@ class CustomerContactsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Renamed Acct", @contact.reload.name
   end
 
+  test "update permits receives_offer_emails" do
+    patch customer_contact_path(@contact),
+          params: { customer_contact: { receives_offer_emails: true } }
+
+    assert_response :success
+    assert @contact.reload.receives_offer_emails?
+  end
+
   test "update on validation failure returns 422 with the frame" do
     patch customer_contact_path(@contact),
           params: { customer_contact: { name: "", email: "bad" } }

@@ -72,6 +72,7 @@ class IssuerCompaniesController < ApplicationController
       :document_contact_line1, :document_contact_line2,
       :document_accent_color,
       :invoice_footer,
+      :offer_validity_days, :offer_footer,
       :currency,
       :money_decimal_places,
       :document_email_from,

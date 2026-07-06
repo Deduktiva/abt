@@ -1,8 +1,9 @@
+- offers_action = nav_button('Offers', offers_path(customer_id: @customer.id, year: 'all'), permission: 'offers.view', data: { turbo_prefetch: false })
 - invoices_action = nav_button('Invoices', invoices_path(customer_id: @customer.id, year: 'all'), permission: 'invoices.view', data: { turbo_prefetch: false })
 - delivery_notes_action = nav_button('Delivery Notes', delivery_notes_path(customer_id: @customer.id, year: 'all'), permission: 'delivery_notes.view', data: { turbo_prefetch: false })
 - delete_action = delete_button(@customer, confirm: "Are you sure you want to delete customer \"#{@customer.matchcode}\" (#{@customer.name})?", permission: 'customers.edit') if @customer.can_be_deleted?
 - edit_action = action_button('Edit', edit_customer_path(@customer), permission: 'customers.edit')
-= breadcrumbs ['Customers', customers_path], @customer.matchcode, actions: [invoices_action, delivery_notes_action, delete_action], action: edit_action do
+= breadcrumbs ['Customers', customers_path], @customer.matchcode, actions: [offers_action, delivery_notes_action, invoices_action, delete_action], action: edit_action do
   - unless @customer.active?
     %span.badge.bg-secondary Inactive
 
@@ -146,6 +147,44 @@
               = @customer.invoice_email_auto_contact_mode_label
 
 = render "customers/contacts_table", customer: @customer
+
+.row.mt-4
+  .col-md-12
+    .card
+      .card-header
+        Offer settings
+      .card-body
+        .row.mb-2
+          .col-sm-3
+            %strong Validity:
+          .col-sm-9
+            = pluralize(@customer.offer_validity_days || IssuerCompany.get_the_issuer!.offer_validity_days, 'day')
+            - if @customer.offer_validity_days.blank?
+              %span.text-muted (issuer default)
+        - if @customer.offer_milestone_split_threshold.present?
+          .row.mb-2
+            .col-sm-3
+              %strong Milestone split threshold:
+            .col-sm-9
+              = format_currency(@customer.offer_milestone_split_threshold)
+        - if @customer.offer_milestone_templates_below.present?
+          .row.mb-2
+            .col-sm-3
+              %strong Template (below):
+            .col-sm-9
+              %pre.mb-0= @customer.offer_milestone_templates_below
+        - if @customer.offer_milestone_templates_above.present?
+          .row.mb-2
+            .col-sm-3
+              %strong Template (above):
+            .col-sm-9
+              %pre.mb-0= @customer.offer_milestone_templates_above
+        - if @customer.offer_boilerplate.present?
+          .row.mb-2
+            .col-sm-3
+              %strong Boilerplate:
+            .col-sm-9
+              = @customer.offer_boilerplate
 
 - if @customer.notes.present?
   .row.mt-4

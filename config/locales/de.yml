@@ -24,6 +24,23 @@ de:
         due_date: "Fällig:"
         days_overdue: "%{days} Tage überfällig"
 
+    expiring_offers:
+      subject:
+        one: "[%{issuer_name}] 1 abgelaufenes Angebot"
+        other: "[%{issuer_name}] %{count} abgelaufene Angebote"
+      title: "Bericht über abgelaufene Angebote"
+      heading: "Abgelaufene Angebote am %{date}"
+      main_message:
+        one: "Ein Angebot ist abgelaufen."
+        other: "Es gibt %{count} Angebote, deren Gültigkeit abgelaufen ist."
+      columns:
+        offer_number: "Angebotsnr."
+        customer: "Kunde"
+        expired_on: "Abgelaufen am"
+        total: "Summe"
+      short:
+        expired_on: "Abgelaufen:"
+
     invoice:
       subject: "%{issuer_name} Rechnung %{document_number}"
       greeting: "Sehr geehrte Damen und Herren,"
@@ -56,6 +73,15 @@ de:
         - "Rücksendung des unterfertigten Lieferscheins per E-Mail"
       next_steps_upload: "Unterfertigen Lieferschein hochladen"
       closing: "Vielen Dank für Ihr Vertrauen. Wir freuen uns auf die weitere Zusammenarbeit."
+
+    offer:
+      subject: "%{issuer_name} Angebot %{document_number}"
+      greeting: "Sehr geehrte Damen und Herren,"
+      main_message: "Anbei finden Sie unser Angebot für die beschriebenen Leistungen. Bei Fragen dazu wenden Sie sich gerne an uns."
+      document_number: "Angebot %{document_number}"
+      subject_label: "Betreff:"
+      expires_label: "Gültig bis:"
+      closing: "Wir freuen uns auf die Zusammenarbeit mit Ihnen."
 
     acceptance_submission:
       subject: "Neues Abnahmedokument für %{document_number}"

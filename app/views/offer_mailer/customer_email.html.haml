@@ -1,0 +1,23 @@
+- content_for :title, t('mailers.offer.document_number', document_number: @offer.document_number)
+
+.greeting
+  - if @salutation.present?
+    = @salutation
+  - else
+    = t('mailers.offer.greeting', customer_name: @offer.customer.name)
+
+.main-message
+  = t('mailers.offer.main_message')
+
+.document-highlight
+  .document-number
+    = t('mailers.offer.document_number', document_number: @offer.document_number)
+  - if @version&.subject.present?
+    .document-detail
+      #{t('mailers.offer.subject_label')} #{@version.subject}
+  - if @offer.expires_at.present?
+    .document-detail
+      #{t('mailers.offer.expires_label')} #{l(@offer.expires_at)}
+
+.closing
+  = t('mailers.offer.closing')

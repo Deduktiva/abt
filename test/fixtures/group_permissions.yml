@@ -25,6 +25,15 @@ admin_delivery_notes_edit:
 admin_delivery_notes_review_acceptance:
   group: admin
   permission: delivery_notes.review_acceptance
+admin_offers_view:
+  group: admin
+  permission: offers.view
+admin_offers_edit:
+  group: admin
+  permission: offers.edit
+admin_offers_convert:
+  group: admin
+  permission: offers.convert
 admin_products_view:
   group: admin
   permission: products.view

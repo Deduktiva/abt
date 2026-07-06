@@ -56,7 +56,7 @@ class DeliveryNoteRenderer
       end
 
       xml_root.prelude do |xml_prelude|
-        xml_prelude << RichTextFoConverter.new(@delivery_note.prelude.body&.to_html).to_fo_fragment if @delivery_note.prelude.present?
+        xml_prelude << RichTextFoConverter.new(@delivery_note.prelude.body&.to_html, heading_color: @issuer.document_accent_color).to_fo_fragment if @delivery_note.prelude.present?
       end
       xml_root.number draft_aware_number
       xml_root.tag! "issue-date", @delivery_note.date || "2999-01-01"

@@ -1,0 +1,4 @@
+- content_for :title, @offer.display_name
+= breadcrumbs ['Offers', offers_path], [@offer.display_label, offer_path(@offer)], 'Edit', action: save_button
+
+= render 'form'

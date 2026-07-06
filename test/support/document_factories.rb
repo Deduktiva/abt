@@ -51,6 +51,16 @@ module DocumentFactories
     note
   end
 
+  def create_draft_offer(customer: customers(:good_eu), project: projects(:one))
+    Offer.create!(customer: customer, project: project)
+  end
+
+  def create_offer_with_milestone(**kwargs)
+    offer = create_draft_offer(**kwargs)
+    offer.draft_version.milestones.create!(title: "Milestone", amount: 1000, trigger: "on_acceptance", position: 1)
+    offer
+  end
+
   def create_published_delivery_note(customer: customers(:good_eu), document_number:, cust_reference:,
                                      project: projects(:one), **overrides)
     DeliveryNote.new({

@@ -25,3 +25,9 @@ auto_email_contact:
   email: backup@autoemail.com
   receives_invoice_emails: true
   receives_delivery_note_emails: false
+
+eu_contact:
+  customer: good_eu
+  name: GOOD Offers
+  email: offers@good-company.co.uk
+  receives_offer_emails: true

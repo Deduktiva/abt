@@ -3,7 +3,7 @@
 - edit_action = action_button('Edit', edit_invoice_path(@invoice), permission: 'invoices.edit') unless @invoice.published?
 - problems = @invoice.published? ? [] : @invoice.publish_problems
 - pdf_or_preview = @invoice.attachment ? pdf_button(@invoice.attachment) : preview_button(preview_invoice_path(@invoice))
-- delete_action = delete_button(@invoice, confirm: "Are you sure you want to delete invoice \"#{@invoice.display_label}\"?") if !@invoice.published? && can_edit_invoice
+- delete_action = delete_button(@invoice, confirm: "Are you sure you want to delete invoice \"#{@invoice.display_label}\"?") if !@invoice.published? && can_edit_invoice && !@invoice.offer_milestone
 = breadcrumbs ['Invoices', invoices_path], @invoice.display_label, actions: [pdf_or_preview, delete_action], action: edit_action do
   - if !@invoice.published?
     %span.badge.bg-warning Draft
@@ -136,6 +136,12 @@
               %strong Source:
             .col-sm-8
               = link_to @invoice.delivery_note.display_name, @invoice.delivery_note
+        - if @invoice.offer_milestone
+          .row.mb-2
+            .col-sm-4
+              %strong Source:
+            .col-sm-8
+              = link_to @invoice.offer_milestone.offer.display_name, @invoice.offer_milestone.offer
 
   - if @invoice.prelude.present?
     .mb-4

@@ -10,6 +10,9 @@
       - if can?('projects.view')
         %li.nav-item
           = nav_link_to('Projects', projects_path, active_for: 'projects')
+      - if can?('offers.view')
+        %li.nav-item
+          = nav_link_to('Offers', offers_path, active_for: 'offers')
       - if can?('delivery_notes.view')
         %li.nav-item
           = nav_link_to('Deliveries', delivery_notes_path, active_for: 'delivery_notes')

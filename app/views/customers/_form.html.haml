@@ -79,6 +79,39 @@
       .col-lg-5.col-md-4
         = f.number_field :payment_terms_days, :class => 'form-control', :min => 1, :max => 365, :value => (@customer.payment_terms_days || 30)
     %hr
+    %h5.mb-3 Offer settings
+    .row.mb-3
+      = f.label :offer_validity_days, 'Validity (days)', class: 'col-lg-2 col-md-3 col-form-label'
+      .col-lg-3.col-md-4
+        = f.number_field :offer_validity_days, class: 'form-control', min: 1, placeholder: "Default: #{IssuerCompany.get_the_issuer!.offer_validity_days}"
+        .form-text Leave blank to use the issuer default.
+    %div{data: { controller: 'presence-toggle' }}
+      .row.mb-3
+        = f.label :offer_milestone_split_threshold, 'Milestone split threshold', class: 'col-lg-2 col-md-3 col-form-label'
+        .col-lg-3.col-md-4
+          = f.number_field :offer_milestone_split_threshold, class: 'form-control', step: 'any', min: 0, data: { presence_toggle_target: 'input', action: 'input->presence-toggle#sync' }
+          .form-text Scaffolding compares the offer's total net against this amount: below it the "below" template applies, at or above it the "above" one. Without a threshold the "below" template is always used.
+      .row.mb-3
+        = f.label :offer_milestone_templates_below, 'Milestone template (below)', class: 'col-lg-2 col-md-3 col-form-label'
+        .col-lg-8
+          = f.text_area :offer_milestone_templates_below, class: 'form-control', rows: 3
+          .form-text
+            One per line: Title|trigger|percent.
+            Triggers: on_order, on_acceptance, on_date — on_order milestones skip the delivery note by default.
+            Percent = share of the offer total (0–100, summing to 100; the last line absorbs rounding).
+      .row.mb-3{data: { presence_toggle_target: 'panel' }}
+        = f.label :offer_milestone_templates_above, 'Milestone template (above)', class: 'col-lg-2 col-md-3 col-form-label'
+        .col-lg-8
+          = f.text_area :offer_milestone_templates_above, class: 'form-control', rows: 3
+          .form-text
+            One per line: Title|trigger|percent.
+            Triggers: on_order, on_acceptance, on_date — on_order milestones skip the delivery note by default.
+            Percent = share of the offer total (0–100, summing to 100; the last line absorbs rounding).
+    .row.mb-3
+      = f.label :offer_boilerplate, class: 'col-lg-2 col-md-3 col-form-label'
+      .col-lg-8
+        = f.rich_text_area :offer_boilerplate, data: { controller: 'rich-text' }
+    %hr
     .row.mb-3
       = f.label :notes, class: 'col-lg-2 col-md-3 col-form-label'
       .col-lg-10.col-md-9

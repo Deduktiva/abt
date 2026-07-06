@@ -53,4 +53,10 @@ class DocumentNumberTest < ActiveSupport::TestCase
     assert_equal 1, dn.sequence
     assert_equal Date.new(2026, 1, 1), dn.last_date
   end
+  test "date format resets the sequence each day and zero-pads" do
+    dn = DocumentNumber.create!(code: "daily", format: "%{date}-%<number>02d", sequence: 0)
+    assert_equal "20260705-01", dn.get_next(Date.new(2026, 7, 5))
+    assert_equal "20260705-02", dn.get_next(Date.new(2026, 7, 5))
+    assert_equal "20260706-01", dn.get_next(Date.new(2026, 7, 6))
+  end
 end

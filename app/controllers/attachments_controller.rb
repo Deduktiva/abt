@@ -32,6 +32,13 @@ class AttachmentsController < ApplicationController
     if pending_scope.exists?
       return require_permission!("delivery_notes.review_acceptance")
     end
+    if OfferVersion.joins(:offer).where(attachment_id: attachment.id)
+                   .merge(Offer.visible_to(current_user)).exists?
+      return require_permission!("offers.view")
+    end
+    if Offer.visible_to(current_user).where(order_attachment_id: attachment.id).exists?
+      return require_permission!("offers.view")
+    end
     raise ApplicationController::PermissionDenied, "attachment##{attachment.id}"
   end
 end

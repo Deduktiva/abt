@@ -4,7 +4,7 @@
 - pdf_action = pdf_button(pdf_delivery_note_path(@delivery_note))
 - preview_action = preview_button(preview_delivery_note_path(@delivery_note)) unless @delivery_note.published?
 - unpublish_action = unpublish_button(unpublish_delivery_note_path(@delivery_note), permission: 'delivery_notes.edit', confirm: 'Are you sure you want to revert this delivery note to draft status?')
-- delete_action = delete_button(@delivery_note, confirm: "Are you sure you want to delete delivery note \"#{@delivery_note.display_label}\"?") if can_edit_dn
+- delete_action = delete_button(@delivery_note, confirm: "Are you sure you want to delete delivery note \"#{@delivery_note.display_label}\"?") if can_edit_dn && !@delivery_note.offer_milestone
 - main_action = @delivery_note.published? ? pdf_action : edit_action
 - workflow_actions = @delivery_note.published? ? [unpublish_action] : [preview_action, delete_action]
 = breadcrumbs ['Delivery Notes', delivery_notes_path], @delivery_note.display_label, actions: workflow_actions, action: main_action do
@@ -104,6 +104,12 @@
                 Not invoiced
                 - if can_edit_dn
                   = button_to '🚀 Create…', convert_to_invoice_delivery_note_path(@delivery_note), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Create an invoice draft from this delivery note?' }
+        - if @delivery_note.offer_milestone
+          .row.mb-2
+            .col-sm-4
+              %strong Source:
+            .col-sm-8
+              = link_to @delivery_note.offer_milestone.offer.display_name, @delivery_note.offer_milestone.offer
 
 
   - if @delivery_note.published?

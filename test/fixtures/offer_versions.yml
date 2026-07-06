@@ -1,0 +1,23 @@
+draft_offer_v1:
+  offer: draft_offer
+  version_number: 1
+  subject: Draft offer subject
+
+sent_offer_v1:
+  offer: sent_offer
+  version_number: 1
+  subject: Sent offer subject
+  date: 2026-06-01
+  sent_at: 2026-06-01 10:00:00
+  sales_tax_product_class: standard
+  customer_name: Snapshot Name
+  customer_address: "Snapshot Street 1"
+  customer_country_iso2: DE
+  payment_terms_days: 30
+  sum_net: 3000
+
+sent_offer_v2_draft:
+  offer: sent_offer
+  version_number: 2
+  subject: Sent offer subject
+  sales_tax_product_class: standard

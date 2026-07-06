@@ -214,7 +214,7 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     offer = offers(:sent_offer)
     offer.reject!
     get offer_url(offer)
-    assert_select ".badge.bg-danger", text: "Rejected", minimum: 2
+    assert_select ".badge.bg-secondary", text: "Rejected", minimum: 2
     assert_match offer.rejected_at.to_date.strftime("%d.%m.%Y"), response.body
   end
 

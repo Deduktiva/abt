@@ -107,7 +107,7 @@
                   - if @offer.accepted_at
                     = l(@offer.accepted_at.to_date)
                 - elsif @offer.rejected?
-                  %span.badge.bg-danger Rejected
+                  %span.badge.bg-secondary Rejected
                   - if @offer.rejected_at
                     = l(@offer.rejected_at.to_date)
                 - if can?('offers.edit')

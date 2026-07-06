@@ -132,7 +132,7 @@ class Offer < ApplicationRecord
     else
       { "draft" => [ "Draft", "bg-secondary" ],
         "sent" => [ "Sent", "bg-warning text-dark" ],
-        "rejected" => [ "Rejected", "bg-danger" ],
+        "rejected" => [ "Rejected", "bg-secondary" ],
         "expired" => [ "Expired", "bg-warning text-dark" ] }.fetch(state)
     end
   end

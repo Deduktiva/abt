@@ -34,6 +34,9 @@ admin_offers_edit:
 admin_offers_convert:
   group: admin
   permission: offers.convert
+admin_offers_edit_notes:
+  group: admin
+  permission: offers.edit_notes
 admin_products_view:
   group: admin
   permission: products.view

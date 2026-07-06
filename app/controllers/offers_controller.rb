@@ -5,7 +5,9 @@ class OffersController < ApplicationController
                 only: %i[index show preview preview_email preview_email_html]
   before_action -> { require_permission!("offers.edit") },
                 only: %i[new create edit update destroy send_offer accept reject reopen
-                         scaffold_milestones update_internal_notes upload_order_pdf send_email]
+                         scaffold_milestones upload_order_pdf send_email]
+  before_action -> { require_permission!("offers.edit_notes") },
+                only: %i[update_internal_notes]
   before_action -> { require_permission!("offers.convert") },
                 only: %i[convert_milestone reopen_milestone_link]
 

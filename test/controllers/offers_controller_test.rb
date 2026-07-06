@@ -328,6 +328,45 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, offer.draft_version.milestones.count
   end
 
+  test "offers.edit_notes permits editing only the internal notes" do
+    offer = offers(:sent_offer)
+    group = Group.create!(name: "Notes only")
+    group.permissions = [ "offers.view", "offers.edit_notes" ]
+    user = users(:bob)
+    user.groups << group
+    sign_in_as(user)
+
+    patch update_internal_notes_offer_url(offer), params: { offer: { internal_notes: "<p>a note</p>" } }
+    assert_redirected_to offer_url(offer)
+    assert_includes offer.reload.internal_notes.body.to_html, "a note"
+
+    patch offer_url(offer), params: { offer: { internal_reference: "changed" } }
+    assert_redirected_to root_path
+    assert_nil offer.reload.internal_reference
+  end
+
+  test "offers.edit without offers.edit_notes cannot edit the internal notes" do
+    offer = offers(:sent_offer)
+    group = Group.create!(name: "Editors without notes")
+    group.permissions = [ "offers.view", "offers.edit" ]
+    user = users(:bob)
+    user.groups << group
+    sign_in_as(user)
+
+    patch update_internal_notes_offer_url(offer), params: { offer: { internal_notes: "<p>edited</p>" } }
+    assert_redirected_to root_path
+  end
+
+  test "update_internal_notes denied without notes or edit permission" do
+    offer = offers(:sent_offer)
+    user = users(:bob)
+    user.groups << groups(:sales)
+    sign_in_as(user)
+
+    patch update_internal_notes_offer_url(offer), params: { offer: { internal_notes: "<p>x</p>" } }
+    assert_redirected_to root_path
+  end
+
   private
 
   def attach_pdf_to(version)

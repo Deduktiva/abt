@@ -157,8 +157,12 @@
   .mb-4
     .card
       .card-header
-        %h5.mb-0 Milestones
+        %h5.mb-0 Proposal
       .card-body
+        - if @version&.subject.present?
+          %h5.mb-3= @version.subject
+        - if @version&.prelude&.present?
+          .mb-3= @version.prelude
         - if @offer.accepted?
           = render 'conversion_rows'
         - elsif @version
@@ -194,12 +198,6 @@
             = form.rich_text_area :internal_notes, data: { controller: 'rich-text' }
             .text-end.mt-2
               = form.submit 'Save', class: 'btn btn-primary'
-
-  - if @version&.prelude&.present?
-    .mb-4
-      .card
-        .card-body
-          = @version.prelude
 
   - boilerplate = @version&.frozen? ? @version.boilerplate : @offer.customer.offer_boilerplate
   - if boilerplate&.present?

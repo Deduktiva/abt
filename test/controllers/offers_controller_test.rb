@@ -218,6 +218,15 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     assert_match offer.rejected_at.to_date.strftime("%d.%m.%Y"), response.body
   end
 
+  test "show renders the version subject and prelude in the proposal card" do
+    offer = offers(:draft_offer)
+    offer.draft_version.update!(prelude: "Prelude body text")
+    get offer_url(offer)
+    assert_select ".card-header h5", text: "Proposal"
+    assert_select ".card-body h5", text: "Draft offer subject"
+    assert_match "Prelude body text", response.body
+  end
+
   test "index marks an urgent delivery date in red" do
     offer = offers(:sent_offer)
     offer.accept!(order_number: "PO", ordered_on: Date.current)

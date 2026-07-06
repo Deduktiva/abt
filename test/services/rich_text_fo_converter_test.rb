@@ -38,6 +38,12 @@ class RichTextFoConverterTest < ActiveSupport::TestCase
     assert_not_includes out, "font-weight"
   end
 
+  test "an empty div renders as a single blank line" do
+    out = fo("<div>a</div><div><br></div><div>b</div>")
+    assert_includes out, "<fo:block>\u00A0</fo:block>"
+    assert_not_includes out, "<fo:block>\u2028</fo:block>"
+  end
+
   test "h1 carries the heading color when one is given" do
     out = RichTextFoConverter.new("<h1>Title</h1>", heading_color: "#123456").to_fo_fragment
     assert_includes out, %(color="#123456")

@@ -33,12 +33,22 @@ class RichTextFoConverter
         render_inline(node.children, b)
       end
     when "div", "p"
-      xml.tag!("fo:block") { |b| render_inline(node.children, b) }
+      if blank_block?(node)
+        # A lone <br> in a block is Trix's empty line; U+2028 would render as
+        # two line areas, so emit a single non-breaking-space line instead.
+        xml.tag!("fo:block") { |b| b.text!("\u00A0") }
+      else
+        xml.tag!("fo:block") { |b| render_inline(node.children, b) }
+      end
     when "text"
       xml.tag!("fo:block") { |b| render_inline([ node ], b) } unless node.text.strip.empty?
     else
       xml.tag!("fo:block") { |b| render_inline(node.children, b) } if node.element?
     end
+  end
+
+  def blank_block?(node)
+    node.text.strip.empty? && node.children.all? { |c| c.name == "br" || (c.text? && c.text.strip.empty?) }
   end
 
   # Headings match the document line-table headers: accent color at body size,

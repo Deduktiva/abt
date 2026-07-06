@@ -7,6 +7,7 @@ class OfferMilestone < ApplicationRecord
   }.freeze
 
   belongs_to :offer_version
+  delegate :offer, to: :offer_version
   belongs_to :invoice, optional: true
   belongs_to :delivery_note, optional: true
 

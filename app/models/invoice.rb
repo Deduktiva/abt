@@ -71,6 +71,7 @@ class Invoice < ApplicationRecord
   belongs_to :attachment, optional: true
 
   has_one :delivery_note, dependent: :nullify
+  has_one :offer_milestone
 
   has_many :invoice_lines, -> { order(:position, :id) }, after_add: :line_addedremoved, after_remove: :line_addedremoved
   accepts_nested_attributes_for :invoice_lines, allow_destroy: true, reject_if: :all_blank
@@ -79,6 +80,7 @@ class Invoice < ApplicationRecord
 
   before_save :update_customer
   before_save :update_sums
+  before_destroy :check_offer_milestone_link
 
   # Memoized so lines and tax classes resolve the issuer once, not per row.
   def money_decimal_places
@@ -268,5 +270,11 @@ private
 
     # Delete tax classes that are no longer needed
     self.invoice_tax_classes.where.not(sales_tax_product_class_id: required_product_class_ids).destroy_all
+  end
+
+  def check_offer_milestone_link
+    return if offer_milestone.nil?
+    errors.add(:base, "This invoice was converted from #{offer_milestone.offer.display_name}; remove the milestone link there first.")
+    throw :abort
   end
 end

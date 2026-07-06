@@ -86,6 +86,19 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
                  flash[:notice]
   end
 
+  test "deleting a converted invoice redirects with an alert and keeps it" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    milestone = offer_milestones(:sent_ms_two)
+    post convert_milestone_offer_url(offer, milestone_id: milestone.id)
+    invoice = milestone.reload.invoice
+    assert_no_difference("Invoice.count") do
+      delete invoice_url(invoice)
+    end
+    assert_redirected_to invoice_url(invoice)
+    assert_match(/converted from/, flash[:alert])
+  end
+
   test "convert_milestone flash names only the invoice when the delivery note is skipped" do
     offer = offers(:sent_offer)
     offer.accept!(order_number: "PO", ordered_on: Date.current)

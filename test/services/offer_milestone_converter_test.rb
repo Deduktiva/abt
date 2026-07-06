@@ -131,4 +131,15 @@ class OfferMilestoneConverterTest < ActiveSupport::TestCase
     invoice = OfferMilestoneConverter.new(offer_milestones(:sent_ms_two)).convert!
     assert_equal "2", invoice.internal_reference
   end
+  test "converted documents cannot be deleted while the milestone link is set" do
+    milestone = offer_milestones(:sent_ms_two)
+    invoice = OfferMilestoneConverter.new(milestone).convert!
+    dn = milestone.reload.delivery_note
+    assert_not invoice.destroy
+    assert_includes invoice.errors[:base].join, @offer.display_name
+    assert_not dn.destroy
+    milestone.reopen_link!
+    assert dn.reload.destroy
+    assert invoice.reload.destroy
+  end
 end

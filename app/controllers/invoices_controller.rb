@@ -89,8 +89,11 @@ class InvoicesController < ApplicationController
 
   # DELETE /invoices/1
   def destroy
-    @invoice.destroy
-    redirect_to invoices_url
+    if @invoice.destroy
+      redirect_to invoices_url
+    else
+      redirect_to @invoice, alert: @invoice.errors.full_messages.to_sentence
+    end
   end
 
   def publish

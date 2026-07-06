@@ -46,6 +46,8 @@ class DeliveryNote < ApplicationRecord
   belongs_to :project
   belongs_to :acceptance_attachment, class_name: "Attachment", optional: true
   belongs_to :invoice, optional: true
+  has_one :offer_milestone
+  before_destroy :check_offer_milestone_link
 
   has_many :delivery_note_lines, -> { order(:position, :id) }, dependent: :delete_all
   accepts_nested_attributes_for :delivery_note_lines, allow_destroy: true, reject_if: :all_blank
@@ -196,5 +198,11 @@ class DeliveryNote < ApplicationRecord
     if delivery_end_date < delivery_start_date
       errors.add(:delivery_end_date, "cannot be before the start date")
     end
+  end
+
+  def check_offer_milestone_link
+    return if offer_milestone.nil?
+    errors.add(:base, "This delivery note was converted from #{offer_milestone.offer.display_name}; remove the milestone link there first.")
+    throw :abort
   end
 end

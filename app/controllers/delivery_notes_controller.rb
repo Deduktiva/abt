@@ -90,8 +90,11 @@ class DeliveryNotesController < ApplicationController
 
   # DELETE /delivery_notes/1
   def destroy
-    @delivery_note.destroy
-    redirect_to delivery_notes_url
+    if @delivery_note.destroy
+      redirect_to delivery_notes_url
+    else
+      redirect_to @delivery_note, alert: @delivery_note.errors.full_messages.to_sentence
+    end
   end
 
   def publish

@@ -889,6 +889,94 @@ if Rails.env.development?
     dn_delivery.save!
   end
 
+  # Draft offer — still editable, so the Proposal card shows the live draft
+  # version's subject, prelude, and milestones. No document number yet; it is
+  # assigned at first send.
+  unless Offer.exists?(customer: good_company, project: audit_project)
+    draft_offer = Offer.create!(
+      customer: good_company,
+      project: audit_project,
+      internal_reference: 'RFQ-2026-014'
+    )
+
+    draft_version = draft_offer.draft_version
+    draft_version.update!(
+      subject: 'Security Audit & Remediation 2026',
+      prelude: 'Thank you for the opportunity to quote on your 2026 security audit. The engagement is split into the billable milestones below.',
+      delivery_date: 6.weeks.from_now.to_date
+    )
+
+    draft_version.milestones.create!(
+      position: 1, title: 'Scoping & Kickoff',
+      description: 'Requirements workshop and audit scope definition.',
+      trigger: 'on_order', amount: 3500.00
+    )
+    draft_version.milestones.create!(
+      position: 2, title: 'Audit & Testing',
+      description: 'Full security assessment and penetration testing.',
+      trigger: 'on_acceptance', amount: 11000.00
+    )
+    draft_version.milestones.create!(
+      position: 3, title: 'Remediation Report',
+      description: 'Findings report with a prioritized remediation plan.',
+      trigger: 'on_date', trigger_date: 8.weeks.from_now.to_date, amount: 4000.00
+    )
+  end
+
+  # Accepted offer — its only version was sent (frozen) and then accepted, so
+  # there is no draft. The Proposal card renders the frozen subject/prelude
+  # above the conversion rows. Built directly instead of via OfferSender to
+  # avoid rendering a PDF during seeding.
+  unless Offer.exists?(customer: good_company, project: migration_project)
+    accepted_offer = Offer.create!(
+      customer: good_company,
+      project: migration_project,
+      internal_reference: 'RFQ-2026-008'
+    )
+    sent_date = 3.weeks.ago.to_date
+
+    sent_version = accepted_offer.draft_version
+    sent_version.update!(
+      subject: 'Platform Migration 2026',
+      prelude: 'Thank you for the opportunity to quote on migrating your platform to the new infrastructure. The proposal below breaks the work into billable milestones.',
+      delivery_date: 4.weeks.from_now.to_date,
+      date: sent_date,
+      sent_at: sent_date.noon,
+      customer_name: good_company.name,
+      customer_address: good_company.address,
+      customer_country_iso2: good_company.country_iso2,
+      payment_terms_days: good_company.payment_terms_days
+    )
+
+    sent_version.milestones.create!(
+      position: 1, title: 'Migration Planning',
+      description: 'Inventory, dependency mapping, and cutover plan.',
+      trigger: 'on_order', amount: 6000.00
+    )
+    sent_version.milestones.create!(
+      position: 2, title: 'Data & Service Migration',
+      description: 'Migrate data and services to the new platform with validation.',
+      trigger: 'on_acceptance', amount: 18000.00
+    )
+    sent_version.milestones.create!(
+      position: 3, title: 'Cutover & Handover',
+      description: 'Production cutover, monitoring, and team handover.',
+      trigger: 'on_date', trigger_date: 4.weeks.from_now.to_date, amount: 5000.00
+    )
+
+    accepted_offer.update!(
+      state: 'accepted',
+      date: sent_date,
+      sent_at: sent_date.noon,
+      expires_at: sent_date + accepted_offer.validity_days,
+      document_number: DocumentNumber.get_next_for('offer', sent_date),
+      accepted_version: sent_version,
+      accepted_at: 2.weeks.ago,
+      order_number: 'PO-GOODEU-3391',
+      ordered_on: 2.weeks.ago.to_date
+    )
+  end
+
   puts "✅ Development sample data created"
   puts ""
   puts "📊 Sample Data Summary:"
@@ -897,6 +985,7 @@ if Rails.env.development?
   puts "  Products: #{Product.count}"
   puts "  Invoices: #{Invoice.count}"
   puts "  Delivery Notes: #{DeliveryNote.count}"
+  puts "  Offers: #{Offer.count}"
   puts "  Tax Classes: #{SalesTaxCustomerClass.count} customer, #{SalesTaxProductClass.count} product"
   puts "  Tax Rates: #{SalesTaxRate.count}"
   puts ""

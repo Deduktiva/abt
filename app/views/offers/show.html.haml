@@ -97,17 +97,26 @@
               .col-sm-8
                 = l(sent_version.sent_at.to_date)
           = render 'shared/email_status_row', resource: @offer, can_edit: can?('offers.edit'), show_send_button: sent_version.attachment.present?
-          - if can?('offers.edit')
+          - if can?('offers.edit') || @offer.accepted? || @offer.rejected?
             .row.mb-2{data: {controller: 'modal'}}
               .col-sm-4
                 %strong Decision:
               .col-sm-8.d-flex.align-items-center.gap-2
-                - if @offer.sent?
-                  %button.btn.btn-sm.btn-success.ms-auto{data: {action: 'click->modal#open'}} Accept…
-                  = button_to 'Reject', reject_offer_path(@offer), method: :post, class: 'btn btn-sm btn-outline-danger', data: { 'turbo-confirm': 'Reject this offer?' }
-                  = render 'accept_modal'
-                - elsif @offer.accepted? || @offer.rejected?
-                  = button_to 'Reopen', reopen_offer_path(@offer), method: :post, class: 'btn btn-sm btn-outline-secondary', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Reopen this offer? A fresh draft version branches from the accepted version.' }
+                - if @offer.accepted?
+                  %span.badge.bg-success Accepted
+                  - if @offer.accepted_at
+                    = l(@offer.accepted_at.to_date)
+                - elsif @offer.rejected?
+                  %span.badge.bg-danger Rejected
+                  - if @offer.rejected_at
+                    = l(@offer.rejected_at.to_date)
+                - if can?('offers.edit')
+                  - if @offer.sent?
+                    %button.btn.btn-sm.btn-success.ms-auto{data: {action: 'click->modal#open'}} Accept…
+                    = button_to 'Reject', reject_offer_path(@offer), method: :post, class: 'btn btn-sm btn-outline-danger', data: { 'turbo-confirm': 'Reject this offer?' }
+                    = render 'accept_modal'
+                  - elsif @offer.accepted? || @offer.rejected?
+                    = button_to 'Reopen', reopen_offer_path(@offer), method: :post, class: 'btn btn-sm btn-outline-secondary', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Reopen this offer? A fresh draft version branches from the accepted version.' }
 
   - if @offer.accepted?
     .mb-4

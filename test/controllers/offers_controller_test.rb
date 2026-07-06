@@ -202,6 +202,22 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     assert_nil offer.reload.email_sent_at
   end
 
+  test "show states the decision on accepted offers" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    get offer_url(offer)
+    assert_select ".badge.bg-success", text: "Accepted", minimum: 2
+    assert_match offer.accepted_at.to_date.strftime("%d.%m.%Y"), response.body
+  end
+
+  test "show states the decision on rejected offers" do
+    offer = offers(:sent_offer)
+    offer.reject!
+    get offer_url(offer)
+    assert_select ".badge.bg-danger", text: "Rejected", minimum: 2
+    assert_match offer.rejected_at.to_date.strftime("%d.%m.%Y"), response.body
+  end
+
   private
 
   def attach_pdf_to(version)

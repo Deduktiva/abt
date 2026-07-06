@@ -11,6 +11,13 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     assert_select "td", text: offers(:sent_offer).document_number
   end
 
+  test "index shows the customer order number" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO-4711", ordered_on: Date.current)
+    get offers_url(state: "all", year: "all")
+    assert_select "td", text: "PO-4711"
+  end
+
   test "index denied without offers.view" do
     sign_in_as users(:bob)
     get offers_url

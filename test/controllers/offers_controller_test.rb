@@ -264,6 +264,18 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     assert_select "input#offer_customer_id[value=?]", customers(:good_eu).id.to_s
   end
 
+  test "new omits the addressed contact field" do
+    get new_offer_url
+    assert_response :success
+    assert_select "select[name=?]", "offer[customer_contact_id]", false
+  end
+
+  test "edit renders the addressed contact field" do
+    get edit_offer_url(offers(:draft_offer))
+    assert_response :success
+    assert_select "select[name=?]", "offer[customer_contact_id]"
+  end
+
   test "create with invalid params re-renders the form" do
     assert_no_difference("Offer.count") do
       post offers_url, params: { offer: { customer_id: "", project_id: "" } }

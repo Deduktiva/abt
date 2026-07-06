@@ -124,8 +124,8 @@ en:
       title: "Upcoming offer deliveries report"
       heading: "Offer deliveries nearing as of %{date}"
       main_message:
-        one: "1 accepted offer reaches its delivery date within 5 days without fully booked and sent invoices."
-        other: "%{count} accepted offers reach their delivery date within 5 days without fully booked and sent invoices."
+        one: "1 accepted offer needs invoicing attention: delivery is within 5 days or an on-order milestone is not yet booked."
+        other: "%{count} accepted offers need invoicing attention: delivery is within 5 days or an on-order milestone is not yet booked."
       columns:
         offer_number: "Offer no."
         customer: "Customer"

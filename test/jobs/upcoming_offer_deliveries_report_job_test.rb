@@ -43,13 +43,6 @@ class UpcomingOfferDeliveriesReportJobTest < ActiveJob::TestCase
     end
   end
 
-  test "no-op when the delivery date is beyond the window" do
-    @offer.accepted_version.update!(delivery_date: Date.current + 10)
-    assert_emails 0 do
-      UpcomingOfferDeliveriesReportJob.perform_now
-    end
-  end
-
   test "an overdue delivery date keeps being reported" do
     @offer.accepted_version.update!(delivery_date: Date.yesterday)
     assert_emails 1 do
@@ -57,8 +50,25 @@ class UpcomingOfferDeliveriesReportJobTest < ActiveJob::TestCase
     end
   end
 
-  test "offers without a delivery date or not accepted are ignored" do
-    @offer.accepted_version.update!(delivery_date: nil)
+  test "reports an unbooked on-order milestone even when delivery is far off" do
+    @offer.accepted_version.update!(delivery_date: Date.current + 30)
+    # sent_ms_one is an on_order milestone with no invoice
+    assert_emails 1 do
+      UpcomingOfferDeliveriesReportJob.perform_now
+    end
+  end
+
+  test "no-op when delivery is far and the on-order milestone is booked" do
+    @offer.accepted_version.update!(delivery_date: Date.current + 30)
+    offer_milestones(:sent_ms_one).update!(invoice: build_invoice(published: true))
+    assert_emails 0 do
+      UpcomingOfferDeliveriesReportJob.perform_now
+    end
+  end
+
+  test "a non-accepted offer is ignored even with a nearing delivery date" do
+    @offer.accepted_version.update!(delivery_date: Date.current + 30)
+    offer_milestones(:sent_ms_one).update!(invoice: build_invoice(published: true))
     offers(:draft_offer).draft_version.update!(delivery_date: Date.current)
     assert_emails 0 do
       UpcomingOfferDeliveriesReportJob.perform_now

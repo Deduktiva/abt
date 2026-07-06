@@ -169,7 +169,40 @@ class OfferTest < ActiveSupport::TestCase
     assert_equal [ "Paid", "bg-success" ], offer.status_badge
   end
 
+  test "delivery date is urgent within the window" do
+    offer = accepted_with_delivery(Date.current + 3)
+    assert offer.delivery_date_urgent?
+  end
+
+  test "delivery date is urgent when already passed" do
+    offer = accepted_with_delivery(Date.yesterday)
+    assert offer.delivery_date_urgent?
+  end
+
+  test "delivery date is not urgent beyond the window" do
+    offer = accepted_with_delivery(Date.current + 10)
+    assert_not offer.delivery_date_urgent?
+  end
+
+  test "delivery date is not urgent without a date" do
+    offer = accepted_with_delivery(nil)
+    assert_not offer.delivery_date_urgent?
+  end
+
+  test "a fully invoiced offer keeps the default delivery color" do
+    offer = accepted_with_delivery(Date.current + 1)
+    offer.accepted_version.milestones.each { |m| m.update!(invoice: booked_invoice(offer)) }
+    assert_not offer.delivery_date_urgent?
+  end
+
   private
+
+  def accepted_with_delivery(date)
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    offer.accepted_version.update!(delivery_date: date)
+    Offer.find(offer.id)
+  end
 
   def booked_invoice(offer, paid: false)
     Invoice.create!(customer: offer.customer, project: offer.project,

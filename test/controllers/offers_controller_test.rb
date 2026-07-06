@@ -218,6 +218,22 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     assert_match offer.rejected_at.to_date.strftime("%d.%m.%Y"), response.body
   end
 
+  test "index marks an urgent delivery date in red" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    offer.accepted_version.update!(delivery_date: Date.current + 2)
+    get offers_url(year: "all")
+    assert_select "td.delivery-urgent"
+  end
+
+  test "index leaves a comfortable delivery date uncolored" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    offer.accepted_version.update!(delivery_date: Date.current + 30)
+    get offers_url(year: "all")
+    assert_select "td.delivery-urgent", false
+  end
+
   private
 
   def attach_pdf_to(version)

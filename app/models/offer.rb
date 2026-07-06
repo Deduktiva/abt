@@ -8,6 +8,9 @@ class Offer < ApplicationRecord
 
   STATES = %w[draft sent accepted rejected expired].freeze
 
+  # Delivery is "soon" within this window (shared with UpcomingOfferDeliveriesReportJob).
+  DELIVERY_SOON_WINDOW = 5.days
+
   belongs_to :customer
   belongs_to :project
   belongs_to :customer_contact, optional: true
@@ -148,6 +151,19 @@ class Offer < ApplicationRecord
     return nil unless invoices.all? { |invoice| invoice&.published? }
 
     invoices.all?(&:paid?) ? :paid : :invoiced
+  end
+
+  def fully_invoiced?
+    accepted_invoicing_status.present?
+  end
+
+  # True when the shown version's delivery date is near or past and invoicing
+  # isn't complete yet — drives the red delivery date on the offers list.
+  def delivery_date_urgent?
+    date = (draft_version || current_sent_version)&.delivery_date
+    return false if date.nil? || fully_invoiced?
+
+    date <= Date.current + DELIVERY_SOON_WINDOW
   end
 
   def attach_order_pdf(uploaded_file)

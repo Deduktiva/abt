@@ -43,6 +43,6 @@
         %td
           - label, badge_class = offer.status_badge
           %span.badge{class: badge_class}= label
-      %td= l(version.delivery_date) if version&.delivery_date
+      %td{class: ('delivery-urgent' if offer.delivery_date_urgent?)}= l(version.delivery_date) if version&.delivery_date
       %td.numeric= format_currency(version&.sum_net || 0)
       %td= l(offer.expires_at) if offer.expires_at

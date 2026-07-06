@@ -115,3 +115,12 @@ nav[aria-label="breadcrumb"] > div {
 .document-details .row {
   border-bottom: 1px solid var(--bs-border-color-translucent);
 }
+
+// Offer list: a delivery date that needs attention. Bootstrap's --bs-danger is
+// too dark on the dark background, so lighten it under data-bs-theme="dark".
+.delivery-urgent {
+  color: var(--bs-danger);
+}
+[data-bs-theme="dark"] .delivery-urgent {
+  color: #ff8085;
+}

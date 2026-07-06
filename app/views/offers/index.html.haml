@@ -25,6 +25,7 @@
       %th Customer
     %th Project
     %th Int.Reference
+    %th Cust.Order No.
     - if @state_filter == 'all'
       %th Status
     %th Delivery date
@@ -39,6 +40,7 @@
         %td{:title => offer.customer.name}= offer.customer.matchcode
       %td{:title => offer.project && offer.project.display_name}= offer.project && offer.project.matchcode
       %td= offer.internal_reference
+      %td= offer.order_number
       - if @state_filter == 'all'
         %td
           - label, badge_class = offer.status_badge

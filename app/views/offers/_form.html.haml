@@ -73,10 +73,11 @@
             = f.text_field :internal_reference, class: 'form-control'
 
       .row
-        .col-sm-4
-          .mb-3
-            = f.label :customer_contact_id, 'Addressed Contact', class: 'form-label'
-            = f.collection_select :customer_contact_id, @offer.customer&.customer_contacts || [], :id, :name, { include_blank: 'None' }, { class: 'form-select' }
+        - unless @offer.new_record?
+          .col-sm-4
+            .mb-3
+              = f.label :customer_contact_id, 'Addressed Contact', class: 'form-label'
+              = f.collection_select :customer_contact_id, @offer.customer&.customer_contacts || [], :id, :name, { include_blank: 'None' }, { class: 'form-select' }
         .col-sm-4
           .mb-3
             %label.form-label Document number

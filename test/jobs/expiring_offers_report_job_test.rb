@@ -46,12 +46,15 @@ class ExpiringOffersReportJobTest < ActiveJob::TestCase
     [ offer1, offer2 ].each do |offer|
       offer.reload
       version = offer.current_sent_version
+      offer_url = AbsoluteUrl.offer(offer)
       [ html, text ].each do |body|
         assert_match offer.document_number, body
         assert_match offer.customer.name, body
         assert_match offer.expires_at.strftime("%d.%m.%Y"), body
         assert_match sprintf("%.2f", version.sum_net), body
+        assert_match offer_url, body
       end
+      assert_match %r{href="#{Regexp.escape(offer_url)}"}, html
       assert offer.expired?
     end
   end

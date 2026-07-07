@@ -37,7 +37,7 @@
   %tbody
     - @offers.each do |offer|
       %tr
-        %td= offer.document_number
+        %td= link_to offer.document_number, AbsoluteUrl.offer(offer)
         %td= offer.customer.name
         %td= l(offer.expires_at) if offer.expires_at
         %td.numeric= sprintf('%.2f', offer.current_sent_version.sum_net)

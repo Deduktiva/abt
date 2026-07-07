@@ -7,6 +7,7 @@ $success:   #27794a;
 $danger:    #db2e58;
 $warning:   #ff9f40;
 $info:      #36a2eb;
+$border-radius: .25rem; // tighter corners app-wide (was .375rem)
 
 @import "bootstrap";
 body { padding-top: 60px; }
@@ -136,3 +137,38 @@ nav[aria-label="breadcrumb"] > div {
 [data-bs-theme="dark"] .delivery-urgent {
   color: tint-color($danger, 40%);
 }
+
+// —— Table rows: faint teal stripe + a firmer teal hover, tuned per theme.
+// Replaces Bootstrap's flat neutral overlay, which read as dull yet heavy.
+.table {
+  --bs-table-striped-bg: #{rgba($primary, 0.05)};
+  --bs-table-hover-bg: #{rgba($primary, 0.13)};
+}
+[data-bs-theme="dark"] .table {
+  --bs-table-striped-bg: #{rgba(tint-color($primary, 40%), 0.09)};
+  --bs-table-hover-bg: #{rgba(tint-color($primary, 40%), 0.16)};
+}
+
+// —— Table header: keep default ink text, mark the boundary with a teal rule.
+.table > thead > tr > th {
+  border-bottom: 2px solid $primary;
+}
+[data-bs-theme="dark"] .table > thead > tr > th {
+  border-bottom-color: tint-color($primary, 40%);
+}
+
+// —— Compact rows: a hair tighter than Bootstrap's .table-sm default.
+.table-sm { --bs-table-cell-padding-y: 0.2rem; }
+
+// —— Badges: soft, fully-rounded pills instead of solid blocks.
+@each $name, $color in $theme-colors {
+  .badge.bg-#{$name} {
+    color: shade-color($color, 20%) !important;
+    background-color: rgba($color, 0.15) !important;
+    border: 1px solid rgba($color, 0.28);
+  }
+  [data-bs-theme="dark"] .badge.bg-#{$name} {
+    color: tint-color($color, 30%) !important;
+  }
+}
+.badge { border-radius: 50rem; }

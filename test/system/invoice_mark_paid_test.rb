@@ -13,7 +13,7 @@ class InvoiceMarkPaidTest < ApplicationSystemTestCase
     # The trigger lives in the Payment Status row, not the bottom action row.
     # Modal starts hidden via d-none.
     assert_selector ".mark-paid-modal", visible: :hidden
-    click_on "Mark Paid…"
+    click_on "Paid…"
 
     # Modal opens (d-none removed).
     assert_selector ".mark-paid-modal", visible: :visible
@@ -26,7 +26,7 @@ class InvoiceMarkPaidTest < ApplicationSystemTestCase
     # Redirect back to show page with the invoice now marked paid.
     assert_text(/Paid/)
     # No "Unpaid" badge (the bare word "Unpaid" still appears inside the
-    # "Mark Unpaid" button that's now rendered).
+    # "Unpaid" button that's now rendered).
     assert_no_selector ".badge.bg-warning", text: "Unpaid"
     assert_equal Date.current, @invoice.reload.paid_at.to_date
   end
@@ -37,7 +37,7 @@ class InvoiceMarkPaidTest < ApplicationSystemTestCase
     visit invoice_path(@invoice)
 
     accept_confirm do
-      click_on "Mark Unpaid"
+      click_on "Unpaid"
     end
 
     assert_text "Unpaid", wait: 5
@@ -49,7 +49,7 @@ class InvoiceMarkPaidTest < ApplicationSystemTestCase
 
     visit invoice_path(@invoice)
 
-    click_on "Mark Paid…"
+    click_on "Paid…"
     assert_selector ".mark-paid-modal", visible: :visible
 
     within ".mark-paid-modal" do

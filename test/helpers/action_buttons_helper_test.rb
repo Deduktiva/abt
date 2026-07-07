@@ -3,65 +3,65 @@ require "test_helper"
 class ActionButtonsHelperTest < ActionView::TestCase
   helper ApplicationHelper
 
-  # Smoke tests that pin the established glyph + Bootstrap color + accessible
-  # name for each helper. Update these when CLAUDE.md's "Button Glyphs" table
+  # Smoke tests that pin the established icon + Bootstrap color + accessible
+  # name for each helper. Update these when CLAUDE.md's "Button Icons" table
   # changes — they are the executable copy of the policy.
   #
   # The permission: mechanic is shared via `return nil if permission && !can?(...)`
   # in every helper, so it gets one set of dedicated cases against delete_button
   # rather than being re-tested per verb.
 
-  # --- Tier 3 (glyph-only) ---
+  # --- Tier 3 (icon-only) ---
 
-  test "delete_button renders glyph-only with title and aria-label" do
+  test "delete_button renders icon-only with title and aria-label" do
     customer = Customer.new
     customer.class.define_singleton_method(:name) { "Customer" }
     html = delete_button(customer)
-    assert_glyph_link html, glyph: "🗑", klass: "btn-danger", title: "Delete"
+    assert_icon_link html, icon: "trash3", klass: "btn-danger", title: "Delete"
     assert_match(/data-turbo-confirm=/, html)
   end
 
-  test "pdf_button renders glyph-only with title, opens in new tab" do
+  test "pdf_button renders icon-only with title, opens in new tab" do
     html = pdf_button("/foo.pdf")
-    assert_glyph_link html, glyph: "📄", klass: "btn-success", title: "PDF"
+    assert_icon_link html, icon: "file-earmark-pdf-fill", klass: "btn-success", title: "PDF"
     assert_match(/target="_blank"/, html)
   end
 
-  test "preview_button renders glyph-only, info color, new tab" do
+  test "preview_button renders icon-only, info color, new tab" do
     html = preview_button("/preview")
-    assert_glyph_link html, glyph: "👁", klass: "btn-info", title: "Preview"
+    assert_icon_link html, icon: "eye-fill", klass: "btn-info", title: "Preview"
     assert_match(/target="_blank"/, html)
   end
 
-  # --- Tier 2 (glyph + text, POST form) ---
+  # --- Tier 2 (icon + text, POST form) ---
 
-  test "publish_button renders glyph + text, warning color, POST form" do
+  test "publish_button renders icon + text, warning color, POST form" do
     html = publish_button("/publish")
-    assert_post_button html, label: "🚀 Publish", klass: "btn-warning"
+    assert_post_button html, icon: "send", text: "Publish", klass: "btn-warning"
     assert_match(%r{<form[^>]*action="/publish"}, html)
   end
 
-  test "unblock_button renders glyph + text, success color" do
+  test "unblock_button renders icon + text, success color" do
     html = unblock_button("/unblock")
-    assert_post_button html, label: "✅ Unblock", klass: "btn-success"
+    assert_post_button html, icon: "shield-check", text: "Unblock", klass: "btn-success"
   end
 
   test "reset_passkeys_button is text-only despite Tier 2 form rendering" do
     html = reset_passkeys_button("/reset")
-    assert_post_button html, label: "Reset passkeys", klass: "btn-warning"
-    refute_match(/🔄/, html)
+    assert_post_button html, icon: nil, text: "Reset passkeys", klass: "btn-warning"
   end
 
-  test "unpublish_button renders glyph + text, outline-secondary color" do
+  test "unpublish_button renders icon + text, outline-secondary color" do
     html = unpublish_button("/unpublish")
-    assert_post_button html, label: "↩️ Unpublish", klass: "btn-outline-secondary"
+    assert_post_button html, icon: "arrow-counterclockwise", text: "Unpublish", klass: "btn-outline-secondary"
   end
 
   # --- Tier 1 (plain link) ---
 
-  test "audit_log_button uses clipboard glyph + text" do
+  test "audit_log_button uses journal-check icon + text" do
     html = audit_log_button("/audit")
-    assert_includes html, "📋 Audit log"
+    assert_includes html, "bi-journal-check"
+    assert_includes html, "Audit log"
     assert_match(/btn-secondary/, html)
   end
 
@@ -93,7 +93,7 @@ class ActionButtonsHelperTest < ActionView::TestCase
     Current.user = users(:alice)
     html = delete_button(customers(:good_eu), permission: "customers.edit")
     assert_match(/btn-danger/, html)
-    assert_includes html, "🗑"
+    assert_includes html, "bi-trash3"
   ensure
     Current.user = nil
   end
@@ -119,15 +119,16 @@ class ActionButtonsHelperTest < ActionView::TestCase
 
   private
 
-  def assert_glyph_link(html, glyph:, klass:, title:)
-    assert_includes html, glyph
+  def assert_icon_link(html, icon:, klass:, title:)
+    assert_includes html, "bi-#{icon}"
     assert_match(/#{Regexp.escape(klass)}/, html)
     assert_match(/title="#{Regexp.escape(title)}"/, html)
     assert_match(/aria-label="#{Regexp.escape(title)}"/, html)
   end
 
-  def assert_post_button(html, label:, klass:)
-    assert_includes html, label
+  def assert_post_button(html, text:, klass:, icon: nil)
+    assert_includes html, "bi-#{icon}" if icon
+    assert_includes html, text
     assert_match(/#{Regexp.escape(klass)}/, html)
     assert_match(%r{<form[^>]*method="post"}, html)
   end

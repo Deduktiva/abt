@@ -157,5 +157,6 @@
       = form_with url: block_user_path(@user), method: :post, local: true do |f|
         .input-group.w-fixed-400
           = f.text_field :reason, class: 'form-control', placeholder: 'Reason (required)', required: true
-          = f.submit '🚫 Block', class: 'btn btn-danger',
-              data: { turbo_confirm: "Block #{@user.username}? All sessions will be terminated." }
+          = f.button class: 'btn btn-danger',
+              data: { turbo_confirm: "Block #{@user.username}? All sessions will be terminated." } do
+            = icon_label(:'shield-slash', 'Block')

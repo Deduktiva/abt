@@ -97,7 +97,7 @@ class CustomerContactsTest < ApplicationSystemTestCase
     other_row = "##{ActionView::RecordIdentifier.dom_id(@project_lead)}"
 
     accept_confirm do
-      within(row) { click_link "🗑" }
+      within(row) { find('a[title="Delete"]').click }
     end
 
     assert_no_selector row
@@ -122,7 +122,7 @@ class CustomerContactsTest < ApplicationSystemTestCase
     assert_no_selector "#customer_contacts_empty_message"
 
     accept_confirm do
-      within("##{ActionView::RecordIdentifier.dom_id(new_contact)}") { click_link "🗑" }
+      within("##{ActionView::RecordIdentifier.dom_id(new_contact)}") { find('a[title="Delete"]').click }
     end
 
     assert_no_selector "##{ActionView::RecordIdentifier.dom_id(new_contact)}"

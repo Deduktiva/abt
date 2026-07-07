@@ -23,7 +23,7 @@ class OfferFormTest < ApplicationSystemTestCase
       click_on "▲"
     end
     within all("[data-line-index]")[2] do
-      click_on "🗑"
+      find('button[title="Remove milestone"]').click
     end
     click_on "Save"
     assert_text "Offer updated"

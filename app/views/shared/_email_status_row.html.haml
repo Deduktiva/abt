@@ -21,8 +21,8 @@
     - if can_edit && show_send_button
       - if resource.emailable?
         %button.btn.btn-sm.btn-warning.ms-auto{data: {action: 'click->generic-email-preview#open'}}
-          Send E-Mail
+          = icon_label(:envelope, 'Send')
       - else
         %span.ms-auto{data: {'bs-toggle': 'tooltip'}, title: 'No contact is configured to receive this document. Add a contact on the customer.'}
           %button.btn.btn-sm.btn-warning{disabled: true}
-            Send E-Mail
+            = icon_label(:envelope, 'Send')

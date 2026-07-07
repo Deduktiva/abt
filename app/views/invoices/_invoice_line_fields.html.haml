@@ -18,7 +18,7 @@
           %button.btn.btn-sm.btn-info{type: 'button', data: {action: 'click->invoice-lines#toggleProductDropdown', line_type_target: 'itemOnly'}} ...
           %button.btn.btn-sm.btn-secondary{type: 'button', data: {action: 'click->invoice-lines#moveLineUp'}} ▲
           %button.btn.btn-sm.btn-secondary{type: 'button', data: {action: 'click->invoice-lines#moveLineDown'}} ▼
-          %button.btn.btn-sm.btn-danger{type: 'button', data: {action: 'click->invoice-lines#removeLine'}} 🗑
+          %button.btn.btn-sm.btn-danger{type: 'button', title: 'Remove line', 'aria-label': 'Remove line', data: {action: 'click->invoice-lines#removeLine'}}= action_icon(:trash3)
 
     .row.mt-2.d-none{data: {product_dropdown: true}}
       .col-sm-11

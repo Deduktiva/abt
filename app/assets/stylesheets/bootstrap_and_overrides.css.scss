@@ -92,6 +92,17 @@ body { background-color: #f4f6f6; }
 }
 .navbar svg.bi { vertical-align: -0.125em; }
 
+// Action-button icons (action_icon): same baseline fix as the navbar icons,
+// plus a gap before any label text. `:not(:last-child)` only matches when
+// icon_label's <span> is present, so icon-only buttons (Delete, PDF,
+// Preview, ...) stay centered with no lopsided trailing margin.
+.btn svg.bi {
+  vertical-align: -0.125em;
+}
+.btn svg.bi:not(:last-child) {
+  margin-right: .35rem;
+}
+
 // Fix searchable dropdown hover in dark mode
 .searchable-dropdown .dropdown-item {
   &:hover,

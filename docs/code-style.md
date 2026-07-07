@@ -36,49 +36,55 @@ The canonical style reference for this repo. Project structure, architecture, mo
   - Disabled-tooltip variant (`%span` wrapping a disabled `%button`) → on the wrapping `%span`.
   - `button_to` → on the generated `<form>`: `button_to ..., form: { class: 'button_to ms-auto' }`. Keep `button_to` — `bootstrap_and_overrides.css.scss` styles it.
 
-## Action button glyphs
+## Action button icons
 Three tiers:
-- **Text only** when the label is short and universally clear (`Edit`, `+ New`, `Save`, `Reset passkeys`) — no glyph prefix.
-- **Glyph + text** for less-familiar workflow actions (`🚀 Publish`, `📥 Upload PDF`, `🚫 Block`).
-- **Glyph only** for universally-understood verbs. Always pass `title:` (sets tooltip + `aria-label`): `🗑` Delete, `📄` PDF, `👁` Preview.
+- **Text only** when the label is short and universally clear (`Edit`, `+ New`, `Save`, `Reset passkeys`) — no icon prefix.
+- **Icon + text** for less-familiar workflow actions (`Publish`, `Upload PDF`, `Block`).
+- **Icon only** for universally-understood verbs. Always pass `title:` (sets tooltip + `aria-label`): Delete, PDF, Preview.
 
-When the glyph carries the verb, drop the leading verb from the label: `Mark Paid` → `✅ Paid`, `Mark Unpaid` → `↩ Unpaid`. Keep verb+object when the glyph alone isn't enough.
+Icons are inline monochrome SVG via `action_icon(:name)` (`app/helpers/application_helper.rb`), backed by the `bootstrap-icons` gem — not emoji. `action_icon` takes the gem's icon name (underscores are converted to hyphens, so `:"eye-fill"` or `:eye_fill` both map to the `eye-fill` icon). Build an icon + text label with `icon_label(:name, "Text")` (`app/helpers/action_buttons_helper.rb`) — it wraps the text in a `<span>` so `.btn svg.bi:not(:last-child)` in `bootstrap_and_overrides.css.scss` only adds the icon/text gap where there's text to gap against, keeping icon-only buttons symmetrically centered. `<input type="submit">` can't hold an SVG — use `f.button(...) do ... end` instead of `f.submit` wherever the label needs an icon.
 
-Reuse glyphs for the same archetype — don't invent new ones:
-- 🚀 promote forward (Publish, Create invoice from delivery note)
-- ✅ positive state change (Paid, Unblock)
-- ↩ / ↩️ revert state (Unpaid, Unpublish) — Unicode-distinct but visually similar; never coexist on the same page
+When the icon carries the verb, drop the leading verb from the label: `Mark Paid` → `Paid…`, `Mark Unpaid` → `Unpaid`. Keep verb+object when the icon alone isn't enough.
 
-Established mapping — extend it, don't invent new glyphs for existing verbs:
+Reuse icons for the same archetype — don't invent new ones:
+- `send` (paper plane) promote forward (Publish, Convert to Invoice, Send offer, Convert milestone)
+- `check-circle-fill` / `shield-check` positive state change (Paid, Unblock)
+- `arrow-counterclockwise` revert state (Unpaid, Unpublish)
+- `trash3` delete (Delete, and the inline "remove line" buttons on invoice/delivery-note/offer-milestone edit forms)
+- `shield-slash` restrict access (Block)
 
-| Verb | Render | Helper |
-|---|---|---|
-| Edit | `Edit` | `action_button` |
-| + New | `+ New` | `action_button` |
-| Save | `Save` | `save_button` |
-| Reset passkeys | `Reset passkeys` | `reset_passkeys_button` |
-| Delete | `🗑` | `delete_button` |
-| PDF | `📄` | `pdf_button` |
-| Preview | `👁` | `preview_button` |
-| Mark Paid | `✅ Paid` | (status-row, inline) |
-| Mark Unpaid | `↩ Unpaid` | (status-row, inline) |
-| Send e-mail | `✉️ Send` | (status-row, inline) |
-| Publish | `🚀 Publish` | `publish_button` |
-| Unpublish | `↩️ Unpublish` | `unpublish_button` |
-| Convert to Invoice | `🚀 Create…` | (status-row, inline) |
-| Upload PDF | `📥 Upload PDF` | (form, inline) |
-| Block | `🚫 Block` | (form-with-reason, inline) |
-| Unblock | `✅ Unblock` | `unblock_button` |
-| Audit log | `📋 Audit log` | `audit_log_button` |
+Established mapping — extend it, don't invent new icons for existing verbs:
+
+| Verb | Icon | Render | Helper |
+|---|---|---|---|
+| Edit | — | `Edit` | `action_button` |
+| + New | — | `+ New` | `action_button` |
+| Save | — | `Save` | `save_button` |
+| Reset passkeys | — | `Reset passkeys` | `reset_passkeys_button` |
+| Delete | `trash3` | icon only | `delete_button` |
+| PDF | `file-earmark-pdf-fill` | icon only | `pdf_button` |
+| Preview | `eye-fill` | icon only | `preview_button` |
+| Mark Paid | `check-circle-fill` | icon + `Paid…` | (status-row, inline) |
+| Mark Unpaid | `arrow-counterclockwise` | icon + `Unpaid` | (status-row, inline) |
+| Send e-mail | `envelope` | icon + `Send` | (status-row, inline) |
+| Publish | `send` | icon + `Publish` | `publish_button` |
+| Unpublish | `arrow-counterclockwise` | icon + `Unpublish` | `unpublish_button` |
+| Convert to Invoice | `send` | icon + `Create…` | (status-row, inline) |
+| Upload PDF | `upload` | icon + `Upload PDF` | (form, inline) |
+| Block | `shield-slash` | icon + `Block` | (form-with-reason, inline) |
+| Unblock | `shield-check` | icon + `Unblock` | `unblock_button` |
+| Audit log | `journal-check` | icon + `Audit log` | `audit_log_button` |
 
 For cross-resource navigation in a breadcrumb action cluster, use `nav_button` (outline-secondary). Don't reach for filled variants for nav.
 
+Out of scope for this convention — deliberately left as emoji, don't convert without a separate decision: Configuration hub tiles (`app/views/configurations/index.html.haml`, page content rather than a workflow action), the "Reusable" badge in the searchable dropdown, and the `✓`/`▲`/`▼` symbols in the invoice/delivery-note/offer-milestone edit-form line toolbars (unlabeled by design, matching their siblings).
+
 ## Navigation icons
-A separate, narrow convention from the action-button glyphs above — these mark navbar chrome (Configuration, the account link, Sign out), not workflow actions:
-- Inline monochrome SVG via `nav_icon(:name)`, backed by the `bootstrap-icons` gem (`BootstrapIcons::BootstrapIcon`) — not emoji. Emoji render inconsistently across platforms/color, which matters for chrome that's on screen at all times; it doesn't matter enough for one-off action buttons to be worth a second icon mechanism there. `nav_icon` takes the gem's icon name (underscores are converted to hyphens, so `:box_arrow_right` maps to the `box-arrow-right` icon).
+A separate convention from the action-button icons above — these mark navbar chrome (Configuration, the account link, Sign out), not workflow actions:
+- Inline monochrome SVG via `nav_icon(:name)` — same underlying `bootstrap-icons` lookup as `action_icon`, just a different default size (15px vs 14px) and semantic name for the call site.
 - Configuration and the account link show their icon only below the `sm` breakpoint (`d-inline d-sm-none`) — on desktop they're plain text like every other top-level nav item; the icon exists to break up an otherwise-identical run of text rows once the navbar collapses to its mobile stacked list.
 - Sign out is the exception: icon-only on desktop (`nav_icon(:box_arrow_right)`), icon + text once collapsed — it's the one control that isn't paired with adjacent context, so a lone icon reads fine on desktop but would be the only unlabeled row in the mobile list.
-- Configuration hub tiles (`app/views/configurations/index.html.haml`) use the existing emoji convention, not `nav_icon` — that page isn't chrome, it's page content, so the action-button glyph rules apply there instead.
+- Configuration hub tiles (`app/views/configurations/index.html.haml`) use the existing emoji convention, not `nav_icon` — that page isn't chrome, it's page content, so the action-button icon rules apply there instead (and are themselves out of scope for now, see above).
 
 ## Controllers
 - Permission gates: `before_action -> { require_permission!("scope.verb") }, only: [...]`.

@@ -24,7 +24,7 @@ class LineManagementTest < ApplicationSystemTestCase
 
     first_line = first("[data-line-index]")
     within first_line do
-      click_button "🗑"
+      find('button[title="Remove line"]').click
     end
 
     # Persisted line should be hidden, not removed
@@ -44,7 +44,7 @@ class LineManagementTest < ApplicationSystemTestCase
     # Remove the new line
     new_line = all("[data-line-index]").last
     within new_line do
-      click_button "🗑"
+      find('button[title="Remove line"]').click
     end
 
     # New line should be completely removed from DOM
@@ -171,7 +171,7 @@ class LineManagementTest < ApplicationSystemTestCase
     # Remove existing lines to get down to single line scenario
     all("[data-line-index]")[1..-1].each do |line|
       within line do
-        click_button "🗑"
+        find('button[title="Remove line"]').click
       end
     end
 
@@ -180,7 +180,7 @@ class LineManagementTest < ApplicationSystemTestCase
 
     # Remove the last line - should work now
     within first("[data-line-index]") do
-      click_button "🗑"
+      find('button[title="Remove line"]').click
     end
 
     # Persisted line should be hidden but marked for destruction

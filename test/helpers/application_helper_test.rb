@@ -134,7 +134,8 @@ class ApplicationHelperTest < ActionView::TestCase
     html = Nokogiri::HTML.fragment(destroy_link(customer).to_s)
     a = html.at_css("a")
     assert_not_nil a
-    assert_equal "🗑", a.text
+    assert_not_nil a.at_css("svg.bi-trash3")
+    assert_equal "Delete", a["title"]
   end
 
   test "destroy_link with permission: returns the link when user has it" do
@@ -143,7 +144,8 @@ class ApplicationHelperTest < ActionView::TestCase
     html = Nokogiri::HTML.fragment(destroy_link(customer, nil, permission: "customers.edit").to_s)
     a = html.at_css("a")
     assert_not_nil a
-    assert_equal "🗑", a.text
+    assert_not_nil a.at_css("svg.bi-trash3")
+    assert_equal "Delete", a["title"]
   ensure
     Current.user = nil
   end

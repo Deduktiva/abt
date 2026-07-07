@@ -57,9 +57,13 @@ class PermissionsEnforcementTest < ActionDispatch::IntegrationTest
     assert_no_match(/href="#{groups_path}"/, response.body)
   end
 
-  test "admin sees groups and teams links in navigation" do
+  test "admin sees the Configuration link in navigation, with groups and teams links on that page" do
     sign_in_as(users(:alice))
     get root_path
+    assert_response :success
+    assert_match(/href="#{configuration_path}"/, response.body)
+
+    get configuration_path
     assert_response :success
     assert_match(/href="#{groups_path}"/, response.body)
     assert_match(/href="#{teams_path}"/, response.body)

@@ -1,4 +1,4 @@
 - content_for :title, @team.name
-= breadcrumbs 'Configuration', ['Teams', teams_path], [@team.name, team_path(@team)], 'Edit', action: save_button
+= breadcrumbs ['Configuration', configuration_path], ['Teams', teams_path], [@team.name, team_path(@team)], 'Edit', action: save_button
 
 = render 'form'

@@ -73,6 +73,13 @@ Established mapping — extend it, don't invent new glyphs for existing verbs:
 
 For cross-resource navigation in a breadcrumb action cluster, use `nav_button` (outline-secondary). Don't reach for filled variants for nav.
 
+## Navigation icons
+A separate, narrow convention from the action-button glyphs above — these mark navbar chrome (Configuration, the account link, Sign out), not workflow actions:
+- Inline monochrome SVG via `nav_icon(:name)`, backed by the `bootstrap-icons` gem (`BootstrapIcons::BootstrapIcon`) — not emoji. Emoji render inconsistently across platforms/color, which matters for chrome that's on screen at all times; it doesn't matter enough for one-off action buttons to be worth a second icon mechanism there. `nav_icon` takes the gem's icon name (underscores are converted to hyphens, so `:box_arrow_right` maps to the `box-arrow-right` icon).
+- Configuration and the account link show their icon only below the `sm` breakpoint (`d-inline d-sm-none`) — on desktop they're plain text like every other top-level nav item; the icon exists to break up an otherwise-identical run of text rows once the navbar collapses to its mobile stacked list.
+- Sign out is the exception: icon-only on desktop (`nav_icon(:box_arrow_right)`), icon + text once collapsed — it's the one control that isn't paired with adjacent context, so a lone icon reads fine on desktop but would be the only unlabeled row in the mobile list.
+- Configuration hub tiles (`app/views/configurations/index.html.haml`) use the existing emoji convention, not `nav_icon` — that page isn't chrome, it's page content, so the action-button glyph rules apply there instead.
+
 ## Controllers
 - Permission gates: `before_action -> { require_permission!("scope.verb") }, only: [...]`.
 - Read through tenant scopes (`Model.visible_to(current_user)`).

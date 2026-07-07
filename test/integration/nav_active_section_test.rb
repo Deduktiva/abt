@@ -15,17 +15,15 @@ class NavActiveSectionTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "Configuration dropdown highlights its toggle and the matching item on a config section" do
+  test "Configuration link highlights on a config section" do
     get "/products"
     assert_response :success
-    assert_select "a.nav-link.dropdown-toggle.active", text: "Configuration"
-    assert_select "a.dropdown-item.active[aria-current=page]", text: "Product Catalog"
+    assert_select "a.nav-link.active[aria-current=page]", text: /Configuration/
   end
 
-  test "user dropdown highlights its toggle and My account across the account namespace" do
+  test "account link highlights across the account namespace" do
     get "/account/emails"
     assert_response :success
-    assert_select "a.nav-link.dropdown-toggle.active", text: users(:alice).username
-    assert_select "a.dropdown-item.active[aria-current=page]", text: "My account"
+    assert_select "a.nav-link.active[aria-current=page]", text: /#{users(:alice).username}/
   end
 end

@@ -1,4 +1,13 @@
 module ApplicationHelper
+  # Inline monochrome SVG icon for navbar chrome — Configuration, the account
+  # link, Sign out. A narrow, deliberate exception to the emoji-based
+  # action-button glyphs: see docs/code-style.md's "Navigation icons" section
+  # for why. Sourced from the bootstrap-icons gem rather than copied path
+  # data, so icon geometry stays correct and updatable via bundle update.
+  def nav_icon(name, size: 15)
+    BootstrapIcons::BootstrapIcon.new(name.to_s.tr("_", "-"), width: size, height: size).to_svg.html_safe
+  end
+
   # Permission check helper for views. Uses current_user via the controller
   # (already defined as a helper_method in ApplicationController).
   def can?(key)
@@ -8,9 +17,10 @@ module ApplicationHelper
   # Top-level navbar link that highlights the current section. Marks the link
   # active (Bootstrap .active + aria-current) when the request belongs to one of
   # the controllers in `active_for`, so show/edit/new pages of a section stay
-  # highlighted, not just its index.
-  def nav_link_to(label, path, active_for:)
-    active_nav_link("nav-link", label, path, active_for)
+  # highlighted, not just its index. Pass a block instead of `label` to render
+  # custom content (e.g. a mobile-only icon ahead of the text).
+  def nav_link_to(label, path, active_for:, &block)
+    active_nav_link("nav-link", label, path, active_for, &block)
   end
 
   # Same as nav_link_to but for links inside a dropdown menu.
@@ -237,10 +247,10 @@ module ApplicationHelper
 
   private
 
-  def active_nav_link(base_class, label, path, active_for)
+  def active_nav_link(base_class, label, path, active_for, &block)
     active = nav_section_active?(active_for)
     options = { class: "#{base_class}#{' active' if active}" }
     options["aria-current"] = "page" if active
-    link_to(label, path, options)
+    block ? link_to(path, options, &block) : link_to(label, path, options)
   end
 end

@@ -80,6 +80,14 @@ module ActionButtonsHelper
     link_to text, path, class: "btn btn-outline-secondary", data: data
   end
 
+  # Navbar-only: icon-only on desktop, icon + text once the navbar collapses
+  # to its mobile stacked list (where a lone icon would be the only
+  # unlabeled row). See docs/code-style.md's "Navigation icons" section.
+  def sign_out_button
+    label = nav_icon(:box_arrow_right) + content_tag(:span, "Sign out", class: "d-inline d-sm-none ms-1")
+    button_to label, session_path, method: :delete, class: "nav-link nav-icon-btn", title: "Sign out", form_class: "d-inline"
+  end
+
   private
 
   # Tier-2 shape: POST form button with a Bootstrap class and an optional

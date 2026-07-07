@@ -31,50 +31,17 @@
           %li
             %hr.dropdown-divider
           %ul.list-unstyled.mb-0{"data-error-notification-target" => "list"}
-      - config_perms = %w[issuer_company.view products.view sales_tax.view users.view jobs_status.view groups.manage teams.manage]
-      - show_config = config_perms.any? { |p| can?(p) }
       - config_controllers = %w[issuer_companies products sales_tax_rates users groups teams jobs_status]
-      - if show_config
-        %li.nav-item.dropdown{"data-controller" => "navbar"}
-          %a.nav-link.dropdown-toggle{:href => "#", :role => "button", :class => ("active" if nav_section_active?(config_controllers)), :"data-navbar-target" => "toggle", :"data-action" => "click->navbar#toggle"}
+      - if ConfigurationsController::PERMS.any? { |p| can?(p) }
+        %li.nav-item
+          = nav_link_to(nil, configuration_path, active_for: config_controllers) do
+            %span.d-inline.d-sm-none.me-1
+              = nav_icon(:gear)
             Configuration
-          %ul.dropdown-menu.dropdown-menu-end{"data-navbar-target" => "menu"}
-            - if can?('issuer_company.view')
-              %li
-                = dropdown_link_to('Issuer Company', issuer_company_path, active_for: 'issuer_companies')
-              %li
-                %hr.dropdown-divider
-            - if can?('products.view')
-              %li
-                = dropdown_link_to('Product Catalog', products_path, active_for: 'products')
-            - if can?('sales_tax.view')
-              %li
-                = dropdown_link_to('Sales Tax', sales_tax_rates_path, active_for: 'sales_tax_rates')
-            - if can?('products.view') || can?('sales_tax.view')
-              %li
-                %hr.dropdown-divider
-            - if can?('users.view')
-              %li
-                = dropdown_link_to('Users', users_path, active_for: 'users')
-            - if can?('groups.manage')
-              %li
-                = dropdown_link_to('Groups', groups_path, active_for: 'groups')
-            - if can?('teams.manage')
-              %li
-                = dropdown_link_to('Teams', teams_path, active_for: 'teams')
-            - if can?('users.view') || can?('groups.manage') || can?('teams.manage')
-              %li
-                %hr.dropdown-divider
-            - if can?('jobs_status.view')
-              %li
-                = dropdown_link_to('Background Jobs', jobs_status_path, active_for: 'jobs_status')
-      %li.nav-item.dropdown{"data-controller" => "navbar"}
-        %a.nav-link.dropdown-toggle{:href => "#", :role => "button", :class => ("active" if nav_section_active?('account')), :"data-navbar-target" => "toggle", :"data-action" => "click->navbar#toggle"}
+      %li.nav-item
+        = nav_link_to(nil, account_profile_path, active_for: 'account') do
+          %span.d-inline.d-sm-none.me-1
+            = nav_icon(:person)
           = Current.user.username
-        %ul.dropdown-menu.dropdown-menu-end{"data-navbar-target" => "menu"}
-          %li
-            = dropdown_link_to('My account', account_profile_path, active_for: 'account')
-          %li
-            %hr.dropdown-divider
-          %li
-            = button_to('Sign out', session_path, method: :delete, class: 'dropdown-item', form_class: 'd-inline')
+      %li.nav-item
+        = sign_out_button

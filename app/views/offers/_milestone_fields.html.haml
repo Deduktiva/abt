@@ -13,7 +13,7 @@
         %div
           %button.btn.btn-sm.btn-secondary{type: 'button', data: {action: 'click->offer-milestones#moveLineUp'}} ▲
           %button.btn.btn-sm.btn-secondary{type: 'button', data: {action: 'click->offer-milestones#moveLineDown'}} ▼
-          %button.btn.btn-sm.btn-danger{type: 'button', data: {action: 'click->offer-milestones#removeLine'}} 🗑
+          %button.btn.btn-sm.btn-danger{type: 'button', title: 'Remove milestone', 'aria-label': 'Remove milestone', data: {action: 'click->offer-milestones#removeLine'}}= action_icon(:trash3)
 
     .row.mt-2
       .col-sm-12

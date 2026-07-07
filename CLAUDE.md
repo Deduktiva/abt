@@ -146,7 +146,7 @@ For testing against PostgreSQL (matches production environment):
 
 ## Code Style
 
-See [`docs/code-style.md`](docs/code-style.md) for the canonical style reference (HAML, Bootstrap, Stimulus, tests, status badges, action button glyphs, formatting, comments, commit messages). Read it before writing code.
+See [`docs/code-style.md`](docs/code-style.md) for the canonical style reference (HAML, Bootstrap, Stimulus, tests, status badges, action button icons, formatting, comments, commit messages). Read it before writing code.
 
 UI helpers live in `app/helpers/application_helper.rb` (page chrome: `breadcrumbs`, `page_header`, `action_button`, `destroy_link`, `list_action_link`, `action_buttons_wrapper`) and `app/helpers/action_buttons_helper.rb` (per-verb wrappers: `delete_button`, `pdf_button`, `preview_button`, `publish_button`, `unpublish_button`, `unblock_button`, `reset_passkeys_button`, `audit_log_button`, `save_button`, `nav_button`). Read the source for signatures.
 

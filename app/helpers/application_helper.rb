@@ -1,11 +1,17 @@
 module ApplicationHelper
   # Inline monochrome SVG icon for navbar chrome — Configuration, the account
-  # link, Sign out. A narrow, deliberate exception to the emoji-based
-  # action-button glyphs: see docs/code-style.md's "Navigation icons" section
-  # for why. Sourced from the bootstrap-icons gem rather than copied path
-  # data, so icon geometry stays correct and updatable via bundle update.
+  # link, Sign out. See docs/code-style.md's "Navigation icons" section.
+  # Sourced from the bootstrap-icons gem rather than copied path data, so
+  # icon geometry stays correct and updatable via bundle update.
   def nav_icon(name, size: 15)
-    BootstrapIcons::BootstrapIcon.new(name.to_s.tr("_", "-"), width: size, height: size).to_svg.html_safe
+    bootstrap_icon_svg(name, size)
+  end
+
+  # Same icon source as nav_icon, sized for inline use inside action-button
+  # labels (Delete, Publish, Mark Paid, ...). See docs/code-style.md's
+  # "Action button icons" section.
+  def action_icon(name, size: 14)
+    bootstrap_icon_svg(name, size)
   end
 
   # Permission check helper for views. Uses current_user via the controller
@@ -163,14 +169,16 @@ module ApplicationHelper
 
   # Index-context delete link: a small outline trashcan that fits into row
   # actions. Detail-page delete uses `delete_button(resource)` (defined in
-  # ActionButtonsHelper) — both render the 🗑 glyph, but the index variant is
-  # the small btn-outline-danger sized for table rows.
+  # ActionButtonsHelper) — both render the trash3 icon, but the index variant
+  # is the small btn-outline-danger sized for table rows.
   # When permission: is given and the current user lacks it, returns nil so
   # views can gate inline without an `- if can?('xxx.edit')` wrap.
   def destroy_link(resource, confirm_text = nil, permission: nil)
     return nil if permission && !can?(permission)
     confirm_text ||= "Are you sure you want to delete this #{resource.class.name.downcase}?"
-    list_action_link("🗑", resource, :destroy, {
+    list_action_link(action_icon(:trash3), resource, :destroy, {
+      title: "Delete",
+      "aria-label": "Delete",
       data: {
         'turbo-method': "delete",
         'turbo-confirm': confirm_text
@@ -246,6 +254,10 @@ module ApplicationHelper
   end
 
   private
+
+  def bootstrap_icon_svg(name, size)
+    BootstrapIcons::BootstrapIcon.new(name.to_s.tr("_", "-"), width: size, height: size).to_svg.html_safe
+  end
 
   def active_nav_link(base_class, label, path, active_for, &block)
     active = nav_section_active?(active_for)

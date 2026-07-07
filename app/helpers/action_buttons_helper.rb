@@ -1,15 +1,17 @@
 module ActionButtonsHelper
   # Per-verb helpers for the show-page breadcrumb action cluster. Each helper
-  # bakes in the established glyph, Bootstrap color, accessible name (for
-  # glyph-only Tier 3), and the link_to-vs-button_to choice. See CLAUDE.md's
-  # "Button Glyphs" section for the policy and full mapping.
+  # bakes in the established icon, Bootstrap color, accessible name (for
+  # icon-only Tier 3), and the link_to-vs-button_to choice. See
+  # docs/code-style.md's "Action button icons" section for the policy and
+  # full mapping.
   #
   # Every helper supports `permission:` and returns nil when denied, so views
   # can pass `actions: [pdf_button(...), delete_button(...)]` and let the
   # breadcrumbs helper compact out the nils.
   #
   # Shared shapes live as private helpers below: `post_button` for the
-  # button_to POST cluster, `glyph_link` for the glyph-only link_to cluster.
+  # button_to POST cluster, `icon_link` for the icon-only link_to cluster,
+  # `icon_label` for building an icon + text button label.
 
   # Shared HTML id for the single page-level form on edit/new pages. The
   # breadcrumb's `save_button` and the form element both reference this
@@ -17,39 +19,39 @@ module ActionButtonsHelper
   # via the HTML5 `form=` attribute.
   PAGE_FORM_ID = "page-form"
 
-  # --- Tier 3: glyph-only (title required) ---
+  # --- Tier 3: icon-only (title required) ---
 
   def delete_button(resource, confirm: nil, permission: nil)
     confirm ||= "Are you sure you want to delete this #{resource.class.name.downcase}?"
-    glyph_link "🗑", resource, klass: "btn btn-danger", title: "Delete",
-               permission: permission,
-               data: { "turbo-method": "delete", "turbo-confirm": confirm }
+    icon_link :trash3, resource, klass: "btn btn-danger", title: "Delete",
+              permission: permission,
+              data: { "turbo-method": "delete", "turbo-confirm": confirm }
   end
 
   def pdf_button(path, permission: nil)
-    glyph_link "📄", path, klass: "btn btn-success", title: "PDF",
-               permission: permission,
-               target: "_blank", data: { turbo: false }
+    icon_link :"file-earmark-pdf-fill", path, klass: "btn btn-success", title: "PDF",
+              permission: permission,
+              target: "_blank", data: { turbo: false }
   end
 
   def preview_button(path, permission: nil)
-    glyph_link "👁", path, klass: "btn btn-info", title: "Preview",
-               permission: permission,
-               target: "_blank", data: { turbo: false }
+    icon_link :"eye-fill", path, klass: "btn btn-info", title: "Preview",
+              permission: permission,
+              target: "_blank", data: { turbo: false }
   end
 
-  # --- Tier 2: glyph + text ---
+  # --- Tier 2: icon + text ---
 
   def publish_button(path, permission: nil, confirm: nil)
-    post_button "🚀 Publish", path, klass: "btn btn-warning", permission: permission, confirm: confirm
+    post_button icon_label(:send, "Publish"), path, klass: "btn btn-warning", permission: permission, confirm: confirm
   end
 
   def unpublish_button(path, permission: nil, confirm: nil)
-    post_button "↩️ Unpublish", path, klass: "btn btn-outline-secondary", permission: permission, confirm: confirm
+    post_button icon_label(:"arrow-counterclockwise", "Unpublish"), path, klass: "btn btn-outline-secondary", permission: permission, confirm: confirm
   end
 
   def unblock_button(path, permission: nil, confirm: nil)
-    post_button "✅ Unblock", path, klass: "btn btn-success", permission: permission, confirm: confirm
+    post_button icon_label(:"shield-check", "Unblock"), path, klass: "btn btn-success", permission: permission, confirm: confirm
   end
 
   def reset_passkeys_button(path, permission: nil, confirm: nil)
@@ -58,7 +60,7 @@ module ActionButtonsHelper
 
   def audit_log_button(path, permission: nil)
     return nil if permission && !can?(permission)
-    link_to "📋 Audit log", path, class: "btn btn-secondary"
+    link_to icon_label(:"journal-check", "Audit log"), path, class: "btn btn-secondary"
   end
 
   # Primary submit button for edit/new pages. Lives in the breadcrumb action
@@ -101,12 +103,23 @@ module ActionButtonsHelper
               data: { "turbo-confirm": confirm }.compact
   end
 
-  # Tier-3 shape: glyph-only link with a Bootstrap class and an accessible
+  # Tier-3 shape: icon-only link with a Bootstrap class and an accessible
   # name. The `title:` becomes both the hover tooltip and the screen-reader
-  # `aria-label`. Extra `link_opts` (e.g. `target:`, `data:`) pass through.
-  # Returns nil when `permission:` is set and the current user lacks it.
-  def glyph_link(glyph, path, klass:, title:, permission: nil, **link_opts)
+  # `aria-label` (the icon itself is `aria-hidden`, via action_icon/nav_icon's
+  # shared a11y handling). Extra `link_opts` (e.g. `target:`, `data:`) pass
+  # through. Returns nil when `permission:` is set and the current user lacks
+  # it.
+  def icon_link(icon, path, klass:, title:, permission: nil, **link_opts)
     return nil if permission && !can?(permission)
-    link_to glyph, path, link_opts.merge(class: klass, title: title, "aria-label": title)
+    link_to action_icon(icon), path, link_opts.merge(class: klass, title: title, "aria-label": title)
+  end
+
+  # Tier-2 shape: an icon followed by its label text, for buttons that carry
+  # both (Publish, Unblock, Audit log, ...). Text is wrapped in a <span> (not
+  # a bare text node) so the `.btn svg.bi:not(:last-child)` CSS rule can tell
+  # icon+text buttons apart from icon-only ones and only add the icon/text
+  # gap where there's text to gap against.
+  def icon_label(icon, text)
+    action_icon(icon) + content_tag(:span, text)
   end
 end

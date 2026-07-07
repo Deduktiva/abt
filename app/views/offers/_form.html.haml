@@ -100,7 +100,9 @@
             .col-sm-8
               .mb-3
                 = vf.label :prelude, 'Prelude', class: 'form-label'
-                = vf.rich_text_area :prelude, data: { controller: 'rich-text' }
+                .card
+                  .card-body
+                    = vf.rich_text_area :prelude, data: { controller: 'rich-text' }
             .col-sm-4
               .mb-3
                 = vf.label :salutation_override, 'Salutation override', class: 'form-label'

@@ -12,6 +12,16 @@ $border-radius: .25rem; // tighter corners app-wide (was .375rem)
 @import "bootstrap";
 body { padding-top: 60px; }
 
+// —— Page background: a soft tint instead of stock white/near-black, so
+// `.card` (which keeps Bootstrap's default white/dark surface color) reads
+// as a distinct surface without needing a border. Deliberately overrides
+// `body`'s background-color directly rather than the `--bs-body-bg`
+// variable, so components that derive their background from that variable
+// (cards, dropdowns, modals, popovers) are unaffected and stay on the
+// original white/dark surface color.
+body { background-color: #f4f6f6; }
+[data-bs-theme="dark"] body { background-color: #17191a; }
+
 // Navbar: brand-teal bar with the rainbow reduced to a 4px underline. Non-active
 // links sit at 80% white; the active page is full white with a teal underline.
 // A transparent underline is reserved on every link so switching pages doesn't
@@ -174,6 +184,37 @@ nav[aria-label="breadcrumb"] > div {
 
 // —— Compact rows: a hair tighter than Bootstrap's .table-sm default.
 .table-sm { --bs-table-cell-padding-y: 0.2rem; }
+
+// —— Totals row: a teal top rule (matching the header rule's weight/color)
+// instead of Bootstrap's default cell borders.
+.table-total-row > td {
+  border-top: 2px solid $primary;
+  border-bottom: 0;
+}
+[data-bs-theme="dark"] .table-total-row > td {
+  border-top-color: tint-color($primary, 40%);
+}
+
+// —— Cards: borderless, marked only by a teal rule under the header (same
+// weight/color as the table header rule above) instead of Bootstrap's
+// default border + flat gray header fill.
+.card {
+  border: 0;
+  box-shadow: none;
+}
+.card-header {
+  background-color: transparent;
+  border-bottom: 2px solid $primary;
+}
+[data-bs-theme="dark"] .card-header {
+  border-bottom-color: tint-color($primary, 40%);
+}
+
+// A card with no header (e.g. a lone `.card > .card-body`) shouldn't
+// reserve the vertical space a header would have taken; only restore the
+// full top padding when a header actually precedes the body.
+.card-body { padding-top: .5rem; }
+.card-header + .card-body { padding-top: var(--bs-card-spacer-y); }
 
 // —— Badges: soft, fully-rounded pills instead of solid blocks.
 @each $name, $color in $theme-colors {

@@ -183,7 +183,7 @@
         - if @offer.accepted? || @offer.failed?
           = render 'conversion_rows'
         - elsif @version
-          %table.table.table-bordered
+          %table.table.table-striped.table-hover
             %thead
               %tr
                 %th Milestone
@@ -199,7 +199,7 @@
                       %small.text-muted= simple_format(milestone.description, {}, wrapper_tag: 'span')
                   %td= milestone.trigger_label
                   %td.numeric= format_currency(milestone.amount)
-              %tr
+              %tr.table-total-row
                 %td.text-end{colspan: 2}
                   %strong Total Net:
                 %td.numeric

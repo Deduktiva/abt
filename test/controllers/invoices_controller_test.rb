@@ -203,7 +203,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
 
     get invoice_url(invoice)
     assert_response :success
-    assert_select "table.table-bordered"
+    assert_select "table.document-lines-table"
     assert_select ".badge.bg-success", text: "Booked"
   end
 

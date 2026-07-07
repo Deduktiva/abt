@@ -32,116 +32,118 @@
         - if @invoice.emailable?
           %button.btn.btn-outline-success{data: {action: 'click->generic-email-preview#open'}} Send E-Mail
 
-  .row.mb-2
-    .col-md-6
-      .document-details
-        - if @invoice.date
-          .row.mb-2
-            .col-sm-4
-              %strong Date:
-            .col-sm-8
-              = l(@invoice.date)
-        .row.mb-2
-          .col-sm-4
-            %strong Customer:
-          .col-sm-8
-            = link_to(@invoice.customer_name || @invoice.customer.name, @invoice.customer)
-        - if @invoice.project_id.present?
-          .row.mb-2
-            .col-sm-4
-              %strong Project:
-            .col-sm-8
-              - if @invoice.project
-                = link_to @invoice.project.display_name, @invoice.project
-              - else
-                %em (Project ##{@invoice.project_id} - not found)
-        - if @invoice.cust_order.present?
-          .row.mb-2
-            .col-sm-4
-              %strong Cust. Order No:
-            .col-sm-8
-              = @invoice.cust_order
-        - if @invoice.cust_reference.present?
-          .row.mb-2
-            .col-sm-4
-              %strong Cust. Reference:
-            .col-sm-8
-              = @invoice.cust_reference
-        - if @invoice.internal_reference.present?
-          .row.mb-2
-            .col-sm-4
-              %strong Internal Reference:
-            .col-sm-8
-              = @invoice.internal_reference
+  .card.mb-4
+    .card-body
+      .row.mb-2
+        .col-md-6
+          .document-details
+            - if @invoice.date
+              .row.mb-2
+                .col-sm-4
+                  %strong Date:
+                .col-sm-8
+                  = l(@invoice.date)
+            .row.mb-2
+              .col-sm-4
+                %strong Customer:
+              .col-sm-8
+                = link_to(@invoice.customer_name || @invoice.customer.name, @invoice.customer)
+            - if @invoice.project_id.present?
+              .row.mb-2
+                .col-sm-4
+                  %strong Project:
+                .col-sm-8
+                  - if @invoice.project
+                    = link_to @invoice.project.display_name, @invoice.project
+                  - else
+                    %em (Project ##{@invoice.project_id} - not found)
+            - if @invoice.cust_order.present?
+              .row.mb-2
+                .col-sm-4
+                  %strong Cust. Order No:
+                .col-sm-8
+                  = @invoice.cust_order
+            - if @invoice.cust_reference.present?
+              .row.mb-2
+                .col-sm-4
+                  %strong Cust. Reference:
+                .col-sm-8
+                  = @invoice.cust_reference
+            - if @invoice.internal_reference.present?
+              .row.mb-2
+                .col-sm-4
+                  %strong Internal Reference:
+                .col-sm-8
+                  = @invoice.internal_reference
 
-    .col-md-6
-      .document-details
-        - if @invoice.due_date
-          .row.mb-2
-            .col-sm-4
-              %strong Due Date:
-            .col-sm-8
-              = l(@invoice.due_date)
-              %span.text-muted.ms-2 (#{@invoice.payment_terms_days} days net)
-        - else
-          .row.mb-2
-            .col-sm-4
-              %strong Payment Terms:
-            .col-sm-8
-              = @invoice.payment_terms_days
-              days net
+        .col-md-6
+          .document-details
+            - if @invoice.due_date
+              .row.mb-2
+                .col-sm-4
+                  %strong Due Date:
+                .col-sm-8
+                  = l(@invoice.due_date)
+                  %span.text-muted.ms-2 (#{@invoice.payment_terms_days} days net)
+            - else
+              .row.mb-2
+                .col-sm-4
+                  %strong Payment Terms:
+                .col-sm-8
+                  = @invoice.payment_terms_days
+                  days net
 
-        - unless @invoice.published?
-          .row.mb-2
-            .col-sm-4
-              %strong Publish Status:
-            .col-sm-8.d-flex.align-items-center.gap-2
-              - if problems.any?
-                %span.badge.bg-warning= pluralize(problems.size, 'problem')
-              - else
-                %span.badge.bg-success Ready
-              - if can_edit_invoice
-                - if problems.any?
-                  %span.ms-auto{title: problems.join("\n")}
-                    %button.btn.btn-sm.btn-info{disabled: true} Publish Invoice…
-                - else
-                  = button_to 'Publish Invoice…', publish_invoice_path(@invoice), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Publish invoice and assign a document number? This cannot be undone.' }
+            - unless @invoice.published?
+              .row.mb-2
+                .col-sm-4
+                  %strong Publish Status:
+                .col-sm-8.d-flex.align-items-center.gap-2
+                  - if problems.any?
+                    %span.badge.bg-warning= pluralize(problems.size, 'problem')
+                  - else
+                    %span.badge.bg-success Ready
+                  - if can_edit_invoice
+                    - if problems.any?
+                      %span.ms-auto{title: problems.join("\n")}
+                        %button.btn.btn-sm.btn-info{disabled: true} Publish Invoice…
+                    - else
+                      = button_to 'Publish Invoice…', publish_invoice_path(@invoice), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Publish invoice and assign a document number? This cannot be undone.' }
 
-        - if @invoice.published?
-          = render 'shared/email_status_row', resource: @invoice, can_edit: can_edit_invoice, show_send_button: @invoice.attachment.present?
+            - if @invoice.published?
+              = render 'shared/email_status_row', resource: @invoice, can_edit: can_edit_invoice, show_send_button: @invoice.attachment.present?
 
-          .row.mb-2
-            .col-sm-4
-              %strong Payment Status:
-            .col-sm-8.d-flex.align-items-center.gap-2{data: {controller: 'modal'}}
-              - if @invoice.paid?
-                Paid #{l(@invoice.paid_at.to_date)}
-              - elsif @invoice.overdue?
-                %span.badge.bg-danger Overdue
-              - else
-                %span.badge.bg-warning Unpaid
-              - if can_edit_invoice
-                - if @invoice.paid?
-                  -# button_to wraps the button in a form; the form is the flex
-                  -# child, so ms-auto must go on the form to push it right.
-                  = button_to icon_label(:'arrow-counterclockwise', 'Unpaid'), mark_unpaid_invoice_path(@invoice), method: :post, class: 'btn btn-sm btn-outline-secondary', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Mark this invoice as unpaid?' }
-                - else
-                  %button.btn.btn-sm.btn-success.ms-auto{data: {action: 'click->modal#open'}}
-                    = icon_label(:'check-circle-fill', 'Paid…')
-                  = render 'shared/mark_paid_modal', invoice: @invoice
+              .row.mb-2
+                .col-sm-4
+                  %strong Payment Status:
+                .col-sm-8.d-flex.align-items-center.gap-2{data: {controller: 'modal'}}
+                  - if @invoice.paid?
+                    Paid #{l(@invoice.paid_at.to_date)}
+                  - elsif @invoice.overdue?
+                    %span.badge.bg-danger Overdue
+                  - else
+                    %span.badge.bg-warning Unpaid
+                  - if can_edit_invoice
+                    - if @invoice.paid?
+                      -# button_to wraps the button in a form; the form is the flex
+                      -# child, so ms-auto must go on the form to push it right.
+                      = button_to icon_label(:'arrow-counterclockwise', 'Unpaid'), mark_unpaid_invoice_path(@invoice), method: :post, class: 'btn btn-sm btn-outline-secondary', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Mark this invoice as unpaid?' }
+                    - else
+                      %button.btn.btn-sm.btn-success.ms-auto{data: {action: 'click->modal#open'}}
+                        = icon_label(:'check-circle-fill', 'Paid…')
+                      = render 'shared/mark_paid_modal', invoice: @invoice
 
-        - if @invoice.delivery_note
-          .row.mb-2
-            .col-sm-4
-              %strong Source:
-            .col-sm-8
-              = link_to @invoice.delivery_note.display_name, @invoice.delivery_note
-        - if @invoice.offer_milestone
-          .row.mb-2
-            .col-sm-4
-              %strong Source:
-            .col-sm-8
-              = link_to @invoice.offer_milestone.offer.display_name, @invoice.offer_milestone.offer
+            - if @invoice.delivery_note
+              .row.mb-2
+                .col-sm-4
+                  %strong Source:
+                .col-sm-8
+                  = link_to @invoice.delivery_note.display_name, @invoice.delivery_note
+            - if @invoice.offer_milestone
+              .row.mb-2
+                .col-sm-4
+                  %strong Source:
+                .col-sm-8
+                  = link_to @invoice.offer_milestone.offer.display_name, @invoice.offer_milestone.offer
 
   - if !@invoice.published? && problems.any?
     .alert.alert-warning.mb-3

@@ -221,6 +221,15 @@ nav[aria-label="breadcrumb"] > div {
   border-bottom-color: tint-color($primary, 40%);
 }
 
+// A header with an explicit solid-fill background (e.g. `.bg-danger` on
+// the account "Danger zone" / users "Block user" cards) already reads as
+// visually separated from the body via the fill itself — the default teal
+// rule looked like a mismatched stray line under a colored block, so drop
+// it there.
+.card-header[class*="bg-"] {
+  border-bottom: 0;
+}
+
 // A card with no header (e.g. a lone `.card > .card-body`) shouldn't
 // reserve the vertical space a header would have taken; only restore the
 // full top padding when a header actually precedes the body.

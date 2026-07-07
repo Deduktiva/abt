@@ -5,7 +5,7 @@
 - invites_nav = nav_button('View invites', user_invites_path, permission: 'user_invites.manage')
 = breadcrumbs 'Configuration', 'Users', actions: [invites_nav], action: invite_action
 
-%table.table.table-striped.table-sm
+%table.table.table-striped.table-hover.table-sm
   %thead
     %tr
       %th Username

@@ -36,10 +36,11 @@
         .card-header
           Tax Rates
         .card-body
-          %table.table.table-striped.table-sm.mb-0
-            %tr
-              %th Product class
-              %th Rate
+          %table.table.table-striped.table-hover.table-sm.mb-0
+            %thead
+              %tr
+                %th Product class
+                %th Rate
             - @sales_tax_customer_class.sales_tax_rates.includes(:sales_tax_product_class).each do |rate|
               %tr
                 %td= link_to rate.sales_tax_product_class.name, rate.sales_tax_product_class

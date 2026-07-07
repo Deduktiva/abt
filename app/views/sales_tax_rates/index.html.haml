@@ -2,13 +2,14 @@
 - product_classes_action = nav_button('Product Classes', sales_tax_product_classes_path)
 = breadcrumbs 'Configuration', 'Sales Tax', actions: [customer_classes_action, product_classes_action], action: action_button('+ New', new_sales_tax_rate_path, permission: 'sales_tax.edit')
 
-%table.table.table-striped.table-sm
-  %tr
-    %th{:width=>"30%"} Customer class
-    %th{:width=>"30%"} Product class
-    %th{:width=>"30%"} Rate
-    %th
-    %th
+%table.table.table-striped.table-hover.table-sm
+  %thead
+    %tr
+      %th{:width=>"30%"} Customer class
+      %th{:width=>"30%"} Product class
+      %th{:width=>"30%"} Rate
+      %th
+      %th
 
   - @sales_tax_rates.each do |sales_tax_rate|
     %tr
@@ -43,13 +44,14 @@
     %p.text-error
       You should create these tax rates:
 
-    %table.table.table-striped.table-sm
-      %tr
-        %th{:width=>"30%"} Customer class
-        %th{:width=>"30%"} Product class
-        %th{:width=>"30%"} Rate
-        %th
-        %th
+    %table.table.table-striped.table-hover.table-sm
+      %thead
+        %tr
+          %th{:width=>"30%"} Customer class
+          %th{:width=>"30%"} Product class
+          %th{:width=>"30%"} Rate
+          %th
+          %th
       - @missing_rates.each do |missing_rate|
         %tr
           %td

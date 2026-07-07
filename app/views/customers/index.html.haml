@@ -8,15 +8,16 @@
       = link_to 'Inactive', customers_path(filter: 'inactive'), class: (params[:filter] == 'inactive' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
 
 - show_status_column = params[:filter] == 'all'
-%table.table.table-striped.table-sm
-  %tr
-    %th{:width => "10%"} Matchcode
-    - if show_status_column
-      %th{:width => "7%"} Status
-    %th Name
-    %th{:width => "10%"} Team
-    %th{:width => "3%"}
-    %th{:width => "3%"}
+%table.table.table-striped.table-hover.table-sm
+  %thead
+    %tr
+      %th{:width => "10%"} Matchcode
+      - if show_status_column
+        %th{:width => "7%"} Status
+      %th Name
+      %th{:width => "10%"} Team
+      %th{:width => "3%"}
+      %th{:width => "3%"}
 
   - @customers.each do |customer|
     %tr

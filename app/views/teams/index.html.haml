@@ -3,15 +3,16 @@
 %p.text-muted
   Teams control which customers and projects a user can see. Every customer and project belongs to exactly one team.
 
-%table.table.table-striped.table-sm
-  %tr
-    %th Name
-    %th Description
-    %th Members
-    %th Customers
-    %th Projects
-    %th{width: "3%"}
-    %th{width: "3%"}
+%table.table.table-striped.table-hover.table-sm
+  %thead
+    %tr
+      %th Name
+      %th Description
+      %th Members
+      %th Customers
+      %th Projects
+      %th{width: "3%"}
+      %th{width: "3%"}
 
   - @teams.each do |team|
     %tr

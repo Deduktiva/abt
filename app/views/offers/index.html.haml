@@ -18,19 +18,20 @@
         = link_to year, offers_path(year: year, state: @state_filter, customer_id: @selected_customer_id), class: (@selected_year == year ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
       = link_to 'All', offers_path(year: 'all', state: @state_filter, customer_id: @selected_customer_id), class: (@selected_year == 'all' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
 
-%table.table.table-striped.table-sm
-  %tr
-    %th Document#
-    - if @selected_customer_id.nil?
-      %th Customer
-    %th Project
-    %th Int.Reference
-    %th Cust.Order No.
-    - if @state_filter == 'all'
-      %th Status
-    %th Delivery date
-    %th.numeric Sum Net
-    %th Valid until
+%table.table.table-striped.table-hover.table-sm
+  %thead
+    %tr
+      %th Document#
+      - if @selected_customer_id.nil?
+        %th Customer
+      %th Project
+      %th Int.Reference
+      %th Cust.Order No.
+      - if @state_filter == 'all'
+        %th Status
+      %th Delivery date
+      %th.numeric Sum Net
+      %th Valid until
 
   - @offers.each do |offer|
     - version = offer.draft_version || offer.current_sent_version

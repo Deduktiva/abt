@@ -30,19 +30,20 @@
         = link_to 'All', delivery_notes_path(year: 'all', email_filter: @email_filter, customer_id: @selected_customer_id), class: (@selected_year == 'all' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
 
   - if @email_filter == 'unsent'
-    %table.table.table-striped.table-sm
-      %tr
-        %th
-          %input#select-all{type: 'checkbox', 'data-action': 'change->bulk-select#toggleAll', 'data-bulk-select-target': 'selectAll'}
-        %th Document#
-        - if @selected_customer_id.nil?
-          %th Customer
-        %th Project
-        %th Doc.Date
-        %th Del.Date
-        %th Int.Reference
-        %th Cust.Order No.
-        %th{:width => "3%"}
+    %table.table.table-striped.table-hover.table-sm
+      %thead
+        %tr
+          %th
+            %input#select-all{type: 'checkbox', 'data-action': 'change->bulk-select#toggleAll', 'data-bulk-select-target': 'selectAll'}
+          %th Document#
+          - if @selected_customer_id.nil?
+            %th Customer
+          %th Project
+          %th Doc.Date
+          %th Del.Date
+          %th Int.Reference
+          %th Cust.Order No.
+          %th{:width => "3%"}
 
       - @delivery_notes.each do |delivery_note|
         %tr
@@ -63,18 +64,19 @@
           %td
 
   - else
-    %table.table.table-striped.table-sm
-      %tr
-        %th Document#
-        - if @selected_customer_id.nil?
-          %th Customer
-        %th Project
-        %th Doc.Date
-        %th Del.Date
-        %th Int.Reference
-        %th Cust.Order No.
-        %th Status
-        %th{:width => "3%"}
+    %table.table.table-striped.table-hover.table-sm
+      %thead
+        %tr
+          %th Document#
+          - if @selected_customer_id.nil?
+            %th Customer
+          %th Project
+          %th Doc.Date
+          %th Del.Date
+          %th Int.Reference
+          %th Cust.Order No.
+          %th Status
+          %th{:width => "3%"}
 
       - @delivery_notes.each do |delivery_note|
         %tr

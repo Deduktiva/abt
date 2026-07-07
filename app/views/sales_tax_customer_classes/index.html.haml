@@ -1,11 +1,12 @@
 = breadcrumbs 'Configuration', ['Sales Tax', sales_tax_rates_path], 'Customer Tax Classes', action: action_button('+ New', new_sales_tax_customer_class_path, permission: 'sales_tax.edit')
 
-%table.table.table-striped.table-sm
-  %tr
-    %th Name
-    %th Invoice note
-    %th{:width => "3%"}
-    %th{:width => "3%"}
+%table.table.table-striped.table-hover.table-sm
+  %thead
+    %tr
+      %th Name
+      %th Invoice note
+      %th{:width => "3%"}
+      %th{:width => "3%"}
 
   - @sales_tax_customer_classes.each do |sales_tax_customer_class|
     %tr

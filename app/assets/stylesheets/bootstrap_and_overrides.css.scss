@@ -1,3 +1,13 @@
+// Theme colors derived from the navbar gradient (teal-led). Deepened where
+// needed so filled buttons keep white text at >= 4.5:1 contrast; warning and
+// info stay light with dark text, matching stock Bootstrap's split.
+$primary:   #22807f;
+$secondary: #6f7278;
+$success:   #27794a;
+$danger:    #db2e58;
+$warning:   #ff9f40;
+$info:      #36a2eb;
+
 @import "bootstrap";
 body { padding-top: 60px; }
 
@@ -116,11 +126,12 @@ nav[aria-label="breadcrumb"] > div {
   border-bottom: 1px solid var(--bs-border-color-translucent);
 }
 
-// Offer list: a delivery date that needs attention. Bootstrap's --bs-danger is
-// too dark on the dark background, so lighten it under data-bs-theme="dark".
+// Offer list: a delivery date that needs attention. --bs-danger is too dark
+// on the dark background, so lighten it under data-bs-theme="dark" using
+// Bootstrap's own dark-mode emphasis formula.
 .delivery-urgent {
   color: var(--bs-danger);
 }
 [data-bs-theme="dark"] .delivery-urgent {
-  color: #ff8085;
+  color: tint-color($danger, 40%);
 }

@@ -3,7 +3,7 @@
 - unblock_action = unblock_button(unblock_user_path(@user), permission: 'users.block', confirm: "Unblock #{@user.username}?") if @user.blocked?
 - reset_action = reset_passkeys_button(reset_passkeys_user_path(@user), permission: 'users.reset_passkeys', confirm: "Delete all of #{@user.username}'s passkeys and email them an invite to register a new one?") if @user.blocked?
 - audit_action = audit_log_button(audit_user_path(@user))
-= breadcrumbs 'Configuration', ['Users', users_path], @user.username, actions: [unblock_action, reset_action, audit_action] do
+= breadcrumbs ['Configuration', configuration_path], ['Users', users_path], @user.username, actions: [unblock_action, reset_action, audit_action] do
   - if @user.blocked?
     %span.badge.bg-danger Blocked
   - if @user.id == current_user.id

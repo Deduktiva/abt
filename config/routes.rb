@@ -60,6 +60,8 @@ Rails.application.routes.draw do
     resources :groups
     resources :teams
 
+    get "configuration", to: "configurations#index", as: :configuration
+
     resource :issuer_company, only: [ :show, :edit, :update ] do
       get :png_logo, on: :member
     end

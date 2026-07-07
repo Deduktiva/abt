@@ -3,7 +3,7 @@
 - can_invite = can?('user_invites.manage')
 - invite_action = can_invite ? button_to('+ Invite user', user_invites_path, method: :post, class: 'btn btn-primary', data: { turbo: false }) : nil
 - invites_nav = nav_button('View invites', user_invites_path, permission: 'user_invites.manage')
-= breadcrumbs 'Configuration', 'Users', actions: [invites_nav], action: invite_action
+= breadcrumbs ['Configuration', configuration_path], 'Users', actions: [invites_nav], action: invite_action
 
 %table.table.table-striped.table-hover.table-sm
   %thead

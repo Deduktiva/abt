@@ -1,5 +1,5 @@
 - content_for :title, 'Issuer Company'
-= breadcrumbs 'Configuration', ['Issuer Company', issuer_company_path], 'Edit', action: save_button
+= breadcrumbs ['Configuration', configuration_path], ['Issuer Company', issuer_company_path], 'Edit', action: save_button
 
 = form_with(model: @issuer_company, url: issuer_company_path, method: :patch, local: true, id: ActionButtonsHelper::PAGE_FORM_ID, class: 'form', multipart: true) do |form|
   - if @issuer_company.errors.any?

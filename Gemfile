@@ -60,6 +60,7 @@ gem "config"
 
 gem "sass-rails"  # necessary for bootstrap
 gem "bootstrap", "~> 5.3"
+gem "bootstrap-icons", "~> 1.0", require: "bootstrap_icons"
 gem "haml-rails"
 gem "simple_form"
 

@@ -1,0 +1,40 @@
+= breadcrumbs 'Configuration'
+
+- if can?('issuer_company.view') || can?('products.view') || can?('sales_tax.view')
+  %h6.text-uppercase.text-body-secondary.small.fw-bold.mb-2 Company &amp; Catalog
+  .config-grid.mb-4
+    - if can?('issuer_company.view')
+      = link_to issuer_company_path, class: "config-tile" do
+        %span.config-tile-icon 🏢
+        Issuer Company
+    - if can?('products.view')
+      = link_to products_path, class: "config-tile" do
+        %span.config-tile-icon 📦
+        Product Catalog
+    - if can?('sales_tax.view')
+      = link_to sales_tax_rates_path, class: "config-tile" do
+        %span.config-tile-icon 🧾
+        Sales Tax
+
+- if can?('users.view') || can?('groups.manage') || can?('teams.manage')
+  %h6.text-uppercase.text-body-secondary.small.fw-bold.mb-2 People
+  .config-grid.mb-4
+    - if can?('users.view')
+      = link_to users_path, class: "config-tile" do
+        %span.config-tile-icon 👤
+        Users
+    - if can?('groups.manage')
+      = link_to groups_path, class: "config-tile" do
+        %span.config-tile-icon 👥
+        Groups
+    - if can?('teams.manage')
+      = link_to teams_path, class: "config-tile" do
+        %span.config-tile-icon 🧑‍🤝‍🧑
+        Teams
+
+- if can?('jobs_status.view')
+  %h6.text-uppercase.text-body-secondary.small.fw-bold.mb-2 System
+  .config-grid
+    = link_to jobs_status_path, class: "config-tile" do
+      %span.config-tile-icon ⚙️
+      Background Jobs

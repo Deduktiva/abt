@@ -149,7 +149,7 @@
           = @delivery_note.prelude
 
   .mb-2
-    %table.table.table-bordered.document-lines-table
+    %table.table.table-striped.table-hover.document-lines-table
       %thead
         %tr
           %th.text-end.col-quantity Quantity
@@ -173,7 +173,7 @@
                 =#line.delivery_time
           - when 'subheading'
             %tr
-              %td.fw-bold.table-secondary.document-section-row{colspan: 5}
+              %td.fw-bold.document-section-row{colspan: 5}
                 = line.title
           - when 'text', 'plain'
             %tr

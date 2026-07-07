@@ -10,9 +10,6 @@ table.document-lines-table {
   th.col-amount      { width: 15%; }
 
   th {
-    background-color: var(--bs-secondary-bg) !important;
-    color: var(--bs-secondary-color) !important;
-    border-color: var(--bs-border-color);
     font-weight: 600;
     padding: 0.75rem 0.5rem;
   }
@@ -20,22 +17,31 @@ table.document-lines-table {
   td {
     padding: 0.5rem;
     vertical-align: top;
-    background-color: var(--bs-body-bg);
-    color: var(--bs-body-color);
-    border-color: var(--bs-border-color);
   }
 
-  tr:nth-child(even) td {
-    background-color: var(--bs-secondary-bg-subtle);
+  // Subheading rows: a soft teal tint band with a left rule instead of a
+  // flat gray fill, echoing the teal header rule above. Hardcoded to match
+  // $primary (#22807f) / tint-color($primary, 40%) (#7ab3b2) from
+  // bootstrap_and_overrides.css.scss — this file compiles standalone via
+  // Sprockets, so it can't share that file's Sass variables. `box-shadow:
+  // none` opts the row out of the table's striped/hover inset-shadow
+  // overlay (see Bootstrap's _tables.scss), so this tint doesn't shift with
+  // row parity or hover.
+  td.document-section-row {
+    background-color: rgba(34, 128, 127, 0.09);
+    border-left: 3px solid #22807f;
+    box-shadow: none;
+    padding: 12px 8px 12px calc(8px - 3px);
   }
-
-  .table-secondary {
-    background-color: var(--bs-secondary-bg) !important;
-    color: var(--bs-secondary-color) !important;
+  td.document-text-row {
+    box-shadow: none;
+    padding: 8px;
   }
-
-  td.document-section-row { padding: 12px 8px; }
-  td.document-text-row    { padding: 8px; }
 
   .document-line-comment { margin-left: 20px; }
+}
+
+[data-bs-theme="dark"] table.document-lines-table td.document-section-row {
+  background-color: rgba(122, 179, 178, 0.14);
+  border-left-color: #7ab3b2;
 }

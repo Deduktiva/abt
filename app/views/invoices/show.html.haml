@@ -165,7 +165,7 @@
           %li= w
 
   .mb-2
-    %table.table.table-bordered.document-lines-table
+    %table.table.table-striped.table-hover.document-lines-table
       %thead
         %tr
           %th.col-description Description
@@ -197,7 +197,7 @@
                 %strong= format_currency(line.amount || (line.quantity * line.rate))
           - when 'subheading'
             %tr
-              %td.fw-bold.table-secondary.document-section-row{colspan: 5}
+              %td.fw-bold.document-section-row{colspan: 5}
                 = line.title
           - when 'text', 'plain'
             %tr

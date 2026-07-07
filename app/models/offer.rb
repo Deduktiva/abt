@@ -6,7 +6,7 @@ class Offer < ApplicationRecord
 
   class InvalidTransition < StandardError; end
 
-  STATES = %w[draft sent accepted rejected expired].freeze
+  STATES = %w[draft sent accepted rejected expired failed].freeze
 
   # Delivery is "soon" within this window (shared with UpcomingOfferDeliveriesReportJob).
   DELIVERY_SOON_WINDOW = 5.days
@@ -109,6 +109,20 @@ class Offer < ApplicationRecord
     end
   end
 
+  def mark_failed!
+    with_lock do
+      raise InvalidTransition, "mark_failed requires state accepted, was #{state}" unless accepted?
+      update!(state: "failed", failed_at: Time.current)
+    end
+  end
+
+  def restore!
+    with_lock do
+      raise InvalidTransition, "restore requires state failed, was #{state}" unless failed?
+      update!(state: "accepted", failed_at: nil)
+    end
+  end
+
   def email_recipients
     customer.contacts_for_offer(self).map(&:to_email_address)
   end
@@ -137,7 +151,8 @@ class Offer < ApplicationRecord
       { "draft" => [ "Draft", "bg-secondary" ],
         "sent" => [ "Sent", "bg-warning text-dark" ],
         "rejected" => [ "Rejected", "bg-secondary" ],
-        "expired" => [ "Expired", "bg-warning text-dark" ] }.fetch(state)
+        "expired" => [ "Expired", "bg-warning text-dark" ],
+        "failed" => [ "Failed", "bg-secondary" ] }.fetch(state)
     end
   end
 
@@ -161,6 +176,7 @@ class Offer < ApplicationRecord
   # True when the shown version's delivery date is near or past and invoicing
   # isn't complete yet — drives the red delivery date on the offers list.
   def delivery_date_urgent?
+    return false if failed?
     date = (draft_version || current_sent_version)&.delivery_date
     return false if date.nil? || fully_invoiced?
 

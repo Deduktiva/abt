@@ -206,6 +206,47 @@ class OfferTest < ActiveSupport::TestCase
     assert_empty offer.send_problems
   end
 
+  test "mark_failed from accepted preserves order data and stamps failed_at" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO-9", ordered_on: Date.new(2026, 7, 1))
+    accepted_version_id = offer.accepted_version_id
+    offer.mark_failed!
+    assert offer.failed?
+    assert_not_nil offer.failed_at
+    assert_equal accepted_version_id, offer.accepted_version_id
+    assert_equal "PO-9", offer.order_number
+    assert_equal Date.new(2026, 7, 1), offer.ordered_on
+  end
+
+  test "restore returns a failed offer to accepted and clears failed_at" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO-9", ordered_on: Date.current)
+    offer.mark_failed!
+    offer.restore!
+    assert offer.accepted?
+    assert_nil offer.failed_at
+  end
+
+  test "mark_failed and restore reject a wrong start state" do
+    offer = offers(:sent_offer)
+    assert_raises(Offer::InvalidTransition) { offer.mark_failed! }
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    assert_raises(Offer::InvalidTransition) { offer.restore! }
+  end
+
+  test "failed offer shows a muted Failed badge" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    offer.mark_failed!
+    assert_equal [ "Failed", "bg-secondary" ], offer.status_badge
+  end
+
+  test "delivery date is not urgent once the offer has failed" do
+    offer = accepted_with_delivery(Date.current + 1)
+    offer.mark_failed!
+    assert_not offer.delivery_date_urgent?
+  end
+
   private
 
   def accepted_with_delivery(date)

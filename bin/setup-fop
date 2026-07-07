@@ -33,6 +33,7 @@ if [[ -z "$CONTAINER_CMD" ]]; then
 fi
 
 echo "📦 Building FOP container image..."
+"$SCRIPT_DIR/fetch-fop-extra-jars"
 $CONTAINER_CMD build -f "$PROJECT_ROOT/Dockerfile.fop" -t "$FOP_IMAGE_NAME" "$PROJECT_ROOT"
 
 # bin/abt-fop-container is now tracked in the repo as the canonical

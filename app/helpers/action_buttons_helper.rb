@@ -66,7 +66,7 @@ module ActionButtonsHelper
   # Primary submit button for edit/new pages. Lives in the breadcrumb action
   # cluster and submits the page's main form via the HTML5 `form=` attribute,
   # so the button can sit outside the <form> element. The breadcrumb's parent
-  # crumb replaces what Cancel used to do.
+  # crumb is the way back — there is no separate Cancel button.
   def save_button(label: "Save", permission: nil)
     return nil if permission && !can?(permission)
     button_tag label, type: :submit, form: PAGE_FORM_ID, class: "btn btn-primary"

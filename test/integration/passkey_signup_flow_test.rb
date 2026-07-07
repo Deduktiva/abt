@@ -53,6 +53,31 @@ class PasskeySignupFlowTest < ActionDispatch::IntegrationTest
     assert invite_record.used_at.present?
   end
 
+  test "a second verify with the same invite token yields 422, not a second account" do
+    _invite, plaintext = UserInvite.create_signup!(actor: nil)
+    origin = WebAuthn.configuration.allowed_origins.first
+
+    first = open_session
+    second = open_session
+
+    first_credential = signup_credential(first, plaintext, origin, username: "racewinner", email: "racewinner@example.com")
+    second_credential = signup_credential(second, plaintext, origin, username: "raceloser", email: "raceloser@example.com")
+
+    assert_difference -> { User.count } => 1 do
+      first.post verify_invite_path(token: plaintext), params: { credential: first_credential }, as: :json
+    end
+    assert_equal 200, first.response.status
+
+    assert_no_difference -> { User.count } do
+      second.post verify_invite_path(token: plaintext), params: { credential: second_credential }, as: :json
+    end
+    assert_equal 422, second.response.status
+    assert_match(/invalid or expired/i, JSON.parse(second.response.body)["error"])
+
+    assert User.exists?(username: "racewinner")
+    assert_not User.exists?(username: "raceloser")
+  end
+
   test "invalid invite token redirects to invalid view" do
     get invite_path(token: "not-a-real-token")
     assert_response :not_found
@@ -65,5 +90,16 @@ class PasskeySignupFlowTest < ActionDispatch::IntegrationTest
          as: :json
     assert_response :unprocessable_content
     assert_match(/taken/i, JSON.parse(response.body)["error"])
+  end
+
+  private
+
+  def signup_credential(session, plaintext, origin, username:, email:)
+    session.post options_invite_path(token: plaintext),
+                 params: { username: username, full_name: "Race #{username}", email: email },
+                 as: :json
+    assert_equal 200, session.response.status
+    challenge = JSON.parse(session.response.body)["challenge"]
+    WebAuthn::FakeClient.new(origin).create(challenge: challenge)
   end
 end

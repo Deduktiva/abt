@@ -1,6 +1,8 @@
 class UserInvite < ApplicationRecord
   include DigestedToken
 
+  class AlreadyConsumed < StandardError; end
+
   EXPIRY = 24.hours
 
   PURPOSE_SIGNUP = "signup".freeze
@@ -47,7 +49,9 @@ class UserInvite < ApplicationRecord
   end
 
   def consume!(user:)
-    update!(used_at: Time.current, used_by_user: user)
+    updated = self.class.usable.where(id: id).update_all(used_at: Time.current, used_by_user_id: user.id)
+    raise AlreadyConsumed, "invite #{id} is no longer usable" if updated.zero?
+    reload
   end
 
   def signup?

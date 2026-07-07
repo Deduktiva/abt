@@ -43,6 +43,35 @@ class UserInviteTest < ActiveSupport::TestCase
     assert_equal users(:alice), invite.used_by_user
   end
 
+  test "consume! on an already-consumed invite raises AlreadyConsumed" do
+    invite, _plain = UserInvite.create_signup!(actor: nil)
+    invite.consume!(user: users(:alice))
+
+    assert_raises(UserInvite::AlreadyConsumed) do
+      invite.consume!(user: users(:bob))
+    end
+  end
+
+  test "consume! on an already-consumed invite keeps the original used_by_user" do
+    invite, _plain = UserInvite.create_signup!(actor: nil)
+    invite.consume!(user: users(:alice))
+    used_at = invite.used_at
+
+    assert_raises(UserInvite::AlreadyConsumed) do
+      invite.consume!(user: users(:bob))
+    end
+
+    invite.reload
+    assert_equal users(:alice), invite.used_by_user
+    assert_equal used_at.to_f, invite.used_at.to_f
+  end
+
+  test "find_usable returns nil after consumption" do
+    invite, plaintext = UserInvite.create_signup!(actor: nil)
+    invite.consume!(user: users(:alice))
+    assert_nil UserInvite.find_usable(plaintext)
+  end
+
   test "signup invite cannot have a target_user" do
     invite = UserInvite.new(
       token_digest: "xyz",

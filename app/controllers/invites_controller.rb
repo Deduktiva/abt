@@ -134,6 +134,8 @@ class InvitesController < ApplicationController
     render json: { redirect_url: account_profile_path }
   rescue ActiveRecord::RecordInvalid => e
     render json: { error: e.record.errors.full_messages.join(", ") }, status: :unprocessable_content
+  rescue UserInvite::AlreadyConsumed
+    render_invalid
   end
 
   def complete_passkey_reset
@@ -176,6 +178,8 @@ class InvitesController < ApplicationController
     render json: { redirect_url: account_profile_path }
   rescue ActiveRecord::RecordInvalid => e
     render json: { error: e.record.errors.full_messages.join(", ") }, status: :unprocessable_content
+  rescue UserInvite::AlreadyConsumed
+    render_invalid
   end
 
   def invite_token_matches?(pending)

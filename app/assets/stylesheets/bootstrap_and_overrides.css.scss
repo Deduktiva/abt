@@ -1,3 +1,13 @@
+// Theme colors derived from the navbar gradient (teal-led). Deepened where
+// needed so filled buttons keep white text at >= 4.5:1 contrast; warning and
+// info stay light with dark text, matching stock Bootstrap's split.
+$primary:   #22807f;
+$secondary: #6f7278;
+$success:   #27794a;
+$danger:    #db2e58;
+$warning:   #ff9f40;
+$info:      #36a2eb;
+
 @import "bootstrap";
 body { padding-top: 60px; }
 
@@ -5,12 +15,11 @@ body { padding-top: 60px; }
 .navbar {
   background: linear-gradient(90deg,
     rgba(255, 99, 132, 0.8) 0%,
-    rgba(255, 159, 64, 0.8) 16.66%,
-    rgba(255, 205, 86, 0.8) 33.33%,
-    rgba(75, 192, 192, 0.8) 50%,
-    rgba(54, 162, 235, 0.8) 66.66%,
-    rgba(153, 102, 255, 0.8) 83.33%,
-    rgba(201, 203, 207, 0.8) 100%
+    rgba(255, 159, 64, 0.8) 20%,
+    rgba(255, 205, 86, 0.8) 40%,
+    rgba(75, 192, 192, 0.8) 60%,
+    rgba(54, 162, 235, 0.8) 80%,
+    rgba(153, 102, 255, 0.8) 100%
   ) !important;
 
   .navbar-brand {
@@ -25,17 +34,6 @@ body { padding-top: 60px; }
 
   .navbar-nav .nav-link.active, .navbar-nav .nav-link:hover {
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-  }
-
-  .navbar-toggler {
-    border-color: #333 !important;
-  }
-
-  // The gradient's right edge (where the toggler always sits) is light in
-  // both color modes, so pin the icon to the light-background variant
-  // instead of following data-bs-theme.
-  .navbar-toggler-icon {
-    --bs-navbar-toggler-icon-bg: #{escape-svg($navbar-light-toggler-icon-bg)};
   }
 }
 
@@ -116,11 +114,12 @@ nav[aria-label="breadcrumb"] > div {
   border-bottom: 1px solid var(--bs-border-color-translucent);
 }
 
-// Offer list: a delivery date that needs attention. Bootstrap's --bs-danger is
-// too dark on the dark background, so lighten it under data-bs-theme="dark".
+// Offer list: a delivery date that needs attention. --bs-danger is too dark
+// on the dark background, so lighten it under data-bs-theme="dark" using
+// Bootstrap's own dark-mode emphasis formula.
 .delivery-urgent {
   color: var(--bs-danger);
 }
 [data-bs-theme="dark"] .delivery-urgent {
-  color: #ff8085;
+  color: tint-color($danger, 40%);
 }

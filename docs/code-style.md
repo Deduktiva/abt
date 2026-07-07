@@ -22,6 +22,18 @@ The canonical style reference for this repo. Project structure, architecture, mo
 - Non-dashboard / non-account pages use `breadcrumbs(...)` as the page header — no separate `<h1>`. Edit/new pages put the primary submit in `action:` via `save_button`. No Cancel button — the parent crumb is the way back.
 - Page titles: rely on `breadcrumbs` / `page_header` auto-deriving `content_for :title` from the active crumb. Override with an explicit `- content_for :title, "..."` only when the crumb is too generic for a browser tab (Edit/New pages; invoice/delivery-note show pages where the bare number isn't a useful label — use `display_name` for the prefixed form).
 
+## Cards
+- Every distinct block of content on a show/dashboard page belongs in a `.card` — the page should read as one consistent stack of cards, not a mix of bare label/value rows and boxed cards. If a page has any card on it, put everything else on it in cards too (see `docs/card-table-restyle.md` for the invoice/offer/delivery-note top info grid and the dashboard stat tiles, both retrofitted for exactly this reason) — a bare block reads as unfinished once its neighbors are card-wrapped.
+- Cards are borderless with a 2px teal rule under the header (`bootstrap_and_overrides.css.scss`) — that rule is the only boundary needed against the app's tinted page background. Don't add `border`/`border-*` back for an ordinary card.
+- Headerless card (`.card` wrapping only a `.card-body`, no `.card-header`) for a single-purpose block whose context is already labeled elsewhere — a lone prelude/boilerplate rich-text field (label sits above it, outside the card), a lone paragraph. `.card-body`'s top padding is already collapsed for this case and only restored to the full amount when a `.card-header` precedes it — don't add a header just to "fill" the space.
+- Solid-fill headers (`.card-header.bg-danger.text-white`, e.g. "Danger zone" / "Block user") drop the teal rule automatically since the fill itself is the boundary — don't add one back.
+- `.border-{color}` utilities (e.g. flagging the dashboard's cashflow tile or a failed-jobs count) only set `border-color`; pair them with the base `.border` utility (`.card.border.border-success`) — `.border-{color}` alone is silently invisible now that `.card` defaults to `border: 0`.
+- `rich_text_area` fields always sit inside a card — the Trix toolbar looks like an app-native bordered component, not plain text, so it can't float bare on the page. Wrap just the editor, not the field's own label.
+- Tables are **not** card-wrapped (a separate, deliberate decision — see `docs/card-table-restyle.md`); a line-items table, milestones table, or totals summary sits bare in its container. Don't wrap a table in a card to "fix" perceived inconsistency.
+- Index pages (list + filter toolbar) don't use cards at all — a distinct, consistent convention across every `index.html.haml`. Don't introduce cards there.
+- Multi-column card grids: `.row > .col-md-6 > .card.mb-3`. Stack full-width cards with `.mb-4` — without it, adjacent borderless cards touch and visually fuse into one.
+- Don't call a multi-column card layout imbalanced by card count — judge by realistic per-column rendered height. List-bound cards (sessions, audit events, line items) grow with data and naturally fill a column.
+
 ## Status badges
 - Show only deviation from the healthy default. Active/normal renders no badge in headers and as plain text in tables.
 - Lifecycle states (Draft, Booked, Published, Sent, Paid, Overdue) all get header badges — no state is implicitly "good".
@@ -99,9 +111,6 @@ A separate convention from the action-button icons above — these mark navbar c
 ## Formatting
 - Dates: `DD.MM.YYYY` via `l(date)`; datetimes `DD.MM.YYYY HH:MM` via `l(time)`. Use `l(value.to_date)` to render a datetime as date-only. `DD.MM` (short) when the year is implied. Never American formats.
 - Currency: never hardcode `$` / `€` / `EUR`. Use `format_currency(amount)`; symbol comes from `IssuerCompany.currency`.
-
-## Layout judgment
-- Don't call a multi-column card layout imbalanced by card count — judge by realistic per-column rendered height. List-bound cards (sessions, audit events, line items) grow with data and naturally fill a column.
 
 ## Comments
 - Default to none. Add a one-liner only when the *why* isn't obvious from the code (workaround, invariant, hidden constraint).

@@ -29,19 +29,20 @@
         = link_to 'All', invoices_path(year: 'all', filter: @filter, customer_id: @selected_customer_id), class: (@selected_year == 'all' ? 'btn btn-outline-primary active' : 'btn btn-outline-primary')
 
   - if @filter == 'unsent' && @invoices.any?
-    %table.table.table-striped.table-sm
-      %tr
-        %th
-          %input#select-all{type: 'checkbox', 'data-action': 'change->bulk-select#toggleAll', 'data-bulk-select-target': 'selectAll'}
-        %th Document#
-        - if @selected_customer_id.nil?
-          %th Customer
-        %th Project
-        %th Date
-        %th Int.Reference
-        %th Cust.Order No.
-        %th E-Mail
-        %th{:width => "3%"}
+    %table.table.table-striped.table-hover.table-sm
+      %thead
+        %tr
+          %th
+            %input#select-all{type: 'checkbox', 'data-action': 'change->bulk-select#toggleAll', 'data-bulk-select-target': 'selectAll'}
+          %th Document#
+          - if @selected_customer_id.nil?
+            %th Customer
+          %th Project
+          %th Date
+          %th Int.Reference
+          %th Cust.Order No.
+          %th E-Mail
+          %th{:width => "3%"}
 
       - @invoices.each do |invoice|
         %tr
@@ -68,18 +69,19 @@
               = link_to 'PDF', attachment_path(invoice.attachment), target: '_blank', data: { turbo: false }, class: 'btn btn-sm btn-outline-success py-0'
 
   - else
-    %table.table.table-striped.table-sm
-      %tr
-        %th Document#
-        - if @selected_customer_id.nil?
-          %th Customer
-        %th Project
-        %th Date
-        %th Int.Reference
-        %th Cust.Order No.
-        %th Payment
-        %th.numeric Sum Net
-        %th{:width => "3%"}
+    %table.table.table-striped.table-hover.table-sm
+      %thead
+        %tr
+          %th Document#
+          - if @selected_customer_id.nil?
+            %th Customer
+          %th Project
+          %th Date
+          %th Int.Reference
+          %th Cust.Order No.
+          %th Payment
+          %th.numeric Sum Net
+          %th{:width => "3%"}
 
       - @invoices.each do |invoice|
         %tr

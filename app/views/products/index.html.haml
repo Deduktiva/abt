@@ -1,12 +1,13 @@
 = breadcrumbs 'Configuration', 'Product Catalog', action: action_button('+ New', new_product_path, permission: 'products.edit')
 
-%table.table.table-striped.table-sm
-  %tr
-    %th Title
-    %th Rate
-    %th Product Class
-    %th{width: "3%"}
-    %th{width: "3%"}
+%table.table.table-striped.table-hover.table-sm
+  %thead
+    %tr
+      %th Title
+      %th Rate
+      %th Product Class
+      %th{width: "3%"}
+      %th{width: "3%"}
 
   - @products.each do |product|
     %tr

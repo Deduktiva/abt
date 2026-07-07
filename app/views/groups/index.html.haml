@@ -3,15 +3,16 @@
 %p.text-muted
   Groups bundle system-level permissions. A user inherits all permissions of every group they belong to.
 
-%table.table.table-striped.table-sm
-  %tr
-    %th Name
-    %th Description
-    %th Members
-    %th Permissions
-    %th Bypass team scoping
-    %th{width: "3%"}
-    %th{width: "3%"}
+%table.table.table-striped.table-hover.table-sm
+  %thead
+    %tr
+      %th Name
+      %th Description
+      %th Members
+      %th Permissions
+      %th Bypass team scoping
+      %th{width: "3%"}
+      %th{width: "3%"}
 
   - @groups.each do |group|
     %tr

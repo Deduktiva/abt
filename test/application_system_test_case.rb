@@ -4,7 +4,8 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   cuprite_options = {
     js_errors: true,
     headless: ENV["HEADLESS"] != "0",  # Default to headless unless explicitly disabled
-    process_timeout: 30  # Chromium can take longer than the 10s default to start on busy CI runners
+    process_timeout: 30,  # Chromium can take longer than the 10s default to start on busy CI runners
+    timeout: 15  # First page load pays for Puma's cold start; Ferrum's 5s default flakes on busy CI runners
   }
 
   # Allow pointing at a non-standard Chromium binary (e.g. the Playwright build

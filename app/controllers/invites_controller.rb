@@ -132,6 +132,8 @@ class InvitesController < ApplicationController
                             metadata: { username: user.username, address: pending["email"], via: "signup" })
 
     render json: { redirect_url: account_profile_path }
+  rescue UserInvite::AlreadyConsumed
+    render_invalid
   rescue ActiveRecord::RecordInvalid => e
     render json: { error: e.record.errors.full_messages.join(", ") }, status: :unprocessable_content
   end
@@ -174,6 +176,8 @@ class InvitesController < ApplicationController
     end
 
     render json: { redirect_url: account_profile_path }
+  rescue UserInvite::AlreadyConsumed
+    render_invalid
   rescue ActiveRecord::RecordInvalid => e
     render json: { error: e.record.errors.full_messages.join(", ") }, status: :unprocessable_content
   end

@@ -1,6 +1,10 @@
 class UserInvite < ApplicationRecord
   include DigestedToken
 
+  # Raised when consume! loses the race to another concurrent flow that
+  # already claimed (or expired) the same invite.
+  class AlreadyConsumed < StandardError; end
+
   EXPIRY = 24.hours
 
   PURPOSE_SIGNUP = "signup".freeze
@@ -46,8 +50,19 @@ class UserInvite < ApplicationRecord
     usable.where(token_digest: digest_token(plaintext)).first
   end
 
+  # Atomically claim the invite. The conditional UPDATE re-checks the `usable`
+  # predicate (unused and unexpired) at the database level, so two concurrent
+  # WebAuthn flows carrying valid pending challenges for the same signup invite
+  # cannot both succeed: the loser's UPDATE affects zero rows and raises,
+  # rolling back its enclosing transaction (and the account it just built).
+  # A plain update! here would let one invite mint several accounts under a
+  # race, defeating invite-only signup's one-invite-one-account guarantee.
   def consume!(user:)
-    update!(used_at: Time.current, used_by_user: user)
+    claimed = self.class.usable.where(id: id).update_all(
+      used_at: Time.current, used_by_user_id: user.id
+    )
+    raise AlreadyConsumed, "invite #{id} already consumed" if claimed.zero?
+    reload
   end
 
   def signup?

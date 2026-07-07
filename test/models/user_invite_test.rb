@@ -43,6 +43,27 @@ class UserInviteTest < ActiveSupport::TestCase
     assert_equal users(:alice), invite.used_by_user
   end
 
+  test "consume! raises AlreadyConsumed on a second claim of the same invite" do
+    invite, _plain = UserInvite.create_signup!(actor: nil)
+    invite.consume!(user: users(:alice))
+
+    # A concurrent flow holding its own reference to the still-unused invite
+    # loses the race: the conditional UPDATE affects zero rows.
+    other = UserInvite.find(invite.id)
+    assert_raises(UserInvite::AlreadyConsumed) do
+      other.consume!(user: users(:bob))
+    end
+    assert_equal users(:alice), invite.reload.used_by_user
+  end
+
+  test "consume! raises AlreadyConsumed when the invite has expired" do
+    invite, _plain = UserInvite.create_signup!(actor: nil)
+    invite.update_column(:expires_at, 1.minute.ago)
+    assert_raises(UserInvite::AlreadyConsumed) do
+      invite.consume!(user: users(:alice))
+    end
+  end
+
   test "signup invite cannot have a target_user" do
     invite = UserInvite.new(
       token_digest: "xyz",

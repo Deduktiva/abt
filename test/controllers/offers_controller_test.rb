@@ -141,6 +141,35 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     assert flash[:alert].present?
   end
 
+  test "mark_failed then restore move an accepted offer to failed and back" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    post mark_failed_offer_url(offer)
+    assert_redirected_to offer_url(offer)
+    assert offer.reload.failed?
+    post restore_offer_url(offer)
+    assert_redirected_to offer_url(offer)
+    assert offer.reload.accepted?
+  end
+
+  test "mark_failed on a non-accepted offer redirects with an alert" do
+    offer = offers(:sent_offer)
+    post mark_failed_offer_url(offer)
+    assert_redirected_to offer_url(offer)
+    assert_match "requires state accepted", flash[:alert]
+    assert offer.reload.sent?
+  end
+
+  test "convert_milestone stays blocked while failed" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    milestone = offer.accepted_version.milestones.first
+    offer.mark_failed!
+    post convert_milestone_offer_url(offer, milestone_id: milestone.id)
+    assert_redirected_to offer_url(offer)
+    assert_match "must be accepted", flash[:alert]
+  end
+
   test "convert_milestone denied without offers.convert" do
     offer = offers(:sent_offer)
     offer.accept!(order_number: "PO", ordered_on: Date.current)
@@ -223,6 +252,7 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     get offer_url(offer)
     assert_select ".badge.bg-primary", text: "Ordered", minimum: 2
     assert_match offer.accepted_at.to_date.strftime("%d.%m.%Y"), response.body
+    assert_select "form[action=?]", mark_failed_offer_path(offer)
   end
 
   test "show states the decision on rejected offers" do
@@ -231,6 +261,17 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     get offer_url(offer)
     assert_select ".badge.bg-secondary", text: "Rejected", minimum: 2
     assert_match offer.rejected_at.to_date.strftime("%d.%m.%Y"), response.body
+  end
+
+  test "failed offer detail shows a restore button, editable notes, and no convert action" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    offer.mark_failed!
+    get offer_url(offer)
+    assert_select ".badge.bg-secondary", text: "Failed", minimum: 2
+    assert_select "form[action=?]", restore_offer_path(offer)
+    assert_select "form[action=?]", update_internal_notes_offer_path(offer)
+    assert_select "form[action=?]", convert_milestone_offer_path(offer, milestone_id: offer.accepted_version.milestones.first.id), count: 0
   end
 
   test "show renders the version subject and prelude in the proposal card" do

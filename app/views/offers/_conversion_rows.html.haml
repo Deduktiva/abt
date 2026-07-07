@@ -23,7 +23,7 @@
               = link_to milestone.invoice.display_name, milestone.invoice
               - if milestone.delivery_note
                 = link_to milestone.delivery_note.display_name, milestone.delivery_note
-              - if can?('offers.convert')
+              - if @offer.accepted? && can?('offers.convert')
                 = button_to 'Reopen link', reopen_milestone_link_offer_path(@offer, milestone_id: milestone.id), method: :post, class: 'btn btn-sm btn-outline-secondary', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Clear the conversion link for this milestone?' }
-            - elsif can?('offers.convert')
+            - elsif @offer.accepted? && can?('offers.convert')
               = button_to '🚀 Convert', convert_milestone_offer_path(@offer, milestone_id: milestone.id), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }

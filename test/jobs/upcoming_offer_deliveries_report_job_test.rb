@@ -83,6 +83,13 @@ class UpcomingOfferDeliveriesReportJobTest < ActiveJob::TestCase
     end
   end
 
+  test "a failed offer is not reported even with a nearing delivery date" do
+    @offer.mark_failed!
+    assert_emails 0 do
+      UpcomingOfferDeliveriesReportJob.perform_now
+    end
+  end
+
   private
 
   def build_invoice(published:, sent: false)

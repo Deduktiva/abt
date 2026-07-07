@@ -105,7 +105,7 @@
               .col-sm-8
                 = l(sent_version.sent_at.to_date)
           = render 'shared/email_status_row', resource: @offer, can_edit: can?('offers.edit'), show_send_button: sent_version.attachment.present?
-          - if can?('offers.edit') || @offer.accepted? || @offer.rejected?
+          - if can?('offers.edit') || @offer.accepted? || @offer.rejected? || @offer.failed?
             .row.mb-2{data: {controller: 'modal'}}
               .col-sm-4
                 %strong Decision:
@@ -118,15 +118,24 @@
                   %span.badge.bg-secondary Rejected
                   - if @offer.rejected_at
                     = l(@offer.rejected_at.to_date)
+                - elsif @offer.failed?
+                  %span.badge.bg-secondary Failed
+                  - if @offer.failed_at
+                    = l(@offer.failed_at.to_date)
                 - if can?('offers.edit')
                   - if @offer.sent?
                     %button.btn.btn-sm.btn-success.ms-auto{data: {action: 'click->modal#open'}} Accept…
                     = button_to 'Reject', reject_offer_path(@offer), method: :post, class: 'btn btn-sm btn-outline-danger', data: { 'turbo-confirm': 'Reject this offer?' }
                     = render 'accept_modal'
-                  - elsif @offer.accepted? || @offer.rejected?
+                  - elsif @offer.accepted?
+                    = button_to 'Mark failed', mark_failed_offer_path(@offer), method: :post, class: 'btn btn-sm btn-outline-danger', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Mark this ordered offer as failed? It will be ignored by the deliveries report until restored.' }
+                    = button_to 'Reopen', reopen_offer_path(@offer), method: :post, class: 'btn btn-sm btn-outline-secondary', data: { 'turbo-confirm': 'Reopen this offer? A fresh draft version branches from the accepted version.' }
+                  - elsif @offer.rejected?
                     = button_to 'Reopen', reopen_offer_path(@offer), method: :post, class: 'btn btn-sm btn-outline-secondary', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Reopen this offer? A fresh draft version branches from the accepted version.' }
+                  - elsif @offer.failed?
+                    = button_to 'Restore to Ordered', restore_offer_path(@offer), method: :post, class: 'btn btn-sm btn-outline-secondary', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Restore this failed offer back to ordered?' }
 
-  - if @offer.accepted?
+  - if @offer.accepted? || @offer.failed?
     .mb-4
       .card
         .card-header
@@ -171,7 +180,7 @@
           %h5.mb-3= @version.subject
         - if @version&.prelude&.present?
           .mb-3= @version.prelude
-        - if @offer.accepted?
+        - if @offer.accepted? || @offer.failed?
           = render 'conversion_rows'
         - elsif @version
           %table.table.table-bordered

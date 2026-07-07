@@ -12,7 +12,9 @@ class CustomerVatVerificationTest < ApplicationSystemTestCase
   end
 
   teardown do
-    ActiveJob::Base.queue_adapter = @original_adapter
+    # Skip when setup died before capturing the adapter — assigning nil raises
+    # ArgumentError and buries the original failure.
+    ActiveJob::Base.queue_adapter = @original_adapter if @original_adapter
   end
 
   test "clicking Verify on a never-verified customer updates the row to verified" do

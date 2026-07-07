@@ -49,6 +49,15 @@ class PasskeyLoginFlowTest < ActionDispatch::IntegrationTest
     assert @user.sessions.active.exists?
   end
 
+  test "verify with a scalar credential payload returns 422, not 500" do
+    post options_session_path, params: {}, as: :json
+    assert_response :success
+
+    post verify_session_path, params: { credential: "x" }, as: :json
+    assert_response :unprocessable_content
+    assert JSON.parse(response.body)["error"].present?
+  end
+
   test "blocked users cannot sign in" do
     @user.update!(blocked_at: Time.current, blocked_reason: "test")
 

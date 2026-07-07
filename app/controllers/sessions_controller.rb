@@ -22,7 +22,12 @@ class SessionsController < ApplicationController
       return render json: { error: "No login in progress" }, status: :unprocessable_content
     end
 
-    webauthn_credential = WebAuthn::Credential.from_get(params[:credential].to_unsafe_h)
+    payload = params[:credential]
+    unless payload.is_a?(ActionController::Parameters)
+      return render json: { error: "Verification failed: missing credential payload" }, status: :unprocessable_content
+    end
+
+    webauthn_credential = WebAuthn::Credential.from_get(payload.to_unsafe_h)
     stored = UserCredential.find_by(external_id: webauthn_credential.id)
     unless stored
       UserAuditEvent.record!(

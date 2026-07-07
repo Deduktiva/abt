@@ -11,9 +11,13 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENV FOP_EXTRA_JAR_PATH /usr/local/fop-extra-jars
-RUN wcurl -o pdfimages.tgz 'https://www.apache.org/dyn/closer.cgi?filename=/xmlgraphics/fop-pdf-images/binaries/fop-pdf-images-2.11-bin.tar.gz&action=download' && \
-    mkdir "$FOP_EXTRA_JAR_PATH" && \
-    tar --strip-components=1 -x -f pdfimages.tgz -C "$FOP_EXTRA_JAR_PATH"
+# The tarball is fetched into the build context by bin/fetch-fop-extra-jars
+# (run by bin/setup-fop and CI) rather than downloaded here, so the build never
+# hits apache.org and CI can cache it. See bin/fetch-fop-extra-jars.
+COPY vendor/fop-pdf-images-2.11-bin.tar.gz /tmp/pdfimages.tgz
+RUN mkdir "$FOP_EXTRA_JAR_PATH" && \
+    tar --strip-components=1 -x -f /tmp/pdfimages.tgz -C "$FOP_EXTRA_JAR_PATH" && \
+    rm /tmp/pdfimages.tgz
 
 RUN useradd -m -u 1000 fopuser
 USER fopuser

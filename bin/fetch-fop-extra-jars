@@ -1,0 +1,32 @@
+#!/bin/bash
+# Fetch the Apache FOP pdf-images extra jars into the Docker build context.
+#
+# Dockerfile.fop COPYs vendor/fop-pdf-images-<version>-bin.tar.gz into the image
+# instead of downloading it during the build, so this tarball must exist before
+# `podman build`. Both bin/setup-fop and .github/workflows/ci.yml run this first.
+#
+# The download is idempotent: it's skipped when the tarball is already present,
+# which lets CI restore it from actions/cache and avoid hitting apache.org on
+# every run.
+set -euo pipefail
+
+FOP_PDF_IMAGES_VERSION=2.11
+
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DEST="$PROJECT_ROOT/vendor/fop-pdf-images-${FOP_PDF_IMAGES_VERSION}-bin.tar.gz"
+
+if [[ -f "$DEST" ]]; then
+  echo "✅ fop-pdf-images ${FOP_PDF_IMAGES_VERSION} already present: $DEST"
+  exit 0
+fi
+
+# archive.apache.org keeps every release permanently and is CDN-backed, unlike
+# the closer.cgi mirror chooser which is slow and frequently 503s.
+URL="https://archive.apache.org/dist/xmlgraphics/fop-pdf-images/binaries/fop-pdf-images-${FOP_PDF_IMAGES_VERSION}-bin.tar.gz"
+
+echo "⬇️  Downloading fop-pdf-images ${FOP_PDF_IMAGES_VERSION} from apache.org..."
+mkdir -p "$PROJECT_ROOT/vendor"
+curl --fail --location --silent --show-error --retry 3 --retry-delay 2 \
+  --remove-on-error -o "$DEST" "$URL"
+
+echo "✅ Saved: $DEST"

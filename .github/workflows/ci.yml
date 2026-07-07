@@ -42,6 +42,17 @@ jobs:
       with:
         bundler-cache: true
 
+    # Cache only the apache.org download (the pdf-images extra jars), not the
+    # apt packages. Keyed on the fetch script so a version bump invalidates it.
+    - name: Cache FOP pdf-images jars
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      with:
+        path: vendor/fop-pdf-images-*-bin.tar.gz
+        key: fop-pdf-images-${{ hashFiles('bin/fetch-fop-extra-jars') }}
+
+    - name: Fetch FOP pdf-images jars
+      run: ./bin/fetch-fop-extra-jars
+
     - name: Build FOP Docker container
       run: |
         podman build -f Dockerfile.fop -t abt-fop .

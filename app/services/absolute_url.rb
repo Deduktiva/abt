@@ -32,4 +32,8 @@ module AbsoluteUrl
   def delivery_note(dn)
     Rails.application.routes.url_helpers.delivery_note_url(dn, **options)
   end
+
+  def offer(offer)
+    Rails.application.routes.url_helpers.offer_url(offer, **options)
+  end
 end

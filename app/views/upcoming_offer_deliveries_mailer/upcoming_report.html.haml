@@ -33,7 +33,7 @@
   %tbody
     - @entries.each do |entry|
       %tr
-        %td= entry[:offer].document_number
+        %td= link_to entry[:offer].document_number, AbsoluteUrl.offer(entry[:offer])
         %td= entry[:offer].customer.name
         %td= l(entry[:offer].accepted_version.delivery_date)
         %td= entry[:missing].join('; ')

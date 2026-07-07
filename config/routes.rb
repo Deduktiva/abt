@@ -116,6 +116,8 @@ Rails.application.routes.draw do
         post "accept"
         post "reject"
         post "reopen"
+        post "mark_failed"
+        post "restore"
         post "scaffold_milestones"
         patch "update_internal_notes"
         post "upload_order_pdf"

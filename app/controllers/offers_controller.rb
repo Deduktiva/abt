@@ -5,6 +5,7 @@ class OffersController < ApplicationController
                 only: %i[index show preview preview_email preview_email_html]
   before_action -> { require_permission!("offers.edit") },
                 only: %i[new create edit update destroy send_offer accept reject reopen
+                         mark_failed restore
                          scaffold_milestones upload_order_pdf send_email]
   before_action -> { require_permission!("offers.edit_notes") },
                 only: %i[update_internal_notes]
@@ -112,6 +113,20 @@ class OffersController < ApplicationController
   def reopen
     @offer.reopen!
     redirect_to @offer, notice: "Offer reopened."
+  rescue Offer::InvalidTransition => e
+    redirect_to @offer, alert: e.message
+  end
+
+  def mark_failed
+    @offer.mark_failed!
+    redirect_to @offer, notice: "Offer marked as failed."
+  rescue Offer::InvalidTransition => e
+    redirect_to @offer, alert: e.message
+  end
+
+  def restore
+    @offer.restore!
+    redirect_to @offer, notice: "Offer restored to ordered."
   rescue Offer::InvalidTransition => e
     redirect_to @offer, alert: e.message
   end

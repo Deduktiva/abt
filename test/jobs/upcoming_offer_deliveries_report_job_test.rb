@@ -23,6 +23,14 @@ class UpcomingOfferDeliveriesReportJobTest < ActiveJob::TestCase
     end
   end
 
+  test "links the offer number to the offer detail page" do
+    UpcomingOfferDeliveriesReportJob.perform_now
+    mail = ActionMailer::Base.deliveries.last
+    offer_url = AbsoluteUrl.offer(@offer)
+    assert_match %r{href="#{Regexp.escape(offer_url)}"}, mail.html_part.body.to_s
+    assert_match offer_url, mail.text_part.body.to_s
+  end
+
   test "distinguishes unbooked and unsent invoices in the status" do
     offer_milestones(:sent_ms_one).update!(invoice: build_invoice(published: false))
     offer_milestones(:sent_ms_two).update!(invoice: build_invoice(published: true))

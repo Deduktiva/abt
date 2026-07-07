@@ -61,6 +61,13 @@ class PublicAcceptancesTest < ActionDispatch::IntegrationTest
     assert_select ".alert", text: /PDF/i
   end
 
+  test "POST a non-file acceptance_pdf param is rejected as missing, not a 500" do
+    open_note
+    post delivery_acceptance_upload_submit_url(token: @token, host: Settings.customer_portal.host), params: { acceptance_pdf: "x" }
+    assert_response :unprocessable_content
+    assert_select ".alert"
+  end
+
   test "the upload route is unreachable on the app host" do
     host! "app.example.com"
     get "/delivery-acceptance/sometoken"

@@ -37,7 +37,10 @@ module CustomerPortal
 
     # Returns a user-facing error string, or nil when the file is an acceptable PDF.
     def file_error(file)
-      return t("customer_portal.acceptance.errors.missing") if file.blank?
+      # A non-multipart param (e.g. acceptance_pdf=x) arrives as a String/Array,
+      # not an uploaded file. Treat it as "missing" rather than letting the
+      # later .size / .tempfile calls raise a 500 on an unauthenticated path.
+      return t("customer_portal.acceptance.errors.missing") if file.blank? || !file.respond_to?(:tempfile)
       return t("customer_portal.acceptance.errors.too_large", max: Attachment::MAX_SIZE_BYTES / 1.megabyte) if file.size > Attachment::MAX_SIZE_BYTES
       return t("customer_portal.acceptance.errors.not_pdf") if Attachment.detect_content_type(file.tempfile) != "application/pdf"
       nil

@@ -143,12 +143,6 @@
             .col-sm-8
               = link_to @invoice.offer_milestone.offer.display_name, @invoice.offer_milestone.offer
 
-  - if @invoice.prelude.present?
-    .mb-4
-      .card
-        .card-body
-          = @invoice.prelude
-
   - if !@invoice.published? && problems.any?
     .alert.alert-warning.mb-3
       %strong This invoice cannot be published yet:
@@ -163,6 +157,12 @@
       %ul.mb-0
         - warnings.each do |w|
           %li= w
+
+  - if @invoice.prelude.present?
+    .mb-4
+      .card
+        .card-body
+          = @invoice.prelude
 
   .mb-2
     %table.table.table-striped.table-hover.document-lines-table

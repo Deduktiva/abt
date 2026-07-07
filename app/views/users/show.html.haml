@@ -63,6 +63,17 @@
               = f.submit 'Add email', class: 'btn btn-outline-primary'
           .form-text Admin-added emails are confirmed immediately (no email verification needed).
 
+    - if !@user.blocked? && @user.id != current_user.id && can?('users.block')
+      .card.mb-3
+        .card-header Block user
+        .card-body
+          = form_with url: block_user_path(@user), method: :post, local: true do |f|
+            .input-group.w-fixed-400
+              = f.text_field :reason, class: 'form-control', placeholder: 'Reason (required)', required: true
+              = f.button class: 'btn btn-danger',
+                  data: { turbo_confirm: "Block #{@user.username}? All sessions will be terminated." } do
+                = icon_label(:'shield-slash', 'Block')
+
   .col-md-6
     .card.mb-3
       .card-header Passkeys
@@ -148,15 +159,3 @@
                 = team.name
                 - if team.builtin?
                   %span.badge.bg-secondary.ms-1 built-in
-
-- if !@user.blocked? && @user.id != current_user.id && can?('users.block')
-  .row.mb-3
-    .col-sm-4
-      %strong Block user:
-    .col-sm-8
-      = form_with url: block_user_path(@user), method: :post, local: true do |f|
-        .input-group.w-fixed-400
-          = f.text_field :reason, class: 'form-control', placeholder: 'Reason (required)', required: true
-          = f.button class: 'btn btn-danger',
-              data: { turbo_confirm: "Block #{@user.username}? All sessions will be terminated." } do
-            = icon_label(:'shield-slash', 'Block')

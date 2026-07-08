@@ -4,6 +4,7 @@
     - issuer = IssuerCompany.get_the_issuer!
     - default_title = issuer&.short_name.present? ? "ABT: #{issuer.short_name}" : "ABT"
     %title= content_for?(:title) ? yield(:title) : default_title
+    %meta{name: "viewport", content: "width=device-width, initial-scale=1"}
     %meta{name: "robots", content: "noindex, nofollow"}
     = csrf_meta_tags
     = csp_meta_tag

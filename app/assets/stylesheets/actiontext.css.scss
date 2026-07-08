@@ -15,3 +15,15 @@ trix-editor {
 
 // Hide the toolbar groups we don't support (belt-and-suspenders with the JS).
 trix-toolbar .trix-button-group--file-tools { display: none; }
+
+// Trix draws its toolbar icons as embedded SVGs with hardcoded black fill,
+// invisible on the dark background. Invert them (the ::before pseudo-element
+// carries only the icon), and swap Trix's hardcoded light-gray button borders
+// for the theme border color. Active buttons keep Trix's light-blue fill, so
+// their icons stay un-inverted.
+[data-bs-theme="dark"] trix-toolbar {
+  .trix-button--icon::before { filter: invert(1); }
+  .trix-button--icon.trix-active::before { filter: none; }
+  .trix-button { border-bottom-color: var(--bs-border-color); }
+  .trix-button:not(:first-child) { border-left-color: var(--bs-border-color); }
+}

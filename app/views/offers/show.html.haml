@@ -8,79 +8,81 @@
   %span.badge{class: badge_class}= label
 
 %div{data: (@offer.current_sent_version ? email_preview_data(@offer) : {})}
-  .row.mb-2
-    .col-md-6
-      .document-details
-        .row.mb-2
-          .col-sm-4
-            %strong Customer:
-          .col-sm-8
-            = link_to @offer.customer.name, @offer.customer
-        - if @offer.project
-          .row.mb-2
-            .col-sm-4
-              %strong Project:
-            .col-sm-8
-              = link_to @offer.project.display_name, @offer.project
-        - if @offer.customer_contact
-          .row.mb-2
-            .col-sm-4
-              %strong Addressed Contact:
-            .col-sm-8
-              = @offer.customer_contact.name
-        - if @offer.internal_reference.present?
-          .row.mb-2
-            .col-sm-4
-              %strong Internal Reference:
-            .col-sm-8
-              = @offer.internal_reference
+  .card.mb-4
+    .card-body
+      .row.mb-2
+        .col-md-6
+          .document-details
+            .row.mb-2
+              .col-sm-4
+                %strong Customer:
+              .col-sm-8
+                = link_to @offer.customer.name, @offer.customer
+            - if @offer.project
+              .row.mb-2
+                .col-sm-4
+                  %strong Project:
+                .col-sm-8
+                  = link_to @offer.project.display_name, @offer.project
+            - if @offer.customer_contact
+              .row.mb-2
+                .col-sm-4
+                  %strong Addressed Contact:
+                .col-sm-8
+                  = @offer.customer_contact.name
+            - if @offer.internal_reference.present?
+              .row.mb-2
+                .col-sm-4
+                  %strong Internal Reference:
+                .col-sm-8
+                  = @offer.internal_reference
 
-    .col-md-6
-      .document-details
-        .row.mb-2
-          .col-sm-4
-            %strong Document Number:
-          .col-sm-8
-            = @offer.document_number.presence || content_tag(:em, '(assigned at first send)')
-        .row.mb-2
-          .col-sm-4
-            %strong Document Date:
-          .col-sm-8
-            = @offer.date ? l(@offer.date) : content_tag(:em, '(assigned at first send)')
-        - if @offer.expires_at
-          .row.mb-2
-            .col-sm-4
-              %strong Valid Until:
-            .col-sm-8
-              = l(@offer.expires_at)
-        - if @version&.delivery_date
-          .row.mb-2
-            .col-sm-4
-              %strong Delivery Date:
-            .col-sm-8
-              = l(@version.delivery_date)
-        - if @version&.sales_tax_product_class
-          .row.mb-2
-            .col-sm-4
-              %strong Tax Class:
-            .col-sm-8
-              = @version.sales_tax_product_class.name
+        .col-md-6
+          .document-details
+            .row.mb-2
+              .col-sm-4
+                %strong Document Number:
+              .col-sm-8
+                = @offer.document_number.presence || content_tag(:em, '(assigned at first send)')
+            .row.mb-2
+              .col-sm-4
+                %strong Document Date:
+              .col-sm-8
+                = @offer.date ? l(@offer.date) : content_tag(:em, '(assigned at first send)')
+            - if @offer.expires_at
+              .row.mb-2
+                .col-sm-4
+                  %strong Valid Until:
+                .col-sm-8
+                  = l(@offer.expires_at)
+            - if @version&.delivery_date
+              .row.mb-2
+                .col-sm-4
+                  %strong Delivery Date:
+                .col-sm-8
+                  = l(@version.delivery_date)
+            - if @version&.sales_tax_product_class
+              .row.mb-2
+                .col-sm-4
+                  %strong Tax Class:
+                .col-sm-8
+                  = @version.sales_tax_product_class.name
 
-  - if @offer.editable?
-    .row.mb-2
-      .col-sm-4
-        %strong Send:
-      .col-sm-8.d-flex.align-items-center.gap-2
-        - if problems.any?
-          %span.badge.bg-warning= pluralize(problems.size, 'problem')
-        - else
-          %span.badge.bg-success Ready
-        - if can?('offers.edit')
-          - if problems.any?
-            %span.ms-auto{title: problems.join("\n")}
-              %button.btn.btn-sm.btn-info{disabled: true} 🚀 Send
-          - else
-            = button_to '🚀 Send', send_offer_offer_path(@offer), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Send this offer to the customer? A PDF is generated and this version is frozen.' }
+      - if @offer.editable?
+        .row.mb-2
+          .col-sm-4
+            %strong Send:
+          .col-sm-8.d-flex.align-items-center.gap-2
+            - if problems.any?
+              %span.badge.bg-warning= pluralize(problems.size, 'problem')
+            - else
+              %span.badge.bg-success Ready
+            - if can?('offers.edit')
+              - if problems.any?
+                %span.ms-auto{title: problems.join("\n")}
+                  %button.btn.btn-sm.btn-info{disabled: true}= icon_label(:send, 'Send')
+              - else
+                = button_to icon_label(:send, 'Send'), send_offer_offer_path(@offer), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Send this offer to the customer? A PDF is generated and this version is frozen.' }
 
   - if problems.any?
     .alert.alert-warning.mb-3
@@ -169,7 +171,8 @@
                 = form_with url: upload_order_pdf_offer_path(@offer), method: :post, multipart: true, data: { controller: 'file-upload-validation' } do |form|
                   .input-group.w-fixed-400
                     = file_field_tag :order_pdf, accept: 'application/pdf', class: 'form-control', data: { file_upload_validation_target: 'fileInput' }
-                    = form.submit 'Upload PDF', class: 'btn btn-primary', data: { file_upload_validation_target: 'submitButton' }
+                    = form.button class: 'btn btn-primary', data: { file_upload_validation_target: 'submitButton' } do
+                      = icon_label(:upload, 'Upload PDF')
 
   .mb-4
     .card

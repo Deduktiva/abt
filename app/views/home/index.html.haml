@@ -8,24 +8,24 @@
       .card-body
         .row.mb-3
           .col-md-6
-            .card.border-success
+            .card.border.border-success
               .card-body.text-center
                 %h2.text-success.mb-1= format_currency(@stats[:cashflow_ytd_total])
                 %p.card-text.mb-0 Cashflow YTD
           .col-md-6
-            .card.border-primary
+            .card.border.border-primary
               .card-body.text-center
                 %h2.text-primary.mb-1= @stats[:invoices_ytd_count]
                 %p.card-text.mb-0 Invoices YTD
 
         .row
           .col-md-6
-            .card.border-success
+            .card.border.border-success
               .card-body.text-center
                 %h2.text-success.mb-1= format_currency(@stats[:invoices_ytd_total])
                 %p.card-text.mb-0 Revenue YTD
           .col-md-6
-            .card.border-info
+            .card.border.border-info
               .card-body.text-center
                 %h2.text-info.mb-1= format_currency(@stats[:invoices_yoy_total])
                 %p.card-text.mb-0 Revenue YoY

@@ -31,7 +31,7 @@ class EmailPreviewTest < ApplicationSystemTestCase
   test "invoice email preview iframe renders styled email body under strict CSP" do
     visit invoice_path(@invoice)
 
-    click_on "Send E-Mail"
+    click_on "Send"
 
     iframe_element = find("iframe.email-preview-iframe", wait: 5)
 

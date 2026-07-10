@@ -22,94 +22,96 @@
         - if @delivery_note.emailable?
           %button.btn.btn-outline-success{data: {action: 'click->generic-email-preview#open'}} Send E-Mail
 
-  .row.mb-2
-    .col-md-6
-      .document-details
-        - if @delivery_note.date
-          .row.mb-2
-            .col-sm-4
-              %strong Date:
-            .col-sm-8
-              = l(@delivery_note.date)
-        .row.mb-2
-          .col-sm-4
-            %strong Customer:
-          .col-sm-8
-            = link_to @delivery_note.customer.name, @delivery_note.customer
-        - if @delivery_note.project_id.present?
-          .row.mb-2
-            .col-sm-4
-              %strong Project:
-            .col-sm-8
-              - if @delivery_note.project
-                = link_to @delivery_note.project.display_name, @delivery_note.project
-              - else
-                %em (Project ##{@delivery_note.project_id} - not found)
-        - if @delivery_note.cust_order.present?
-          .row.mb-2
-            .col-sm-4
-              %strong Cust. Order No:
-            .col-sm-8
-              = @delivery_note.cust_order
-        - if @delivery_note.cust_reference.present?
-          .row.mb-2
-            .col-sm-4
-              %strong Cust. Reference:
-            .col-sm-8
-              = @delivery_note.cust_reference
-        - if @delivery_note.internal_reference.present?
-          .row.mb-2
-            .col-sm-4
-              %strong Internal Reference:
-            .col-sm-8
-              = @delivery_note.internal_reference
+  .card.mb-4
+    .card-body
+      .row.mb-2
+        .col-md-6
+          .document-details
+            - if @delivery_note.date
+              .row.mb-2
+                .col-sm-4
+                  %strong Date:
+                .col-sm-8
+                  = l(@delivery_note.date)
+            .row.mb-2
+              .col-sm-4
+                %strong Customer:
+              .col-sm-8
+                = link_to @delivery_note.customer.name, @delivery_note.customer
+            - if @delivery_note.project_id.present?
+              .row.mb-2
+                .col-sm-4
+                  %strong Project:
+                .col-sm-8
+                  - if @delivery_note.project
+                    = link_to @delivery_note.project.display_name, @delivery_note.project
+                  - else
+                    %em (Project ##{@delivery_note.project_id} - not found)
+            - if @delivery_note.cust_order.present?
+              .row.mb-2
+                .col-sm-4
+                  %strong Cust. Order No:
+                .col-sm-8
+                  = @delivery_note.cust_order
+            - if @delivery_note.cust_reference.present?
+              .row.mb-2
+                .col-sm-4
+                  %strong Cust. Reference:
+                .col-sm-8
+                  = @delivery_note.cust_reference
+            - if @delivery_note.internal_reference.present?
+              .row.mb-2
+                .col-sm-4
+                  %strong Internal Reference:
+                .col-sm-8
+                  = @delivery_note.internal_reference
 
-    .col-md-6
-      .document-details
-        - if @delivery_note.delivery_timeframe.present?
-          .row.mb-2
-            .col-sm-4
-              %strong Delivery Period:
-            .col-sm-8
-              = @delivery_note.delivery_timeframe
-        - unless @delivery_note.published?
-          .row.mb-2
-            .col-sm-4
-              %strong Publish Status:
-            .col-sm-8.d-flex.align-items-center.gap-2
-              - if @delivery_note.has_items?
-                %span.badge.bg-success Ready
-              - else
-                %span.badge.bg-warning No item lines
-              - if can_edit_dn
-                - if @delivery_note.has_items?
-                  = button_to 'Publish…', publish_delivery_note_path(@delivery_note), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }
-                - else
-                  %span.ms-auto
-                    %button.btn.btn-sm.btn-info{disabled: true} Publish…
-        - if @delivery_note.published?
-          = render 'shared/email_status_row', resource: @delivery_note, can_edit: can_edit_dn, show_send_button: true
-        - if @delivery_note.published? || @delivery_note.invoice
-          .row.mb-2
-            .col-sm-4
-              %strong Invoice:
-            .col-sm-8.d-flex.align-items-center.gap-2
-              - if @delivery_note.invoice
-                = link_to @delivery_note.invoice.display_name, @delivery_note.invoice
-                - if @delivery_note.invoice.published?
-                  %span.badge.bg-success Booked
-                - else
-                  %span.badge.bg-warning Draft
-              - else
-                Not invoiced
-                - if can_edit_dn
-                  = button_to '🚀 Create…', convert_to_invoice_delivery_note_path(@delivery_note), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Create an invoice draft from this delivery note?' }
-        - if @delivery_note.offer_milestone
-          .row.mb-2
-            .col-sm-4
-              %strong Source:
-            .col-sm-8
-              = link_to @delivery_note.offer_milestone.offer.display_name, @delivery_note.offer_milestone.offer
+        .col-md-6
+          .document-details
+            - if @delivery_note.delivery_timeframe.present?
+              .row.mb-2
+                .col-sm-4
+                  %strong Delivery Period:
+                .col-sm-8
+                  = @delivery_note.delivery_timeframe
+            - unless @delivery_note.published?
+              .row.mb-2
+                .col-sm-4
+                  %strong Publish Status:
+                .col-sm-8.d-flex.align-items-center.gap-2
+                  - if @delivery_note.has_items?
+                    %span.badge.bg-success Ready
+                  - else
+                    %span.badge.bg-warning No item lines
+                  - if can_edit_dn
+                    - if @delivery_note.has_items?
+                      = button_to 'Publish…', publish_delivery_note_path(@delivery_note), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }
+                    - else
+                      %span.ms-auto
+                        %button.btn.btn-sm.btn-info{disabled: true} Publish…
+            - if @delivery_note.published?
+              = render 'shared/email_status_row', resource: @delivery_note, can_edit: can_edit_dn, show_send_button: true
+            - if @delivery_note.published? || @delivery_note.invoice
+              .row.mb-2
+                .col-sm-4
+                  %strong Invoice:
+                .col-sm-8.d-flex.align-items-center.gap-2
+                  - if @delivery_note.invoice
+                    = link_to @delivery_note.invoice.display_name, @delivery_note.invoice
+                    - if @delivery_note.invoice.published?
+                      %span.badge.bg-success Booked
+                    - else
+                      %span.badge.bg-warning Draft
+                  - else
+                    Not invoiced
+                    - if can_edit_dn
+                      = button_to icon_label(:send, 'Create…'), convert_to_invoice_delivery_note_path(@delivery_note), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Create an invoice draft from this delivery note?' }
+            - if @delivery_note.offer_milestone
+              .row.mb-2
+                .col-sm-4
+                  %strong Source:
+                .col-sm-8
+                  = link_to @delivery_note.offer_milestone.offer.display_name, @delivery_note.offer_milestone.offer
 
 
   - if @delivery_note.published?
@@ -135,7 +137,8 @@
             = form_with url: upload_acceptance_delivery_note_path(@delivery_note), method: :post, multipart: true, local: true, data: { controller: 'file-upload-validation' } do |form|
               .input-group.w-fixed-400
                 = form.file_field :acceptance_pdf, accept: 'application/pdf', class: 'form-control', data: { file_upload_validation_target: 'fileInput' }
-                = form.submit 'Upload PDF', class: 'btn btn-primary', data: { file_upload_validation_target: 'submitButton' }
+                = form.button class: 'btn btn-primary', data: { file_upload_validation_target: 'submitButton' } do
+                  = icon_label(:upload, 'Upload PDF')
             %small.text-muted.d-block.mt-2
               Upload the signed acceptance document (PDF only)
 

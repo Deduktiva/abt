@@ -98,7 +98,9 @@
         .col-sm-12
           .mb-3
             %label.form-label Prelude
-            = f.rich_text_area :prelude, data: { controller: 'rich-text' }
+            .card
+              .card-body
+                = f.rich_text_area :prelude, data: { controller: 'rich-text' }
 
     - unless @delivery_note.id.nil?
       %div{data: {controller: 'delivery-note-lines'}}

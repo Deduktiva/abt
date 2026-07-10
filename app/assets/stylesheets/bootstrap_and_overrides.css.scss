@@ -92,6 +92,17 @@ body { background-color: #f4f6f6; }
 }
 .navbar svg.bi { vertical-align: -0.125em; }
 
+// Action-button icons (action_icon): same baseline fix as the navbar icons,
+// plus a gap before any label text. `:not(:last-child)` only matches when
+// icon_label's <span> is present, so icon-only buttons (Delete, PDF,
+// Preview, ...) stay centered with no lopsided trailing margin.
+.btn svg.bi {
+  vertical-align: -0.125em;
+}
+.btn svg.bi:not(:last-child) {
+  margin-right: .35rem;
+}
+
 // Fix searchable dropdown hover in dark mode
 .searchable-dropdown .dropdown-item {
   &:hover,
@@ -208,6 +219,15 @@ nav[aria-label="breadcrumb"] > div {
 }
 [data-bs-theme="dark"] .card-header {
   border-bottom-color: tint-color($primary, 40%);
+}
+
+// A header with an explicit solid-fill background (e.g. `.bg-danger` on
+// the account "Danger zone" / users "Block user" cards) already reads as
+// visually separated from the body via the fill itself — the default teal
+// rule looked like a mismatched stray line under a colored block, so drop
+// it there.
+.card-header[class*="bg-"] {
+  border-bottom: 0;
 }
 
 // A card with no header (e.g. a lone `.card > .card-body`) shouldn't

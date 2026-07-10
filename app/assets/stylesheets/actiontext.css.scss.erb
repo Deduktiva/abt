@@ -1,0 +1,100 @@
+// Make the Trix editor blend in with Bootstrap form-control styling.
+trix-editor {
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  padding: 0.375rem 0.75rem;
+  min-height: 6rem;
+  background-color: var(--bs-body-bg);
+
+  &:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    outline: 0;
+  }
+}
+
+// Hide the toolbar groups we don't support (belt-and-suspenders with the JS).
+trix-toolbar .trix-button-group--file-tools { display: none; }
+
+// —— Toolbar restyle: match the app's small-button radius (.25rem) instead
+// of Trix's default rounded corners, and swap Trix's baked-in icon set for
+// the same bootstrap-icons family used by action_icon/nav_icon. Hardcoded
+// to $primary (#22807f) / tint-color($primary, 40%) (#7ab3b2) from
+// bootstrap_and_overrides.css.scss — this file compiles standalone via
+// Sprockets, so it can't share that file's Sass variables (see the same
+// note in documents.css.scss).
+trix-toolbar .trix-button-group {
+  border-color: var(--bs-border-color);
+  border-radius: .25rem;
+}
+trix-toolbar .trix-button {
+  color: var(--bs-secondary-color);
+}
+trix-toolbar .trix-button:not(:first-child) {
+  border-left-color: var(--bs-border-color);
+}
+trix-toolbar .trix-button:hover:not(:disabled) {
+  color: #22807f;
+  background: rgba(34, 128, 127, 0.09);
+}
+trix-toolbar .trix-button.trix-active {
+  color: #22807f;
+  background: rgba(34, 128, 127, 0.15);
+}
+[data-bs-theme="dark"] trix-toolbar .trix-button:hover:not(:disabled) {
+  color: #7ab3b2;
+  background: rgba(122, 179, 178, 0.14);
+}
+[data-bs-theme="dark"] trix-toolbar .trix-button.trix-active {
+  color: #7ab3b2;
+  background: rgba(122, 179, 178, 0.22);
+}
+
+// Each icon is a single shape, embedded once and reused as a CSS mask —
+// mask-image only consumes the alpha channel, so the actual visible color
+// always comes from the button's own `color` (set above per state) rather
+// than from the SVG itself. No separate SVG copy is needed per color/theme.
+// Path data comes straight from the bootstrap-icons gem at asset-compile
+// time (this file is a Sprockets .scss.erb) rather than being hand-copied,
+// so it can't drift from the icon set action_icon/nav_icon use.
+<%
+  trix_icon_names = {
+    "bold" => "type-bold",
+    "italic" => "type-italic",
+    "heading-1" => "type-h1",
+    "bullet-list" => "list-ul",
+    "number-list" => "list-ol",
+    "undo" => "arrow-counterclockwise",
+    "redo" => "arrow-clockwise",
+  }
+  trix_icon_shapes = trix_icon_names.transform_values do |gem_name|
+    BootstrapIcons::BootstrapIcon.new(gem_name).path.gsub('"', "'").gsub(/\n\s*/, "")
+  end
+%>
+$trix-icon-shapes: (
+<% trix_icon_shapes.each do |name, shape| %>
+  "<%= name %>": "<%= shape %>",
+<% end %>
+);
+
+trix-toolbar .trix-button--icon::before {
+  background-image: none;
+  opacity: 1;
+}
+trix-toolbar .trix-button--icon:disabled::before {
+  opacity: .3;
+}
+@each $name, $shape in $trix-icon-shapes {
+  trix-toolbar .trix-button--icon-#{$name}::before {
+    $svg: "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='black'>#{$shape}</svg>";
+    -webkit-mask-image: url("data:image/svg+xml,#{$svg}");
+    mask-image: url("data:image/svg+xml,#{$svg}");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: 55%;
+    mask-size: 55%;
+    background-color: currentColor;
+  }
+}

@@ -29,7 +29,7 @@
         .h3.mb-0= @counts[:blocked]
         .small.text-muted Blocked
   .col-md-2.col-6.mb-2
-    .card.text-center.border-danger{class: ('text-danger' if @counts[:failed].positive?)}
+    .card.text-center.border.border-danger{class: ('text-danger' if @counts[:failed].positive?)}
       .card-body.py-3
         .h3.mb-0= @counts[:failed]
         .small Failed

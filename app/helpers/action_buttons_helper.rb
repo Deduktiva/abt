@@ -86,8 +86,10 @@ module ActionButtonsHelper
   # to its mobile stacked list (where a lone icon would be the only
   # unlabeled row). See docs/code-style.md's "Navigation icons" section.
   def sign_out_button
-    label = nav_icon(:box_arrow_right) + content_tag(:span, "Sign out", class: "d-inline d-sm-none ms-1")
-    button_to label, session_path, method: :delete, class: "nav-link nav-icon-btn", title: "Sign out", form_class: "d-inline"
+    # ms-2 ≈ the me-1 + inter-element whitespace gap the Configuration and
+    # account rows get from their HAML markup; ms-1 alone reads too tight.
+    label = nav_icon(:box_arrow_right) + content_tag(:span, "Sign out", class: "d-inline d-sm-none ms-2")
+    button_to label, session_path, method: :delete, class: "nav-link nav-icon-btn", title: "Sign out", form_class: "d-flex"
   end
 
   private

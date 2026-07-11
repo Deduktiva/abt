@@ -17,4 +17,5 @@
           .text-end
             %button.btn.btn-secondary.me-2{type: "button", data: {action: "click->modal#close"}}
               Cancel
-            = f.submit "Mark Paid", class: "btn btn-success"
+            = f.button class: "btn btn-success" do
+              = icon_label(:'check-circle-fill', 'Mark Paid')

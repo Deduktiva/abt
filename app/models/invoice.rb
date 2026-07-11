@@ -237,7 +237,7 @@ private
     # Walk the in-memory association target so we also see records built
     # earlier in this same save cycle (e.g. via accepts_nested_attributes_for).
     # Going through .includes here would issue a fresh SQL load and miss
-    # those, which previously caused duplicate InvoiceTaxClass rows.
+    # those, causing duplicate InvoiceTaxClass rows.
     existing_tax_classes = self.invoice_tax_classes.to_a.index_by(&:sales_tax_product_class_id)
 
     # Update/create required tax classes

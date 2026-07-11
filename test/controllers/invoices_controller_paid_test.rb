@@ -83,7 +83,7 @@ class InvoicesControllerPaidTest < ActionDispatch::IntegrationTest
     assert_select "button", text: /Paid/
     assert_select ".mark-paid-modal form[action=?]", mark_paid_invoice_path(invoice)
     assert_select ".mark-paid-modal input[type='date'][name='paid_at']"
-    assert_select ".mark-paid-modal input[type='submit'][value='Mark Paid']"
+    assert_select ".mark-paid-modal button[type='submit']", text: /Mark Paid/
   end
 
   test "show page exposes paid status with mark unpaid button when paid" do

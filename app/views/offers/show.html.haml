@@ -80,9 +80,9 @@
             - if can?('offers.edit')
               - if problems.any?
                 %span.ms-auto{title: problems.join("\n")}
-                  %button.btn.btn-sm.btn-info{disabled: true}= icon_label(:send, 'Send')
+                  %button.btn.btn-sm.btn-info{disabled: true}= icon_label(:send, 'Publish')
               - else
-                = button_to icon_label(:send, 'Send'), send_offer_offer_path(@offer), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Send this offer to the customer? A PDF is generated and this version is frozen.' }
+                = button_to icon_label(:send, 'Publish'), send_offer_offer_path(@offer), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Send this offer to the customer? A PDF is generated and this version is frozen.' }
 
   - if problems.any?
     .alert.alert-warning.mb-3

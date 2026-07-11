@@ -222,7 +222,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".badge.bg-warning", text: "Draft"
     assert_select ".badge.bg-success", text: "Ready"
-    assert_select "form.button_to button", text: /Publish Invoice/
+    assert_select "form.button_to button", text: /Publish/
   end
 
   test "draft invoice show renders problems alert and disabled Publish button when invoice has missing data" do
@@ -236,7 +236,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     get invoice_url(invoice)
     assert_response :success
     assert_select ".alert-warning li", text: /Broken Line.*rate/
-    assert_select "button[disabled]", text: /Publish Invoice/
+    assert_select "button[disabled]", text: /Publish/
   end
 
   test "should get edit" do

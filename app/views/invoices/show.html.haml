@@ -105,9 +105,9 @@
                   - if can_edit_invoice
                     - if problems.any?
                       %span.ms-auto{title: problems.join("\n")}
-                        %button.btn.btn-sm.btn-info{disabled: true} Publish Invoice…
+                        %button.btn.btn-sm.btn-info{disabled: true}= icon_label(:send, 'Publish')
                     - else
-                      = button_to 'Publish Invoice…', publish_invoice_path(@invoice), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Publish invoice and assign a document number? This cannot be undone.' }
+                      = button_to icon_label(:send, 'Publish'), publish_invoice_path(@invoice), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Publish invoice and assign a document number? This cannot be undone.' }
 
             - if @invoice.published?
               = render 'shared/email_status_row', resource: @invoice, can_edit: can_edit_invoice, show_send_button: @invoice.attachment.present?

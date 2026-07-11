@@ -85,10 +85,10 @@
                     %span.badge.bg-warning No item lines
                   - if can_edit_dn
                     - if @delivery_note.has_items?
-                      = button_to 'Publish…', publish_delivery_note_path(@delivery_note), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }
+                      = button_to icon_label(:send, 'Publish'), publish_delivery_note_path(@delivery_note), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }
                     - else
                       %span.ms-auto
-                        %button.btn.btn-sm.btn-info{disabled: true} Publish…
+                        %button.btn.btn-sm.btn-info{disabled: true}= icon_label(:send, 'Publish')
             - if @delivery_note.published?
               = render 'shared/email_status_row', resource: @delivery_note, can_edit: can_edit_dn, show_send_button: true
             - if @delivery_note.published? || @delivery_note.invoice
@@ -105,7 +105,7 @@
                   - else
                     Not invoiced
                     - if can_edit_dn
-                      = button_to icon_label(:send, 'Create…'), convert_to_invoice_delivery_note_path(@delivery_note), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Create an invoice draft from this delivery note?' }
+                      = button_to icon_label(:send, 'Create'), convert_to_invoice_delivery_note_path(@delivery_note), method: :post, class: 'btn btn-sm btn-info', form: { class: 'button_to ms-auto' }, data: { 'turbo-confirm': 'Create an invoice draft from this delivery note?' }
             - if @delivery_note.offer_milestone
               .row.mb-2
                 .col-sm-4

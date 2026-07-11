@@ -48,12 +48,12 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to offer_url(offers(:sent_offer))
   end
 
-  test "draft offer show renders problems alert and disabled Send button when there are no milestones" do
+  test "draft offer show renders problems alert and disabled Publish button when there are no milestones" do
     offer = create_draft_offer
     get offer_url(offer)
     assert_response :success
     assert_select ".alert-warning li", text: /milestone/i
-    assert_select "button[disabled]", text: /Send/
+    assert_select "button[disabled]", text: /Publish/
   end
 
   test "send_offer transitions to sent" do

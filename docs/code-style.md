@@ -59,7 +59,7 @@ Icons are inline monochrome SVG via `action_icon(:name)` (`app/helpers/applicati
 When the icon carries the verb, drop the leading verb from the label: `Mark Paid` → `Paid…`, `Mark Unpaid` → `Unpaid`. Keep verb+object when the icon alone isn't enough.
 
 Reuse icons for the same archetype — don't invent new ones:
-- `send` (paper plane) promote forward (Publish, Convert to Invoice, Send offer, Convert milestone)
+- `send` (paper plane) promote forward (Publish — invoice/delivery-note/offer, Convert to Invoice, Convert milestone)
 - `check-circle-fill` / `shield-check` positive state change (Paid, Unblock)
 - `arrow-counterclockwise` revert state (Unpaid, Unpublish)
 - `trash3` delete (Delete, and the inline "remove line" buttons on invoice/delivery-note/offer-milestone edit forms)
@@ -79,9 +79,9 @@ Established mapping — extend it, don't invent new icons for existing verbs:
 | Mark Paid | `check-circle-fill` | icon + `Paid…` | (status-row, inline) |
 | Mark Unpaid | `arrow-counterclockwise` | icon + `Unpaid` | (status-row, inline) |
 | Send e-mail | `envelope` | icon + `Send` | (status-row, inline) |
-| Publish | `send` | icon + `Publish` | `publish_button` |
+| Publish | `send` | icon + `Publish` | (status-row, inline) |
 | Unpublish | `arrow-counterclockwise` | icon + `Unpublish` | `unpublish_button` |
-| Convert to Invoice | `send` | icon + `Create…` | (status-row, inline) |
+| Convert to Invoice | `send` | icon + `Create` | (status-row, inline) |
 | Upload PDF | `upload` | icon + `Upload PDF` | (form, inline) |
 | Block | `shield-slash` | icon + `Block` | (form-with-reason, inline) |
 | Unblock | `shield-check` | icon + `Unblock` | `unblock_button` |

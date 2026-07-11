@@ -45,10 +45,10 @@ class OfferFormTest < ApplicationSystemTestCase
     assert milestone.skip_delivery_note
   end
 
-  test "send button disabled without milestones" do
+  test "publish button disabled without milestones" do
     offer = create_draft_offer
     visit offer_path(offer)
-    assert_selector "button[disabled]", text: /Send/
+    assert_selector "button[disabled]", text: /Publish/
   end
 
   test "accepting without an order document succeeds" do

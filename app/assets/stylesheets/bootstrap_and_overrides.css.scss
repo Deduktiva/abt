@@ -236,6 +236,17 @@ nav[aria-label="breadcrumb"] > div {
 .card-body { padding-top: .5rem; }
 .card-header + .card-body { padding-top: var(--bs-card-spacer-y); }
 
+// A `.table` sitting directly in a `.card-body` (e.g. the offer milestones
+// table, sales-tax rate lists, jobs-status worker tables) gets its own
+// default 0.5rem cell padding on top of the card-body's 1rem inset, so its
+// text sits further right than any label/paragraph text above it in the
+// same card. Zero out the outer edge so the first/last column lines up with
+// the card's own inset instead of double-indenting.
+.card-body table {
+  th:first-child, td:first-child { padding-left: 0; }
+  th:last-child, td:last-child { padding-right: 0; }
+}
+
 // —— Badges: soft, fully-rounded pills instead of solid blocks.
 @each $name, $color in $theme-colors {
   .badge.bg-#{$name} {

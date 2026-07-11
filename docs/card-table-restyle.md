@@ -51,3 +51,11 @@ having a slightly different look:
   below/above cards on the same page (invoice/delivery-note show), so its
   text needs to line up with theirs rather than sitting closer to the edge
   at Bootstrap's default `0.5rem` table padding.
+- A `.table` sitting *inside* a `.card-body` (offer milestones, sales-tax
+  rate lists, jobs-status worker tables) hits the opposite problem: its own
+  `0.5rem` cell padding stacks on top of the card-body's `1rem` inset
+  instead of matching it, so the first/last column sits further in than any
+  label text above it in the same card. `.card-body table` zeroes the
+  outer-edge cell padding (`th:first-child`/`td:first-child` left,
+  `th:last-child`/`td:last-child` right) so the table's edge lines up with
+  the card's own inset instead of double-indenting.

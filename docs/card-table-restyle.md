@@ -46,3 +46,8 @@ having a slightly different look:
   no boxed borders) instead of relying on Bootstrap's default cell borders.
 - No table is wrapped in a card shell — tables stay directly in their
   existing containers.
+- `document-lines-table`'s cell horizontal padding is `1rem`, matching
+  `.card-body`'s inset (`--bs-card-spacer-x`) — a bare table sits directly
+  below/above cards on the same page (invoice/delivery-note show), so its
+  text needs to line up with theirs rather than sitting closer to the edge
+  at Bootstrap's default `0.5rem` table padding.

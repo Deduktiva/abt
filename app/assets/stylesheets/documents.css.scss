@@ -9,13 +9,16 @@ table.document-lines-table {
   th.col-tax-class   { width: 10%; }
   th.col-amount      { width: 15%; }
 
+  // Horizontal padding matches .card-body's inset (--bs-card-spacer-x,
+  // 1rem) so the table's text lines up with the cards stacked above/below
+  // it on the same page instead of sitting closer to the edge.
   th {
     font-weight: 600;
-    padding: 0.75rem 0.5rem;
+    padding: 0.75rem 1rem;
   }
 
   td {
-    padding: 0.5rem;
+    padding: 0.5rem 1rem;
     vertical-align: top;
   }
 
@@ -31,11 +34,11 @@ table.document-lines-table {
     background-color: rgba(34, 128, 127, 0.09);
     border-left: 3px solid #22807f;
     box-shadow: none;
-    padding: 12px 8px 12px calc(8px - 3px);
+    padding: 12px 16px 12px calc(16px - 3px);
   }
   td.document-text-row {
     box-shadow: none;
-    padding: 8px;
+    padding: 8px 16px;
   }
 
   .document-line-comment { margin-left: 20px; }

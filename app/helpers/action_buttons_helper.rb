@@ -87,7 +87,7 @@ module ActionButtonsHelper
   # unlabeled row). See docs/code-style.md's "Navigation icons" section.
   def sign_out_button
     label = nav_icon(:box_arrow_right) + content_tag(:span, "Sign out", class: "d-inline d-sm-none ms-1")
-    button_to label, session_path, method: :delete, class: "nav-link nav-icon-btn", title: "Sign out", form_class: "d-inline"
+    button_to label, session_path, method: :delete, class: "nav-link nav-icon-btn", title: "Sign out", form_class: "d-flex"
   end
 
   private

@@ -33,6 +33,7 @@ The canonical style reference for this repo. Project structure, architecture, mo
 - Index pages (list + filter toolbar) don't use cards at all — a distinct, consistent convention across every `index.html.haml`. Don't introduce cards there.
 - Multi-column card grids: `.row > .col-md-6 > .card.mb-3`. Stack full-width cards with `.mb-4` — without it, adjacent borderless cards touch and visually fuse into one.
 - Don't call a multi-column card layout imbalanced by card count — judge by realistic per-column rendered height. List-bound cards (sessions, audit events, line items) grow with data and naturally fill a column.
+- Card header text is Title Case, and a primary "show the whole record" card is named `"{Entity} Information"` (`Customer Information`, `Company Information`, `Team Information`) — not a bare `Information` or `Basic Information` that drops the entity name. A card for one specific sub-topic just names that topic (`Notes`, `Members`, `Offer Settings`) rather than forcing the `{Entity} Information` pattern onto it.
 
 ## Status badges
 - Show only deviation from the healthy default. Active/normal renders no badge in headers and as plain text in tables.

@@ -79,7 +79,7 @@
       .col-lg-5.col-md-4
         = f.number_field :payment_terms_days, :class => 'form-control', :min => 1, :max => 365, :value => (@customer.payment_terms_days || 30)
     %hr
-    %h5.mb-3 Offer settings
+    %h5.mb-3 Offer Settings
     .row.mb-3
       = f.label :offer_validity_days, 'Validity (days)', class: 'col-lg-2 col-md-3 col-form-label'
       .col-lg-3.col-md-4

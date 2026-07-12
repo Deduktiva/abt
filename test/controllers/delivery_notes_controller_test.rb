@@ -538,14 +538,14 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
   test "show keeps the submissions card while a submission is pending" do
     dn, = pending_submission
     get delivery_note_url(dn)
-    assert_select "h5", text: "Customer acceptance submissions"
+    assert_select "h5", text: "Customer Acceptance Submissions"
   end
 
   test "show hides the submissions card once accepted with no pending submission" do
     dn, sub = pending_submission
     sub.accept!(by: users(:alice))
     get delivery_note_url(dn)
-    assert_select "h5", text: "Customer acceptance submissions", count: 0
+    assert_select "h5", text: "Customer Acceptance Submissions", count: 0
   end
 
   test "show hides the submissions card after an accepted document is deleted" do
@@ -554,7 +554,7 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     post delete_acceptance_delivery_note_url(dn)
     assert_nil dn.reload.acceptance_attachment_id
     get delivery_note_url(dn)
-    assert_select "h5", text: "Customer acceptance submissions", count: 0
+    assert_select "h5", text: "Customer Acceptance Submissions", count: 0
   end
 
   private

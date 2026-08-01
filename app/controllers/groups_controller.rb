@@ -44,8 +44,8 @@ class GroupsController < ApplicationController
     before_members = @group.user_ids.to_set
     before_bypass = @group.bypass_team_scoping?
     if @group.update(group_attributes)
-      assign_permissions(@group, params.dig(:group, :permission_keys)) if params.dig(:group, :permission_keys)
-      assign_members(@group, params.dig(:group, :user_ids)) if params.dig(:group, :user_ids)
+      assign_permissions(@group, params.dig(:group, :permission_keys))
+      assign_members(@group, params.dig(:group, :user_ids))
       after_perms = @group.permissions
       after_members = @group.reload.user_ids.to_set
       audit_privilege_change!("group_updated", metadata: {

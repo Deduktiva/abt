@@ -40,7 +40,7 @@ class TeamsController < ApplicationController
   def update
     before_members = @team.user_ids.to_set
     if @team.update(team_attributes)
-      assign_members(@team, params.dig(:team, :user_ids)) if params.dig(:team, :user_ids)
+      assign_members(@team, params.dig(:team, :user_ids))
       after_members = @team.reload.user_ids.to_set
       audit_privilege_change!("team_updated", metadata: {
         name: @team.name,

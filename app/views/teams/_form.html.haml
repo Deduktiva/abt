@@ -23,6 +23,7 @@
       .row.mb-3
         = label_tag nil, 'Members', class: 'col-lg-2 col-md-3 col-form-label'
         .col-sm-9
+          = hidden_field_tag 'team[user_ids][]', ''
           - current_member_ids = @team.user_ids
           - User.order(:username).each do |user|
             .form-check

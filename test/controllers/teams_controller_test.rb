@@ -23,6 +23,12 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
     assert_includes new_team.users, users(:bob)
   end
 
+  test "unchecking all members removes them" do
+    team = teams(:acme)
+    patch team_path(team), params: { team: { name: team.name, description: team.description } }
+    assert_empty team.reload.users
+  end
+
   test "built-in default team cannot be deleted" do
     default = teams(:default)
     assert_no_difference "Team.count" do

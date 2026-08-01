@@ -20,7 +20,7 @@
         hidden_fields: { year: @selected_year, filter: @filter }
 
     - if @filter == 'unsent'
-      = submit_tag 'Send Selected Emails', form: 'bulk-email-form', class: 'btn btn-warning btn-sm me-2 align-self-start', disabled: true, data: { confirm: 'Are you sure you want to send emails for the selected invoices?', 'bulk-select-target': 'submitButton' }
+      = submit_tag 'Send Selected Emails', form: 'bulk-email-form', class: 'btn btn-warning btn-sm me-2 align-self-start', disabled: true, data: { 'turbo-confirm': 'Are you sure you want to send emails for the selected invoices?', 'bulk-select-target': 'submitButton' }
 
     - if @available_years.any?
       .btn-group.btn-group-sm.ms-auto.year-pagination{:role=>"group", "aria-label"=>"Year navigation"}

@@ -46,6 +46,11 @@ class GroupsController < ApplicationController
     if @group.update(group_attributes)
       assign_permissions(@group, params.dig(:group, :permission_keys))
       assign_members(@group, params.dig(:group, :user_ids))
+    end
+
+    if @group.errors.any?
+      render :edit, status: :unprocessable_content
+    else
       after_perms = @group.permissions
       after_members = @group.reload.user_ids.to_set
       audit_privilege_change!("group_updated", metadata: {
@@ -57,8 +62,6 @@ class GroupsController < ApplicationController
         bypass_team_scoping_changed: before_bypass != @group.bypass_team_scoping?
       })
       redirect_to groups_path, notice: "Group updated."
-    else
-      render :edit, status: :unprocessable_content
     end
   end
 

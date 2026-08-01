@@ -149,11 +149,24 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     helpdesk.users << users(:bob)
 
     sign_in_as(users(:bob))
-    patch group_path(groups(:admin)), params: {
-      group: { description: groups(:admin).description,
-               user_ids: [ users(:alice).id, users(:bob).id ] }
-    }
+    assert_no_difference "UserAuditEvent.count" do
+      patch group_path(groups(:admin)), params: {
+        group: { description: groups(:admin).description,
+                 user_ids: [ users(:alice).id, users(:bob).id ] }
+      }
+    end
     refute_includes groups(:admin).reload.users, users(:bob)
+    assert_response :unprocessable_content
+    assert_select ".alert-danger li", text: "Only members of the Admin group can change its membership"
+  end
+
+  test "emptying the Admin group's membership reports the error instead of success" do
+    patch group_path(groups(:admin)), params: {
+      group: { description: groups(:admin).description, user_ids: [] }
+    }
+    assert_response :unprocessable_content
+    assert_select ".alert-danger li", text: "Admin group must have at least one member"
+    assert_includes groups(:admin).reload.users, users(:alice)
   end
 
   # Symmetric guard: a non-admin must not be able to REMOVE admins by

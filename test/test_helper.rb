@@ -39,6 +39,8 @@ ActiveRecord::Migration.maintain_test_schema!
 Dir[File.expand_path("support/**/*.rb", __dir__)].each { |f| require f }
 
 class ActiveSupport::TestCase
+  parallelize(workers: :number_of_processors)
+
   # Setup all fixtures in test/fixtures/*.(yml|csv) for all tests in alphabetical order.
   #
   # Note: You'll currently still have to declare fixtures explicitly in integration tests

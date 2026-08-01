@@ -62,6 +62,12 @@ class InvoiceRendererTest < ActiveSupport::TestCase
     assert_includes xml, %(xmlns:fo="http://www.w3.org/1999/XSL/Format")
   end
 
+  test "PDF title metadata separates issuer, type, and number (FOP smoke)" do
+    @invoice.update_columns(document_number: "R2024-001")
+    pdf = InvoiceRenderer.new(@invoice, @issuer).render
+    assert_includes pdf, "/Title (My Example Invoice R2024-001)"
+  end
+
   test "renders a PDF with rich-text prelude formatting (FOP smoke)" do
     @invoice.prelude = "<h1>Title</h1><div>Hello <strong>bold</strong> and <em>italic</em></div><ul><li>one</li><li>two</li></ul><ol><li>a</li><li>b<ol><li>nested</li></ol></li></ol>"
     @invoice.save!

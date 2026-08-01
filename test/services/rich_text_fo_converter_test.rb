@@ -32,6 +32,15 @@ class RichTextFoConverterTest < ActiveSupport::TestCase
     assert_includes fo("<div><em>y</em></div>"), %(<fo:inline font-style="italic">y</fo:inline>)
   end
 
+  # document_base.xsl exempts fo:* from strip-space, so ALL whitespace in
+  # fragments survives into the PDF — the converter must never emit
+  # indentation, only user whitespace like the space between styled runs.
+  test "fragments contain no indentation whitespace" do
+    out = fo("<h1>t</h1><div><strong>Bold</strong> <em>Italic</em></div><ul><li>a<ul><li>s</li></ul></li></ul>")
+    assert_not_includes out, "\n"
+    assert_includes out, %(</fo:inline> <fo:inline)
+  end
+
   test "h1 becomes a spaced fo:block at body size" do
     out = fo("<h1>Title</h1>")
     assert_includes out, %(<fo:block space-after="4pt">Title</fo:block>)

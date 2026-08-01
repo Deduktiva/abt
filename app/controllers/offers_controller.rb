@@ -226,15 +226,15 @@ class OffersController < ApplicationController
   end
 
   def offer_params
-    params.require(:offer).permit(
+    params.expect(offer: [
       :customer_id, :project_id, :customer_contact_id, :internal_reference,
       draft_version_attributes: [
         :id, :subject, :prelude, :salutation_override, :delivery_date, :sales_tax_product_class_id,
-        milestones_attributes: [
+        milestones_attributes: [ [
           :id, :position, :title, :description, :trigger, :trigger_date,
           :amount, :skip_delivery_note, :_destroy
-        ]
+        ] ]
       ]
-    )
+    ])
   end
 end

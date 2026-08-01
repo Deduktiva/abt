@@ -53,6 +53,6 @@ class ProductsController < ApplicationController
 
 private
   def products_params
-    params.require(:product).permit(:title, :description, :rate, :sales_tax_product_class_id)
+    params.expect(product: [ :title, :description, :rate, :sales_tax_product_class_id ])
   end
 end

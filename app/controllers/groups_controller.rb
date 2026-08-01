@@ -91,7 +91,7 @@ class GroupsController < ApplicationController
   # and the permission filter in Group#permissions=. The view marks the field
   # readonly; this is the server-side counterpart.
   def group_attributes
-    attrs = params.require(:group).permit(:name, :description)
+    attrs = params.expect(group: [ :name, :description ])
     attrs.delete(:name) if @group&.builtin?
     attrs
   end

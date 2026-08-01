@@ -282,7 +282,7 @@
                         xmlns:pdfaid="http://www.aiim.org/pdfa/ns/id/">
                         <dc:title>
                             <rdf:Alt>
-                                <rdf:li xml:lang="x-default"><xsl:value-of select="/document/issuer/short-name"/> <xsl:value-of select="$document-type" /> <xsl:value-of select="$document-number" /></rdf:li>
+                                <rdf:li xml:lang="x-default"><xsl:value-of select="/document/issuer/short-name"/><xsl:text> </xsl:text><xsl:value-of select="$document-type" /><xsl:text> </xsl:text><xsl:value-of select="$document-number" /></rdf:li>
                             </rdf:Alt>
                         </dc:title>
                         <dc:creator>
@@ -292,7 +292,7 @@
                         </dc:creator>
                         <dc:description>
                             <rdf:Alt>
-                                <rdf:li xml:lang="x-default"><xsl:value-of select="$document-type" /> <xsl:value-of select="$document-number" /></rdf:li>
+                                <rdf:li xml:lang="x-default"><xsl:value-of select="$document-type" /><xsl:text> </xsl:text><xsl:value-of select="$document-number" /></rdf:li>
                             </rdf:Alt>
                         </dc:description>
                         <dc:format>application/pdf</dc:format>

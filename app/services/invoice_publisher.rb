@@ -13,7 +13,7 @@ class InvoicePublisher
   def prepare!
     return if @invoice.published?
     @invoice.save
-    @invoice.date ||= Date.today
+    @invoice.date ||= Date.current
     @invoice.due_date = @invoice.date + @invoice.payment_terms_days.days
   end
 

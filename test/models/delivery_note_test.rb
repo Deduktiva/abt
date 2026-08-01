@@ -34,7 +34,7 @@ class DeliveryNoteTest < ActiveSupport::TestCase
     delivery_note.reload
     assert delivery_note.published?
     assert_not_nil delivery_note.document_number
-    assert_equal Date.today, delivery_note.date
+    assert_equal Date.current, delivery_note.date
   end
 
   test "publish! does nothing and returns false if already published" do
@@ -49,13 +49,13 @@ class DeliveryNoteTest < ActiveSupport::TestCase
 
   test "publish! re-dates an unpublished-and-republished note but keeps its number" do
     delivery_note = delivery_notes(:published_delivery_note)
-    delivery_note.update_columns(published: false, date: Date.today - 30)
+    delivery_note.update_columns(published: false, date: Date.current - 30)
     original_document_number = delivery_note.document_number
 
     delivery_note.publish!
 
     delivery_note.reload
-    assert_equal Date.today, delivery_note.date
+    assert_equal Date.current, delivery_note.date
     assert_equal original_document_number, delivery_note.document_number
   end
 

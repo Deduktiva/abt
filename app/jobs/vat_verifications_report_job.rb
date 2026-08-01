@@ -63,7 +63,9 @@ class VatVerificationsReportJob < ApplicationJob
       # Recovery — never reported, but consume to keep the index small.
       consumed_ids << latest.id
     when false
-      prior = prior_verification(latest)
+      # Look back to the most recent conclusive result — a transient outage
+      # row between two invalid results must not restart the invalid streak.
+      prior = most_recent_non_nil(latest.customer_id, before: latest.created_at)
       if prior&.valid_response == false
         consumed_ids << latest.id
       else
@@ -96,20 +98,12 @@ class VatVerificationsReportJob < ApplicationJob
     end
   end
 
-  def prior_verification(verification)
-    CustomerVatVerification
-      .where(customer_id: verification.customer_id)
-      .where("created_at < ?", verification.created_at)
-      .order(created_at: :desc, id: :desc)
-      .first
-  end
-
-  def most_recent_non_nil(customer_id)
-    CustomerVatVerification
-      .where(customer_id: customer_id)
-      .where.not(valid_response: nil)
-      .order(created_at: :desc, id: :desc)
-      .first
+  def most_recent_non_nil(customer_id, before: nil)
+    scope = CustomerVatVerification
+              .where(customer_id: customer_id)
+              .where.not(valid_response: nil)
+    scope = scope.where("created_at < ?", before) if before
+    scope.order(created_at: :desc, id: :desc).first
   end
 
   # Earliest verification in the current run of nil results (going back from

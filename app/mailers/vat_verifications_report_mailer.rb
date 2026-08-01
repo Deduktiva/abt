@@ -20,14 +20,16 @@ class VatVerificationsReportMailer < ApplicationMailer
 
   private
 
-  # For each newly-invalid verification, find the immediately-prior verification
-  # for the same customer to label the row as either "was valid until <date>"
-  # or "first confirmed invalid result". Returns a Hash keyed by verification id.
+  # For each newly-invalid verification, find the most recent conclusive
+  # (non-nil, i.e. skipping transient outage rows) prior verification for the
+  # same customer to label the row as either "was valid until <date>" or
+  # "first confirmed invalid result". Returns a Hash keyed by verification id.
   def compute_prior_states(verifications)
     verifications.each_with_object({}) do |v, h|
       prior = CustomerVatVerification
                 .where(customer_id: v.customer_id)
                 .where("created_at < ?", v.created_at)
+                .where.not(valid_response: nil)
                 .order(created_at: :desc)
                 .first
       h[v.id] = if prior&.valid_response == true

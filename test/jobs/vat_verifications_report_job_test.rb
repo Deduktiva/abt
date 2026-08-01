@@ -70,6 +70,19 @@ class VatVerificationsReportJobTest < ActiveJob::TestCase
     assert_not_nil continuation.reload.notified_at
   end
 
+  test "does not re-report when an outage row interrupts an invalid streak" do
+    make_verification(valid: true, created_at: 30.days.ago)
+    make_verification(valid: false, created_at: 5.days.ago, notified_at: 5.days.ago)
+    make_verification(valid: nil, created_at: 2.days.ago, notified_at: 2.days.ago,
+                      error_code: "MS_UNAVAILABLE")
+    continuation = make_verification(valid: false, created_at: 1.hour.ago)
+
+    assert_no_emails do
+      VatVerificationsReportJob.perform_now
+    end
+    assert_not_nil continuation.reload.notified_at
+  end
+
   test "does not report and does not mark recovery (invalid -> valid)" do
     make_verification(valid: false, created_at: 5.days.ago, notified_at: 5.days.ago)
     recovery = make_verification(valid: true, created_at: 1.hour.ago)

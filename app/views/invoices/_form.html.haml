@@ -1,5 +1,5 @@
 %div{data: {controller: 'auto-resize-form'}}
-  = form_for(@invoice, html: { id: ActionButtonsHelper::PAGE_FORM_ID }) do |f|
+  = form_with model: @invoice, id: ActionButtonsHelper::PAGE_FORM_ID do |f|
     - if @invoice.errors.any?
       .alert.alert-danger
         %h4

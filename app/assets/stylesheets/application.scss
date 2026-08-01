@@ -1,0 +1,20 @@
+// Entry point compiled by Dart Sass (rails dartsass:build) into
+// app/assets/builds/application.css, served by Propshaft.
+// Import order mirrors the old Sprockets manifest: trix.css (inlined from
+// the action_text-trix gem), then the app files alphabetically.
+@import "trix";
+@import "actiontext";
+@import "bootstrap_and_overrides";
+@import "customer_contacts";
+@import "customer_filter";
+@import "customer_portal";
+@import "documents";
+@import "email_preview";
+@import "error_notification";
+@import "issuer_companies";
+@import "jobs_status";
+@import "mark_paid";
+@import "offers";
+@import "scaffolds";
+@import "searchable_dropdown";
+@import "utilities";

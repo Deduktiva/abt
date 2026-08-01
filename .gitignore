@@ -30,6 +30,11 @@
 
 /public/assets
 
+# Compiled CSS (rails dartsass:build) and its generated icon partial.
+/app/assets/builds/*
+!/app/assets/builds/.keep
+/app/assets/stylesheets/_trix_icon_shapes.scss
+
 
 # Ignore key files for decrypting credentials and more.
 /config/*.key

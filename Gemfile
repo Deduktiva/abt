@@ -1,6 +1,10 @@
 source "https://rubygems.org"
 
 gem "rails", "~> 8.1.3"
+# The modern asset pipeline for Rails [https://github.com/rails/propshaft]
+gem "propshaft"
+# Compile SCSS with Dart Sass [https://github.com/rails/dartsass-rails]
+gem "dartsass-rails"
 # Use sqlite3 as the database for Active Record
 gem "sqlite3", ">= 2.1"
 # Use the Puma web server [https://github.com/puma/puma]
@@ -58,8 +62,9 @@ end
 
 gem "config"
 
-gem "sass-rails"  # necessary for bootstrap
-gem "bootstrap", "~> 5.3"
+# SCSS source only (imported via dartsass); require: false keeps its
+# sprockets-era railtie (and sassc-rails) out of the app.
+gem "bootstrap", "~> 5.3", require: false
 gem "bootstrap-icons", "~> 1.0", require: "bootstrap_icons"
 gem "haml-rails"
 gem "simple_form"

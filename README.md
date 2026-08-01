@@ -40,7 +40,7 @@ Setup
 bin/setup
 ```
 
-Installs gems, sets up `config/database.yml`, prepares the dev and test databases, verifies the FOP container, and prints a signup invite URL. Idempotent. If FOP isn't built yet, run `bin/setup-fop`.
+Installs gems, sets up `config/database.yml`, prepares the dev and test databases, compiles the CSS, verifies the FOP container, and prints a signup invite URL. Idempotent. If FOP isn't built yet, run `bin/setup-fop`.
 
 Open the printed invite URL in a browser to register the first user (auto-promoted to Admin). Run tests with `bundle exec rails test`. For PostgreSQL instead of SQLite, see `docs/postgres-dev.md`.
 

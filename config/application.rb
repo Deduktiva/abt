@@ -16,6 +16,12 @@ module Abt
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
 
+    # SCSS sources are compiled by dartsass into app/assets/builds; keep the
+    # raw sources out of Propshaft. Must be set here, not in an initializer —
+    # Propshaft applies excluded_paths in its engine initializer, which runs
+    # before config/initializers.
+    config.assets.excluded_paths << Rails.root.join("app/assets/stylesheets")
+
     # Modern Permissions-Policy header (Rails 8 still emits Feature-Policy).
     require_relative "../app/middleware/permissions_policy_header"
     config.middleware.use PermissionsPolicyHeader

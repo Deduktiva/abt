@@ -34,6 +34,7 @@
         .row.mb-3{"data-controller" => "permission-pair"}
           = label_tag nil, 'Permissions', class: 'col-lg-2 col-md-3 col-form-label'
           .col-sm-9
+            = hidden_field_tag 'group[permission_keys][]', ''
             - selected = @group.permissions
             - Permission.grouped.each do |category, entries|
               .card.mb-2
@@ -58,6 +59,7 @@
       .row.mb-3
         = label_tag nil, 'Members', class: 'col-lg-2 col-md-3 col-form-label'
         .col-sm-9
+          = hidden_field_tag 'group[user_ids][]', ''
           - current_member_ids = @group.user_ids
           - User.order(:username).each do |user|
             .form-check

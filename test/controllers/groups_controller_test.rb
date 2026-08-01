@@ -41,6 +41,16 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[customers.view], group.permissions.to_a
   end
 
+  test "unchecking all permissions and members removes them" do
+    group = groups(:sales)
+    group.users << users(:bob)
+    patch group_path(group), params: {
+      group: { name: group.name, description: group.description }
+    }
+    assert_empty group.reload.permissions.to_a
+    assert_empty group.users
+  end
+
   test "built-in admin group cannot be deleted" do
     admin = groups(:admin)
     assert_no_difference "Group.count" do

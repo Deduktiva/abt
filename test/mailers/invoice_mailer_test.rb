@@ -176,6 +176,17 @@ class InvoiceMailerTest < ActionMailer::TestCase
     assert_match "Example Company B.V.", text_body
   end
 
+  test "customer_email text part renders user data raw, not HTML-escaped" do
+    invoice = invoices(:published_invoice)
+    invoice.update!(cust_reference: "Ref <B7> & Co")
+
+    mail = InvoiceMailer.with(invoice: invoice).customer_email
+
+    text = mail.text_part.body.decoded
+    assert_includes text, "Reference: Ref <B7> & Co"
+    assert_no_match(/&lt;|&amp;|&#39;/, text)
+  end
+
   test "customer_email subject strips CRLF from user-controlled substitution values" do
     invoice = invoices(:auto_email_invoice)
     invoice.update!(

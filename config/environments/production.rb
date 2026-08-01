@@ -38,8 +38,8 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
-  # Apache terminates TLS and reverse-proxies to Puma over a Unix socket, so
-  # Puma sees plain HTTP. Apache sets `X-Forwarded-Proto: https` via
+  # Apache terminates TLS and reverse-proxies to Puma, so Puma sees plain HTTP.
+  # Apache sets `X-Forwarded-Proto: https` via
   # `RequestHeader set` (which overrides any client-supplied value — see
   # deploy/apache/abt-app.conf), and Rack reads that header so request.scheme
   # / request.ssl? / force_ssl behave correctly. trusted_proxies marks

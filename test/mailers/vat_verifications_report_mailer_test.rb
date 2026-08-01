@@ -64,6 +64,22 @@ class VatVerificationsReportMailerTest < ActionMailer::TestCase
     assert_match @customer_b.matchcode, text
   end
 
+  test "daily_report prior state skips outage rows when finding the last valid result" do
+    CustomerVatVerification.create!(
+      customer: @customer_a, vat_id: "BE0123456749", country_iso2: "BE",
+      valid_response: true, raw_response: "{}", created_at: 10.days.ago
+    )
+    CustomerVatVerification.create!(
+      customer: @customer_a, vat_id: "BE0123456749", country_iso2: "BE",
+      valid_response: nil, error_code: "MS_UNAVAILABLE", raw_response: "{}",
+      created_at: 2.days.ago
+    )
+
+    mail = VatVerificationsReportMailer.with(newly_invalid: @newly_invalid, stuck_unavailable: []).daily_report
+
+    assert_match "was valid until", mail.html_part.body.to_s
+  end
+
   test "daily_report returns NullMail when both event lists are empty" do
     mail = VatVerificationsReportMailer.with(newly_invalid: [], stuck_unavailable: []).daily_report
 

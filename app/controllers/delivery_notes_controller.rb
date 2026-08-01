@@ -349,7 +349,9 @@ protected
   end
 
   def delivery_note_params
-    params.require(:delivery_note).permit(:customer_id, :project_id, :cust_reference, :cust_order, :internal_reference, :prelude, :delivery_start_date, :delivery_end_date,
-      delivery_note_lines_attributes: [ :id, :type, :title, :description, :position, :quantity, :_destroy ])
+    params.expect(delivery_note: [
+      :customer_id, :project_id, :cust_reference, :cust_order, :internal_reference, :prelude, :delivery_start_date, :delivery_end_date,
+      delivery_note_lines_attributes: [ [ :id, :type, :title, :description, :position, :quantity, :_destroy ] ]
+    ])
   end
 end

@@ -68,6 +68,6 @@ class SalesTaxRatesController < ApplicationController
 
 private
   def sales_tax_rates_params
-    params.require(:sales_tax_rate).permit(:sales_tax_customer_class_id, :sales_tax_product_class_id, :rate)
+    params.expect(sales_tax_rate: [ :sales_tax_customer_class_id, :sales_tax_product_class_id, :rate ])
   end
 end

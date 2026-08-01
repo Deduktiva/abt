@@ -70,7 +70,7 @@ class TeamsController < ApplicationController
   end
 
   def team_attributes
-    params.require(:team).permit(:name, :description)
+    params.expect(team: [ :name, :description ])
   end
 
   def assign_members(team, user_ids)

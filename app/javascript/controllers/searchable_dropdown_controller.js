@@ -217,16 +217,17 @@ export default class extends Controller {
 
   observeDropdownChanges(callback) {
     const observer = new MutationObserver((mutations) => {
-      // Check if item options were added/changed
-      const hasItemOptions = mutations.some(mutation =>
+      // The Turbo Stream re-render always adds .dropdown-content, even when
+      // there are no options (empty-state message only)
+      const contentReplaced = mutations.some(mutation =>
         Array.from(mutation.addedNodes).some(node =>
           node.nodeType === Node.ELEMENT_NODE &&
-          (node.classList?.contains('searchable-option') ||
-           node.querySelector?.('.searchable-option'))
+          (node.classList?.contains('dropdown-content') ||
+           node.querySelector?.('.dropdown-content'))
         )
       )
 
-      if (hasItemOptions) {
+      if (contentReplaced) {
         observer.disconnect()
         callback()
       }

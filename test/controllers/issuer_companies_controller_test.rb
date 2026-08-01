@@ -37,7 +37,7 @@ class IssuerCompaniesControllerTest < ActionDispatch::IntegrationTest
         legal_name: ""
       }
     }
-    assert_response :success
+    assert_response :unprocessable_content
     assert_select ".alert-danger"
     assert_select "form"
   end
@@ -134,7 +134,7 @@ class IssuerCompaniesControllerTest < ActionDispatch::IntegrationTest
     patch issuer_company_url, params: {
       issuer_company: { vat_id_recheck_days: 0 }
     }
-    assert_response :success
+    assert_response :unprocessable_content
     assert_select ".alert-danger"
     assert_equal original, @issuer_company.reload.vat_id_recheck_days
   end

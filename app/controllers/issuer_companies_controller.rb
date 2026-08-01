@@ -40,7 +40,7 @@ class IssuerCompaniesController < ApplicationController
     if @issuer_company.update(params_hash)
       redirect_to issuer_company_path, notice: "Issuer company was successfully updated."
     else
-      render :edit
+      render :edit, status: :unprocessable_content
     end
   end
 

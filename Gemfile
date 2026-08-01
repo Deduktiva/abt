@@ -52,7 +52,7 @@ group :test do
   gem "simplecov-cobertura", require: false # Cobertura XML for Codecov in CI
 end
 
-group :test, :prod do
+group :test, :production do
   gem "pg", "~> 1.6"
 end
 

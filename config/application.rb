@@ -34,6 +34,12 @@ module Abt
     config.action_mailer.delivery_method = :mailgun
     config.action_mailer.mailgun_settings = Rails.application.credentials.mailgun
 
+    # Active Storage exists only as ActionText plumbing; the rich-text editor
+    # blocks attachments (rich_text_controller.js), and document PDFs use the
+    # custom Attachment model. Disable variants so no image-processing stack
+    # (image_processing, ruby-vips/libvips, ImageMagick) is needed.
+    config.active_storage.variant_processor = :disabled
+
     # Route Solid Queue's ActiveRecord models to the dedicated queue database
     # in all environments so the jobs status page can read them.
     config.solid_queue.connects_to = { database: { writing: :queue } }

@@ -6,6 +6,10 @@
                 xmlns:abt="http://deduktiva.com/Namespace/ABT/XSLT">
     <xsl:output method="xml" indent="yes"/>
     <xsl:strip-space elements="*" />
+    <!-- The prelude/boilerplate FO fragments carry significant whitespace-only
+         text nodes (e.g. the space between two styled inlines); exempt them
+         from strip-space or "Bold Italic" renders as "BoldItalic". -->
+    <xsl:preserve-space elements="fo:*" />
     <xsl:decimal-format name="european" decimal-separator=',' grouping-separator='.' />
 
     <!-- Common definitions -->

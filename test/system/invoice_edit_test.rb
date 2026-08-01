@@ -229,6 +229,26 @@ class InvoiceEditTest < ApplicationSystemTestCase
     end
   end
 
+  test "project dropdown shows empty state and clears stale selection when customer has no projects" do
+    projects(:reusable_project).update!(active: false)
+    invoice = invoices(:draft_invoice)
+    visit "/invoices/#{invoice.id}/edit"
+    assert_no_text "Loading...", wait: 10
+
+    within(".customer-dropdown") do
+      find('[data-searchable-dropdown-target="select"]').click
+      assert_selector ".searchable-option", wait: 10
+      find(".searchable-option", text: "No Email Customer Ltd").click
+    end
+
+    within(".project-dropdown") do
+      find('[data-searchable-dropdown-target="select"]').click
+      assert_text "No projects available", wait: 10
+      assert_no_text "Loading..."
+    end
+    assert_equal "", find('input[name="invoice[project_id]"]', visible: false).value
+  end
+
   test "customer dropdown keyboard navigation works" do
     invoice = invoices(:draft_invoice)
     visit "/invoices/#{invoice.id}/edit"

@@ -93,8 +93,8 @@ class OffersController < ApplicationController
 
   def accept
     order_pdf = params[:order_pdf]
-    if order_pdf.present? && Attachment.detect_content_type(order_pdf.tempfile) != "application/pdf"
-      return redirect_to @offer, alert: "Order document must be a PDF."
+    if order_pdf.present? && (error = order_pdf_error(order_pdf))
+      return redirect_to @offer, alert: error
     end
     @offer.accept!(order_number: params[:order_number], ordered_on: params[:ordered_on],
                    order_pdf: order_pdf)
@@ -149,8 +149,8 @@ class OffersController < ApplicationController
 
   def upload_order_pdf
     uploaded = params[:order_pdf]
-    if uploaded.blank? || Attachment.detect_content_type(uploaded.tempfile) != "application/pdf"
-      return redirect_to @offer, alert: "Order document must be a PDF."
+    if (error = uploaded.blank? ? "Order document must be a PDF." : order_pdf_error(uploaded))
+      return redirect_to @offer, alert: error
     end
     @offer.attach_order_pdf(uploaded)
     @offer.save!
@@ -219,6 +219,16 @@ class OffersController < ApplicationController
     return true if @offer.accepted?
     redirect_to @offer, alert: "This offer must be accepted before its milestones can be converted."
     false
+  end
+
+  # Mirrors CustomerPortal::AcceptancesController#file_error: without the
+  # UploadedFile and size checks, a crafted non-file param 500s on #tempfile
+  # and an oversized PDF raises RecordInvalid from Attachment#save!.
+  def order_pdf_error(file)
+    return "Order document must be a PDF." unless file.is_a?(ActionDispatch::Http::UploadedFile)
+    return "Order document is too large (maximum is #{Attachment::MAX_SIZE_BYTES / 1.megabyte} MB)." if file.size > Attachment::MAX_SIZE_BYTES
+    return "Order document must be a PDF." if Attachment.detect_content_type(file.tempfile) != "application/pdf"
+    nil
   end
 
   def accepted_milestone!

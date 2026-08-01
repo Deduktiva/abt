@@ -46,6 +46,18 @@ class EmailPreviewTest < ApplicationSystemTestCase
     end
   end
 
+  test "email preview shows angle-bracket subject tokens literally" do
+    invoice = invoices(:auto_email_invoice)
+    invoice.update_column(:cust_reference, "Ref <B7>")
+    visit invoice_path(invoice)
+
+    click_on "Send"
+
+    within "[data-generic-email-preview-target='content']" do
+      assert_text "Invoice AUTO-ORDER-111 - Ref: Ref <B7>", wait: 5
+    end
+  end
+
   test "post-publish banner strips the published query param so reloads don't re-trigger auto-download" do
     visit invoice_path(@invoice, published: 1)
     assert_selector ".alert-success", text: "booked"

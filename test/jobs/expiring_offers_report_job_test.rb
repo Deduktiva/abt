@@ -70,6 +70,20 @@ class ExpiringOffersReportJobTest < ActiveJob::TestCase
     assert_nil offer.reported_expired_at
   end
 
+  test "delivery failure leaves offers unmarked so the next run retries" do
+    offer = offers(:sent_offer)
+    offer.update!(expires_at: Date.yesterday)
+
+    ExpiringOffersMailer.define_singleton_method(:with) { |*| raise "Mailgun down" }
+    assert_raises(RuntimeError) { ExpiringOffersReportJob.perform_now }
+
+    offer.reload
+    assert offer.sent?
+    assert_nil offer.reported_expired_at
+  ensure
+    ExpiringOffersMailer.singleton_class.send(:remove_method, :with)
+  end
+
   test "already-reported offers are not re-reported" do
     offer = offers(:sent_offer)
     offer.update!(state: "expired", expires_at: Date.yesterday, reported_expired_at: Time.current)

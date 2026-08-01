@@ -10,7 +10,10 @@ class ExpiringOffersReportJob < ApplicationJob
 
     return if expiring.empty?
 
-    Offer.where(id: expiring.map(&:id), state: "sent").update_all(state: "expired", reported_expired_at: Time.current)
+    # Deliver before marking so a delivery failure raises and leaves the
+    # offers unmarked — the next run picks them up again. Same rationale as
+    # VatVerificationsReportJob.
     ExpiringOffersMailer.with(offers: expiring).expiring_report.deliver_now
+    Offer.where(id: expiring.map(&:id), state: "sent").update_all(state: "expired", reported_expired_at: Time.current)
   end
 end

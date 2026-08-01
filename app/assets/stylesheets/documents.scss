@@ -25,8 +25,8 @@ table.document-lines-table {
   // Subheading rows: a soft teal tint band with a left rule instead of a
   // flat gray fill, echoing the teal header rule above. Hardcoded to match
   // $primary (#22807f) / tint-color($primary, 40%) (#7ab3b2) from
-  // bootstrap_and_overrides.css.scss — this file compiles standalone via
-  // Sprockets, so it can't share that file's Sass variables. `box-shadow:
+  // bootstrap_and_overrides.scss, hardcoded rather than shared as a Sass
+  // variable to keep the files independent. `box-shadow:
   // none` opts the row out of the table's striped/hover inset-shadow
   // overlay (see Bootstrap's _tables.scss), so this tint doesn't shift with
   // row parity or hover.

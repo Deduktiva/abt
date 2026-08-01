@@ -20,9 +20,9 @@ trix-toolbar .trix-button-group--file-tools { display: none; }
 // of Trix's default rounded corners, and swap Trix's baked-in icon set for
 // the same bootstrap-icons family used by action_icon/nav_icon. Hardcoded
 // to $primary (#22807f) / tint-color($primary, 40%) (#7ab3b2) from
-// bootstrap_and_overrides.css.scss — this file compiles standalone via
-// Sprockets, so it can't share that file's Sass variables (see the same
-// note in documents.css.scss).
+// bootstrap_and_overrides.scss — this file is imported before that one,
+// so it can't share its Sass variables (see the same note in
+// documents.scss).
 trix-toolbar .trix-button-group {
   border-color: var(--bs-border-color);
   border-radius: .25rem;
@@ -54,28 +54,11 @@ trix-toolbar .trix-button.trix-active {
 // mask-image only consumes the alpha channel, so the actual visible color
 // always comes from the button's own `color` (set above per state) rather
 // than from the SVG itself. No separate SVG copy is needed per color/theme.
-// Path data comes straight from the bootstrap-icons gem at asset-compile
-// time (this file is a Sprockets .scss.erb) rather than being hand-copied,
-// so it can't drift from the icon set action_icon/nav_icon use.
-<%
-  trix_icon_names = {
-    "bold" => "type-bold",
-    "italic" => "type-italic",
-    "heading-1" => "type-h1",
-    "bullet-list" => "list-ul",
-    "number-list" => "list-ol",
-    "undo" => "arrow-counterclockwise",
-    "redo" => "arrow-clockwise",
-  }
-  trix_icon_shapes = trix_icon_names.transform_values do |gem_name|
-    BootstrapIcons::BootstrapIcon.new(gem_name).path.gsub('"', "'").gsub(/\n\s*/, "")
-  end
-%>
-$trix-icon-shapes: (
-<% trix_icon_shapes.each do |name, shape| %>
-  "<%= name %>": "<%= shape %>",
-<% end %>
-);
+// Path data comes straight from the bootstrap-icons gem at build time
+// (lib/tasks/trix_icons.rake generates the imported partial) rather than
+// being hand-copied, so it can't drift from the icon set
+// action_icon/nav_icon use.
+@import "trix_icon_shapes";
 
 trix-toolbar .trix-button--icon::before {
   background-image: none;

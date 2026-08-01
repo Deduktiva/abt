@@ -8,7 +8,7 @@ This is "ABT", a Rails 8 application for invoice and delivery-note management. B
 
 ## Repository Layout
 
-- All repo-local executables live in `bin/` — Bundler binstubs plus custom scripts (`abt-fop`, `abt-fop-container`, `jobs`, `journal`, `postgres-dev`, `production-update`, `setup`, `setup-fop`).
+- All repo-local executables live in `bin/` — Bundler binstubs plus custom scripts (`abt-fop`, `abt-fop-container`, `dev`, `jobs`, `journal`, `postgres-dev`, `production-update`, `setup`, `setup-fop`).
 - Long-form documentation lives in `docs/` and uses lowercase kebab-case filenames (`postgres-dev.md`, `production-update.md`).
 - Do not reintroduce a `script/` directory.
 
@@ -20,7 +20,8 @@ This is "ABT", a Rails 8 application for invoice and delivery-note management. B
 - `bundle exec rails db:seed` - Load seed data
 
 ### Development
-- `bundle exec rails server` - Start the development server
+- `bin/dev` - Start the development server plus `dartsass:watch` (CSS rebuilds on change)
+- `bundle exec rails server` - Start the development server only; run `bundle exec rails dartsass:build` after SCSS changes
 - `bundle exec rails console` - Open Rails console (use for testing helpers and models)
 - `bundle exec rails test` - Run the test suite (NEVER use `rails test` - it doesn't handle migrations properly)
 
@@ -50,6 +51,11 @@ For testing against PostgreSQL (matches production environment):
 - **OfferVersion** - Snapshot of offer content; live/editable while draft, frozen once sent
 - **OfferMilestone** - Billable line within a version; converts to an invoice or delivery note
 - **User** + `UserCredential`, `UserEmail`, `UserInvite`, `UserSession`, `UserAuditEvent` - Passkey/WebAuthn auth, invite-only signup, audit log
+
+### Assets
+- Propshaft + dartsass-rails + importmap. SCSS sources in `app/assets/stylesheets/` compile via `rails dartsass:build` (or `dartsass:watch`) into `app/assets/builds/`; Propshaft serves/digests the result. The `bootstrap` gem is `require: false` — only its SCSS is used, via a Dart Sass `--load-path` (`config/initializers/assets.rb`).
+- `test/test_helper.rb` rebuilds the CSS when stale, so `bundle exec rails test` needs no manual build step.
+- The trix toolbar icon partial (`_trix_icon_shapes.scss`) is generated from the bootstrap-icons gem by `lib/tasks/trix_icons.rake`, hooked into every dartsass build.
 
 ### Shared Concerns
 - `PublishableDocument`, `DocumentWithLines` (controllers) - draft/published guards and line-form plumbing for Invoice + DeliveryNote

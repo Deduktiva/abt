@@ -25,6 +25,9 @@ FileUtils.chdir APP_ROOT do
   puts "\n== Preparing database =="
   system! "bin/rails db:prepare"
 
+  puts "\n== Compiling CSS =="
+  system! "bin/rails dartsass:build"
+
   puts "\n== Checking FOP container =="
   if system("bin/abt-fop-container", "-version", out: File::NULL, err: File::NULL)
     puts "FOP container OK."

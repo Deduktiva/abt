@@ -36,6 +36,14 @@ Capybara.ignore_hidden_elements = true
 # Automatically apply migrations to test database
 ActiveRecord::Migration.maintain_test_schema!
 
+# `rails test` doesn't run test:prepare, so build the dartsass CSS here when
+# missing or stale — system tests need it for Capybara visibility semantics.
+compiled_css = Rails.root.join("app/assets/builds/application.css")
+scss_sources = Rails.root.glob("app/assets/stylesheets/**/*.scss")
+if !compiled_css.exist? || compiled_css.mtime < scss_sources.map { |f| File.mtime(f) }.max
+  system("bin/rails dartsass:build", exception: true, chdir: Rails.root.to_s)
+end
+
 Dir[File.expand_path("support/**/*.rb", __dir__)].each { |f| require f }
 
 class ActiveSupport::TestCase

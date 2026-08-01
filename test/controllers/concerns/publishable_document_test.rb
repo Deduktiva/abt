@@ -78,6 +78,6 @@ class PublishableDocumentTest < ActionDispatch::IntegrationTest
     invoice = create_invoice_with_item_line(cust_reference: "WITH_ITEM")
     get preview_invoice_url(invoice)
     assert_response :success
-    assert_equal "application/pdf", response.content_type
+    assert_equal "application/pdf", response.media_type
   end
 end

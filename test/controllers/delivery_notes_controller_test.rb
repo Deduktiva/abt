@@ -111,13 +111,13 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
   test "should get preview pdf" do
     get preview_delivery_note_url(delivery_notes(:draft_delivery_note))
     assert_response :success
-    assert_equal "application/pdf", response.content_type
+    assert_equal "application/pdf", response.media_type
   end
 
   test "should get pdf for published delivery note" do
     get pdf_delivery_note_url(delivery_notes(:published_delivery_note))
     assert_response :success
-    assert_equal "application/pdf", response.content_type
+    assert_equal "application/pdf", response.media_type
   end
 
   test "should not get pdf for draft delivery note" do

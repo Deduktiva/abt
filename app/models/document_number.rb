@@ -2,6 +2,8 @@ class NoDocumentNumberRangeError < StandardError; end
 class DateNotMonotonicError < StandardError; end
 
 class DocumentNumber < ApplicationRecord
+  validates :code, presence: true, uniqueness: true
+
   def get_next(date)
     if !self.last_date.nil? && date < self.last_date
       raise DateNotMonotonicError.new "New date #{date} is older than previously used date #{self.last_date}"

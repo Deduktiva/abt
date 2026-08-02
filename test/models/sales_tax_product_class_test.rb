@@ -18,6 +18,39 @@ class SalesTaxProductClassTest < ActiveSupport::TestCase
     assert_raises(ActiveRecord::RecordNotUnique) { klass.save!(validate: false) }
   end
 
+  test "destroy is blocked when products reference the class" do
+    klass = SalesTaxProductClass.create!(name: "Product Only", indicator_code: "PRO")
+    Product.create!(title: "Widget", rate: 10, sales_tax_product_class: klass)
+
+    assert_not klass.destroy
+    assert_includes klass.errors[:base], "Cannot delete record because dependent products exist"
+  end
+
+  test "destroy is blocked when invoice tax classes reference the class" do
+    klass = SalesTaxProductClass.create!(name: "Tax Class Only", indicator_code: "ITC")
+    InvoiceTaxClass.create!(invoice: invoices(:published_invoice), sales_tax_product_class: klass,
+                            name: klass.name, indicator_code: klass.indicator_code, rate: 20, net: 0)
+
+    assert_not klass.destroy
+    assert_includes klass.errors[:base], "Cannot delete record because dependent invoice tax classes exist"
+  end
+
+  test "destroy is blocked when invoice lines reference the class" do
+    klass = SalesTaxProductClass.create!(name: "Line Only", indicator_code: "LIN")
+    invoice_lines(:draft_item).update!(sales_tax_product_class: klass)
+
+    assert_not klass.destroy
+    assert_includes klass.errors[:base], "Cannot delete record because dependent invoice lines exist"
+  end
+
+  test "destroy is blocked when offer versions reference the class" do
+    klass = SalesTaxProductClass.create!(name: "Offer Only", indicator_code: "OFF")
+    offer_versions(:draft_offer_v1).update!(sales_tax_product_class: klass)
+
+    assert_not klass.destroy
+    assert_includes klass.errors[:base], "Cannot delete record because dependent offer versions exist"
+  end
+
   test "default returns the row flagged as default" do
     assert_equal sales_tax_product_classes(:standard), SalesTaxProductClass.default
   end

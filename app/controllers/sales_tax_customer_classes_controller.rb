@@ -47,8 +47,12 @@ class SalesTaxCustomerClassesController < ApplicationController
   # DELETE /sales_tax_customer_classes/1
   def destroy
     @sales_tax_customer_class = SalesTaxCustomerClass.find(params[:id])
-    @sales_tax_customer_class.destroy
-    redirect_to sales_tax_customer_classes_url
+
+    if @sales_tax_customer_class.destroy
+      redirect_to sales_tax_customer_classes_url, notice: "Sales tax customer class was successfully deleted."
+    else
+      redirect_to sales_tax_customer_classes_url, alert: @sales_tax_customer_class.errors.full_messages.join(", ")
+    end
   end
 
 private

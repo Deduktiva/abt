@@ -47,8 +47,12 @@ class SalesTaxProductClassesController < ApplicationController
   # DELETE /sales_tax_product_classes/1
   def destroy
     @sales_tax_product_class = SalesTaxProductClass.find(params[:id])
-    @sales_tax_product_class.destroy
-    redirect_to sales_tax_product_classes_url
+
+    if @sales_tax_product_class.destroy
+      redirect_to sales_tax_product_classes_url, notice: "Sales tax product class was successfully deleted."
+    else
+      redirect_to sales_tax_product_classes_url, alert: @sales_tax_product_class.errors.full_messages.join(", ")
+    end
   end
 
 private

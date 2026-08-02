@@ -300,6 +300,72 @@ listing, showing, publishing, converting, attachment access, and document
 numbering must all be proven company-local with the two-company fixture set.
 Expect broad-but-shallow churn (~40 test files reference the issuer today).
 
+## Creating additional companies (rake task first, web UI later)
+
+Creating the *record* is trivial; what actually needs building is the
+per-company bootstrap and a hard ordering constraint.
+
+### Ordering constraint (correctness, not convenience)
+
+A second `active` company must not exist until Phases 0–1 are complete:
+
+- The unique index on `issuer_companies.active` physically rejects a second
+  `active: true` row today, and dropping it early would make
+  `get_the_issuer!` (`where(active: true).first`) **nondeterministic** —
+  invoices could publish, and mail could send, under the wrong legal entity.
+  Every `get_the_issuer!` call site must already be issuer-aware
+  (Phase 0) and rows must be scoped (Phase 1) before the first extra
+  company is created.
+- The creation task therefore lands **after Phase 1**; it does not require
+  Phase 2 (URL scoping/UI) — a second company can exist headless until the
+  switcher ships, invisible to users because all reads are scoped to the
+  companies surfaced in the UI.
+
+### `IssuerCompanyBootstrap` service (shared by rake task and later UI)
+
+One transaction that produces a *publishable* company, not just a row:
+
+1. **Issuer row** with all validated fields. The schema defaults for
+   `document_email_from` / `document_email_auto_bcc` / `reporting_email` are
+   `*@example.com` placeholders — the service must require real values
+   rather than inherit them, or the first published invoice mails a
+   placeholder address.
+2. **`document_numbers` rows** for `invoice`, `delivery_note`, `offer` —
+   without them the first publish raises `NoDocumentNumberRangeError`.
+   Formats/start sequences default to copies of an existing company's rows
+   (with `sequence: 0`, `last_date: nil`), overridable.
+3. **Tax scaffolding** (choose per creation): clone
+   `sales_tax_customer_classes` / `sales_tax_product_classes` (incl. the
+   one `is_default`) / `sales_tax_rates` from a template company, or start
+   empty and rely on the per-company "setup not done" dashboard state.
+   Cloning is the right default when the new entity is in the same country;
+   empty is right otherwise (rates/indicator codes are country-specific).
+4. **Logos** optional — renderers are nil-safe (`pdf_logo.present?` guards);
+   the task accepts file paths, the UI can add them later.
+
+Not part of the service, but required operationally: the new
+`document_email_from` sender domain must be valid in Mailgun before the
+first send.
+
+### Rake tasks (mirroring `users:invite`)
+
+- `issuer_companies:create` — arguments or ENV for the required fields +
+  `TEMPLATE=<id>` for numbering/tax cloning; prints the created id.
+- `issuer_companies:list` — id, short_name, active, per-company setup state.
+
+### Consequential tweaks
+
+- `db/seeds.rb` uses `find_or_create_by(active: true)` — must key on
+  something stable (e.g. `short_name`) once several active rows are legal.
+- `HomeController`'s `is_setup_done` and `DashboardConsistencyChecks` count
+  tax config globally; they must count per company or a fully configured
+  company A masks an unconfigured company B (already in Phase 3, but the
+  bootstrap task is what makes it observable).
+- No uniqueness exists on `short_name`/`legal_name`; the task (and later
+  UI) should at least warn on duplicates — `short_name` feeds attachment
+  filenames and mail From headers. If Decision 5 lands on slugs, the slug
+  is minted here.
+
 ## Risk register
 
 | Risk | Mitigation |

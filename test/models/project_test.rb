@@ -113,6 +113,21 @@ class ProjectTest < ActiveSupport::TestCase
     assert @project.destroy
   end
 
+  test "destroying an unused project unlinks it from customer contacts" do
+    contact = customer_contacts(:good_eu_accounting)
+    contact.projects << @project
+    assert @project.destroy
+    assert_not_includes contact.reload.projects, @project
+  end
+
+  test "blocked destroy leaves customer contact links untouched" do
+    Invoice.create!(customer: @customer, project: @project)
+    contact = customer_contacts(:good_eu_accounting)
+    contact.projects << @project
+    assert_not @project.destroy
+    assert_includes contact.reload.projects, @project
+  end
+
   test "database rejects deleting a project still referenced by an invoice" do
     Invoice.create!(customer: @customer, project: @project)
     assert_raises(ActiveRecord::InvalidForeignKey) { @project.delete }

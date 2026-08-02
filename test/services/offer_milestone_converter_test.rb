@@ -63,8 +63,9 @@ class OfferMilestoneConverterTest < ActiveSupport::TestCase
 
   test "a converted milestone cannot convert twice, and reopen_link! clears it" do
     milestone = offer_milestones(:sent_ms_two)
+    stale = OfferMilestone.find(milestone.id)
     OfferMilestoneConverter.new(milestone).convert!
-    assert_raises(OfferMilestoneConverter::NotConvertible) { OfferMilestoneConverter.new(milestone.reload).convert! }
+    assert_raises(OfferMilestoneConverter::NotConvertible) { OfferMilestoneConverter.new(stale).convert! }
     milestone.reopen_link!
     assert_nil milestone.reload.invoice_id
     assert_nil milestone.delivery_note_id

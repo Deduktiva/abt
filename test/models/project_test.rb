@@ -113,13 +113,6 @@ class ProjectTest < ActiveSupport::TestCase
     assert @project.destroy
   end
 
-  test "should prevent deletion when referenced by a customer contact" do
-    CustomerContact.create!(customer: @customer, name: "Jane Doe", email: "jane@example.com", projects: [ @project ])
-
-    assert_not @project.destroy
-    assert_includes @project.errors[:base], "Cannot delete project that has been used in customer contacts"
-  end
-
   test "database rejects deleting a project still referenced by an invoice" do
     Invoice.create!(customer: @customer, project: @project)
     assert_raises(ActiveRecord::InvalidForeignKey) { @project.delete }

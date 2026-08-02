@@ -218,6 +218,16 @@ module ApplicationHelper
     Rails.application.config.x.app_version
   end
 
+  # Trix editor bound to the rich-text controller, which strips the file tools
+  # and blocks attachments. The blank upload URLs are load-bearing: ActionText
+  # otherwise defaults them to Active Storage route helpers, and those routes
+  # are not drawn (config/application.rb). They must be non-nil — ActionText
+  # fills the defaults in with `||=`.
+  def rich_text_field(form, method)
+    form.rich_text_area method,
+      data: { controller: "rich-text", direct_upload_url: "", blob_url_template: "" }
+  end
+
   def country_options
     @country_options ||= ISO3166::Country.all
       .map { |c| [ c.iso_short_name, c.alpha2 ] }

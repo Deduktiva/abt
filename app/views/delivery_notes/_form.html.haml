@@ -100,7 +100,7 @@
             %label.form-label Prelude
             .card
               .card-body
-                = f.rich_text_area :prelude, data: { controller: 'rich-text' }
+                = rich_text_field f, :prelude
 
     - unless @delivery_note.id.nil?
       %div{data: {controller: 'delivery-note-lines'}}

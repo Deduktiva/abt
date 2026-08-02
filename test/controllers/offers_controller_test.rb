@@ -416,6 +416,17 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     assert_nil milestone.delivery_note_id
   end
 
+  test "reopen_milestone_link redirects with alert when the linked invoice is published" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    milestone = offer_milestones(:sent_ms_two)
+    OfferMilestoneConverter.new(milestone).convert!.update!(published: true)
+    post reopen_milestone_link_offer_url(offer, milestone_id: milestone.id)
+    assert_redirected_to offer_url(offer)
+    assert flash[:alert].present?
+    assert milestone.reload.invoice_id.present?
+  end
+
   test "scaffold_milestones re-renders when the offer params are invalid" do
     offer = offers(:draft_offer)
     offer.draft_version.milestones.destroy_all

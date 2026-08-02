@@ -171,6 +171,8 @@ class OffersController < ApplicationController
     milestone = accepted_milestone!
     milestone.reopen_link!
     redirect_to @offer, notice: "Milestone link cleared."
+  rescue OfferMilestone::NotReopenable => e
+    redirect_to @offer, alert: e.message
   end
 
   protected

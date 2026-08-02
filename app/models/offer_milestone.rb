@@ -1,4 +1,6 @@
 class OfferMilestone < ApplicationRecord
+  class NotReopenable < StandardError; end
+
   TRIGGERS = %w[on_order on_acceptance on_date].freeze
   TRIGGER_LABELS = {
     "on_order" => "Upon order",
@@ -34,7 +36,13 @@ class OfferMilestone < ApplicationRecord
     trigger == "on_order"
   end
 
+  def link_reopenable?
+    !invoice&.published? && !delivery_note&.published?
+  end
+
   def reopen_link!
+    raise NotReopenable, "linked invoice is already published" if invoice&.published?
+    raise NotReopenable, "linked delivery note is already published" if delivery_note&.published?
     update!(invoice: nil, delivery_note: nil)
   end
 

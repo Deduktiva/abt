@@ -168,6 +168,21 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     assert_equal "2 emails queued for sending.", flash[:notice]
   end
 
+  test "bulk_send_emails excludes already-sent invoices" do
+    sent_invoice = invoices(:published_invoice)
+    sent_invoice.update_column(:email_sent_at, 1.day.ago)
+    sent_at = sent_invoice.reload.email_sent_at
+    unsent_invoice = invoices(:auto_email_invoice)
+
+    assert_enqueued_emails 1 do
+      post bulk_send_emails_invoices_path, params: { invoice_ids: [ sent_invoice.id, unsent_invoice.id ] }
+    end
+    perform_enqueued_jobs
+
+    assert_equal "1 emails queued for sending.", flash[:notice]
+    assert_equal sent_at, sent_invoice.reload.email_sent_at
+  end
+
   test "bulk_send_emails handles empty selection" do
     post bulk_send_emails_invoices_path, params: { invoice_ids: [] }
 

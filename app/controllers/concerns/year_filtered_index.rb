@@ -19,13 +19,12 @@ module YearFilteredIndex
     scope.in_year(@selected_year, include_drafts: @selected_year == Date.current.year)
   end
 
-  # "all", or a year within SELECTABLE_YEARS. Blank, non-numeric, out-of-range
-  # and non-scalar params (?year[]=) all fall back to the current year.
+  # "all", or a year within SELECTABLE_YEARS. Anything else — blank,
+  # non-numeric, out of range, non-scalar — falls back to the current year.
   def selected_year
-    raw = params[:year]
-    return "all" if raw == "all"
+    return "all" if params[:year] == "all"
 
-    year = Integer(raw, exception: false) if raw.is_a?(String)
+    year = integer_param(:year)
     SELECTABLE_YEARS.cover?(year) ? year : Date.current.year
   end
 end

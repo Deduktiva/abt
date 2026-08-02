@@ -27,7 +27,7 @@ class DeliveryNotesController < ApplicationController
   def index
     @email_filter = params[:email_filter] || "all"
     @acceptance_filter = params[:acceptance_filter]
-    @selected_customer_id = params[:customer_id].presence&.to_i
+    @selected_customer_id = integer_param(:customer_id)
 
     @delivery_notes = filtered_by_year(DeliveryNote.visible_to(current_user).ordered)
 

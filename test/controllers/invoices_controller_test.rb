@@ -128,6 +128,22 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_select "td", text: "THIS-YEAR"
   end
 
+  test "non-numeric customer_id param is ignored" do
+    create_draft_invoice(customer: customers(:good_eu), internal_reference: "EU-INV", date: Date.current)
+
+    get invoices_url(customer_id: "abc")
+    assert_response :success
+    assert_select "td", text: "EU-INV"
+  end
+
+  test "non-scalar customer_id param is ignored" do
+    create_draft_invoice(customer: customers(:good_eu), internal_reference: "EU-INV", date: Date.current)
+
+    get invoices_url(customer_id: [ customers(:good_eu).id, customers(:good_national).id ])
+    assert_response :success
+    assert_select "td", text: "EU-INV"
+  end
+
   test "drafts sort newest-first when document_number is null" do
     first  = create_draft_invoice(internal_reference: "DRAFT-FIRST")
     second = create_draft_invoice(internal_reference: "DRAFT-SECOND")

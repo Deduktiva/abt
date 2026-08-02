@@ -22,7 +22,7 @@ class OffersController < ApplicationController
 
   def index
     @state_filter = params[:state].presence_in(Offer::STATES) || "all"
-    @selected_customer_id = params[:customer_id].presence&.to_i
+    @selected_customer_id = integer_param(:customer_id)
 
     scope = Offer.visible_to(current_user).ordered
                  .includes(:customer, :project, draft_version: :milestones, accepted_version: { milestones: :invoice })

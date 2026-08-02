@@ -116,6 +116,15 @@ class ApplicationController < ActionController::Base
 
   private
 
+  # A query param as an integer, or nil when it is missing, non-numeric, or not
+  # a scalar at all. `?id[]=1&id[]=2` arrives as an Array and `?id[a]=1` as
+  # nested Parameters; both raise on to_i, and both reach the database as
+  # garbage when passed through. Filters treat nil as "not filtered".
+  def integer_param(name)
+    raw = params[name]
+    Integer(raw, exception: false) if raw.is_a?(String)
+  end
+
   def authenticate
     plaintext = read_auth_token
     session_record = plaintext.present? ? UserSession.authenticate(plaintext) : nil

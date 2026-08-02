@@ -25,7 +25,7 @@ class InvoicesController < ApplicationController
   # GET /invoices
   def index
     @filter = params[:filter] || "all"
-    @selected_customer_id = params[:customer_id].presence&.to_i
+    @selected_customer_id = integer_param(:customer_id)
 
     @invoices = filtered_by_year(Invoice.visible_to(current_user).ordered)
 

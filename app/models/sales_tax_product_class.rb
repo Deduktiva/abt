@@ -1,5 +1,5 @@
 class SalesTaxProductClass < ApplicationRecord
-  has_many :sales_tax_rates, dependent: :restrict_with_exception
+  has_many :sales_tax_rates, dependent: :restrict_with_error
 
   validates :name, :indicator_code, presence: true, uniqueness: true
 

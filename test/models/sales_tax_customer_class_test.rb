@@ -20,7 +20,8 @@ class SalesTaxCustomerClassTest < ActiveSupport::TestCase
       sales_tax_product_class: sales_tax_product_classes(:standard),
       rate: 5
     )
-    assert_raises(ActiveRecord::DeleteRestrictionError) { klass.destroy }
+    assert_not klass.destroy
+    assert_includes klass.errors[:base], "Cannot delete record because dependent sales tax rates exist"
   end
 
   test "destroy is blocked when customers reference the class" do
@@ -34,7 +35,8 @@ class SalesTaxCustomerClassTest < ActiveSupport::TestCase
       vat_id: "EU171717171",
       country_iso2: "NL"
     )
-    assert_raises(ActiveRecord::DeleteRestrictionError) { klass.destroy }
+    assert_not klass.destroy
+    assert_includes klass.errors[:base], "Cannot delete record because dependent customers exist"
   end
 
   test "destroy succeeds when no rates or customers reference the class" do

@@ -1,5 +1,6 @@
 class OffersController < ApplicationController
   include EmailableDocument
+  include PdfUploadChecks
 
   before_action -> { require_permission!("offers.view") },
                 only: %i[index show preview preview_email preview_email_html]
@@ -149,7 +150,7 @@ class OffersController < ApplicationController
 
   def upload_order_pdf
     uploaded = params[:order_pdf]
-    if (error = uploaded.blank? ? "Order document must be a PDF." : order_pdf_error(uploaded))
+    if (error = order_pdf_error(uploaded))
       return redirect_to @offer, alert: error
     end
     @offer.attach_order_pdf(uploaded)
@@ -221,14 +222,11 @@ class OffersController < ApplicationController
     false
   end
 
-  # Mirrors CustomerPortal::AcceptancesController#file_error: without the
-  # UploadedFile and size checks, a crafted non-file param 500s on #tempfile
-  # and an oversized PDF raises RecordInvalid from Attachment#save!.
   def order_pdf_error(file)
-    return "Order document must be a PDF." unless file.is_a?(ActionDispatch::Http::UploadedFile)
-    return "Order document is too large (maximum is #{Attachment::MAX_SIZE_BYTES / 1.megabyte} MB)." if file.size > Attachment::MAX_SIZE_BYTES
-    return "Order document must be a PDF." if Attachment.detect_content_type(file.tempfile) != "application/pdf"
-    nil
+    case pdf_upload_error(file)
+    when :missing, :not_pdf then "Order document must be a PDF."
+    when :too_large then "Order document is too large (maximum is #{Attachment::MAX_SIZE_BYTES / 1.megabyte} MB)."
+    end
   end
 
   def accepted_milestone!

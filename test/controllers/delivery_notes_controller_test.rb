@@ -220,6 +220,12 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert_match "Only PDF files are allowed", flash[:error]
   end
 
+  test "upload_acceptance rejects a non-file acceptance_pdf param" do
+    post upload_acceptance_delivery_note_url(delivery_notes(:published_delivery_note)), params: { acceptance_pdf: "not-a-file" }
+    assert_redirected_to delivery_note_url(delivery_notes(:published_delivery_note))
+    assert_match "Please select a PDF file", flash[:error]
+  end
+
   test "should convert published delivery note to invoice" do
     published_note = delivery_notes(:published_delivery_note)
     assert_nil published_note.invoice

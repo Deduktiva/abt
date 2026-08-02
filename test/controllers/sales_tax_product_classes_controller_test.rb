@@ -19,6 +19,6 @@ class SalesTaxProductClassesControllerTest < ActionDispatch::IntegrationTest
       delete sales_tax_product_class_url(product_class)
     end
     assert_redirected_to sales_tax_product_classes_url
-    assert_match(/sales tax rates/i, flash[:alert])
+    assert_match(/used in tax rates/i, flash[:alert])
   end
 end

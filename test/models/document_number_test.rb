@@ -52,6 +52,18 @@ class DocumentNumberTest < ActiveSupport::TestCase
     assert_includes dn.errors[:code], "can't be blank"
   end
 
+  test "rejects a blank format" do
+    dn = DocumentNumber.new(code: "formatless", sequence: 0)
+    assert_not dn.valid?
+    assert_includes dn.errors[:format], "can't be blank"
+  end
+
+  test "rejects a blank sequence" do
+    dn = DocumentNumber.new(code: "sequenceless", format: "%<number>04d")
+    assert_not dn.valid?
+    assert_includes dn.errors[:sequence], "can't be blank"
+  end
+
   test "database rejects a duplicate code that skips validation" do
     dn = DocumentNumber.new(code: "invoice", format: "%<number>04d", sequence: 0)
     assert_raises(ActiveRecord::RecordNotUnique) { dn.save!(validate: false) }

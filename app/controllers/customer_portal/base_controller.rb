@@ -11,7 +11,7 @@ module CustomerPortal
     private
 
     def set_issuer
-      @issuer = IssuerCompany.get_the_issuer!
+      @issuer = Business.get_the_issuer!
     end
 
     # Customer portal pages are unauthenticated, so we localize from the

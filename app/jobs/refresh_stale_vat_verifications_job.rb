@@ -8,7 +8,7 @@ class RefreshStaleVatVerificationsJob < ApplicationJob
   MAX_SPREAD_SECONDS = 6 * 60 * 60
 
   def perform
-    recheck_threshold = IssuerCompany.get_the_issuer!.vat_id_recheck_days.days.ago
+    recheck_threshold = Business.get_the_issuer!.vat_id_recheck_days.days.ago
     transient_threshold = 24.hours.ago
 
     eligible = Customer.vat_verification_required

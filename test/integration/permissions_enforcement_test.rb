@@ -6,7 +6,7 @@ class PermissionsEnforcementTest < ActionDispatch::IntegrationTest
   test "admin can reach all main sections" do
     sign_in_as(users(:alice))
     [ customers_path, projects_path, invoices_path, delivery_notes_path,
-     products_path, sales_tax_rates_path, issuer_company_path, users_path,
+     products_path, sales_tax_rates_path, business_path, users_path,
      user_invites_path, groups_path, teams_path, jobs_status_path ].each do |path|
       get path
       assert_response :success, "expected admin to load #{path}, got #{response.status}"
@@ -16,7 +16,7 @@ class PermissionsEnforcementTest < ActionDispatch::IntegrationTest
   test "user without permissions is denied with redirect" do
     sign_in_as(users(:bob))
     [ customers_path, invoices_path, products_path, sales_tax_rates_path,
-     issuer_company_path, users_path, user_invites_path, groups_path,
+     business_path, users_path, user_invites_path, groups_path,
      teams_path, jobs_status_path ].each do |path|
       get path
       assert_response :redirect, "expected redirect for #{path}, got #{response.status}"

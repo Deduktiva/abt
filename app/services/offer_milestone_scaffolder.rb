@@ -12,7 +12,7 @@ class OfferMilestoneScaffolder
     raise MilestonesPresent if version.milestones.any?
 
     rows = parse_rows
-    places = IssuerCompany.get_the_issuer!.money_decimal_places
+    places = Business.get_the_issuer!.money_decimal_places
     milestones =
       if rows.empty?
         [ version.milestones.create!(position: 1, title: "Milestone", trigger: "on_acceptance",

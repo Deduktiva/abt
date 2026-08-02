@@ -103,7 +103,7 @@ class DeliveryNotesController < ApplicationController
   end
 
   def preview
-    issuer = IssuerCompany.get_the_issuer!
+    issuer = Business.get_the_issuer!
 
     @pdf = DeliveryNoteRenderer.new(@delivery_note, issuer).render
 
@@ -111,7 +111,7 @@ class DeliveryNotesController < ApplicationController
   end
 
   def pdf
-    issuer = IssuerCompany.get_the_issuer!
+    issuer = Business.get_the_issuer!
 
     @pdf = DeliveryNoteRenderer.new(@delivery_note, issuer).render
 

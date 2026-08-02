@@ -5,7 +5,7 @@ class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
     get configuration_path
     assert_response :success
     assert_select ".breadcrumb-item.active", text: "Configuration"
-    assert_select ".config-tile", text: /Issuer Company/
+    assert_select ".config-tile", text: /Business/
     assert_select ".config-tile", text: /Product Catalog/
     assert_select ".config-tile", text: /Sales Tax/
     assert_select ".config-tile", text: /Users/

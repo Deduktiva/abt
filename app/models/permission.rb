@@ -29,8 +29,8 @@ module Permission
     Entry.new(key: "sales_tax.edit", label: "Edit sales tax configuration", category: "Catalog & tax"),
 
     # Company settings
-    Entry.new(key: "issuer_company.view", label: "View issuer company",     category: "Company settings"),
-    Entry.new(key: "issuer_company.edit", label: "Edit issuer company",     category: "Company settings"),
+    Entry.new(key: "business.view", label: "View business",     category: "Company settings"),
+    Entry.new(key: "business.edit", label: "Edit business",     category: "Company settings"),
 
     # Administration
     Entry.new(key: "users.view",                label: "View users",                          category: "Administration"),

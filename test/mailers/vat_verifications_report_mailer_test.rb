@@ -3,7 +3,7 @@ require "test_helper"
 class VatVerificationsReportMailerTest < ActionMailer::TestCase
   def setup
     ActionMailer::Base.deliveries.clear
-    @issuer = issuer_companies(:one)
+    @issuer = businesses(:one)
     @issuer.update!(reporting_email: "reports@example.com")
 
     @customer_a = customers(:good_eu)

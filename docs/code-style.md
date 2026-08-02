@@ -111,7 +111,7 @@ A separate convention from the action-button icons above — these mark navbar c
 
 ## Formatting
 - Dates: `DD.MM.YYYY` via `l(date)`; datetimes `DD.MM.YYYY HH:MM` via `l(time)`. Use `l(value.to_date)` to render a datetime as date-only. `DD.MM` (short) when the year is implied. Never American formats.
-- Currency: never hardcode `$` / `€` / `EUR`. Use `format_currency(amount)`; symbol comes from `IssuerCompany.currency`.
+- Currency: never hardcode `$` / `€` / `EUR`. Use `format_currency(amount)`; symbol comes from `Business.currency`.
 
 ## Comments
 - Default to none. Add a one-liner only when the *why* isn't obvious from the code (workaround, invariant, hidden constraint).

@@ -31,7 +31,7 @@
           %li
             %hr.dropdown-divider
           %ul.list-unstyled.mb-0{"data-error-notification-target" => "list"}
-      - config_controllers = %w[issuer_companies products sales_tax_rates users groups teams jobs_status]
+      - config_controllers = %w[businesses products sales_tax_rates users groups teams jobs_status]
       - if ConfigurationsController::PERMS.any? { |p| can?(p) }
         %li.nav-item
           = nav_link_to(nil, configuration_path, active_for: config_controllers) do

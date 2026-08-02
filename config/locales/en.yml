@@ -52,7 +52,7 @@ en:
     attributes:
       customer:
         country_iso2: "Country"
-      issuer_company:
+      business:
         country_iso2: "Country"
 
   # Override Rails' default belongs_to required message ("must exist"),

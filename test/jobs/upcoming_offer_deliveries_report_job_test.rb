@@ -14,7 +14,7 @@ class UpcomingOfferDeliveriesReportJobTest < ActiveJob::TestCase
       UpcomingOfferDeliveriesReportJob.perform_now
     end
     mail = ActionMailer::Base.deliveries.last
-    assert_equal [ IssuerCompany.get_the_issuer!.reporting_email ], mail.to
+    assert_equal [ Business.get_the_issuer!.reporting_email ], mail.to
     [ mail.html_part.body.to_s, mail.text_part.body.to_s ].each do |body|
       assert_match @offer.document_number, body
       assert_match @offer.customer.name, body

@@ -78,13 +78,13 @@ class OffersController < ApplicationController
 
     version = @offer.draft_version
     version.date = Date.current
-    pdf = OfferRenderer.new(version, IssuerCompany.get_the_issuer!).render
+    pdf = OfferRenderer.new(version, Business.get_the_issuer!).render
     send_data pdf, type: "application/pdf", disposition: "inline",
               filename: "offer-draft-#{@offer.id}.pdf"
   end
 
   def send_offer
-    sender = OfferSender.new(@offer, IssuerCompany.get_the_issuer!)
+    sender = OfferSender.new(@offer, Business.get_the_issuer!)
     if sender.send!
       redirect_to @offer, notice: "Offer sent version #{@offer.reload.current_sent_version.version_number}."
     else

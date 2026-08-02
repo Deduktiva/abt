@@ -39,7 +39,7 @@ class Offer < ApplicationRecord
   end
 
   def validity_days
-    customer.offer_validity_days.presence || IssuerCompany.get_the_issuer!.offer_validity_days
+    customer.offer_validity_days.presence || Business.get_the_issuer!.offer_validity_days
   end
 
   def editable?

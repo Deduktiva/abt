@@ -83,7 +83,7 @@
     .row.mb-3
       = f.label :offer_validity_days, 'Validity (days)', class: 'col-lg-2 col-md-3 col-form-label'
       .col-lg-3.col-md-4
-        = f.number_field :offer_validity_days, class: 'form-control', min: 1, placeholder: "Default: #{IssuerCompany.get_the_issuer!.offer_validity_days}"
+        = f.number_field :offer_validity_days, class: 'form-control', min: 1, placeholder: "Default: #{Business.get_the_issuer!.offer_validity_days}"
         .form-text Leave blank to use the issuer default.
     %div{data: { controller: 'presence-toggle' }}
       .row.mb-3

@@ -1,38 +1,38 @@
 require "test_helper"
 
-class IssuerCompaniesControllerTest < ActionDispatch::IntegrationTest
+class BusinessesControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @issuer_company = issuer_companies(:one)
+    @business = businesses(:one)
   end
 
   test "should get show" do
-    get issuer_company_url
+    get business_url
     assert_response :success
-    assert_select ".breadcrumb-item.active", text: "Issuer Company"
+    assert_select ".breadcrumb-item.active", text: "Business"
   end
 
   test "should get edit" do
-    get edit_issuer_company_url
+    get edit_business_url
     assert_response :success
     assert_select ".breadcrumb-item.active", text: "Edit"
     assert_select "form"
   end
 
-  test "should update issuer_company" do
-    patch issuer_company_url, params: {
-      issuer_company: {
+  test "should update business" do
+    patch business_url, params: {
+      business: {
         short_name: "Updated Name",
         legal_name: "Updated Legal Name"
       }
     }
-    assert_redirected_to issuer_company_url
+    assert_redirected_to business_url
     follow_redirect!
     assert_select ".alert", text: /successfully updated/
   end
 
   test "should handle invalid update" do
-    patch issuer_company_url, params: {
-      issuer_company: {
+    patch business_url, params: {
+      business: {
         short_name: "",
         legal_name: ""
       }
@@ -44,14 +44,14 @@ class IssuerCompaniesControllerTest < ActionDispatch::IntegrationTest
 
   test "should reject oversized png logo upload" do
     big = Rack::Test::UploadedFile.new(
-      StringIO.new("x" * (IssuerCompaniesController::MAX_LOGO_SIZE_BYTES + 1)),
+      StringIO.new("x" * (BusinessesController::MAX_LOGO_SIZE_BYTES + 1)),
       "image/png",
       original_filename: "big.png"
     )
-    patch issuer_company_url, params: {
-      issuer_company: { png_logo_file: big }
+    patch business_url, params: {
+      business: { png_logo_file: big }
     }
-    assert_redirected_to edit_issuer_company_url
+    assert_redirected_to edit_business_url
     follow_redirect!
     assert_select ".alert-danger", text: /too large/
   end
@@ -62,10 +62,10 @@ class IssuerCompaniesControllerTest < ActionDispatch::IntegrationTest
       "image/png",
       original_filename: "evil.png"
     )
-    patch issuer_company_url, params: {
-      issuer_company: { png_logo_file: fake }
+    patch business_url, params: {
+      business: { png_logo_file: fake }
     }
-    assert_redirected_to edit_issuer_company_url
+    assert_redirected_to edit_business_url
     follow_redirect!
     assert_select ".alert-danger", text: /not image\/png/
   end
@@ -77,86 +77,86 @@ class IssuerCompaniesControllerTest < ActionDispatch::IntegrationTest
       "image/png",
       original_filename: "logo.png"
     )
-    patch issuer_company_url, params: {
-      issuer_company: { png_logo_file: valid }
+    patch business_url, params: {
+      business: { png_logo_file: valid }
     }
-    assert_redirected_to issuer_company_url
-    @issuer_company.reload
-    assert_equal png_data, @issuer_company.png_logo
+    assert_redirected_to business_url
+    @business.reload
+    assert_equal png_data, @business.png_logo
   end
 
   test "png_logo response sets nosniff header" do
-    @issuer_company.update!(png_logo: "\x89PNG\r\n\x1A\n".b + "rest".b)
-    get png_logo_issuer_company_url
+    @business.update!(png_logo: "\x89PNG\r\n\x1A\n".b + "rest".b)
+    get png_logo_business_url
     assert_response :success
     assert_equal "nosniff", response.headers["X-Content-Type-Options"]
   end
 
   test "should ignore direct mass-assignment of pdf_logo and png_logo" do
-    @issuer_company.update!(png_logo: nil, pdf_logo: nil)
-    patch issuer_company_url, params: {
-      issuer_company: {
+    @business.update!(png_logo: nil, pdf_logo: nil)
+    patch business_url, params: {
+      business: {
         pdf_logo: "<script>alert(1)</script>",
         png_logo: "<script>alert(1)</script>"
       }
     }
-    @issuer_company.reload
-    assert_nil @issuer_company.pdf_logo
-    assert_nil @issuer_company.png_logo
+    @business.reload
+    assert_nil @business.pdf_logo
+    assert_nil @business.png_logo
   end
 
   test "update permits vat_id_recheck_days and persists the new value" do
-    patch issuer_company_url, params: {
-      issuer_company: { vat_id_recheck_days: 30 }
+    patch business_url, params: {
+      business: { vat_id_recheck_days: 30 }
     }
-    assert_redirected_to issuer_company_url
-    assert_equal 30, @issuer_company.reload.vat_id_recheck_days
+    assert_redirected_to business_url
+    assert_equal 30, @business.reload.vat_id_recheck_days
   end
 
   test "update permits money_decimal_places and persists the new value" do
-    patch issuer_company_url, params: {
-      issuer_company: { money_decimal_places: 3 }
+    patch business_url, params: {
+      business: { money_decimal_places: 3 }
     }
-    assert_redirected_to issuer_company_url
-    assert_equal 3, @issuer_company.reload.money_decimal_places
+    assert_redirected_to business_url
+    assert_equal 3, @business.reload.money_decimal_places
   end
 
   test "update permits reporting_email and persists the new value" do
-    patch issuer_company_url, params: {
-      issuer_company: { reporting_email: "reports@example.com" }
+    patch business_url, params: {
+      business: { reporting_email: "reports@example.com" }
     }
-    assert_redirected_to issuer_company_url
-    assert_equal "reports@example.com", @issuer_company.reload.reporting_email
+    assert_redirected_to business_url
+    assert_equal "reports@example.com", @business.reload.reporting_email
   end
 
   test "update rejects vat_id_recheck_days of zero" do
-    original = @issuer_company.vat_id_recheck_days
-    patch issuer_company_url, params: {
-      issuer_company: { vat_id_recheck_days: 0 }
+    original = @business.vat_id_recheck_days
+    patch business_url, params: {
+      business: { vat_id_recheck_days: 0 }
     }
     assert_response :unprocessable_content
     assert_select ".alert-danger"
-    assert_equal original, @issuer_company.reload.vat_id_recheck_days
+    assert_equal original, @business.reload.vat_id_recheck_days
   end
 
   test "offer settings round-trip" do
-    patch issuer_company_url, params: {
-      issuer_company: { offer_validity_days: 45, offer_footer: "Offer footer" }
+    patch business_url, params: {
+      business: { offer_validity_days: 45, offer_footer: "Offer footer" }
     }
-    assert_redirected_to issuer_company_url
-    @issuer_company.reload
-    assert_equal 45, @issuer_company.offer_validity_days
-    assert_equal "Offer footer", @issuer_company.offer_footer
+    assert_redirected_to business_url
+    @business.reload
+    assert_equal 45, @business.offer_validity_days
+    assert_equal "Offer footer", @business.offer_footer
   end
 
   test "should preserve whitespace in contact lines on show page" do
     # Update the fixture to have explicit whitespace
-    @issuer_company.update!(
+    @business.update!(
       document_contact_line1: "www.example.com      hi@example.com",
       document_contact_line2: "voice + xxx xxxxxx"
     )
 
-    get issuer_company_url
+    get business_url
     assert_response :success
 
     # Check that whitespace is preserved in the rendered HTML

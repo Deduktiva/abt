@@ -62,7 +62,7 @@ Rails.application.routes.draw do
 
     get "configuration", to: "configurations#index", as: :configuration
 
-    resource :issuer_company, only: [ :show, :edit, :update ] do
+    resource :business, only: [ :show, :edit, :update ] do
       get :png_logo, on: :member
     end
     # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html

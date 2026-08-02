@@ -17,7 +17,7 @@ class HomeController < ApplicationController
 
     @data = {}
     @data[:is_setup_done] = (SalesTaxCustomerClass.count > 0 and SalesTaxProductClass.count > 0 and SalesTaxProductClass.exists?(is_default: true) and SalesTaxRate.count > 0)
-    @data[:issuer_company] = IssuerCompany.get_the_issuer!
+    @data[:business] = Business.get_the_issuer!
 
     @consistency_issues = if current_user.admin?
       DashboardConsistencyChecks.new(

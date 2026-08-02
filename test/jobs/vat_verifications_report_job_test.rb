@@ -10,7 +10,7 @@ class VatVerificationsReportJobTest < ActiveJob::TestCase
     # other fixture customers.
     CustomerVatVerification.delete_all
     ActionMailer::Base.deliveries.clear
-    @issuer = issuer_companies(:one)
+    @issuer = businesses(:one)
     @issuer.update!(reporting_email: "reports@example.com")
 
     @customer = customers(:good_eu)

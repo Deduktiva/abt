@@ -1,14 +1,14 @@
-- content_for :title, 'Issuer Company'
-= breadcrumbs ['Configuration', configuration_path], ['Issuer Company', issuer_company_path], 'Edit', action: save_button
+- content_for :title, 'Business'
+= breadcrumbs ['Configuration', configuration_path], ['Business', business_path], 'Edit', action: save_button
 
-= form_with(model: @issuer_company, url: issuer_company_path, method: :patch, local: true, id: ActionButtonsHelper::PAGE_FORM_ID, class: 'form', multipart: true) do |form|
-  - if @issuer_company.errors.any?
+= form_with(model: @business, url: business_path, method: :patch, local: true, id: ActionButtonsHelper::PAGE_FORM_ID, class: 'form', multipart: true) do |form|
+  - if @business.errors.any?
     .alert.alert-danger
       %h4
-        = pluralize(@issuer_company.errors.count, 'error')
+        = pluralize(@business.errors.count, 'error')
         prohibited saving:
       %ul
-        - @issuer_company.errors.full_messages.each do |msg|
+        - @business.errors.full_messages.each do |msg|
           %li= msg
 
   .row
@@ -115,13 +115,13 @@
 
           .mb-3
             %label.form-label PDF Logo (for invoices)
-            = file_field_tag 'issuer_company[pdf_logo_file]', class: 'form-control', accept: '.pdf'
+            = file_field_tag 'business[pdf_logo_file]', class: 'form-control', accept: '.pdf'
             %small.form-text.text-muted Upload a PDF logo for use in invoice documents
-            - if @issuer_company.pdf_logo.present?
+            - if @business.pdf_logo.present?
               %div.mt-2
                 %span.badge.bg-success Current logo uploaded
-                - if @issuer_company.pdf_logo_width && @issuer_company.pdf_logo_height
-                  %small.text-muted (#{@issuer_company.pdf_logo_width}×#{@issuer_company.pdf_logo_height})
+                - if @business.pdf_logo_width && @business.pdf_logo_height
+                  %small.text-muted (#{@business.pdf_logo_width}×#{@business.pdf_logo_height})
 
           .row
             .col-md-6
@@ -135,9 +135,9 @@
 
           .mb-3
             %label.form-label PNG Logo (for website/emails)
-            = file_field_tag 'issuer_company[png_logo_file]', class: 'form-control', accept: '.png'
+            = file_field_tag 'business[png_logo_file]', class: 'form-control', accept: '.png'
             %small.form-text.text-muted Upload a PNG logo for use on website and in emails
-            - if @issuer_company.png_logo.present?
+            - if @business.png_logo.present?
               %div.mt-2
                 %span.badge.bg-success Current logo uploaded
 

@@ -1,7 +1,7 @@
 require "test_helper"
 
 class PdfGenerationTest < ActionDispatch::IntegrationTest
-  fixtures :customers, :projects, :sales_tax_customer_classes, :sales_tax_product_classes, :sales_tax_rates, :issuer_companies, :document_numbers, :languages
+  fixtures :customers, :projects, :sales_tax_customer_classes, :sales_tax_product_classes, :sales_tax_rates, :businesses, :document_numbers, :languages
 
   def setup
     @customer = customers(:good_eu)
@@ -61,12 +61,12 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
   end
 
   def test_pdf_generation_with_logo
-    # Set up issuer company with a PDF logo
-    issuer_company = issuer_companies(:one)
+    # Set up business with a PDF logo
+    business = businesses(:one)
     logo_path = Rails.root.join("test", "fixtures", "files", "example_logo.pdf")
     logo_data = File.binread(logo_path)
 
-    issuer_company.update!(
+    business.update!(
       pdf_logo: logo_data,
       pdf_logo_width: "50.0mm",
       pdf_logo_height: "15.0mm"
@@ -80,9 +80,9 @@ class PdfGenerationTest < ActionDispatch::IntegrationTest
 
     # Verify the invoice processing included logo data
     # (We can't easily inspect PDF content, but we can verify the logo was processed)
-    assert issuer_company.pdf_logo.present?, "Logo should be present in issuer company"
-    assert_equal "50.0mm", issuer_company.pdf_logo_width
-    assert_equal "15.0mm", issuer_company.pdf_logo_height
+    assert business.pdf_logo.present?, "Logo should be present in business"
+    assert_equal "50.0mm", business.pdf_logo_width
+    assert_equal "15.0mm", business.pdf_logo_height
   end
 
   def test_invoice_pdf_generation_for_export_customer_without_vat_id

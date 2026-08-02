@@ -47,7 +47,7 @@ class ViesVerifier
   # On transient errors, records a row with valid_response: nil + error_code
   # from the exception, and re-raises so callers (jobs) can retry.
   def run!
-    requester = IssuerCompany.get_the_issuer!.vat_id
+    requester = Business.get_the_issuer!.vat_id
     result = self.class.lookup_strategy.call(@customer.vat_id, requester: requester)
     record_verification(result)
   rescue *TRANSIENT_ERRORS => e

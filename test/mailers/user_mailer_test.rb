@@ -2,7 +2,7 @@ require "test_helper"
 
 class UserMailerTest < ActionMailer::TestCase
   setup do
-    IssuerCompany.find_or_create_by!(active: true) do |c|
+    Business.find_or_create_by!(active: true) do |c|
       c.short_name = "Test"
       c.legal_name = "Test GmbH"
       c.document_email_from = "noreply@example.com"

@@ -12,7 +12,7 @@ class IssuerAccentColorTest < ActionDispatch::IntegrationTest
   end
 
   test "layout omits the style tag when no accent color is configured" do
-    issuer_companies(:one).update!(document_accent_color: nil)
+    businesses(:one).update!(document_accent_color: nil)
     get users_url
     assert_response :success
     assert_no_match(/--issuer-accent-color/, @response.body)

@@ -102,7 +102,7 @@ puts "✅ Essential data created"
 if Rails.env.development?
   puts "🧪 Creating development sample data..."
 
-  issuer_company = IssuerCompany.find_or_create_by(active: true) do |issuer|
+  business = Business.find_or_create_by(active: true) do |issuer|
     issuer.active = true
     issuer.short_name = 'My Example'
     issuer.legal_name = 'My Example B.V.'
@@ -122,17 +122,17 @@ if Rails.env.development?
   end
 
   # Load example logos if they don't exist yet
-  if issuer_company.pdf_logo.blank?
+  if business.pdf_logo.blank?
     pdf_logo_path = Rails.root.join('test', 'fixtures', 'files', 'example_logo.pdf')
     png_logo_path = Rails.root.join('test', 'fixtures', 'files', 'example_logo.png')
 
-    issuer_company.update!(
+    business.update!(
       pdf_logo: File.binread(pdf_logo_path),
       pdf_logo_width: "53.0mm",
       pdf_logo_height: "16.0mm",
       png_logo: File.binread(png_logo_path)
     )
-    puts "📊 Loaded example logos for issuer company"
+    puts "📊 Loaded example logos for business"
   end
 
   default_team = Team.default || raise("Built-in Default team missing; run db:migrate first")
@@ -649,8 +649,8 @@ if Rails.env.development?
     if File.exist?(sample_pdf_path)
       last_year_invoice.attachment = Attachment.new
       last_year_invoice.attachment.set_data File.binread(sample_pdf_path), 'application/pdf'
-      last_year_invoice.attachment.filename = "#{issuer_company.short_name}-Invoice-#{last_year_invoice.document_number}.pdf"
-      last_year_invoice.attachment.title = "#{issuer_company.short_name} Invoice #{last_year_invoice.document_number}"
+      last_year_invoice.attachment.filename = "#{business.short_name}-Invoice-#{last_year_invoice.document_number}.pdf"
+      last_year_invoice.attachment.title = "#{business.short_name} Invoice #{last_year_invoice.document_number}"
       last_year_invoice.attachment.save!
     end
 

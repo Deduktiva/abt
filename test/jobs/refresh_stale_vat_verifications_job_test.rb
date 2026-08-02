@@ -6,7 +6,7 @@ class RefreshStaleVatVerificationsJobTest < ActiveJob::TestCase
   setup do
     # Start from a clean slate so we only see rows our tests enqueue.
     CustomerVatVerification.delete_all
-    @recheck_days = IssuerCompany.get_the_issuer!.vat_id_recheck_days
+    @recheck_days = Business.get_the_issuer!.vat_id_recheck_days
     # Only `good_eu` should be eligible by default; nudge the other tax-class
     # required customers out of the cohort so each test controls its own scope.
     Customer.where.not(id: customers(:good_eu).id).update_all(active: false)

@@ -1,4 +1,4 @@
-= breadcrumbs ['Configuration', configuration_path], 'Issuer Company', action: action_button('Edit', edit_issuer_company_path, permission: 'issuer_company.edit')
+= breadcrumbs ['Configuration', configuration_path], 'Business', action: action_button('Edit', edit_business_path, permission: 'business.edit')
 
 .row
   .col-md-6
@@ -10,47 +10,47 @@
           .col-sm-4
             %strong Short Name:
           .col-sm-8
-            = @issuer_company.short_name
+            = @business.short_name
 
         .row.mb-2
           .col-sm-4
             %strong Legal Name:
           .col-sm-8
-            = @issuer_company.legal_name
+            = @business.legal_name
 
         .row.mb-2
           .col-sm-4
             %strong VAT ID:
           .col-sm-8
-            = @issuer_company.vat_id
+            = @business.vat_id
 
         .row.mb-2
           .col-sm-4
             %strong Currency:
           .col-sm-8
-            = @issuer_company.currency
+            = @business.currency
 
         .row.mb-2
           .col-sm-4
             %strong Money decimal places:
           .col-sm-8
-            = @issuer_company.money_decimal_places
+            = @business.money_decimal_places
 
         .row.mb-2
           .col-sm-4
             %strong Address:
           .col-sm-8
-            - @issuer_company.address.split("\n").each do |line|
+            - @business.address.split("\n").each do |line|
               %div= line
 
         .row.mb-2
           .col-sm-4
             %strong Country:
           .col-sm-8
-            - if country_unknown?(@issuer_company.country_iso2)
+            - if country_unknown?(@business.country_iso2)
               %span.badge.bg-warning.text-dark Not set
             - else
-              = country_name(@issuer_company.country_iso2)
+              = country_name(@business.country_iso2)
 
   .col-md-6
     .card
@@ -61,19 +61,19 @@
           .col-sm-4
             %strong Bank:
           .col-sm-8
-            = @issuer_company.bankaccount_bank
+            = @business.bankaccount_bank
 
         .row.mb-2
           .col-sm-4
             %strong BIC:
           .col-sm-8
-            = @issuer_company.bankaccount_bic
+            = @business.bankaccount_bic
 
         .row.mb-2
           .col-sm-4
             %strong Account Number:
           .col-sm-8
-            = @issuer_company.bankaccount_number
+            = @business.bankaccount_number
 
 .row.mt-4
   .col-md-6
@@ -85,39 +85,39 @@
           .col-sm-4
             %strong Contact Line 1:
           .col-sm-8
-            %span.text-pre-wrap= @issuer_company.document_contact_line1
+            %span.text-pre-wrap= @business.document_contact_line1
 
         .row.mb-2
           .col-sm-4
             %strong Contact Line 2:
           .col-sm-8
-            %span.text-pre-wrap= @issuer_company.document_contact_line2
+            %span.text-pre-wrap= @business.document_contact_line2
 
         .row.mb-2
           .col-sm-4
             %strong Email From:
           .col-sm-8
-            = @issuer_company.document_email_from
+            = @business.document_email_from
 
         .row.mb-2
           .col-sm-4
             %strong Email Reply-To:
           .col-sm-8
-            = @issuer_company.document_email_reply_to
+            = @business.document_email_reply_to
 
         .row.mb-2
           .col-sm-4
             %strong Email Auto BCC:
           .col-sm-8
-            = @issuer_company.document_email_auto_bcc
+            = @business.document_email_auto_bcc
 
         .row.mb-2
           .col-sm-4
             %strong Accent Color:
           .col-sm-8
-            - if @issuer_company.document_accent_color.present?
+            - if @business.document_accent_color.present?
               %span.badge.badge-issuer-accent
-                = @issuer_company.document_accent_color
+                = @business.document_accent_color
             - else
               %em Not set
 
@@ -125,10 +125,10 @@
           .col-sm-4
             %strong PDF Logo:
           .col-sm-8
-            - if @issuer_company.pdf_logo.present?
+            - if @business.pdf_logo.present?
               %span.badge.bg-success Logo uploaded
-              - if @issuer_company.pdf_logo_width && @issuer_company.pdf_logo_height
-                %small.text-muted (#{@issuer_company.pdf_logo_width}×#{@issuer_company.pdf_logo_height})
+              - if @business.pdf_logo_width && @business.pdf_logo_height
+                %small.text-muted (#{@business.pdf_logo_width}×#{@business.pdf_logo_height})
             - else
               %em No logo set
 
@@ -136,8 +136,8 @@
           .col-sm-4
             %strong PNG Logo:
           .col-sm-8
-            - if @issuer_company.png_logo.present?
-              = image_tag png_logo_issuer_company_path, alt: @issuer_company.legal_name, class: 'issuer-logo-preview'
+            - if @business.png_logo.present?
+              = image_tag png_logo_business_path, alt: @business.legal_name, class: 'issuer-logo-preview'
             - else
               %em No logo set
 
@@ -150,7 +150,7 @@
           .col-sm-4
             %strong Email for Reports:
           .col-sm-8
-            = @issuer_company.reporting_email
+            = @business.reporting_email
 
 .row.mt-4
   .col-md-6
@@ -158,8 +158,8 @@
       .card-header
         Invoice Footer
       .card-body
-        - if @issuer_company.invoice_footer.present?
-          = simple_format(@issuer_company.invoice_footer)
+        - if @business.invoice_footer.present?
+          = simple_format(@business.invoice_footer)
         - else
           %em No footer text set
 
@@ -172,13 +172,13 @@
           .col-sm-4
             %strong Validity:
           .col-sm-8
-            = pluralize(@issuer_company.offer_validity_days, 'day')
+            = pluralize(@business.offer_validity_days, 'day')
 
         .row.mb-2
           .col-sm-4
             %strong Offer Footer:
           .col-sm-8
-            - if @issuer_company.offer_footer.present?
-              = simple_format(@issuer_company.offer_footer)
+            - if @business.offer_footer.present?
+              = simple_format(@business.offer_footer)
             - else
               %em No footer text set

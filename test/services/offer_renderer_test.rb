@@ -1,7 +1,7 @@
 require "test_helper"
 
 class OfferRendererTest < ActiveSupport::TestCase
-  setup { @issuer = IssuerCompany.get_the_issuer! }
+  setup { @issuer = Business.get_the_issuer! }
 
   test "frozen version emits snapshot recipient, number, and valid-until" do
     version = offer_versions(:sent_offer_v1)

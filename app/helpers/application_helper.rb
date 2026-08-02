@@ -44,11 +44,11 @@ module ApplicationHelper
   end
 
   def current_currency
-    @current_currency ||= IssuerCompany.get_the_issuer!&.currency || "EUR"
+    @current_currency ||= Business.get_the_issuer!&.currency || "EUR"
   end
 
   def current_money_decimal_places
-    @current_money_decimal_places ||= IssuerCompany.get_the_issuer!&.money_decimal_places || 2
+    @current_money_decimal_places ||= Business.get_the_issuer!&.money_decimal_places || 2
   end
 
   # Symbol for the issuer currency, falling back to the raw code. Single source

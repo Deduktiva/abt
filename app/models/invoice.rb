@@ -170,6 +170,7 @@ private
     self[:sum_net] = 0
     self[:sum_total] = 0
     self.invoice_lines.each do |line|
+      next if line.marked_for_destruction?
       line.calculate_amount
 
       if line.is_item?

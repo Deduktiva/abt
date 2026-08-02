@@ -112,6 +112,15 @@ class InvoiceTest < ActiveSupport::TestCase
     assert_equal invoice.sum_net + itc.value, invoice.sum_total
   end
 
+  test "update_sums excludes lines marked for destruction via nested attributes" do
+    invoice = license_invoice_with_tax_config
+    line = invoice.invoice_lines.find_by(rate: 15000)
+    invoice.update!(invoice_lines_attributes: [ { id: line.id, _destroy: true } ])
+    invoice.reload
+    assert_equal 3000, invoice.sum_net
+    assert_in_delta 3600.0, invoice.sum_total, 0.0001
+  end
+
   test "update_sums skips a published invoice" do
     invoice = invoices(:published_invoice)
     invoice.update_columns(sum_net: 999.99, sum_total: 1234.56)

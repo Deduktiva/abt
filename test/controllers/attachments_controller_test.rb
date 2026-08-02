@@ -33,6 +33,11 @@ class AttachmentsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
+  test "show denies an unknown attachment id exactly like a forbidden one" do
+    get attachment_url(id: Attachment.maximum(:id).to_i + 1)
+    assert_redirected_to root_path
+  end
+
   test "show denies an attachment whose parent invoice belongs to another team" do
     other_team = Team.create!(name: "OutsideTeam")
     outside_customer = Customer.create!(

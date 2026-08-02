@@ -2,7 +2,7 @@ class AttachmentsController < ApplicationController
   INLINE_CONTENT_TYPES = %w[application/pdf].freeze
 
   def show
-    @attachment = Attachment.find(params[:id])
+    @attachment = Attachment.find_by(id: params[:id])
     authorize_attachment!(@attachment)
 
     served_type = @attachment.safe_content_type
@@ -19,7 +19,10 @@ class AttachmentsController < ApplicationController
   # An Attachment row is reachable only through a parent record (an Invoice
   # PDF or a DeliveryNote acceptance document). Mirror the parent's team
   # visibility so an attacker can't enumerate attachment ids across teams.
+  # A missing row is denied exactly like a forbidden one: a 404 here next to a
+  # redirect there would tell an attacker which ids exist.
   def authorize_attachment!(attachment)
+    raise ApplicationController::PermissionDenied, "attachment##{params[:id]}" if attachment.nil?
     if Invoice.visible_to(current_user).where(attachment_id: attachment.id).exists?
       return require_permission!("invoices.view")
     end

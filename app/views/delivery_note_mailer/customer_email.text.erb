@@ -1,0 +1,30 @@
+<% if @salutation.present? %>
+<%= @salutation %>
+<% else %>
+<%= t('mailers.delivery_note.greeting', customer_name: @delivery_note.customer.name) %>
+<% end %>
+
+<%= t('mailers.delivery_note.main_message') %>
+
+<%= t('mailers.delivery_note.document_number', document_number: @delivery_note.document_number) %>
+<% if @delivery_note.cust_order.present? %>
+<%= t('mailers.delivery_note.order_label') %> <%= @delivery_note.cust_order %>
+<% end %>
+<% if @delivery_note.cust_reference.present? %>
+<%= t('mailers.delivery_note.reference_label') %> <%= @delivery_note.cust_reference %>
+<% end %>
+<% if @delivery_note.delivery_timeframe.present? %>
+<%= t('mailers.delivery_note.delivery_period_label') %> <%= @delivery_note.delivery_timeframe %>
+<% end %>
+
+<%= t('mailers.delivery_note.next_steps_title') %>
+<% steps = t('mailers.delivery_note.next_steps') %>
+<% steps.each_with_index do |step, index| %>
+<% if @delivery_acceptance_upload_url && index == steps.size - 1 %>
+<%= index + 1 %>. <%= t('mailers.delivery_note.next_steps_upload') %>: <%= @delivery_acceptance_upload_url %>
+<% else %>
+<%= index + 1 %>. <%= step %>
+<% end %>
+<% end %>
+
+<%= t('mailers.delivery_note.closing') %>

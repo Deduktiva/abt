@@ -1,0 +1,9 @@
+<%= yield %>
+
+<% if @issuer %>
+<%= @issuer.legal_name %>
+<% @issuer.address.split("\n").each do |line| %>
+<%= line %>
+<% end %>
+<%= AddressFormatter.country_name(@issuer.country_iso2, locale: I18n.locale) %>
+<% end %>

@@ -1,0 +1,18 @@
+<% if @salutation.present? %>
+<%= @salutation %>
+<% else %>
+<%= t('mailers.invoice.greeting', customer_name: @invoice.customer.name) %>
+<% end %>
+
+<%= t('mailers.invoice.main_message') %>
+
+<%= t('mailers.invoice.document_number', document_number: @invoice.document_number) %>
+<% if @invoice.cust_order.present? %>
+<%= t('mailers.invoice.order_label') %> <%= @invoice.cust_order %>
+<% end %>
+<% if @invoice.cust_reference.present? %>
+<%= t('mailers.invoice.reference_label') %> <%= @invoice.cust_reference %>
+<% end %>
+<%= t('mailers.invoice.due_date_label') %> <%= @invoice.due_date %>
+
+<%= t('mailers.invoice.closing') %>

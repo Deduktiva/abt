@@ -41,7 +41,7 @@ module CustomerPortal
     def file_error(file)
       case pdf_upload_error(file)
       when :missing then t("customer_portal.acceptance.errors.missing")
-      when :too_large then t("customer_portal.acceptance.errors.too_large", max: Attachment::MAX_SIZE_BYTES / 1.megabyte)
+      when :too_large then t("customer_portal.acceptance.errors.too_large", max: Attachment::MAX_SIZE_MB)
       when :not_pdf then t("customer_portal.acceptance.errors.not_pdf")
       end
     end

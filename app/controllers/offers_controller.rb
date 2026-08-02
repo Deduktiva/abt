@@ -225,7 +225,7 @@ class OffersController < ApplicationController
   def order_pdf_error(file)
     case pdf_upload_error(file)
     when :missing, :not_pdf then "Order document must be a PDF."
-    when :too_large then "Order document is too large (maximum is #{Attachment::MAX_SIZE_BYTES / 1.megabyte} MB)."
+    when :too_large then "Order document is too large (maximum is #{Attachment::MAX_SIZE_MB} MB)."
     end
   end
 

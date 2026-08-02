@@ -306,7 +306,7 @@ protected
   def acceptance_pdf_error(file)
     case pdf_upload_error(file)
     when :missing then "Please select a PDF file to upload."
-    when :too_large then "Acceptance document is too large (maximum is #{Attachment::MAX_SIZE_BYTES / 1.megabyte} MB)."
+    when :too_large then "Acceptance document is too large (maximum is #{Attachment::MAX_SIZE_MB} MB)."
     when :not_pdf then "Only PDF files are allowed for acceptance documents (detected: #{Attachment.detect_content_type(file.tempfile)})."
     end
   end

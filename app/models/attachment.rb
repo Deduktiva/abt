@@ -1,5 +1,6 @@
 class Attachment < ApplicationRecord
-  MAX_SIZE_BYTES = 25.megabytes
+  MAX_SIZE_MB = 25
+  MAX_SIZE_BYTES = MAX_SIZE_MB.megabytes
   SAFE_CONTENT_TYPES = %w[application/pdf image/png image/jpeg].freeze
   DEFAULT_CONTENT_TYPE = "application/octet-stream".freeze
 
@@ -51,7 +52,7 @@ class Attachment < ApplicationRecord
   def data_size_within_limit
     return if data.blank?
     if data.bytesize > MAX_SIZE_BYTES
-      errors.add(:data, "is too large (maximum is #{MAX_SIZE_BYTES / 1.megabyte} MB)")
+      errors.add(:data, "is too large (maximum is #{MAX_SIZE_MB} MB)")
     end
   end
 

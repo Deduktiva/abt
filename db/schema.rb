@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_02_113219) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_02_120000) do
   create_table "acceptance_submissions", force: :cascade do |t|
     t.integer "attachment_id"
     t.datetime "created_at", null: false
@@ -451,6 +451,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_113219) do
     t.integer "sales_tax_customer_class_id"
     t.integer "sales_tax_product_class_id"
     t.datetime "updated_at", null: false
+    t.index ["sales_tax_customer_class_id", "sales_tax_product_class_id"], name: "index_sales_tax_rates_on_customer_and_product_class", unique: true
   end
 
   create_table "team_memberships", force: :cascade do |t|

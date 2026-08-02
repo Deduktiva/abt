@@ -27,6 +27,21 @@ class SalesTaxRateTest < ActiveSupport::TestCase
     assert_includes rate.errors[:sales_tax_product_class], "can't be blank"
   end
 
+  test "rejects duplicate customer class and product class pair" do
+    SalesTaxRate.create!(
+      sales_tax_customer_class: @customer_class,
+      sales_tax_product_class: @product_class,
+      rate: 10
+    )
+    duplicate = SalesTaxRate.new(
+      sales_tax_customer_class: @customer_class,
+      sales_tax_product_class: @product_class,
+      rate: 20
+    )
+    assert_not duplicate.valid?
+    assert_includes duplicate.errors[:sales_tax_product_class_id], "already has a rate for this customer class"
+  end
+
   test "rate accepts 0, intermediate values, and 100" do
     [ 0, 10, 20, 100 ].each do |valid_rate|
       rate = SalesTaxRate.new(

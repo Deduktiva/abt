@@ -20,6 +20,26 @@ class OfferMilestoneTest < ActiveSupport::TestCase
     assert_equal version.milestones.sum(:amount), version.reload.sum_net
   end
 
+  test "reopen_link! refuses when the linked invoice is published" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    milestone = offer_milestones(:sent_ms_two)
+    invoice = OfferMilestoneConverter.new(milestone).convert!
+    invoice.update!(published: true)
+    assert_raises(OfferMilestone::NotReopenable) { milestone.reload.reopen_link! }
+    assert_equal invoice.id, milestone.reload.invoice_id
+  end
+
+  test "reopen_link! refuses when the linked delivery note is published" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    milestone = offer_milestones(:sent_ms_two)
+    OfferMilestoneConverter.new(milestone).convert!
+    milestone.reload.delivery_note.update!(published: true)
+    assert_raises(OfferMilestone::NotReopenable) { milestone.reopen_link! }
+    assert milestone.reload.delivery_note_id.present?
+  end
+
   test "default_skip_delivery_note true only for on_order" do
     m = OfferMilestone.new(trigger: "on_order")
     assert m.default_skip_delivery_note

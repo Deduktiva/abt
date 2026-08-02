@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_02_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_02_140000) do
   create_table "acceptance_submissions", force: :cascade do |t|
     t.integer "attachment_id"
     t.datetime "created_at", null: false
@@ -222,13 +222,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_130000) do
   end
 
   create_table "document_numbers", force: :cascade do |t|
-    t.string "code"
+    t.string "code", null: false
     t.datetime "created_at", null: false
     t.string "format"
     t.date "last_date"
     t.string "last_number"
     t.integer "sequence"
     t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_document_numbers_on_code", unique: true
   end
 
   create_table "group_memberships", force: :cascade do |t|

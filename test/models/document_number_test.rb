@@ -40,6 +40,24 @@ class DocumentNumberTest < ActiveSupport::TestCase
     assert_nothing_raised { dn.get_next(Date.new(2014, 1, 10)) }
   end
 
+  test "rejects a duplicate code" do
+    duplicate = DocumentNumber.new(code: "invoice", format: "%<number>04d", sequence: 0)
+    assert_not duplicate.valid?
+    assert_includes duplicate.errors[:code], "has already been taken"
+  end
+
+  test "rejects a blank code" do
+    dn = DocumentNumber.new(format: "%<number>04d", sequence: 0)
+    assert_not dn.valid?
+    assert_includes dn.errors[:code], "can't be blank"
+  end
+
+  test "the database rejects a duplicate code inserted without validations" do
+    assert_raises(ActiveRecord::RecordNotUnique) do
+      DocumentNumber.insert!({ code: "invoice", format: "%<number>04d", sequence: 0 })
+    end
+  end
+
   test "get_next_for raises NoDocumentNumberRangeError for unknown code" do
     assert_raises(NoDocumentNumberRangeError) do
       DocumentNumber.get_next_for("does-not-exist", Date.current)

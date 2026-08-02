@@ -41,6 +41,11 @@ class TeamsController < ApplicationController
     before_members = @team.user_ids.to_set
     if @team.update(team_attributes)
       assign_members(@team, params.dig(:team, :user_ids))
+    end
+
+    if @team.errors.any?
+      render :edit, status: :unprocessable_content
+    else
       after_members = @team.reload.user_ids.to_set
       audit_privilege_change!("team_updated", metadata: {
         name: @team.name,
@@ -48,8 +53,6 @@ class TeamsController < ApplicationController
         members_removed: User.where(id: (before_members - after_members).to_a).pluck(:username)
       })
       redirect_to teams_path, notice: "Team updated."
-    else
-      render :edit, status: :unprocessable_content
     end
   end
 

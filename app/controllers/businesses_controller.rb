@@ -1,4 +1,6 @@
 class BusinessesController < ApplicationController
+  include UploadChecks
+
   MAX_LOGO_SIZE_BYTES = 2.megabytes
 
   allow_without_permission_check only: [ :png_logo ]
@@ -47,18 +49,20 @@ class BusinessesController < ApplicationController
   private
 
   def read_validated_logo(file, expected_type, label)
-    if file.size > MAX_LOGO_SIZE_BYTES
-      redirect_to edit_business_path,
-                  alert: "#{label} logo is too large (maximum is #{MAX_LOGO_SIZE_BYTES / 1.megabyte} MB)."
-      return nil
-    end
-    detected = Attachment.detect_content_type(file.tempfile)
-    if detected != expected_type
-      redirect_to edit_business_path,
-                  alert: "#{label} logo: file content is not #{expected_type} (detected: #{detected})."
+    error = logo_upload_error(file, expected_type, label)
+    if error
+      redirect_to edit_business_path, alert: error
       return nil
     end
     file.read
+  end
+
+  def logo_upload_error(file, expected_type, label)
+    case upload_error(file, expected_type:, max_bytes: MAX_LOGO_SIZE_BYTES)
+    when :missing then "#{label} logo: please select a #{label} file to upload."
+    when :too_large then "#{label} logo is too large (maximum is #{MAX_LOGO_SIZE_BYTES / 1.megabyte} MB)."
+    when :wrong_type then "#{label} logo: file content is not #{expected_type} (detected: #{Attachment.detect_content_type(file.tempfile)})."
+    end
   end
 
   def set_business

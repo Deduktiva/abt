@@ -2,7 +2,7 @@ class DeliveryNotesController < ApplicationController
   include EmailableDocument
   include PublishableDocument
   include DocumentWithLines
-  include PdfUploadChecks
+  include UploadChecks
 
   publishable_document :delivery_note, label: "delivery note"
   document_with_lines line_class: DeliveryNoteLine
@@ -307,7 +307,7 @@ protected
     case pdf_upload_error(file)
     when :missing then "Please select a PDF file to upload."
     when :too_large then "Acceptance document is too large (maximum is #{Attachment::MAX_SIZE_MB} MB)."
-    when :not_pdf then "Only PDF files are allowed for acceptance documents (detected: #{Attachment.detect_content_type(file.tempfile)})."
+    when :wrong_type then "Only PDF files are allowed for acceptance documents (detected: #{Attachment.detect_content_type(file.tempfile)})."
     end
   end
 

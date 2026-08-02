@@ -1,6 +1,8 @@
 import { Controller } from "@hotwired/stimulus"
 import { AutoResizeTextareaMixin } from "mixins/auto_resize_textarea_mixin"
 
+let lastLineKey = 0
+
 export default class extends Controller {
   static targets = ["container"]
 
@@ -36,9 +38,11 @@ export default class extends Controller {
 
     const newContent = template.content.cloneNode(true)
 
-    // Replace NEW_RECORD with current timestamp to ensure uniqueness
-    const timestamp = new Date().getTime()
-    const html = newContent.querySelector('div').outerHTML.replace(/NEW_RECORD/g, timestamp)
+    // Key must be integer-like (params.expect drops other keys) and unique even for
+    // same-millisecond appends (CSV import), so bump a timestamp-seeded counter
+    const key = Math.max(Date.now(), lastLineKey + 1)
+    lastLineKey = key
+    const html = newContent.querySelector('div').outerHTML.replace(/NEW_RECORD/g, key)
 
     // Create a temporary container and set its HTML
     const tempDiv = document.createElement('div')

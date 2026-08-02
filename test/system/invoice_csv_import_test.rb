@@ -34,5 +34,11 @@ class InvoiceCsvImportTest < ApplicationSystemTestCase
       assert_equal sole_tax_class, line.find('select[name*="[sales_tax_product_class_id]"]').value,
         "the only tax class should be auto-selected"
     end
+
+    click_button "Save"
+    assert_text "Invoice was successfully updated"
+    persisted_titles = @invoice.reload.invoice_lines.pluck(:title)
+    assert_equal initial + 3, persisted_titles.size
+    titles.each { |title| assert_includes persisted_titles, title }
   end
 end

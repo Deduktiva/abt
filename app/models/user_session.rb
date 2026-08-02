@@ -26,8 +26,8 @@ class UserSession < ApplicationRecord
   end
 
   def self.authenticate(plaintext)
-    return nil if plaintext.blank?
-    active.where(token_digest: digest_token(plaintext)).first
+    return nil unless (digest = lookup_digest(plaintext))
+    active.where(token_digest: digest).first
   end
 
   def terminate!(reason:, actor:, request: nil)

@@ -510,6 +510,16 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
     assert_match(/newer submission/i, flash[:alert])
   end
 
+  test "accept_acceptance with a non-scalar submission_id is not found" do
+    dn, first = pending_submission
+    second = AcceptanceSubmission.submit!(delivery_note: dn,
+      uploaded_file: fixture_file_upload("acceptance.pdf", "application/pdf"), ip: "1.1.1.1")
+
+    post accept_acceptance_delivery_note_url(dn, submission_id: [ first.id, second.id ])
+    assert_response :not_found
+    assert_nil dn.reload.acceptance_attachment_id
+  end
+
   test "reject_acceptance marks the submission rejected and redirects" do
     dn, sub = pending_submission
     post reject_acceptance_delivery_note_url(dn, submission_id: sub.id)

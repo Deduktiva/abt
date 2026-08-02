@@ -69,5 +69,10 @@ module Abt
     # Route Solid Queue's ActiveRecord models to the dedicated queue database
     # in all environments so the jobs status page can read them.
     config.solid_queue.connects_to = { database: { writing: :queue } }
+
+    # db/schema.rb is owned by the SQLite development lane. Migrating any other
+    # environment against PostgreSQL (bin/postgres-dev, CI's test env) would
+    # otherwise rewrite it in PostgreSQL dialect, which SQLite then can't load.
+    config.active_record.dump_schema_after_migration = Rails.env.development?
   end
 end

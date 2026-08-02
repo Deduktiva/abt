@@ -35,8 +35,9 @@ For testing against PostgreSQL (matches production environment):
 - `./bin/postgres-dev start` - Start PostgreSQL container
 - `./bin/postgres-dev setup` - Create and setup PostgreSQL database
 - `./bin/postgres-dev server` - Run Rails server with PostgreSQL
-- `./bin/postgres-dev test` - Run tests with PostgreSQL
+- `./bin/postgres-dev test` - Run tests against PostgreSQL (`RAILS_ENV=test` + `DATABASE_URL`, same as CI)
 - See `docs/postgres-dev.md` for complete documentation
+- The default `bundle exec rails test` lane is SQLite, whose adapter silently drops `FOR UPDATE`. Any change to `with_lock`/`lock!` or a concurrency guard is unverified until it runs through `./bin/postgres-dev test`.
 
 ## Architecture Overview
 

@@ -21,14 +21,18 @@ IMAGE="${FOP_IMAGE_NAME:-abt-fop}"
 
 if command -v podman >/dev/null 2>&1; then
   CONTAINER_CMD=podman
-  # Podman needs SELinux relabel on bind-mount (:Z) and userns mapping to
-  # let the in-container user write to the bind-mounted project root.
+  # Podman needs SELinux relabel on bind-mount (:Z). Rootless podman maps
+  # container root to the invoking user, so running as root gives write
+  # access to the bind-mounted project root with host files owned by the
+  # invoking user. Don't switch this to --userns=keep-id: creating a
+  # per-container userns races when containers start concurrently
+  # (parallel Rails test workers fail with "doesn't map GID <n>").
   MOUNT_OPTS=":rw,Z"
-  USERNS_FLAGS="--userns=keep-id"
+  RUN_USER="0:0"
 elif command -v docker >/dev/null 2>&1; then
   CONTAINER_CMD=docker
   MOUNT_OPTS=""
-  USERNS_FLAGS=""
+  RUN_USER="$(id -u):$(id -g)"
 else
   echo "abt-fop-container: neither podman nor docker found." >&2
   echo "Install one, or point fop.binary_path at ./bin/abt-fop in" >&2
@@ -39,7 +43,6 @@ fi
 exec "$CONTAINER_CMD" run --rm \
   -v "$PROJECT_ROOT:$PROJECT_ROOT$MOUNT_OPTS" \
   -w "$PWD" \
-  -u "$(id -u):$(id -g)" \
-  $USERNS_FLAGS \
+  -u "$RUN_USER" \
   "$IMAGE" \
   "$PROJECT_ROOT/bin/abt-fop" "$@"

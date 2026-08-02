@@ -1,0 +1,65 @@
+FROM debian:trixie-slim
+
+# Install system dependencies for Rails application
+RUN apt-get update -qq && \
+    apt-get install -y -qq --no-install-recommends \
+        # Ruby and build dependencies
+        ruby \
+        ruby-dev \
+        build-essential \
+        # Database clients
+        libpq-dev \
+        libsqlite3-dev \
+        # YAML library for psych gem
+        libyaml-dev \
+        # System utilities
+        curl \
+        git \
+        # FOP and Java dependencies
+        fop \
+        libsaxonb-java \
+        openjdk-21-jre-headless && \
+    # Clean up
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Configure FOP extra jars
+ENV FOP_EXTRA_JAR_PATH /usr/local/fop-extra-jars
+RUN curl -L -o pdfimages.tgz 'https://archive.apache.org/dist/xmlgraphics/fop-pdf-images/binaries/fop-pdf-images-2.11-bin.tar.gz' && \
+    mkdir "$FOP_EXTRA_JAR_PATH" && \
+    tar --strip-components=1 -x -f pdfimages.tgz -C "$FOP_EXTRA_JAR_PATH" && \
+    rm pdfimages.tgz
+
+# Create application user
+RUN useradd -m -u 1000 -s /bin/bash abtuser && \
+    mkdir -p /var/www/abt && \
+    chown abtuser:abtuser /var/www/abt
+
+# Set working directory
+WORKDIR /var/www/abt
+
+# Copy application files
+COPY --chown=abtuser:abtuser . .
+
+# Install bundler and gems
+USER abtuser
+ENV PATH="/home/abtuser/.local/share/gem/ruby/3.3.0/bin:$PATH"
+RUN gem install bundler --no-document && \
+    bundle config set --local deployment 'true' && \
+    bundle config set --local without 'development test' && \
+    bundle install
+
+# Set production environment
+ENV RAILS_ENV=production
+ENV RACK_ENV=production
+
+# Create necessary directories
+RUN mkdir -p tmp/pids tmp/cache log
+
+# Start ActiveJob worker
+CMD ["bundle", "exec", "rails", "jobs:work"]
+
+# Metadata
+LABEL maintainer="ABT Invoice System"
+LABEL description="ABT Rails ActiveJob worker"
+LABEL version="production"

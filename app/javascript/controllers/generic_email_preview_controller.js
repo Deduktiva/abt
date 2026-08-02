@@ -163,7 +163,7 @@ export default class extends ModalController {
           ${data.attachments.map(attachment => `
             <div class="d-flex align-items-center mb-1">
               <span class="me-1">📎</span>
-              <span>${attachment.filename}</span>
+              <span>${this.escapeHTML(attachment.filename)}</span>
               <small class="text-muted ms-2">(${this.formatFileSize(attachment.size)})</small>
             </div>
           `).join('')}
@@ -177,7 +177,7 @@ export default class extends ModalController {
 
     const textContentSection = data.text_body ? `
       <div class="card-body email-preview-content d-none" data-format-content="text">
-        <pre class="mb-0 font-monospace text-pre-wrap">${data.text_body}</pre>
+        <pre class="mb-0 font-monospace text-pre-wrap">${this.escapeHTML(data.text_body)}</pre>
       </div>
     ` : ''
 
@@ -198,7 +198,7 @@ export default class extends ModalController {
                   <strong>To:</strong>
                 </div>
                 <div class="col-sm-10">
-                  ${data.to || '<i>No recipient configured</i>'}
+                  ${this.escapeHTML(data.to) || '<i>No recipient configured</i>'}
                 </div>
               </div>
 
@@ -207,7 +207,7 @@ export default class extends ModalController {
                   <strong>From:</strong>
                 </div>
                 <div class="col-sm-10">
-                  ${data.from || '<i>No sender configured</i>'}
+                  ${this.escapeHTML(data.from) || '<i>No sender configured</i>'}
                 </div>
               </div>
 
@@ -217,7 +217,7 @@ export default class extends ModalController {
                     <strong>CC:</strong>
                   </div>
                   <div class="col-sm-10">
-                    ${data.cc}
+                    ${this.escapeHTML(data.cc)}
                   </div>
                 </div>
               ` : ''}
@@ -228,7 +228,7 @@ export default class extends ModalController {
                     <strong>BCC:</strong>
                   </div>
                   <div class="col-sm-10">
-                    ${data.bcc}
+                    ${this.escapeHTML(data.bcc)}
                   </div>
                 </div>
               ` : ''}
@@ -238,7 +238,7 @@ export default class extends ModalController {
                   <strong>Subject:</strong>
                 </div>
                 <div class="col-sm-10">
-                  ${data.subject || '<i>No subject</i>'}
+                  ${this.escapeHTML(data.subject) || '<i>No subject</i>'}
                 </div>
               </div>
 
@@ -259,6 +259,13 @@ export default class extends ModalController {
         </div>
       </div>
     `
+  }
+
+  escapeHTML(value) {
+    if (value == null) return ''
+    const el = document.createElement('div')
+    el.textContent = value
+    return el.innerHTML
   }
 
   formatFileSize(bytes) {

@@ -12,6 +12,13 @@ class Account::EmailConfirmationsControllerTest < ActionDispatch::IntegrationTes
     assert email.reload.confirmed?
   end
 
+  test "rejects a non-scalar token" do
+    get account_email_confirmation_path(token: [ "a", "b" ])
+    assert_response :redirect
+    follow_redirect!
+    assert_match(/invalid or expired/i, flash[:alert] || "")
+  end
+
   test "rejects an invalid token" do
     get account_email_confirmation_path(token: "nope")
     assert_response :redirect

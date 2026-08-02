@@ -33,8 +33,8 @@ class UserEmail < ApplicationRecord
   end
 
   def self.find_by_confirmation_token(plaintext)
-    return nil if plaintext.blank?
-    where(confirmation_token_digest: digest_token(plaintext))
+    return nil unless (digest = lookup_digest(plaintext))
+    where(confirmation_token_digest: digest)
       .where("confirmation_expires_at > ?", Time.current)
       .where(confirmed_at: nil)
       .first

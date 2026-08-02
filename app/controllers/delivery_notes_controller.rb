@@ -131,7 +131,7 @@ class DeliveryNotesController < ApplicationController
   end
 
   def accept_acceptance
-    submission = @delivery_note.acceptance_submissions.find(params[:submission_id])
+    submission = @delivery_note.acceptance_submissions.find(integer_param(:submission_id))
     submission.accept!(by: current_user)
     redirect_to @delivery_note, notice: "Acceptance document confirmed."
   rescue AcceptanceSubmission::StaleSubmission
@@ -141,7 +141,7 @@ class DeliveryNotesController < ApplicationController
   end
 
   def reject_acceptance
-    submission = @delivery_note.acceptance_submissions.find(params[:submission_id])
+    submission = @delivery_note.acceptance_submissions.find(integer_param(:submission_id))
     submission.reject!(by: current_user)
     redirect_to @delivery_note, notice: "Submission rejected; the upload link is open again."
   rescue AcceptanceSubmission::StaleSubmission

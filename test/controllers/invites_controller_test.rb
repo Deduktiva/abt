@@ -20,6 +20,11 @@ class InvitesControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "show with non-scalar token returns 404" do
+    get invite_path(token: [ "pending-signup-token", "other" ])
+    assert_response :not_found
+  end
+
   test "show with unknown token returns 404" do
     get invite_path(token: "totally-bogus")
     assert_response :not_found

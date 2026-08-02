@@ -46,8 +46,8 @@ class UserInvite < ApplicationRecord
   end
 
   def self.find_usable(plaintext)
-    return nil if plaintext.blank?
-    usable.where(token_digest: digest_token(plaintext)).first
+    return nil unless (digest = lookup_digest(plaintext))
+    usable.where(token_digest: digest).first
   end
 
   # Atomically claim the invite. The conditional UPDATE re-checks the `usable`

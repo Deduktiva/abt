@@ -63,8 +63,8 @@ class DeliveryNote < ApplicationRecord
   end
 
   def self.find_by_acceptance_upload_token(plaintext)
-    return nil if plaintext.blank?
-    find_by(acceptance_upload_token_digest: digest_token(plaintext))
+    return nil unless (digest = lookup_digest(plaintext))
+    find_by(acceptance_upload_token_digest: digest)
   end
 
   def acceptance_upload_open?(now: Time.current)

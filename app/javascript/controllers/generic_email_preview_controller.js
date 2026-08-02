@@ -38,7 +38,7 @@ export default class extends ModalController {
       const response = await fetch(this.sendUrlValue, {
         method: 'POST',
         headers: {
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').getAttribute('content'),
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]')?.getAttribute('content') || '',
           'Accept': 'application/json'
         }
       })
@@ -55,9 +55,11 @@ export default class extends ModalController {
           window.location.reload()
         }, 1000)
       } else {
-        throw new Error(`HTTP ${response.status}`)
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.error || `Request failed (${response.status})`)
       }
     } catch (error) {
+      this.showSendError(error.message)
       sendButton.textContent = 'Error - Try Again'
       sendButton.classList.remove('btn-success')
       sendButton.classList.add('btn-danger')
@@ -85,7 +87,8 @@ export default class extends ModalController {
     try {
       const response = await fetch(`${this.previewUrlValue}.json`)
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.error || `Request failed (${response.status})`)
       }
 
       const data = await response.json()
@@ -111,10 +114,20 @@ export default class extends ModalController {
       this.contentTarget.innerHTML = `
         <div class="alert alert-danger">
           <h6>Error loading email preview</h6>
-          <p class="mb-0">Please try again or contact support if the problem persists.</p>
+          <p class="mb-0">${this.escapeHTML(error.message)}</p>
         </div>
       `
     }
+  }
+
+  showSendError(message) {
+    let alert = this.contentTarget.querySelector('.email-preview-send-error')
+    if (!alert) {
+      alert = document.createElement('div')
+      alert.className = 'alert alert-danger email-preview-send-error'
+      this.contentTarget.prepend(alert)
+    }
+    alert.textContent = message
   }
 
   setupFormatToggle() {

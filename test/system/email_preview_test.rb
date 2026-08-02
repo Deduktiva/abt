@@ -58,6 +58,18 @@ class EmailPreviewTest < ApplicationSystemTestCase
     end
   end
 
+  test "send failure shows the server error message in the modal" do
+    visit invoice_path(@invoice)
+
+    click_on "Send"
+    assert_selector "iframe.email-preview-iframe", wait: 5
+
+    @invoice.customer.customer_contacts.destroy_all
+    click_on "Send E-Mail"
+
+    assert_selector ".email-preview-send-error", text: "No recipient configured.", wait: 5
+  end
+
   test "post-publish banner strips the published query param so reloads don't re-trigger auto-download" do
     visit invoice_path(@invoice, published: 1)
     assert_selector ".alert-success", text: "booked"

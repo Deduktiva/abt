@@ -73,6 +73,15 @@ class CustomerContactsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "GOOD Accounting", @contact.reload.name
   end
 
+  test "update on validation failure does not persist project changes" do
+    contact = customer_contacts(:good_eu_project_one_lead)
+    patch customer_contact_path(contact),
+          params: { customer_contact: { name: "", email: contact.email, project_ids: [ "" ] } }
+
+    assert_response :unprocessable_content
+    assert_equal [ projects(:one) ], contact.reload.projects
+  end
+
   test "destroy removes the row via turbo-stream" do
     contact_id = @contact.id
     delete customer_contact_path(@contact), headers: { Accept: "text/vnd.turbo-stream.html" }

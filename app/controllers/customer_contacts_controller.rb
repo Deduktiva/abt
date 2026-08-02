@@ -47,10 +47,17 @@ class CustomerContactsController < ApplicationController
 
   # PATCH /customer_contacts/:id
   def update
-    @contact.assign_attributes(contact_params)
-    assign_projects(@contact, params.dig(:customer_contact, :project_ids))
+    saved = false
+    # On a persisted record, `projects=` writes the join rows immediately, so
+    # roll them back when validation fails.
+    ActiveRecord::Base.transaction do
+      @contact.assign_attributes(contact_params)
+      assign_projects(@contact, params.dig(:customer_contact, :project_ids))
+      saved = @contact.save
+      raise ActiveRecord::Rollback unless saved
+    end
 
-    if @contact.save
+    if saved
       render partial: "customer_contacts/row", locals: { contact: @contact }
     else
       render :edit, status: :unprocessable_content

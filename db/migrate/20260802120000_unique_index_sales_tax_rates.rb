@@ -1,4 +1,4 @@
-class DedupeAndIndexSalesTaxRates < ActiveRecord::Migration[8.0]
+class UniqueIndexSalesTaxRates < ActiveRecord::Migration[8.0]
   # This will crash if the uniqueness is not satisfied.
   def up
     add_index :sales_tax_rates,

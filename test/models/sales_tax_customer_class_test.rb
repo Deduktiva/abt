@@ -7,6 +7,12 @@ class SalesTaxCustomerClassTest < ActiveSupport::TestCase
     assert_includes klass.errors[:name], "can't be blank"
   end
 
+  test "name must be unique" do
+    klass = SalesTaxCustomerClass.new(name: sales_tax_customer_classes(:national).name)
+    assert_not klass.valid?
+    assert_includes klass.errors[:name], "has already been taken"
+  end
+
   test "destroy is blocked when sales_tax_rates reference the class" do
     klass = SalesTaxCustomerClass.create!(name: "Test Region With Rate")
     SalesTaxRate.create!(

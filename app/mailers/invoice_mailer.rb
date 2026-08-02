@@ -28,4 +28,10 @@ class InvoiceMailer < ApplicationMailer
       document_mail(to: to, cc: cc, subject: subject)
     end
   end
+
+  private
+
+  def mark_email_sent
+    params[:invoice]&.update_column(:email_sent_at, Time.current)
+  end
 end

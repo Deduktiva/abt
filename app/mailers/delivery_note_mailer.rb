@@ -44,6 +44,14 @@ class DeliveryNoteMailer < ApplicationMailer
 
   private
 
+  def mark_email_sent
+    if (dn = params[:delivery_note])
+      dn.update_column(:email_sent_at, Time.current)
+    elsif (dns = params[:delivery_notes])
+      DeliveryNote.where(id: dns.map(&:id)).update_all(email_sent_at: Time.current)
+    end
+  end
+
   def attach_pdf(delivery_note)
     pdf_data = DeliveryNoteRenderer.new(delivery_note, @issuer).render
     attachments["#{@issuer.short_name}-DeliveryNote-#{delivery_note.document_number}.pdf"] = {

@@ -140,6 +140,18 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     assert_nil invoice.reload.email_sent_at
   end
 
+  test "send_email does not stamp email_sent_at when recipients became blank before perform" do
+    invoice = invoices(:auto_email_invoice)
+    invoice.update_column(:email_sent_at, nil)
+
+    post send_email_invoice_path(invoice)
+    invoice.customer.update_column(:invoice_email_auto_to, "")
+    perform_enqueued_jobs
+
+    assert_equal 0, ActionMailer::Base.deliveries.size
+    assert_nil invoice.reload.email_sent_at
+  end
+
   test "send_email returns an error status for JSON when no recipient is configured" do
     invoice = invoices(:no_email_invoice)
 

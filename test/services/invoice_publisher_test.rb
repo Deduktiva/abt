@@ -138,10 +138,13 @@ class InvoicePublisherTest < ActiveSupport::TestCase
       position: 1,
       sales_tax_product_class: sales_tax_product_classes(:standard)
     )
+    invoice.singleton_class.validate { errors.add(:base, "Snapshot went stale") }
 
     publisher = InvoicePublisher.new(invoice.reload, issuer_companies(:one))
     assert_not publisher.publish!
 
+    assert_includes invoice.publish_problems, "Customer VAT ID is missing."
+    assert_includes invoice.publish_problems, "Snapshot went stale"
     invoice.reload
     assert_not invoice.published?
     assert_nil invoice.document_number

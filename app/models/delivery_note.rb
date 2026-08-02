@@ -132,6 +132,10 @@ class DeliveryNote < ApplicationRecord
     problems = []
     return problems if published?
 
+    # An AR-invalid draft would otherwise pass the problems gate and raise
+    # from save! at publish time.
+    problems.concat(errors.full_messages) unless valid?
+
     problems << "Delivery note has no item lines." unless has_items?
 
     problems

@@ -38,9 +38,7 @@ class ApplicationMailer < ActionMailer::Base
     I18n.with_locale(customer.language.iso_code, &block)
   end
 
-  # Runs after successful delivery only — never when delivery raises. A mailer
-  # action that skipped mail() (blank recipients in document_mail) yields
-  # NullMail, whose deliver is a no-op — don't count that as sent.
+  # A skipped mail() yields NullMail, whose deliver no-ops — don't count that as sent.
   def track_delivery
     mark_email_sent if message.is_a?(Mail::Message)
   end

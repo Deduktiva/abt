@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_02_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_02_130000) do
   create_table "acceptance_submissions", force: :cascade do |t|
     t.integer "attachment_id"
     t.datetime "created_at", null: false
@@ -434,6 +434,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_120000) do
     t.string "name"
     t.datetime "updated_at", null: false
     t.boolean "vat_id_required", default: true, null: false
+    t.index ["name"], name: "index_sales_tax_customer_classes_on_name", unique: true
   end
 
   create_table "sales_tax_product_classes", force: :cascade do |t|
@@ -442,7 +443,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_120000) do
     t.boolean "is_default", default: false, null: false
     t.string "name"
     t.datetime "updated_at", null: false
+    t.index ["indicator_code"], name: "index_sales_tax_product_classes_on_indicator_code", unique: true
     t.index ["is_default"], name: "index_sales_tax_product_classes_on_is_default", unique: true, where: "is_default = true"
+    t.index ["name"], name: "index_sales_tax_product_classes_on_name", unique: true
   end
 
   create_table "sales_tax_rates", force: :cascade do |t|

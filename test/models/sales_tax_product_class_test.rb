@@ -1,6 +1,23 @@
 require "test_helper"
 
 class SalesTaxProductClassTest < ActiveSupport::TestCase
+  test "indicator_code must be unique" do
+    klass = SalesTaxProductClass.new(name: "Duplicate Code", indicator_code: sales_tax_product_classes(:standard).indicator_code)
+    assert_not klass.valid?
+    assert_includes klass.errors[:indicator_code], "has already been taken"
+  end
+
+  test "name must be unique" do
+    klass = SalesTaxProductClass.new(name: sales_tax_product_classes(:standard).name, indicator_code: "DUP")
+    assert_not klass.valid?
+    assert_includes klass.errors[:name], "has already been taken"
+  end
+
+  test "database rejects a duplicate indicator_code that skips validation" do
+    klass = SalesTaxProductClass.new(name: "Bypass", indicator_code: sales_tax_product_classes(:standard).indicator_code)
+    assert_raises(ActiveRecord::RecordNotUnique) { klass.save!(validate: false) }
+  end
+
   test "default returns the row flagged as default" do
     assert_equal sales_tax_product_classes(:standard), SalesTaxProductClass.default
   end

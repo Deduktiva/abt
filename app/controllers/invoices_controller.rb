@@ -2,6 +2,7 @@ class InvoicesController < ApplicationController
   include EmailableDocument
   include PublishableDocument
   include DocumentWithLines
+  include YearFilteredIndex
 
   publishable_document :invoice, label: "invoice"
   document_with_lines line_class: InvoiceLine
@@ -23,14 +24,10 @@ class InvoicesController < ApplicationController
 
   # GET /invoices
   def index
-    @selected_year = params[:year] == "all" ? "all" : (params[:year]&.to_i || Date.current.year)
     @filter = params[:filter] || "all"
     @selected_customer_id = params[:customer_id].presence&.to_i
 
-    @invoices = Invoice.visible_to(current_user).ordered
-    unless @selected_year == "all"
-      @invoices = @invoices.in_year(@selected_year, include_drafts: @selected_year == Date.current.year)
-    end
+    @invoices = filtered_by_year(Invoice.visible_to(current_user).ordered)
 
     case @filter
     when "unsent"

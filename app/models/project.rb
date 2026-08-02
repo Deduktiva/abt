@@ -6,6 +6,7 @@ class Project < ApplicationRecord
   has_many :invoices
   has_many :delivery_notes
   has_many :offers
+  has_and_belongs_to_many :customer_contacts, join_table: :customer_contact_projects
 
   validate :team_must_match_customer
 
@@ -26,6 +27,10 @@ class Project < ApplicationRecord
     offers.exists?
   end
 
+  def used_by_customer_contacts?
+    customer_contacts.exists?
+  end
+
   # Prevent deletion if project has been used
   before_destroy :check_if_used
 
@@ -44,12 +49,13 @@ class Project < ApplicationRecord
 
   private
 
-  # The document type (if any) that blocks deletion. Single source for both the
+  # The record type (if any) that blocks deletion. Single source for both the
   # UI gate (can_be_deleted?) and the destroy guard's error message.
   def deletion_blocker
     return "invoices" if used_in_invoices?
     return "delivery notes" if used_in_delivery_notes?
-    "offers" if used_in_offers?
+    return "offers" if used_in_offers?
+    "customer contacts" if used_by_customer_contacts?
   end
 
   def check_if_used

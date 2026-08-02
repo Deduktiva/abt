@@ -147,6 +147,23 @@ class InvoicePublisherTest < ActiveSupport::TestCase
     assert_nil invoice.document_number
   end
 
+  test "publish! surfaces a validation failure as a publish problem instead of raising" do
+    klass = sales_tax_product_classes(:standard)
+    invoice = Invoice.create!(customer: customers(:good_national), project: projects(:test_project), cust_reference: "INVALID-1", date: Date.new(2024, 6, 1))
+    invoice.invoice_lines.create!(type: "item", title: "Widget", quantity: 1.0, rate: 100.0, position: 1, sales_tax_product_class: klass)
+
+    invoice = Invoice.find(invoice.id)
+    invoice.singleton_class.validate { errors.add(:base, "Snapshot went stale") }
+
+    publisher = InvoicePublisher.new(invoice, issuer_companies(:one))
+    assert_not publisher.publish!
+
+    assert_includes invoice.publish_problems, "Snapshot went stale"
+    invoice.reload
+    assert_not invoice.published?
+    assert_nil invoice.document_number
+  end
+
   test "publish! books a correction invoice whose lines sum to zero" do
     klass = sales_tax_product_classes(:standard)
     invoice = Invoice.create!(customer: customers(:good_national), project: projects(:test_project), cust_reference: "CORRECTION-0", date: Date.new(2024, 6, 1))

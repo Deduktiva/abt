@@ -99,6 +99,10 @@ class Invoice < ApplicationRecord
     problems = []
     return problems if published?
 
+    # An AR-invalid draft would otherwise pass the problems gate and raise
+    # from save! at publish time.
+    problems.concat(errors.full_messages) unless valid?
+
     problems << "Customer name is missing." if customer_name.blank?
     problems << "Customer address is missing." if customer_address.blank?
     problems << "Customer country is missing." unless AddressFormatter.valid_iso2?(customer_country_iso2)

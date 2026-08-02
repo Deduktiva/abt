@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  # Outside both host constraints: the LB probe carries an arbitrary Host, and
+  # the portal catch-all below would otherwise swallow it.
+  get "up", to: "rails/health#show", as: :rails_health_check
+
   constraints(CustomerPortalHostConstraint.new) do
     scope module: :customer_portal do
       get  "delivery-acceptance/:token", to: "acceptances#show",   as: :delivery_acceptance_upload

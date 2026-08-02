@@ -41,6 +41,13 @@ class OfferTest < ActiveSupport::TestCase
     assert offers(:sent_offer).reload.sent?
   end
 
+  test "accept rejects an unparseable order date" do
+    offer = offers(:sent_offer)
+    assert_raises(Offer::InvalidTransition) { offer.accept!(order_number: "x", ordered_on: "banana") }
+    assert offer.reload.sent?
+    assert_nil offer.ordered_on
+  end
+
   test "reject stamps rejected_at" do
     offer = offers(:sent_offer)
     offer.reject!

@@ -8,7 +8,17 @@ class OfferMilestoneScaffolder
     @total = BigDecimal(total.to_s)
   end
 
+  # with_lock reloads the version under a row lock and runs the guard plus the
+  # inserts in one transaction, so a double-clicked Scaffold button lays down
+  # one milestone set rather than two summing to double the offer — the same
+  # pattern LockedConversion applies to milestone conversion.
   def apply_to(version)
+    version.with_lock { apply_locked!(version) }
+  end
+
+  private
+
+  def apply_locked!(version)
     raise MilestonesPresent if version.milestones.any?
 
     rows = parse_rows
@@ -29,8 +39,6 @@ class OfferMilestoneScaffolder
       end
     milestones
   end
-
-  private
 
   # Without a threshold the "below" template always applies.
   def template_source

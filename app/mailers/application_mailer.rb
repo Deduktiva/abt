@@ -12,7 +12,7 @@ class ApplicationMailer < ActionMailer::Base
   protected
 
   def setup_issuer
-    @issuer = IssuerCompany.get_the_issuer!
+    @issuer = Business.get_the_issuer!
   end
 
   def build_default_from

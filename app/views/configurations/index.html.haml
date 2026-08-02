@@ -1,12 +1,12 @@
 = breadcrumbs 'Configuration'
 
-- if can?('issuer_company.view') || can?('products.view') || can?('sales_tax.view')
+- if can?('business.view') || can?('products.view') || can?('sales_tax.view')
   %h6.text-uppercase.text-body-secondary.small.fw-bold.mb-2 Company &amp; Catalog
   .config-grid.mb-4
-    - if can?('issuer_company.view')
-      = link_to issuer_company_path, class: "config-tile" do
+    - if can?('business.view')
+      = link_to business_path, class: "config-tile" do
         %span.config-tile-icon 🏢
-        Issuer Company
+        Business
     - if can?('products.view')
       = link_to products_path, class: "config-tile" do
         %span.config-tile-icon 📦

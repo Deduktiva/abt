@@ -4,7 +4,7 @@ class DeliveryNotePdfTest < ActionDispatch::IntegrationTest
   include ActiveJob::TestHelper
 
   setup do
-    @issuer = issuer_companies(:one)
+    @issuer = businesses(:one)
     @customer_en = customers(:good_eu)  # English language customer
     @customer_de = customers(:good_national)  # German language customer
     @project = projects(:one)

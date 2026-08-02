@@ -35,7 +35,7 @@ class ExpiringOffersReportJobTest < ActiveJob::TestCase
       ExpiringOffersReportJob.perform_now
     end
 
-    issuer = issuer_companies(:one)
+    issuer = businesses(:one)
     delivered = ActionMailer::Base.deliveries.last
     assert_equal [ issuer.reporting_email ], delivered.to
     assert_equal I18n.t("mailers.expiring_offers.subject", issuer_name: issuer.short_name, count: 2), delivered.subject

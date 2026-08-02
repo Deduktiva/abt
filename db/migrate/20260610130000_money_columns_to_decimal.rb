@@ -1,7 +1,7 @@
 class MoneyColumnsToDecimal < ActiveRecord::Migration[8.1]
   # Money and quantity must be exact, not float. Columns are unbounded decimal
   # (like sum_net/net/value/total) so the configurable rounding precision
-  # (IssuerCompany#money_decimal_places) is never truncated at the DB.
+  # (Business#money_decimal_places) is never truncated at the DB.
   def up
     change_column :invoice_lines, :rate,           :decimal
     change_column :invoice_lines, :quantity,       :decimal

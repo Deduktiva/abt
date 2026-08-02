@@ -97,11 +97,11 @@ class InvoicesController < ApplicationController
   end
 
   def publish
-    publish_document { InvoicePublisher.new(@invoice, IssuerCompany.get_the_issuer!).publish! }
+    publish_document { InvoicePublisher.new(@invoice, Business.get_the_issuer!).publish! }
   end
 
   def preview
-    issuer = IssuerCompany.get_the_issuer!
+    issuer = Business.get_the_issuer!
     publisher = InvoicePublisher.new @invoice, issuer
     problems = nil
     pdf = nil

@@ -158,7 +158,7 @@
           .col-sm-3
             %strong Validity:
           .col-sm-9
-            = pluralize(@customer.offer_validity_days || IssuerCompany.get_the_issuer!.offer_validity_days, 'day')
+            = pluralize(@customer.offer_validity_days || Business.get_the_issuer!.offer_validity_days, 'day')
             - if @customer.offer_validity_days.blank?
               %span.text-muted (issuer default)
         - if @customer.offer_milestone_split_threshold.present?

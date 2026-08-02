@@ -2,7 +2,7 @@ class ConfigurationsController < ApplicationController
   # A hub page linking to the various config sub-sections. Visibility is an
   # any-of across those sections' own permissions, not a single scope, so it
   # can't use require_permission!.
-  PERMS = %w[issuer_company.view products.view sales_tax.view users.view jobs_status.view groups.manage teams.manage].freeze
+  PERMS = %w[business.view products.view sales_tax.view users.view jobs_status.view groups.manage teams.manage].freeze
 
   allow_without_permission_check only: [ :index ]
 

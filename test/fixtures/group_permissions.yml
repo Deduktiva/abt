@@ -49,12 +49,12 @@ admin_sales_tax_view:
 admin_sales_tax_edit:
   group: admin
   permission: sales_tax.edit
-admin_issuer_company_view:
+admin_business_view:
   group: admin
-  permission: issuer_company.view
-admin_issuer_company_edit:
+  permission: business.view
+admin_business_edit:
   group: admin
-  permission: issuer_company.edit
+  permission: business.edit
 admin_users_view:
   group: admin
   permission: users.view

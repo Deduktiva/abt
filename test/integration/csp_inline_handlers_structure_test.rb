@@ -70,12 +70,12 @@ class CspInlineHandlersStructureTest < ActionDispatch::IntegrationTest
     assert_match(/payment=\(\)/, pp)
   end
 
-  test "issuer_companies/show carries no inline style attribute and emits nonced accent-color block" do
-    get issuer_company_path
+  test "businesses/show carries no inline style attribute and emits nonced accent-color block" do
+    get business_path
     body = @response.body
     expected_nonce = csp_nonce(@response)
 
-    assert_no_match(/\bstyle=['"]/, body, "no inline style attributes allowed on issuer companies show")
+    assert_no_match(/\bstyle=['"]/, body, "no inline style attributes allowed on businesses show")
     assert_match(/<style[^>]*\bnonce=['"]#{Regexp.escape(expected_nonce)}['"][^>]*>[\s\S]*?--issuer-accent-color/, body,
       "accent-color <style> block must carry the same nonce as the CSP header (`nonce: true` literal is a known regression)")
   end
@@ -128,7 +128,7 @@ class CspInlineHandlersStructureTest < ActionDispatch::IntegrationTest
   end
 
   test "customer portal page carries no inline style attribute" do
-    issuer_companies(:one).update!(png_logo: "fakepng")
+    businesses(:one).update!(png_logo: "fakepng")
     get public_root_url(host: Settings.customer_portal.host)
     assert_response :success
     body = @response.body

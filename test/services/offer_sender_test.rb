@@ -2,7 +2,7 @@ require "test_helper"
 
 class OfferSenderTest < ActiveSupport::TestCase
   setup do
-    @issuer = IssuerCompany.get_the_issuer!
+    @issuer = Business.get_the_issuer!
   end
 
   # Renderer stubbed per test via stub_offer_renderer, mirroring the plain

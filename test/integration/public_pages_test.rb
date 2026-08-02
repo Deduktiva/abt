@@ -22,7 +22,7 @@ class PublicPagesTest < ActionDispatch::IntegrationTest
   end
 
   test "root renders even when no issuer is active" do
-    IssuerCompany.update_all(active: false)
+    Business.update_all(active: false)
     get public_root_url(host: Settings.customer_portal.host)
     assert_response :success
   end

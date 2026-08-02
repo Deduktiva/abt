@@ -5,7 +5,7 @@ class InvoiceRendererTest < ActiveSupport::TestCase
     @invoice = invoices(:draft_invoice)
     @invoice.save! # populates customer snapshot columns via update_customer
     @invoice.update_columns(due_date: Date.current + 30.days)
-    @issuer = issuer_companies(:one)
+    @issuer = businesses(:one)
   end
 
   test "emits <supplier-no> when invoice has customer_supplier_number" do

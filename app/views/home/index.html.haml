@@ -35,35 +35,35 @@
       .card-header
         Company Information
       .card-body
-        - if @data[:issuer_company].png_logo.present?
+        - if @data[:business].png_logo.present?
           .mb-3.text-center
-            = image_tag png_logo_issuer_company_path, alt: @data[:issuer_company].legal_name, class: 'issuer-logo-preview'
+            = image_tag png_logo_business_path, alt: @data[:business].legal_name, class: 'issuer-logo-preview'
 
-        - if @data[:issuer_company].document_accent_color.present?
+        - if @data[:business].document_accent_color.present?
           %h6.text-issuer-accent
-            = @data[:issuer_company].legal_name
+            = @data[:business].legal_name
         - else
           %h6.text-primary
-            = @data[:issuer_company].legal_name
+            = @data[:business].legal_name
 
         .mb-2
           %strong Address:
           %div
-            - @data[:issuer_company].address.split("\n").each do |line|
+            - @data[:business].address.split("\n").each do |line|
               %div= line
-            %div= country_name(@data[:issuer_company].country_iso2)
+            %div= country_name(@data[:business].country_iso2)
 
         .mb-2
           %strong VAT ID:
-          %div= @data[:issuer_company].vat_id
+          %div= @data[:business].vat_id
 
         .mb-2
           %strong Bank:
-          %div= @data[:issuer_company].bankaccount_bank
+          %div= @data[:business].bankaccount_bank
           %div
-            = @data[:issuer_company].bankaccount_bic
+            = @data[:business].bankaccount_bic
             = " • "
-            = @data[:issuer_company].bankaccount_number
+            = @data[:business].bankaccount_number
 
 - if @consistency_issues.any?
   .row.mt-4

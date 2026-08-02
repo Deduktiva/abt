@@ -84,7 +84,7 @@ class Invoice < ApplicationRecord
 
   # Memoized so lines and tax classes resolve the issuer once, not per row.
   def money_decimal_places
-    @money_decimal_places ||= IssuerCompany.get_the_issuer!.money_decimal_places
+    @money_decimal_places ||= Business.get_the_issuer!.money_decimal_places
   end
 
   def paid?
@@ -140,7 +140,7 @@ class Invoice < ApplicationRecord
     return warnings unless customer.sales_tax_customer_class&.vat_id_required?
 
     current = customer.current_vat_verification
-    recheck_days = IssuerCompany.get_the_issuer!.vat_id_recheck_days
+    recheck_days = Business.get_the_issuer!.vat_id_recheck_days
 
     if current&.invalid_per_vies?
       warnings << "Customer's VAT ID was rejected by VIES on #{I18n.l(current.created_at.to_date)}."

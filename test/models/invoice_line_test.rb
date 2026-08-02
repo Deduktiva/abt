@@ -66,7 +66,7 @@ class InvoiceLineTest < ActiveSupport::TestCase
   end
 
   test "calculate_amount honors the issuer's money_decimal_places" do
-    IssuerCompany.get_the_issuer!.update!(money_decimal_places: 0)
+    Business.get_the_issuer!.update!(money_decimal_places: 0)
     line = InvoiceLine.new(invoice: invoices(:draft_invoice), title: "x", type: "item", rate: 1.005, quantity: 1)
     line.calculate_amount
     assert_equal BigDecimal("1"), line.amount

@@ -152,7 +152,7 @@ gh issue list --repo Deduktiva/abt --state open --label "Ready for action" --lim
 ## 📂 **Project-Specific Notes**
 
 ### **Database**
-- Single IssuerCompany per installation (don't create multiple)
+- Single Business per installation (don't create multiple)
 - Use `update_column` to bypass validations in tests when needed
 - Always include database migrations for schema changes
 

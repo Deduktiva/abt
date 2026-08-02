@@ -1,4 +1,4 @@
-class IssuerCompany < ApplicationRecord
+class Business < ApplicationRecord
   validates :short_name, presence: true
   validates :legal_name, presence: true
   validates :country_iso2, presence: true, inclusion: { in: ISO3166::Country.codes, message: "must be a valid country" }
@@ -18,7 +18,7 @@ class IssuerCompany < ApplicationRecord
             format: { with: %r{\Ahttps?://\S+\z}i, message: "must be a valid http:// or https:// URL" }
   normalizes :website_url, with: ->(url) { url.strip }
 
-  # This app requires that there is exactly *one* issuer_company in the database.
+  # This app requires that there is exactly *one* business in the database.
   def self.get_the_issuer!
     self.where(active: true).first
   end

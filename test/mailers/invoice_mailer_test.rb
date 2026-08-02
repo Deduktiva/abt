@@ -24,7 +24,7 @@ class InvoiceMailerTest < ActionMailer::TestCase
   end
 
   test "customer_email sets Reply-To from the issuer when configured" do
-    issuer_companies(:one).update!(document_email_reply_to: "replies@example.com")
+    businesses(:one).update!(document_email_reply_to: "replies@example.com")
     mail = InvoiceMailer.with(invoice: invoices(:published_invoice)).customer_email
 
     assert_equal [ "replies@example.com" ], mail.reply_to
@@ -201,7 +201,7 @@ class InvoiceMailerTest < ActionMailer::TestCase
   end
 
   test "customer_email strips CRLF from issuer-controlled short_name in subject and From" do
-    IssuerCompany.get_the_issuer!.update!(short_name: "Evil\r\nX-Injected: yes")
+    Business.get_the_issuer!.update!(short_name: "Evil\r\nX-Injected: yes")
     invoice = invoices(:published_invoice)
     mail = InvoiceMailer.with(invoice: invoice).customer_email
 

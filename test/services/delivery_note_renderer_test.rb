@@ -3,7 +3,7 @@ require "test_helper"
 class DeliveryNoteRendererTest < ActiveSupport::TestCase
   setup do
     @delivery_note = delivery_notes(:draft_delivery_note)
-    @issuer = issuer_companies(:one)
+    @issuer = businesses(:one)
   end
 
   test "emits <supplier-no> when the customer has supplier_number set" do

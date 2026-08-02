@@ -83,8 +83,8 @@ class ActionButtonsHelperTest < ActionView::TestCase
   end
 
   test "save_button respects custom label" do
-    html = save_button(label: "Update Issuer Company")
-    assert_includes html, "Update Issuer Company"
+    html = save_button(label: "Update Business")
+    assert_includes html, "Update Business"
   end
 
   # --- Permission gate (shared across every helper; tested once via delete_button) ---

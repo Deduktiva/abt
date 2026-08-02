@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_07_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_02_113219) do
   create_table "acceptance_submissions", force: :cascade do |t|
     t.integer "attachment_id"
     t.datetime "created_at", null: false
@@ -72,6 +72,39 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_120000) do
     t.string "filename"
     t.string "title"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "businesses", force: :cascade do |t|
+    t.boolean "active"
+    t.string "address"
+    t.string "bankaccount_bank"
+    t.string "bankaccount_bic"
+    t.string "bankaccount_number"
+    t.string "country_iso2", limit: 2, null: false
+    t.datetime "created_at", null: false
+    t.string "currency", default: "EUR", null: false
+    t.string "document_accent_color"
+    t.string "document_contact_line1"
+    t.string "document_contact_line2"
+    t.string "document_email_auto_bcc", default: "bcc@example.com", null: false
+    t.string "document_email_from", default: "from@example.com", null: false
+    t.string "document_email_reply_to"
+    t.string "invoice_footer"
+    t.string "legal_name"
+    t.integer "money_decimal_places", default: 2, null: false
+    t.string "offer_footer"
+    t.integer "offer_validity_days", default: 30, null: false
+    t.binary "pdf_logo"
+    t.string "pdf_logo_height"
+    t.string "pdf_logo_width"
+    t.binary "png_logo"
+    t.string "reporting_email", default: "bcc@example.com", null: false
+    t.string "short_name"
+    t.datetime "updated_at", null: false
+    t.string "vat_id"
+    t.integer "vat_id_recheck_days", default: 90, null: false
+    t.string "website_url"
+    t.index ["active"], name: "index_businesses_on_active", unique: true
   end
 
   create_table "customer_contact_projects", force: :cascade do |t|
@@ -289,39 +322,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_120000) do
     t.index ["paid_at"], name: "index_invoices_on_paid_at"
     t.index ["published", "date"], name: "index_invoices_on_published_and_date"
     t.index ["published"], name: "index_invoices_on_published"
-  end
-
-  create_table "issuer_companies", force: :cascade do |t|
-    t.boolean "active"
-    t.string "address"
-    t.string "bankaccount_bank"
-    t.string "bankaccount_bic"
-    t.string "bankaccount_number"
-    t.string "country_iso2", limit: 2, null: false
-    t.datetime "created_at", null: false
-    t.string "currency", default: "EUR", null: false
-    t.string "document_accent_color"
-    t.string "document_contact_line1"
-    t.string "document_contact_line2"
-    t.string "document_email_auto_bcc", default: "bcc@example.com", null: false
-    t.string "document_email_from", default: "from@example.com", null: false
-    t.string "document_email_reply_to"
-    t.string "invoice_footer"
-    t.string "legal_name"
-    t.integer "money_decimal_places", default: 2, null: false
-    t.string "offer_footer"
-    t.integer "offer_validity_days", default: 30, null: false
-    t.binary "pdf_logo"
-    t.string "pdf_logo_height"
-    t.string "pdf_logo_width"
-    t.binary "png_logo"
-    t.string "reporting_email", default: "bcc@example.com", null: false
-    t.string "short_name"
-    t.datetime "updated_at", null: false
-    t.string "vat_id"
-    t.integer "vat_id_recheck_days", default: 90, null: false
-    t.string "website_url"
-    t.index ["active"], name: "index_issuer_companies_on_active", unique: true
   end
 
   create_table "languages", force: :cascade do |t|

@@ -10,7 +10,7 @@ class OfferTest < ActiveSupport::TestCase
   test "validity_days falls back from customer to issuer" do
     offer = offers(:draft_offer)
     offer.customer.update!(offer_validity_days: nil)
-    assert_equal IssuerCompany.get_the_issuer!.offer_validity_days, offer.validity_days
+    assert_equal Business.get_the_issuer!.offer_validity_days, offer.validity_days
     offer.customer.update!(offer_validity_days: 14)
     assert_equal 14, offer.validity_days
   end

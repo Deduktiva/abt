@@ -144,7 +144,7 @@ class LineManagementTest < ApplicationSystemTestCase
   end
 
   test "invoice total updates in the issuer currency when modifying line values" do
-    issuer_companies(:one).update!(currency: "USD")
+    businesses(:one).update!(currency: "USD")
     visit edit_invoice_path(@invoice)
 
     total_element = find('[data-invoice-lines-target="total"]')

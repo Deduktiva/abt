@@ -12,7 +12,7 @@ class OverdueInvoicesMailerTest < ActionMailer::TestCase
   end
 
   test "overdue_report builds an email to the issuer's reporting_email" do
-    issuer_companies(:one).update!(reporting_email: "reports@example.com")
+    businesses(:one).update!(reporting_email: "reports@example.com")
     invoices = [ @overdue_a, @overdue_b ]
 
     mail = OverdueInvoicesMailer.with(invoices: invoices).overdue_report

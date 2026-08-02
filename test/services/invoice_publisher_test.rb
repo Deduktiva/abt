@@ -85,7 +85,7 @@ class InvoicePublisherTest < ActiveSupport::TestCase
 
     invoice = Invoice.create!(customer: customer, project: projects(:test_project), cust_reference: "NOVATID-EU")
 
-    publisher = InvoicePublisher.new(invoice, issuer_companies(:one))
+    publisher = InvoicePublisher.new(invoice, businesses(:one))
     publisher.prepare!
 
     assert_includes invoice.publish_problems, "Customer VAT ID is missing."
@@ -100,7 +100,7 @@ class InvoicePublisherTest < ActiveSupport::TestCase
 
     invoice = Invoice.create!(customer: customer, project: projects(:test_project), cust_reference: "NOVATID-EXPORT")
 
-    publisher = InvoicePublisher.new(invoice, issuer_companies(:one))
+    publisher = InvoicePublisher.new(invoice, businesses(:one))
     publisher.prepare!
 
     assert_not_includes invoice.publish_problems, "Customer VAT ID is missing."
@@ -119,7 +119,7 @@ class InvoicePublisherTest < ActiveSupport::TestCase
 
     assert_equal 21, invoice.payment_terms_days
 
-    publisher = InvoicePublisher.new(invoice, issuer_companies(:one))
+    publisher = InvoicePublisher.new(invoice, businesses(:one))
     publisher.prepare!
 
     assert_equal Date.new(2024, 6, 22), invoice.due_date
@@ -140,7 +140,7 @@ class InvoicePublisherTest < ActiveSupport::TestCase
     )
     invoice.singleton_class.validate { errors.add(:base, "Snapshot went stale") }
 
-    publisher = InvoicePublisher.new(invoice.reload, issuer_companies(:one))
+    publisher = InvoicePublisher.new(invoice.reload, businesses(:one))
     assert_not publisher.publish!
 
     assert_includes invoice.publish_problems, "Customer VAT ID is missing."
@@ -156,7 +156,7 @@ class InvoicePublisherTest < ActiveSupport::TestCase
     invoice.invoice_lines.create!(type: "item", title: "Overcharge reversal", quantity: 1.0, rate: -10000.0, position: 1, sales_tax_product_class: klass)
     invoice.invoice_lines.create!(type: "item", title: "Correct charge", quantity: 1.0, rate: 10000.0, position: 2, sales_tax_product_class: klass)
 
-    publisher = InvoicePublisher.new(invoice.reload, issuer_companies(:one))
+    publisher = InvoicePublisher.new(invoice.reload, businesses(:one))
     assert publisher.publish!, publisher.log.join("\n")
 
     invoice.reload
@@ -168,7 +168,7 @@ class InvoicePublisherTest < ActiveSupport::TestCase
     invoice = invoices(:published_invoice)
     assert invoice.published?
 
-    publisher = InvoicePublisher.new(invoice, issuer_companies(:one))
+    publisher = InvoicePublisher.new(invoice, businesses(:one))
     assert_not publisher.publish!
     assert_includes publisher.log, "E: already published"
   end
@@ -179,7 +179,7 @@ class InvoicePublisherTest < ActiveSupport::TestCase
     invoice.invoice_lines.create!(type: "item", title: "Widget", quantity: 1.0, rate: 100.0, position: 1, sales_tax_product_class: klass)
     sequence_before = DocumentNumber.find_by!(code: "invoice").sequence
 
-    publisher = InvoicePublisher.new(invoice.reload, issuer_companies(:one))
+    publisher = InvoicePublisher.new(invoice.reload, businesses(:one))
     assert_raises(RuntimeError) do
       with_failing_renderer { publisher.publish! }
     end
@@ -197,8 +197,8 @@ class InvoicePublisherTest < ActiveSupport::TestCase
     invoice = Invoice.create!(customer: customers(:good_national), project: projects(:test_project), cust_reference: "RACE-1", date: Date.new(2024, 6, 1))
     invoice.invoice_lines.create!(type: "item", title: "Widget", quantity: 1.0, rate: 100.0, position: 1, sales_tax_product_class: klass)
 
-    stale = InvoicePublisher.new(Invoice.find(invoice.id), issuer_companies(:one))
-    assert InvoicePublisher.new(Invoice.find(invoice.id), issuer_companies(:one)).publish!
+    stale = InvoicePublisher.new(Invoice.find(invoice.id), businesses(:one))
+    assert InvoicePublisher.new(Invoice.find(invoice.id), businesses(:one)).publish!
     invoice.reload
     first_number = invoice.document_number
     first_token = invoice.token

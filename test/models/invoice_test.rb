@@ -366,7 +366,7 @@ class InvoiceTest < ActiveSupport::TestCase
     invoice = invoices(:draft_invoice)
     customer = invoice.customer
     customer.vat_verifications.destroy_all
-    recheck_days = IssuerCompany.get_the_issuer!.vat_id_recheck_days
+    recheck_days = Business.get_the_issuer!.vat_id_recheck_days
     customer.update_columns(vat_id_verified_at: (recheck_days + 5).days.ago)
     warnings = invoice.publish_warnings
     assert(warnings.any? { |w| w.include?("last verified") && w.include?("threshold: #{recheck_days} days") })

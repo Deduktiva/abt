@@ -23,7 +23,7 @@
          constants change, recompute. -->
     <xsl:variable name="logo-sender-alignment-padding">4.8pt</xsl:variable>
 
-    <!-- Decimal places for money amounts, forwarded from IssuerCompany. Falls
+    <!-- Decimal places for money amounts, forwarded from Business. Falls
          back to 2 for documents that don't carry it (e.g. delivery notes). -->
     <xsl:variable name="money-decimal-places" as="xs:integer"
                   select="if (/document/money-decimal-places castable as xs:integer)

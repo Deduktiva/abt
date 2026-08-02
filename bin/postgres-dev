@@ -6,6 +6,23 @@ set -e
 COMPOSE_FILE="docker-compose.postgres.yml"
 RAILS_ENV="development_postgres"
 
+# The test lane mirrors .github/workflows/ci.yml: RAILS_ENV=test plus a
+# DATABASE_URL that overrides the primary connection. Rails applies
+# DATABASE_URL to the primary database only, so the cache/queue databases stay
+# on SQLite here exactly as they do in CI. A separate `test_postgres`
+# environment is not an option — test/test_helper.rb forces RAILS_ENV=test.
+TEST_DATABASE_URL="postgres://abt_user:abt_password@localhost:5433/abt_test"
+
+# The precompiled darwin pg gem segfaults in PG::Connection#connect_start when
+# Rails' parallel test runner forks workers (libpq touches the macOS GSS
+# framework, which is not fork-safe). Disabling GSSAPI encryption negotiation
+# avoids it; nothing here talks to a Kerberised server. Harmless on Linux, so
+# it stays unconditional rather than uname-gated.
+rails_test_env() {
+  PGGSSENCMODE=disable RAILS_ENV=test DATABASE_URL="$TEST_DATABASE_URL" \
+    bundle exec rails "$@"
+}
+
 case "$1" in
   start)
     echo "Starting PostgreSQL container..."
@@ -52,8 +69,30 @@ case "$1" in
     ;;
 
   test)
-    echo "Running tests with PostgreSQL..."
-    RAILS_ENV=$RAILS_ENV bundle exec rake test
+    shift
+    echo "Running tests against $TEST_DATABASE_URL ..."
+    rails_test_env db:prepare
+    rails_test_env test "$@"
+    ;;
+
+  system-test)
+    shift
+    echo "Running system tests against $TEST_DATABASE_URL ..."
+    export HEADLESS=1
+    rails_test_env db:prepare
+    # `rails test:system` ignores path arguments; `rails test` honours them and
+    # runs system tests when the path is under test/system.
+    if [ "$#" -eq 0 ]; then
+      rails_test_env test:system
+    else
+      rails_test_env test "$@"
+    fi
+    ;;
+
+  test-reset)
+    echo "Dropping and recreating the PostgreSQL test database..."
+    rails_test_env db:drop
+    rails_test_env db:prepare
     ;;
 
   migrate)
@@ -80,18 +119,20 @@ case "$1" in
     ;;
 
   *)
-    echo "Usage: $0 {start|stop|setup|console|server|test|migrate|reset|status}"
+    echo "Usage: $0 {start|stop|setup|console|server|test|system-test|test-reset|migrate|reset|status}"
     echo ""
     echo "Commands:"
-    echo "  start   - Start PostgreSQL container"
-    echo "  stop    - Stop PostgreSQL container"
-    echo "  setup   - Create and setup database"
-    echo "  console - Start Rails console with PostgreSQL"
-    echo "  server  - Start Rails server with PostgreSQL"
-    echo "  test    - Run tests with PostgreSQL"
-    echo "  migrate - Run database migrations"
-    echo "  reset   - Drop, create, migrate and seed database"
-    echo "  status  - Check container status"
+    echo "  start       - Start PostgreSQL container"
+    echo "  stop        - Stop PostgreSQL container"
+    echo "  setup       - Create and setup development database"
+    echo "  console     - Start Rails console with PostgreSQL"
+    echo "  server      - Start Rails server with PostgreSQL"
+    echo "  test        - Run tests against PostgreSQL (extra args go to 'rails test')"
+    echo "  system-test - Run system tests against PostgreSQL, headless"
+    echo "  test-reset  - Drop and recreate the PostgreSQL test database"
+    echo "  migrate     - Run database migrations"
+    echo "  reset       - Drop, create, migrate and seed development database"
+    echo "  status      - Check container status"
     exit 1
     ;;
 esac

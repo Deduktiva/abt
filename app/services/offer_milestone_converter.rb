@@ -7,21 +7,26 @@ class OfferMilestoneConverter
     @offer = @version.offer
   end
 
+  # with_lock reloads the milestone under a row lock and runs guards plus
+  # document creation in one transaction, so concurrent converts serialize and
+  # the second one sees converted? and raises instead of double-billing.
   def convert!
+    @milestone.with_lock { convert_locked! }
+  end
+
+  private
+
+  def convert_locked!
     raise NotConvertible, "offer is not accepted" unless @offer.accepted?
     raise NotConvertible, "milestone belongs to a non-accepted version" unless @version.id == @offer.accepted_version_id
     raise NotConvertible, "milestone already converted" if @milestone.converted?
 
-    ActiveRecord::Base.transaction do
-      invoice = build_invoice
-      invoice.save!
-      delivery_note = @milestone.skip_delivery_note? ? nil : build_delivery_note(invoice).tap(&:save!)
-      @milestone.update!(invoice: invoice, delivery_note: delivery_note)
-      invoice
-    end
+    invoice = build_invoice
+    invoice.save!
+    delivery_note = @milestone.skip_delivery_note? ? nil : build_delivery_note(invoice).tap(&:save!)
+    @milestone.update!(invoice: invoice, delivery_note: delivery_note)
+    invoice
   end
-
-  private
 
   # The offer's internal reference carries over; with several milestones each
   # document gets the milestone's ordinal appended so they stay tellable apart.

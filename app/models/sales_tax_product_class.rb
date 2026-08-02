@@ -1,7 +1,7 @@
 class SalesTaxProductClass < ApplicationRecord
-  # Every reference is restricted: the FKs have no database constraint, and
-  # invoice_tax_classes/invoice_lines belong to booked invoices, so a delete
-  # here would silently corrupt accounting records.
+  # Restrict every reference: only offer_versions has a database foreign key,
+  # and dangling invoice_tax_classes/invoice_lines would corrupt published
+  # invoices.
   has_many :sales_tax_rates, dependent: :restrict_with_error
   has_many :products, dependent: :restrict_with_error
   has_many :invoice_tax_classes, dependent: :restrict_with_error

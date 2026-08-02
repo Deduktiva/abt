@@ -52,10 +52,9 @@ class DocumentNumberTest < ActiveSupport::TestCase
     assert_includes dn.errors[:code], "can't be blank"
   end
 
-  test "the database rejects a duplicate code inserted without validations" do
-    assert_raises(ActiveRecord::RecordNotUnique) do
-      DocumentNumber.insert!({ code: "invoice", format: "%<number>04d", sequence: 0 })
-    end
+  test "database rejects a duplicate code that skips validation" do
+    dn = DocumentNumber.new(code: "invoice", format: "%<number>04d", sequence: 0)
+    assert_raises(ActiveRecord::RecordNotUnique) { dn.save!(validate: false) }
   end
 
   test "get_next_for raises NoDocumentNumberRangeError for unknown code" do

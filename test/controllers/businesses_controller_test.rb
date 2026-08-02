@@ -70,6 +70,15 @@ class BusinessesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".alert-danger", text: /not image\/png/
   end
 
+  test "should reject a png logo param that is not an upload" do
+    patch business_url, params: {
+      business: { png_logo_file: "not-an-upload" }
+    }
+    assert_redirected_to edit_business_url
+    follow_redirect!
+    assert_select ".alert-danger", text: /select a PNG file/
+  end
+
   test "should accept a valid png upload" do
     png_data = "\x89PNG\r\n\x1A\n".b + ("\x00" * 32).b
     valid = Rack::Test::UploadedFile.new(

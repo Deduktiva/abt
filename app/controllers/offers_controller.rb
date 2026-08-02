@@ -1,6 +1,6 @@
 class OffersController < ApplicationController
   include EmailableDocument
-  include PdfUploadChecks
+  include UploadChecks
 
   before_action -> { require_permission!("offers.view") },
                 only: %i[index show preview preview_email preview_email_html]
@@ -226,7 +226,7 @@ class OffersController < ApplicationController
 
   def order_pdf_error(file)
     case pdf_upload_error(file)
-    when :missing, :not_pdf then "Order document must be a PDF."
+    when :missing, :wrong_type then "Order document must be a PDF."
     when :too_large then "Order document is too large (maximum is #{Attachment::MAX_SIZE_MB} MB)."
     end
   end

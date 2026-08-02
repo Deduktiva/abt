@@ -22,4 +22,10 @@ class OfferMailer < ApplicationMailer
       document_mail(to: to, subject: subject)
     end
   end
+
+  private
+
+  def mark_email_sent
+    params[:offer]&.update_column(:email_sent_at, Time.current)
+  end
 end

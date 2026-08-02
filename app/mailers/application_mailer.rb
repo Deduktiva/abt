@@ -7,6 +7,8 @@ class ApplicationMailer < ActionMailer::Base
   default from: Proc.new { build_default_from }
   layout "mailer"
 
+  after_deliver :track_delivery
+
   protected
 
   def setup_issuer
@@ -34,6 +36,15 @@ class ApplicationMailer < ActionMailer::Base
   # The mailer layout's footer reads I18n.locale — wrap customer-facing mail() in this.
   def with_customer_locale(customer, &block)
     I18n.with_locale(customer.language.iso_code, &block)
+  end
+
+  # A skipped mail() yields NullMail, whose deliver no-ops — don't count that as sent.
+  def track_delivery
+    mark_email_sent if message.is_a?(Mail::Message)
+  end
+
+  # Document mailers override this to stamp email_sent_at.
+  def mark_email_sent
   end
 
   # Strip CR/LF from values interpolated into mail headers (e.g. Subject) to

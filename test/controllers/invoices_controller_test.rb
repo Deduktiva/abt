@@ -96,6 +96,54 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_select "td", text: "DRAFT-NO-DATE", count: 0  # Draft should not appear in old year
   end
 
+  test "blank year param falls back to the current year" do
+    create_draft_invoice(internal_reference: "THIS-YEAR", date: Date.current)
+
+    get invoices_url(year: "")
+    assert_response :success
+    assert_select "td", text: "THIS-YEAR"
+  end
+
+  test "non-numeric year param falls back to the current year" do
+    create_draft_invoice(internal_reference: "THIS-YEAR", date: Date.current)
+
+    get invoices_url(year: "abc")
+    assert_response :success
+    assert_select "td", text: "THIS-YEAR"
+  end
+
+  test "out-of-range year param falls back to the current year" do
+    create_draft_invoice(internal_reference: "THIS-YEAR", date: Date.current)
+
+    get invoices_url(year: "999999999")
+    assert_response :success
+    assert_select "td", text: "THIS-YEAR"
+  end
+
+  test "non-scalar year param falls back to the current year" do
+    create_draft_invoice(internal_reference: "THIS-YEAR", date: Date.current)
+
+    get invoices_url("year[]": Date.current.year)
+    assert_response :success
+    assert_select "td", text: "THIS-YEAR"
+  end
+
+  test "non-numeric customer_id param is ignored" do
+    create_draft_invoice(customer: customers(:good_eu), internal_reference: "EU-INV", date: Date.current)
+
+    get invoices_url(customer_id: "abc")
+    assert_response :success
+    assert_select "td", text: "EU-INV"
+  end
+
+  test "non-scalar customer_id param is ignored" do
+    create_draft_invoice(customer: customers(:good_eu), internal_reference: "EU-INV", date: Date.current)
+
+    get invoices_url(customer_id: [ customers(:good_eu).id, customers(:good_national).id ])
+    assert_response :success
+    assert_select "td", text: "EU-INV"
+  end
+
   test "drafts sort newest-first when document_number is null" do
     first  = create_draft_invoice(internal_reference: "DRAFT-FIRST")
     second = create_draft_invoice(internal_reference: "DRAFT-SECOND")

@@ -3,6 +3,7 @@ class DeliveryNotesController < ApplicationController
   include PublishableDocument
   include DocumentWithLines
   include UploadChecks
+  include YearFilteredIndex
 
   publishable_document :delivery_note, label: "delivery note"
   document_with_lines line_class: DeliveryNoteLine
@@ -24,15 +25,11 @@ class DeliveryNotesController < ApplicationController
 
   # GET /delivery_notes
   def index
-    @selected_year = params[:year] == "all" ? "all" : (params[:year]&.to_i || Date.current.year)
     @email_filter = params[:email_filter] || "all"
     @acceptance_filter = params[:acceptance_filter]
-    @selected_customer_id = params[:customer_id].presence&.to_i
+    @selected_customer_id = integer_param(:customer_id)
 
-    @delivery_notes = DeliveryNote.visible_to(current_user).ordered
-    unless @selected_year == "all"
-      @delivery_notes = @delivery_notes.in_year(@selected_year, include_drafts: @selected_year == Date.current.year)
-    end
+    @delivery_notes = filtered_by_year(DeliveryNote.visible_to(current_user).ordered)
 
     case @email_filter
     when "unsent"

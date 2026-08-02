@@ -34,6 +34,18 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_select "td", text: "INACTIVE", count: 0
   end
 
+  test "non-numeric customer_id param is ignored" do
+    get projects_url(filter: "all", customer_id: "abc")
+    assert_response :success
+    assert_select "td", text: @project.matchcode
+  end
+
+  test "non-scalar customer_id param is ignored" do
+    get projects_url(filter: "all", customer_id: [ @customer.id, customers(:good_national).id ])
+    assert_response :success
+    assert_select "td", text: @project.matchcode
+  end
+
   test "should show project" do
     get project_url(@project)
     assert_response :success

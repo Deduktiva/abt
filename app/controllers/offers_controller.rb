@@ -1,6 +1,7 @@
 class OffersController < ApplicationController
   include EmailableDocument
   include UploadChecks
+  include YearFilteredIndex
 
   before_action -> { require_permission!("offers.view") },
                 only: %i[index show preview preview_email preview_email_html]
@@ -20,13 +21,12 @@ class OffersController < ApplicationController
   before_action :require_accepted, only: %i[convert_milestone reopen_milestone_link]
 
   def index
-    @selected_year = params[:year] == "all" ? "all" : (params[:year].presence || Date.current.year).to_i
     @state_filter = params[:state].presence_in(Offer::STATES) || "all"
-    @selected_customer_id = params[:customer_id].presence&.to_i
+    @selected_customer_id = integer_param(:customer_id)
 
     scope = Offer.visible_to(current_user).ordered
                  .includes(:customer, :project, draft_version: :milestones, accepted_version: { milestones: :invoice })
-    scope = scope.in_year(@selected_year, include_drafts: @selected_year == Date.current.year) unless @selected_year == "all"
+    scope = filtered_by_year(scope)
     scope = scope.where(state: @state_filter) unless @state_filter == "all"
     scope = scope.where(customer_id: @selected_customer_id) if @selected_customer_id
     @offers = scope

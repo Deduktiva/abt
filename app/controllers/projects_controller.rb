@@ -12,8 +12,8 @@ class ProjectsController < ApplicationController
 
     # The dependent project dropdown (searchable_dropdown) scopes options to the
     # chosen customer, always including reusable (customer-less) projects.
-    if params[:customer_id].present?
-      @projects = @projects.where("bill_to_customer_id = ? OR bill_to_customer_id IS NULL", params[:customer_id])
+    if (customer_id = integer_param(:customer_id))
+      @projects = @projects.where("bill_to_customer_id = ? OR bill_to_customer_id IS NULL", customer_id)
     end
 
     @projects = @projects.order(:matchcode, :description)

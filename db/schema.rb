@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_02_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_02_160000) do
   create_table "acceptance_submissions", force: :cascade do |t|
     t.integer "attachment_id"
     t.datetime "created_at", null: false
@@ -216,7 +216,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_150000) do
     t.index ["customer_id"], name: "index_delivery_notes_on_customer_id"
     t.index ["date"], name: "index_delivery_notes_on_date"
     t.index ["document_number"], name: "index_delivery_notes_on_document_number", unique: true
-    t.index ["invoice_id"], name: "index_delivery_notes_on_invoice_id"
+    t.index ["invoice_id"], name: "index_delivery_notes_on_invoice_id", unique: true, where: "invoice_id IS NOT NULL"
     t.index ["project_id"], name: "index_delivery_notes_on_project_id"
     t.index ["published"], name: "index_delivery_notes_on_published"
   end

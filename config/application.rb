@@ -57,6 +57,15 @@ module Abt
     # (image_processing, ruby-vips/libvips, ImageMagick) is needed.
     config.active_storage.variant_processor = :disabled
 
+    # Nothing attaches files, so don't expose the built-in endpoints. They are
+    # drawn outside the host constraints in config/routes.rb and inherit from
+    # ActiveStorage::BaseController, so unauthenticated callers could otherwise
+    # POST /rails/active_storage/direct_uploads and PUT the returned
+    # disk-service token to write arbitrary bytes to the storage root.
+    # ActionText computes rich_text_area's upload URLs from these routes —
+    # ApplicationHelper#rich_text_field supplies blank ones instead.
+    config.active_storage.draw_routes = false
+
     # Route Solid Queue's ActiveRecord models to the dedicated queue database
     # in all environments so the jobs status page can read them.
     config.solid_queue.connects_to = { database: { writing: :queue } }

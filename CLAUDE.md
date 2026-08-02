@@ -56,6 +56,7 @@ For testing against PostgreSQL (matches production environment):
 - Propshaft + dartsass-rails + importmap. SCSS sources in `app/assets/stylesheets/` compile via `rails dartsass:build` (or `dartsass:watch`) into `app/assets/builds/`; Propshaft serves/digests the result. The `bootstrap` gem is `require: false` — only its SCSS is used, via a Dart Sass `--load-path` (`config/initializers/assets.rb`).
 - `test/test_helper.rb` rebuilds the CSS when stale, so `bundle exec rails test` needs no manual build step.
 - The trix toolbar icon partial (`_trix_icon_shapes.scss`) is generated from the bootstrap-icons gem by `lib/tasks/trix_icons.rake`, hooked into every dartsass build.
+- Active Storage routes are not drawn (`config.active_storage.draw_routes = false`) — nothing attaches files, and the built-in direct-upload/disk endpoints sit outside the host constraints and accept unauthenticated writes. Rich text therefore goes through `rich_text_field`, never `f.rich_text_area` directly: ActionText defaults the trix upload URLs to Active Storage route helpers that no longer exist, so a direct call raises `NoMethodError` at render time.
 
 ### Shared Concerns
 - `PublishableDocument`, `DocumentWithLines` (controllers) - draft/published guards and line-form plumbing for Invoice + DeliveryNote
@@ -154,7 +155,7 @@ For testing against PostgreSQL (matches production environment):
 
 See [`docs/code-style.md`](docs/code-style.md) for the canonical style reference (HAML, Bootstrap, Stimulus, tests, status badges, action button icons, formatting, comments, commit messages). Read it before writing code.
 
-UI helpers live in `app/helpers/application_helper.rb` (page chrome: `breadcrumbs`, `page_header`, `action_button`, `destroy_link`, `list_action_link`, `action_buttons_wrapper`) and `app/helpers/action_buttons_helper.rb` (per-verb wrappers: `delete_button`, `pdf_button`, `preview_button`, `publish_button`, `unpublish_button`, `unblock_button`, `reset_passkeys_button`, `audit_log_button`, `save_button`, `nav_button`). Read the source for signatures.
+UI helpers live in `app/helpers/application_helper.rb` (page chrome: `breadcrumbs`, `page_header`, `action_button`, `destroy_link`, `list_action_link`, `action_buttons_wrapper`, `rich_text_field`) and `app/helpers/action_buttons_helper.rb` (per-verb wrappers: `delete_button`, `pdf_button`, `preview_button`, `publish_button`, `unpublish_button`, `unblock_button`, `reset_passkeys_button`, `audit_log_button`, `save_button`, `nav_button`). Read the source for signatures.
 
 ## Claude Operational Notes
 

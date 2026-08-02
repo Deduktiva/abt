@@ -102,7 +102,7 @@
                 = vf.label :prelude, 'Prelude', class: 'form-label'
                 .card
                   .card-body
-                    = vf.rich_text_area :prelude, data: { controller: 'rich-text' }
+                    = rich_text_field vf, :prelude
             .col-sm-4
               .mb-3
                 = vf.label :salutation_override, 'Salutation override', class: 'form-label'

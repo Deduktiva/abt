@@ -215,7 +215,7 @@
           %h5.mb-0 Internal Notes
         .card-body
           = form_with model: @offer, url: update_internal_notes_offer_path(@offer), method: :patch do |form|
-            = form.rich_text_area :internal_notes, data: { controller: 'rich-text' }
+            = rich_text_field form, :internal_notes
             .text-end.mt-2
               = form.submit 'Save', class: 'btn btn-primary'
 

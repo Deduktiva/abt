@@ -112,7 +112,7 @@
       .col-lg-8
         .card
           .card-body
-            = f.rich_text_area :offer_boilerplate, data: { controller: 'rich-text' }
+            = rich_text_field f, :offer_boilerplate
     %hr
     .row.mb-3
       = f.label :notes, class: 'col-lg-2 col-md-3 col-form-label'

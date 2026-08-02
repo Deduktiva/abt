@@ -166,6 +166,8 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to invoices_path
     assert_equal "2 emails queued for sending.", flash[:notice]
+    # email_sent_at records delivery, not enqueue (#345)
+    assert_nil invoice1.reload.email_sent_at
   end
 
   test "bulk_send_emails excludes already-sent invoices" do
@@ -179,8 +181,29 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     end
     perform_enqueued_jobs
 
-    assert_equal "1 emails queued for sending.", flash[:notice]
+    assert_equal "1 emails queued for sending. 1 skipped (already sent or queued).", flash[:notice]
     assert_equal sent_at, sent_invoice.reload.email_sent_at
+  end
+
+  test "bulk_send_emails queues nothing extra when the form is submitted twice" do
+    invoice = invoices(:published_invoice)
+
+    assert_enqueued_emails 1 do
+      2.times { post bulk_send_emails_invoices_path, params: { invoice_ids: [ invoice.id ] } }
+    end
+
+    assert_equal "0 emails queued for sending. 1 skipped (already sent or queued).", flash[:notice]
+  end
+
+  test "bulk_send_emails offers a document again once its claim goes stale" do
+    invoice = invoices(:published_invoice)
+    post bulk_send_emails_invoices_path, params: { invoice_ids: [ invoice.id ] }
+
+    travel EmailableDocument::EMAIL_CLAIM_WINDOW + 1.minute do
+      assert_enqueued_emails 1 do
+        post bulk_send_emails_invoices_path, params: { invoice_ids: [ invoice.id ] }
+      end
+    end
   end
 
   test "bulk_send_emails handles empty selection" do

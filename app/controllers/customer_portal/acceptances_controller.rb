@@ -1,5 +1,7 @@
 module CustomerPortal
   class AcceptancesController < BaseController
+    include PdfUploadChecks
+
     before_action :load_delivery_note
 
     def show
@@ -37,11 +39,11 @@ module CustomerPortal
 
     # Returns a user-facing error string, or nil when the file is an acceptable PDF.
     def file_error(file)
-      return t("customer_portal.acceptance.errors.missing") if file.blank?
-      return t("customer_portal.acceptance.errors.missing") unless file.is_a?(ActionDispatch::Http::UploadedFile)
-      return t("customer_portal.acceptance.errors.too_large", max: Attachment::MAX_SIZE_BYTES / 1.megabyte) if file.size > Attachment::MAX_SIZE_BYTES
-      return t("customer_portal.acceptance.errors.not_pdf") if Attachment.detect_content_type(file.tempfile) != "application/pdf"
-      nil
+      case pdf_upload_error(file)
+      when :missing then t("customer_portal.acceptance.errors.missing")
+      when :too_large then t("customer_portal.acceptance.errors.too_large", max: Attachment::MAX_SIZE_MB)
+      when :not_pdf then t("customer_portal.acceptance.errors.not_pdf")
+      end
     end
   end
 end

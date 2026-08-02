@@ -348,6 +348,19 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     assert offer.reload.sent?
   end
 
+  test "accept rejects an oversized order document" do
+    offer = offers(:sent_offer)
+    big = Rack::Test::UploadedFile.new(
+      StringIO.new("%PDF-1.4\n" + "x" * Attachment::MAX_SIZE_BYTES),
+      "application/pdf",
+      original_filename: "big.pdf"
+    )
+    post accept_offer_url(offer), params: { order_number: "PO", ordered_on: "2026-07-01", order_pdf: big }
+    assert_redirected_to offer_url(offer)
+    assert_match(/too large/, flash[:alert])
+    assert offer.reload.sent?
+  end
+
   test "accept refused when the offer is already accepted" do
     offer = offers(:sent_offer)
     offer.accept!(order_number: "PO-1", ordered_on: Date.current)
@@ -372,6 +385,15 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     post upload_order_pdf_offer_url(offer), params: { order_pdf: fixture_file_upload("acceptance.pdf", "application/pdf") }
     assert_redirected_to offer_url(offer)
     assert offer.reload.order_attachment.present?
+  end
+
+  test "upload_order_pdf rejects a non-file order_pdf param" do
+    offer = offers(:sent_offer)
+    offer.accept!(order_number: "PO", ordered_on: Date.current)
+    post upload_order_pdf_offer_url(offer), params: { order_pdf: "not-a-file" }
+    assert_redirected_to offer_url(offer)
+    assert_match(/must be a PDF/, flash[:alert])
+    assert_nil offer.reload.order_attachment_id
   end
 
   test "upload_order_pdf refuses a missing file" do

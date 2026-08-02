@@ -1,5 +1,6 @@
 class OffersController < ApplicationController
   include EmailableDocument
+  include PdfUploadChecks
 
   before_action -> { require_permission!("offers.view") },
                 only: %i[index show preview preview_email preview_email_html]
@@ -93,8 +94,8 @@ class OffersController < ApplicationController
 
   def accept
     order_pdf = params[:order_pdf]
-    if order_pdf.present? && Attachment.detect_content_type(order_pdf.tempfile) != "application/pdf"
-      return redirect_to @offer, alert: "Order document must be a PDF."
+    if order_pdf.present? && (error = order_pdf_error(order_pdf))
+      return redirect_to @offer, alert: error
     end
     @offer.accept!(order_number: params[:order_number], ordered_on: params[:ordered_on],
                    order_pdf: order_pdf)
@@ -149,8 +150,8 @@ class OffersController < ApplicationController
 
   def upload_order_pdf
     uploaded = params[:order_pdf]
-    if uploaded.blank? || Attachment.detect_content_type(uploaded.tempfile) != "application/pdf"
-      return redirect_to @offer, alert: "Order document must be a PDF."
+    if (error = order_pdf_error(uploaded))
+      return redirect_to @offer, alert: error
     end
     @offer.attach_order_pdf(uploaded)
     @offer.save!
@@ -219,6 +220,13 @@ class OffersController < ApplicationController
     return true if @offer.accepted?
     redirect_to @offer, alert: "This offer must be accepted before its milestones can be converted."
     false
+  end
+
+  def order_pdf_error(file)
+    case pdf_upload_error(file)
+    when :missing, :not_pdf then "Order document must be a PDF."
+    when :too_large then "Order document is too large (maximum is #{Attachment::MAX_SIZE_MB} MB)."
+    end
   end
 
   def accepted_milestone!

@@ -2,6 +2,7 @@ class DeliveryNotesController < ApplicationController
   include EmailableDocument
   include PublishableDocument
   include DocumentWithLines
+  include PdfUploadChecks
 
   publishable_document :delivery_note, label: "delivery note"
   document_with_lines line_class: DeliveryNoteLine
@@ -153,19 +154,8 @@ class DeliveryNotesController < ApplicationController
   def upload_acceptance
     uploaded_file = params[:acceptance_pdf]
 
-    if uploaded_file.blank?
-      flash[:error] = "Please select a PDF file to upload."
-      redirect_to @delivery_note and return
-    end
-
-    if uploaded_file.size > Attachment::MAX_SIZE_BYTES
-      flash[:error] = "Acceptance document is too large (maximum is #{Attachment::MAX_SIZE_BYTES / 1.megabyte} MB)."
-      redirect_to @delivery_note and return
-    end
-
-    detected_type = Attachment.detect_content_type(uploaded_file.tempfile)
-    if detected_type != "application/pdf"
-      flash[:error] = "Only PDF files are allowed for acceptance documents (detected: #{detected_type})."
+    if (error = acceptance_pdf_error(uploaded_file))
+      flash[:error] = error
       redirect_to @delivery_note and return
     end
 
@@ -311,6 +301,14 @@ class DeliveryNotesController < ApplicationController
 protected
   def set_delivery_note
     @delivery_note = DeliveryNote.visible_to(current_user).find(params[:id])
+  end
+
+  def acceptance_pdf_error(file)
+    case pdf_upload_error(file)
+    when :missing then "Please select a PDF file to upload."
+    when :too_large then "Acceptance document is too large (maximum is #{Attachment::MAX_SIZE_MB} MB)."
+    when :not_pdf then "Only PDF files are allowed for acceptance documents (detected: #{Attachment.detect_content_type(file.tempfile)})."
+    end
   end
 
   # EmailableDocument hooks.

@@ -62,11 +62,11 @@ class Offer < ApplicationRecord
   def accept!(order_number:, ordered_on:, order_pdf: nil)
     with_lock do
       raise InvalidTransition, "accept requires state sent, was #{state}" unless sent?
-      raise InvalidTransition, "order date is required" if ordered_on.blank?
+      self.ordered_on = ordered_on
+      raise InvalidTransition, "order date is missing or invalid" if self.ordered_on.nil?
       self.accepted_version = versions.where.not(sent_at: nil).order(:version_number).last
       self.accepted_at = Time.current
       self.order_number = order_number
-      self.ordered_on = ordered_on
       attach_order_pdf(order_pdf) if order_pdf
       self.state = "accepted"
       draft_version&.destroy

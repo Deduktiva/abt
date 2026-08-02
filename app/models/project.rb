@@ -6,6 +6,7 @@ class Project < ApplicationRecord
   has_many :invoices
   has_many :delivery_notes
   has_many :offers
+  has_and_belongs_to_many :customer_contacts, join_table: :customer_contact_projects
 
   validate :team_must_match_customer
 

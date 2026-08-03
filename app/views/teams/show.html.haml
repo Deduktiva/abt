@@ -11,7 +11,7 @@
           .col-sm-9
             = @team.name
             - if @team.builtin?
-              = badge_tag(:neutral, 'built-in', css: 'ms-1')
+              = badge_tag(:neutral, 'built-in', klass: 'ms-1')
         .row.mb-2
           .col-sm-3
             %strong Description:
@@ -31,7 +31,7 @@
     .card
       .card-header
         Members
-        = badge_tag(:neutral, @members.size, css: 'ms-1')
+        = badge_tag(:neutral, @members.size, klass: 'ms-1')
       .card-body
         - if @members.empty?
           .text-muted No members

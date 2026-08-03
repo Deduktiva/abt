@@ -26,7 +26,7 @@ module ApplicationHelper
   #       actions: [delete_button(@customer)],
   #       action: action_button('Edit', edit_customer_path(@customer)) do
   #     - unless @customer.active?
-  #       %span.badge.bg-secondary Inactive
+  #       = badge_tag(:neutral, 'Inactive')
   def breadcrumbs(*items, action: nil, actions: nil, &status_block)
     active_label, _ = Array(items.last)
     content_for(:title, active_label) if active_label.present? && !content_for?(:title)

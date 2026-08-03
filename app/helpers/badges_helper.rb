@@ -13,8 +13,8 @@ module BadgesHelper
 
   # Renders one status badge. Whether a badge belongs on the page at all is the
   # caller's decision - this only renders what it is given.
-  def badge_tag(level, text, css: nil)
-    content_tag(:span, text, class: [ "badge", BADGE_LEVELS.fetch(level), css ].compact.join(" "))
+  def badge_tag(level, text, klass: nil)
+    content_tag(:span, text, class: [ "badge", BADGE_LEVELS.fetch(level), klass ])
   end
 
   # Renders a model's { level:, text: } status badge, or nothing when the model

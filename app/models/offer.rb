@@ -151,7 +151,7 @@ class Offer < ApplicationRecord
       { "draft" => { level: :info, text: "Draft" },
         "sent" => { level: :active, text: "Sent" },
         "rejected" => { level: :neutral, text: "Rejected" },
-        "expired" => { level: :neutral, text: "Expired" },
+        "expired" => { level: :warning, text: "Expired" },
         "failed" => { level: :neutral, text: "Failed" } }.fetch(state)
     end
   end

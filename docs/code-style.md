@@ -37,28 +37,31 @@ The canonical style reference for this repo. Project structure, architecture, mo
 
 ## Status badges
 
-Every badge goes through `badge_tag(level, text, css: nil)` (`app/helpers/badges_helper.rb`). Views don't write `%span.badge.bg-*` by hand and never interpolate a level into a class string: brakeman flags the interpolation, and a private mapping lets a caller's vocabulary drift from what the page actually renders (45819f8d mapped a `:danger` badge to grey inside one helper, so the model's own word for the state stopped describing the page).
+Every status badge goes through `badge_tag(level, text, klass: nil)` (`app/helpers/badges_helper.rb`). Views don't write `%span.badge.bg-*` by hand and never interpolate a level into a class string: brakeman flags the interpolation, and a private mapping lets a caller's vocabulary drift from what the page actually renders (45819f8d mapped a `:danger` badge to grey inside one helper, so the model's own word for the state stopped describing the page).
 
 Levels name what a state *means*. Which colour that becomes is one table's decision, in one place:
 
 | Level | Class | Means | Examples |
 |---|---|---|---|
-| `:neutral` | `bg-secondary` | recedes — a label, a count, or a state that is out of play | Inactive, built-in, Expired, Rejected, counts |
-| `:info` | `bg-info` | live but not in motion — nothing has happened yet, and nothing is wrong | Draft, This is you, This session |
+| `:neutral` | `bg-secondary` | recedes — a count, a fixed marker, or a state that is out of play for good | Inactive, built-in, Rejected, counts |
+| `:info` | `bg-info` | worth a glance — not started yet, or a note about the reader's own context | Draft, This is you, This session |
 | `:active` | `bg-primary` | in motion — under way and not finished | Ordered |
-| `:warning` | `bg-warning` | someone needs to act | Unsent, Pending, Not verified |
+| `:warning` | `bg-warning` | someone needs to act | Unsent, Pending, Not verified, Expired |
 | `:danger` | `bg-danger` | broken, or past a deadline | Overdue, Blocked, Stale, Invalid per VIES |
 | `:success` | `bg-success` | a good outcome — finished healthily, or a flag that is on and healthy | Paid, Booked, Confirmed, Enabled, Alive |
 
 Choosing between them:
 - **`:active` vs `:warning`** — both mean "not done". Ask who the badge addresses: `:warning` addresses the reader ("Unsent" exists to say *go send it*), `:active` describes the record ("Ordered" exists to say *this is where it is*). Not "actionable vs not" — an Ordered offer has plenty of work left, the badge just isn't the thing asking for it.
 - **`:active` vs `:info`** — has anything happened yet? A draft is an editable working copy sitting before the first rung, so it is `:info`; an accepted offer is under way, so it is `:active`. **Draft is `:info` on every document type** — invoice, delivery note and offer alike.
-- **`:info` vs `:neutral`** — both mean "nothing to do". Grey recedes (labels, counts, states that are out of play); blue is worth a glance.
-- **`:neutral` vs `:danger`** — a dead end that needs nothing is `:neutral` (Rejected, Expired). Red is for something that ought to be fixed.
+- **`:info` vs `:neutral`** — both mean "nothing to do". Grey recedes (counts, fixed markers, states that are out of play); blue is worth a glance.
+- **Check the model before calling something out of play.** An offer is `expired`, but `Offer#editable?` and `#send_problems` both still permit sending it and `ExpiringOffersReportJob` chases it — so Expired is `:warning`, not `:neutral`. Rejected really is a dead end, so it is `:neutral`.
+- **`:neutral` vs `:danger`** — a dead end that needs nothing is `:neutral` (Rejected). Red is for something that ought to be fixed.
 - **Don't spend `:success` on an intermediate rung**, or the progression stops reading as one: an accepted offer goes Ordered → Invoiced → Paid, and only the last is green. `:success` is not "done" — it also covers a flag that is simply on and healthy — but within a progression, green marks the end of it.
 - **A level is not a rung counter.** Ordered and Invoiced are both `:active`, so they share a colour and the badge text carries the difference. Don't reach for a spare level to number the steps of a progression — the colour says in-motion-or-done, the words say which step.
 
 `badge_tag` never decides that a badge should be absent — it renders what it is given. That call lives upstream of rendering: either in the view, or in a model's `status_badge`, which returns nil for a state warranting no badge (`status_badge_tag` passes the nil straight through). Either way it sits somewhere testable rather than inside a rendering helper. The rules below say when a badge is warranted.
+
+One exception: the navigation error counter (`layouts/_navigation.html.haml`) stays hand-written, because it is a JS-driven counter with a Stimulus target rather than a status badge.
 
 - Show only deviation from the healthy default. A record in its normal state renders no badge in headers, and plain text in tables.
 - Lifecycle states (Draft, Booked, Published, Sent, Paid, Overdue) all get header badges — no state is implicitly "good".

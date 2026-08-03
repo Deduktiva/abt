@@ -20,7 +20,7 @@
     .col-md-3
       - if contact.projects.any?
         - contact.projects.each do |p|
-          = badge_tag(:neutral, p.matchcode, css: 'me-1')
+          = badge_tag(:neutral, p.matchcode, klass: 'me-1')
       - else
         %span.text-muted All projects
     .col-md-2.text-end

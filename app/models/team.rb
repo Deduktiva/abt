@@ -12,6 +12,10 @@ class Team < ApplicationRecord
   validates :name, presence: true, uniqueness: { case_sensitive: false }, length: { maximum: 60 }
   validates :description, length: { maximum: 200 }
 
+  # Backed by the unique LOWER(name) index; the strip keeps padded variants from
+  # slipping past it.
+  normalizes :name, with: ->(v) { v.strip }
+
   before_destroy :prevent_destroy_if_builtin
   before_destroy :prevent_destroy_if_used
 

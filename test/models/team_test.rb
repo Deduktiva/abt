@@ -13,6 +13,11 @@ class TeamTest < ActiveSupport::TestCase
     refute dup.valid?
   end
 
+  test "database rejects names differing only in case" do
+    Team.create!(name: "Marketing")
+    assert_raises(ActiveRecord::RecordNotUnique) { Team.new(name: "marketing").save!(validate: false) }
+  end
+
   test "built-in team cannot be destroyed" do
     default = teams(:default)
     refute default.destroy

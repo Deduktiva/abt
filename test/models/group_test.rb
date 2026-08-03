@@ -7,6 +7,15 @@ class GroupTest < ActiveSupport::TestCase
     assert_includes group.errors[:name], "can't be blank"
   end
 
+  test "database rejects names differing only in case" do
+    Group.create!(name: "Marketing")
+    assert_raises(ActiveRecord::RecordNotUnique) { Group.new(name: "marketing").save!(validate: false) }
+  end
+
+  test "name is stripped" do
+    assert_equal "Spaced", Group.create!(name: "  Spaced  ").name
+  end
+
   test "permissions= syncs the join table" do
     group = Group.create!(name: "Test Group")
     group.permissions = %w[customers.view invoices.view]

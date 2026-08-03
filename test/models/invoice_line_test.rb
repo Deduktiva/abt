@@ -53,6 +53,16 @@ class InvoiceLineTest < ActiveSupport::TestCase
     assert_equal 0, line.amount
   end
 
+  test "saving a line of a published invoice leaves its amount untouched" do
+    line = invoice_lines(:draft_item)
+    line.invoice.update_columns(published: true)
+    line.update_columns(amount: 42)
+
+    line.update!(title: "Renamed")
+
+    assert_equal 42, line.reload.amount
+  end
+
   test "calculate_amount rounds rate * quantity to cents" do
     line = InvoiceLine.new(
       invoice: invoices(:draft_invoice),

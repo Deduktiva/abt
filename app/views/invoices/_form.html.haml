@@ -111,7 +111,7 @@
           = action_buttons_wrapper do
             %button.btn.btn-info{type: 'button', data: {action: 'click->invoice-lines#addLine'}}
               + Add Line
-            %label.btn.btn-outline-secondary.mb-0
+            %label.btn.btn-outline-secondary.mb-0{data: {invoice_lines_target: 'importLabel'}}
               Import CSV
               = file_field_tag :file, accept: 'text/csv,.csv', class: 'd-none', data: {action: 'change->invoice-lines#importCsv'}
 

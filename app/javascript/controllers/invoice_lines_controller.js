@@ -1,11 +1,12 @@
 import BaseLinesController from "controllers/base_lines_controller"
 
 export default class extends BaseLinesController {
-  static targets = ["container", "total", "importError"]
+  static targets = ["container", "total", "importError", "importLabel"]
   static values = { currencySymbol: String, moneyDecimalPlaces: Number, importUrl: String }
 
   connect() {
     super.connect()
+    this.importing = false
     this.updateTotal()
   }
 
@@ -32,11 +33,14 @@ export default class extends BaseLinesController {
   }
 
   // Uploads the CSV and injects the parsed lines into the open editor for review.
+  // Imports append, so a second one starting mid-flight would silently duplicate
+  // every line — hold the picker shut until the first has landed.
   async importCsv(event) {
     const input = event.target
     const file = input.files[0]
-    if (!file) return
+    if (!file || this.importing) return
 
+    this.setImporting(true)
     this.clearImportError()
 
     try {
@@ -66,6 +70,15 @@ export default class extends BaseLinesController {
       this.showError(e.message)
     } finally {
       input.value = "" // allow re-selecting the same file
+      this.setImporting(false)
+    }
+  }
+
+  setImporting(importing) {
+    this.importing = importing
+    if (this.hasImportLabelTarget) {
+      this.importLabelTarget.classList.toggle("disabled", importing)
+      this.importLabelTarget.querySelector('input[type="file"]').disabled = importing
     }
   }
 

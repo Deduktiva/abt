@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_03_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_03_110000) do
   create_table "acceptance_submissions", force: :cascade do |t|
     t.integer "attachment_id"
     t.datetime "created_at", null: false
@@ -277,6 +277,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_100000) do
     t.text "title"
     t.text "type"
     t.datetime "updated_at", null: false
+    t.index ["invoice_id", "position"], name: "index_invoice_lines_on_invoice_id_and_position"
   end
 
   create_table "invoice_tax_classes", force: :cascade do |t|

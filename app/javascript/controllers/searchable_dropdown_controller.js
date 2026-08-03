@@ -142,10 +142,8 @@ export default class extends Controller {
         }
       })
 
-      if (!response.ok) {
-        this.handleError(`Failed to load ${this.itemNameValue}s: ${await this.responseErrorMessage(response)}`)
-        this.restoreDisplayOrShowError()
-        this.isLoading = false
+      if (!response.ok || response.redirected) {
+        this.reportLoadFailure(`Failed to load ${this.itemNameValue}s: ${await this.responseErrorMessage(response)}`)
         return
       }
 
@@ -161,10 +159,15 @@ export default class extends Controller {
 
       Turbo.renderStreamMessage(turboStreamHtml)
     } catch (error) {
-      this.handleError(`Error loading ${this.itemNameValue}s: ${error.message}`)
-      this.restoreDisplayOrShowError()
-      this.isLoading = false
+      this.reportLoadFailure(`Error loading ${this.itemNameValue}s: ${error.message}`)
     }
+  }
+
+  reportLoadFailure(message) {
+    this.handleError(message)
+    this.showDropdownMessage(`Could not load ${this.itemNameValue}s`)
+    this.restoreDisplayOrShowError()
+    this.isLoading = false
   }
 
   handleError(message) {
@@ -176,8 +179,12 @@ export default class extends Controller {
   }
 
   // Prefer the server's JSON error field. Error responses that render HTML
-  // report their status instead: their body is a whole page.
+  // report their status instead: their body is a whole page. A permission
+  // denial or an expired session answers a turbo_stream request with a
+  // redirect, which fetch follows into a 200 that renders as nothing.
   async responseErrorMessage(response) {
+    if (response.redirected) return "not signed in or not permitted"
+
     const body = await response.text().catch(() => '')
 
     try {
@@ -469,10 +476,17 @@ export default class extends Controller {
       display.innerHTML = `<span class="text-muted">${this.dependentSelectPromptValue}</span>`
     }
 
+    this.showDropdownMessage(this.dependentSelectPromptValue)
+  }
+
+  showDropdownMessage(message) {
     const dropdownContent = this.dropdownTarget.querySelector('.dropdown-content')
-    if (dropdownContent) {
-      dropdownContent.innerHTML = `<div class="dropdown-item text-muted">${this.dependentSelectPromptValue}</div>`
-    }
+    if (!dropdownContent) return
+
+    const item = document.createElement('div')
+    item.className = 'dropdown-item text-muted'
+    item.textContent = message
+    dropdownContent.replaceChildren(item)
   }
 
   hideLoading() {

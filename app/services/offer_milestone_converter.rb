@@ -1,5 +1,5 @@
 class OfferMilestoneConverter
-  class NotConvertible < StandardError; end
+  include LockedConversion
 
   def initialize(milestone)
     @milestone = milestone
@@ -7,14 +7,9 @@ class OfferMilestoneConverter
     @offer = @version.offer
   end
 
-  # with_lock reloads the milestone under a row lock and runs guards plus
-  # document creation in one transaction, so concurrent converts serialize and
-  # the second one sees converted? and raises instead of double-billing.
-  def convert!
-    @milestone.with_lock { convert_locked! }
-  end
-
   private
+
+  def conversion_source = @milestone
 
   def convert_locked!
     raise NotConvertible, "offer is not accepted" unless @offer.accepted?

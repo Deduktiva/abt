@@ -13,6 +13,15 @@ class DeliveryNoteTest < ActiveSupport::TestCase
     assert_includes delivery_note.errors[:delivery_start_date], "can't be blank"
   end
 
+  test "an invoice can back only one delivery note" do
+    invoice = invoices(:published_invoice)
+    delivery_notes(:published_delivery_note).update!(invoice: invoice)
+
+    assert_raises(ActiveRecord::RecordNotUnique) do
+      delivery_notes(:draft_delivery_note).update!(invoice: invoice)
+    end
+  end
+
   test "email_unsent scope returns delivery notes without email_sent_at that have customer email" do
     delivery_note = delivery_notes(:published_delivery_note)
     delivery_note.update_column(:email_sent_at, nil)

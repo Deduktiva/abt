@@ -197,72 +197,14 @@ class DeliveryNotesController < ApplicationController
   end
 
   def convert_to_invoice
-    if @delivery_note.invoice_id.present?
-      flash[:error] = "This delivery note has already been converted to an invoice."
-      redirect_to @delivery_note and return
-    end
-
-    begin
-      reference_line = I18n.with_locale(@delivery_note.customer.language.iso_code) do
-        I18n.t("invoice_conversion.reference_line",
-               number: @delivery_note.display_label,
-               date: I18n.l(@delivery_note.date))
-      end
-
-      enhanced_prelude = ActionController::Base.helpers.simple_format(reference_line)
-      if @delivery_note.prelude.present?
-        enhanced_prelude += @delivery_note.prelude.body.to_html
-      end
-
-      # Create invoice from delivery note
-      invoice = Invoice.new(
-        customer: @delivery_note.customer,
-        project: @delivery_note.project,
-        cust_reference: @delivery_note.cust_reference,
-        cust_order: @delivery_note.cust_order,
-        internal_reference: @delivery_note.internal_reference,
-        prelude: enhanced_prelude
-      )
-
-      default_sales_tax_product_class_id = SalesTaxProductClass.default&.id
-
-      ActiveRecord::Base.transaction do
-        invoice.save!
-        # Copy delivery note lines to invoice lines without triggering callbacks that cause issues
-        @delivery_note.delivery_note_lines.each do |dn_line|
-          # Create invoice line with direct attributes
-          attrs = {
-            invoice_id: invoice.id,
-            type: dn_line.type,
-            title: dn_line.title,
-            description: dn_line.description,
-            position: dn_line.position
-          }
-
-          # Set appropriate fields based on line type
-          if dn_line.type == "item"
-            attrs[:quantity] = (dn_line.quantity&.to_f || 1.0).to_f
-            # Leave the rate blank: delivery notes carry no prices, and a blank
-            # rate blocks publishing until the user enters a real price.
-            attrs[:sales_tax_product_class_id] = default_sales_tax_product_class_id
-          else
-            attrs[:amount] = 0
-          end
-
-          # Insert directly to avoid callbacks
-          InvoiceLine.create!(attrs)
-        end
-
-        # Link the invoice to the delivery note
-        @delivery_note.update!(invoice: invoice)
-
-        flash[:notice] = "Invoice draft created successfully from delivery note."
-        redirect_to invoice
-      end
-    rescue StandardError => e
-      flash[:error] = "Failed to convert delivery note to invoice: #{e.message}"
-      redirect_to @delivery_note
-    end
+    invoice = DeliveryNoteInvoiceConverter.new(@delivery_note).convert!
+    redirect_to invoice, notice: "Invoice draft created successfully from delivery note."
+  rescue DeliveryNoteInvoiceConverter::NotConvertible
+    flash[:error] = "This delivery note has already been converted to an invoice."
+    redirect_to @delivery_note
+  rescue StandardError => e
+    flash[:error] = "Failed to convert delivery note to invoice: #{e.message}"
+    redirect_to @delivery_note
   end
 
   def bulk_send_emails

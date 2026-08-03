@@ -53,9 +53,13 @@ class OfferMilestoneScaffolderTest < ActiveSupport::TestCase
   end
 
   test "refuses when the draft already has milestones" do
-    @version.milestones.create!(title: "Existing", amount: 1, trigger: "on_acceptance", position: 1)
-    assert_raises(OfferMilestoneScaffolder::MilestonesPresent) do
-      OfferMilestoneScaffolder.new(@customer, 100).apply_to(@version)
+    @version.milestones.load
+    OfferVersion.find(@version.id).milestones.create!(title: "Existing", amount: 1, trigger: "on_acceptance", position: 1)
+
+    assert_no_difference("OfferMilestone.count") do
+      assert_raises(OfferMilestoneScaffolder::MilestonesPresent) do
+        OfferMilestoneScaffolder.new(@customer, 100).apply_to(@version)
+      end
     end
   end
 

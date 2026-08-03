@@ -206,6 +206,15 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "send_email claims the invoice so a following bulk send skips it" do
+    invoice = invoices(:published_invoice)
+
+    assert_enqueued_emails 1 do
+      post send_email_invoice_path(invoice)
+      post bulk_send_emails_invoices_path, params: { invoice_ids: [ invoice.id ] }
+    end
+  end
+
   test "bulk_send_emails handles empty selection" do
     post bulk_send_emails_invoices_path, params: { invoice_ids: [] }
 

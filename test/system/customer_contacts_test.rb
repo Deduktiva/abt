@@ -27,8 +27,12 @@ class CustomerContactsTest < ApplicationSystemTestCase
       click_button "Add"
     end
 
-    # Row appears, add-link resets, no page navigation.
-    new_contact = @customer.customer_contacts.find_by(email: "new@example.com")
+    # Row appears, add-link resets, no page navigation. Wait for the appended
+    # row before querying: click_button returns on dispatch, so a DB read here
+    # races the Turbo submit.
+    assert_selector "#customer_contacts_tbody", text: "New Person"
+
+    new_contact = @customer.customer_contacts.find_by!(email: "new@example.com")
     assert_selector "##{ActionView::RecordIdentifier.dom_id(new_contact)}", text: "New Person"
     assert_selector "#new_customer_contact a", text: "+ Add contact"
     assert_current_path customer_path(@customer)
@@ -117,7 +121,9 @@ class CustomerContactsTest < ApplicationSystemTestCase
       click_button "Add"
     end
 
-    new_contact = empty_customer.customer_contacts.find_by(email: "first@example.com")
+    assert_selector "#customer_contacts_tbody", text: "First Contact"
+
+    new_contact = empty_customer.customer_contacts.find_by!(email: "first@example.com")
     assert_selector "##{ActionView::RecordIdentifier.dom_id(new_contact)}"
     assert_no_selector "#customer_contacts_empty_message"
 

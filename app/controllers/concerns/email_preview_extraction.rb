@@ -1,0 +1,47 @@
+# Pulls the displayable parts out of an ActionMailer::MessageDelivery or
+# Mail::Message for the email-preview modal. Controller-side: EmailableDocument
+# includes this and renders the result as JSON. The view-side counterpart —
+# the Stimulus wiring for the modal — is EmailPreviewHelper.
+module EmailPreviewExtraction
+  def extract_email_preview_data(mail)
+    data = {
+      to: mail.to&.join(", "),
+      from: mail.from&.first,
+      subject: mail.subject,
+      text_body: extract_text_body(mail),
+      attachments: extract_attachments_info(mail)
+    }
+
+    data[:cc] = mail.cc&.join(", ") if mail.cc&.any?
+    data[:bcc] = mail.bcc&.join(", ") if mail.bcc&.any?
+    data
+  end
+
+  private
+
+  def extract_html_body(mail)
+    if mail.multipart?
+      mail.html_part&.body&.decoded
+    else
+      mail.content_type&.include?("text/html") ? mail.body.decoded : nil
+    end
+  end
+
+  def extract_text_body(mail)
+    if mail.multipart?
+      mail.text_part&.body&.decoded
+    else
+      mail.content_type&.include?("text/plain") ? mail.body.decoded : nil
+    end
+  end
+
+  def extract_attachments_info(mail)
+    mail.attachments.map do |attachment|
+      {
+        filename: attachment.filename,
+        content_type: attachment.content_type,
+        size: attachment.body.raw_source.bytesize
+      }
+    end
+  end
+end

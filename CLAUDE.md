@@ -150,13 +150,20 @@ For testing against PostgreSQL (matches production environment):
 - Delivery notes: `app/controllers/delivery_notes_controller.rb`, `app/models/delivery_note.rb`
 - Offers: `app/controllers/offers_controller.rb`, `app/services/offer_sender.rb`, PDF template `lib/foptemplate/offer.xsl`
 - Auth flows: `app/controllers/sessions_controller.rb`, `invites_controller.rb`, `account/`, `users_controller.rb`
-- UI helpers: `app/helpers/application_helper.rb`
+- UI helpers: `app/helpers/` (one module per concern — see Code Style below)
 
 ## Code Style
 
 See [`docs/code-style.md`](docs/code-style.md) for the canonical style reference (HAML, Bootstrap, Stimulus, tests, status badges, action button icons, formatting, comments, commit messages). Read it before writing code.
 
-UI helpers live in `app/helpers/application_helper.rb` (page chrome: `breadcrumbs`, `page_header`, `action_button`, `destroy_link`, `list_action_link`, `action_buttons_wrapper`, `rich_text_field`) and `app/helpers/action_buttons_helper.rb` (per-verb wrappers: `delete_button`, `pdf_button`, `preview_button`, `publish_button`, `unpublish_button`, `unblock_button`, `reset_passkeys_button`, `audit_log_button`, `save_button`, `nav_button`). Read the source for signatures.
+UI helpers live in `app/helpers/`, one module per concern:
+
+- `application_helper.rb` — page chrome only: `breadcrumbs`, `page_header`, `page_header_flash`, plus the app-wide `can?`, `app_version`, `rich_text_field`.
+- `action_buttons_helper.rb` — per-verb wrappers (`delete_button`, `pdf_button`, `preview_button`, `publish_button`, `unpublish_button`, `unblock_button`, `reset_passkeys_button`, `audit_log_button`, `save_button`, `nav_button`) and the generic building blocks they share (`action_button`, `list_action_link`, `destroy_link`, `action_buttons_wrapper`, `icon_label`).
+- `icons_helper.rb` (`nav_icon`, `action_icon`), `navigation_helper.rb`, `currency_helper.rb`, `countries_helper.rb`, `email_preview_helper.rb`.
+- Per-resource files named after their controller: `invoices_helper.rb`, `delivery_notes_helper.rb`.
+
+Rails mixes every helper into every view, so helper names share one global namespace: a method that only serves one resource carries that resource as a prefix (`invoice_payment_status_badge_tag`, `delivery_note_status_badge_tag`). New domain helpers go in their own file, not into `application_helper.rb`. Read the source for signatures.
 
 ## Claude Operational Notes
 

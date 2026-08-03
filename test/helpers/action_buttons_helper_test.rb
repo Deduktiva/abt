@@ -117,6 +117,83 @@ class ActionButtonsHelperTest < ActionView::TestCase
     Current.user = nil
   end
 
+  test "list_action_link without permission: renders the link" do
+    html = Nokogiri::HTML.fragment(list_action_link("Edit", "/customers/1/edit", :edit))
+    a = html.at_css("a")
+    assert_not_nil a
+    assert_equal "Edit", a.text
+    assert_equal "/customers/1/edit", a["href"]
+  end
+
+  test "list_action_link with permission: returns the link when user has it" do
+    Current.user = users(:alice)
+    html = Nokogiri::HTML.fragment(list_action_link("Edit", "/customers/1/edit", :edit, permission: "customers.edit").to_s)
+    a = html.at_css("a")
+    assert_not_nil a
+    assert_equal "Edit", a.text
+  ensure
+    Current.user = nil
+  end
+
+  test "list_action_link with permission: returns nil when user lacks it" do
+    Current.user = users(:bob)
+    assert_nil list_action_link("Edit", "/customers/1/edit", :edit, permission: "customers.edit")
+  ensure
+    Current.user = nil
+  end
+
+  test "list_action_link with permission: returns nil when no current user" do
+    Current.user = nil
+    assert_nil list_action_link("Edit", "/customers/1/edit", :edit, permission: "customers.edit")
+  end
+
+  test "destroy_link without permission: renders the link" do
+    customer = customers(:good_eu)
+    html = Nokogiri::HTML.fragment(destroy_link(customer).to_s)
+    a = html.at_css("a")
+    assert_not_nil a
+    assert_not_nil a.at_css("svg.bi-trash3")
+    assert_equal "Delete", a["title"]
+  end
+
+  test "destroy_link with permission: returns the link when user has it" do
+    Current.user = users(:alice)
+    customer = customers(:good_eu)
+    html = Nokogiri::HTML.fragment(destroy_link(customer, nil, permission: "customers.edit").to_s)
+    a = html.at_css("a")
+    assert_not_nil a
+    assert_not_nil a.at_css("svg.bi-trash3")
+    assert_equal "Delete", a["title"]
+  ensure
+    Current.user = nil
+  end
+
+  test "destroy_link with permission: returns nil when user lacks it" do
+    Current.user = users(:bob)
+    customer = customers(:good_eu)
+    assert_nil destroy_link(customer, nil, permission: "customers.edit")
+  ensure
+    Current.user = nil
+  end
+
+  test "destroy_link with permission: returns nil when no current user" do
+    Current.user = nil
+    customer = customers(:good_eu)
+    assert_nil destroy_link(customer, nil, permission: "customers.edit")
+  end
+
+  test "action_buttons_wrapper wraps non-empty block content in a flex div" do
+    html = Nokogiri::HTML.fragment(action_buttons_wrapper { "<a>Go</a>".html_safe })
+    div = html.at_css("div")
+    assert_not_nil div
+    assert_equal "d-flex gap-2 mb-3 mt-3", div["class"]
+    assert_not_nil div.at_css("a")
+  end
+
+  test "action_buttons_wrapper returns nil when the block is empty" do
+    assert_nil action_buttons_wrapper { "" }
+  end
+
   private
 
   def assert_icon_link(html, icon:, klass:, title:)

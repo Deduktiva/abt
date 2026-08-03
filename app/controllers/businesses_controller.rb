@@ -66,7 +66,8 @@ class BusinessesController < ApplicationController
   end
 
   def set_business
-    @business = Business.get_the_issuer! || Business.new
+    @business = Business.get_the_issuer! ||
+      raise(ActiveRecord::RecordNotFound, "No active business; run bin/rails db:seed to create one")
   end
 
   def business_params

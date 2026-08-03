@@ -96,30 +96,37 @@ SalesTaxRate.find_or_create_by(
   str.rate = 0.0
 end
 
+Business.find_or_create_by(active: true) do |issuer|
+  issuer.short_name = 'UNCONF'
+  issuer.legal_name = 'Unconfigured Business'
+  issuer.address = "Configure this under\nConfiguration → Business"
+  issuer.country_iso2 = 'AT'
+end
+
 puts "✅ Essential data created"
 
 # Development sample data (only in development environment)
 if Rails.env.development?
   puts "🧪 Creating development sample data..."
 
-  business = Business.find_or_create_by(active: true) do |issuer|
-    issuer.active = true
-    issuer.short_name = 'My Example'
-    issuer.legal_name = 'My Example B.V.'
-    issuer.address = <<~ADDRESS.strip
+  business = Business.get_the_issuer!
+  business.update!(
+    short_name: 'My Example',
+    legal_name: 'My Example B.V.',
+    address: <<~ADDRESS.strip,
       Businessstraat 123
       1234 AB Amsterdam
     ADDRESS
-    issuer.country_iso2 = 'NL'
-    issuer.vat_id = 'NL123456789B01'
-    issuer.bankaccount_bank = "My Bank B.V."
-    issuer.bankaccount_bic = "BICBICBICBIC"
-    issuer.bankaccount_number = "NL91ABNA0417164300"
-    issuer.document_contact_line1 = "www.example.com      hi@example.com"
-    issuer.document_contact_line2 = "voice + xxx xxxxxx"
-    issuer.document_accent_color = "#3366cc"
-    issuer.invoice_footer = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-  end
+    country_iso2: 'NL',
+    vat_id: 'NL123456789B01',
+    bankaccount_bank: "My Bank B.V.",
+    bankaccount_bic: "BICBICBICBIC",
+    bankaccount_number: "NL91ABNA0417164300",
+    document_contact_line1: "www.example.com      hi@example.com",
+    document_contact_line2: "voice + xxx xxxxxx",
+    document_accent_color: "#3366cc",
+    invoice_footer: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+  )
 
   # Load example logos if they don't exist yet
   if business.pdf_logo.blank?

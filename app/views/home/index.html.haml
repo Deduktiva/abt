@@ -49,7 +49,7 @@
         .mb-2
           %strong Address:
           %div
-            - @data[:business].address.split("\n").each do |line|
+            - @data[:business].address.to_s.split("\n").each do |line|
               %div= line
             %div= country_name(@data[:business].country_iso2)
 

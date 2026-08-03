@@ -81,6 +81,27 @@ If you changed `config/puma.rb` itself, or upgraded the Puma gem, a hot reload w
 systemctl --user restart abt-puma.service
 ```
 
+## First-time database bootstrap
+
+`production-update` only runs `db:migrate`. A brand-new host needs the essential
+data loaded once, before the first login:
+
+```bash
+bundle exec rails db:create   # skip if the database already exists
+bundle exec rails db:migrate
+bundle exec rails db:seed
+bundle exec rails users:invite   # prints the first signup URL
+```
+
+`db:seed` creates the issuing business, the languages, the invoice/delivery-note/offer
+document-number configurations and the sales-tax classes. It is idempotent, but it is
+deliberately *not* part of `production-update`: running it on every deploy would
+resurrect essential rows an operator had removed on purpose.
+
+The seeded business is a placeholder (`UNCONF` / `Unconfigured Business`). Edit it under
+**Configuration → Business** before publishing the first document — the legal name, VAT
+id, address and bank details all appear on invoice PDFs.
+
 ## Apache reverse proxy
 
 Apache terminates TLS on `*:443` and reverse-proxies all dynamic requests to Puma at `127.0.0.1:3000`. Precompiled assets (`/assets`, root-level `favicon.ico`, `robots.txt`, etc.) are served by Apache directly via DocumentRoot, with explicit `ProxyPass !` exclusions ahead of the catch-all proxy.

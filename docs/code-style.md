@@ -48,13 +48,13 @@ Levels name what a state *means*. Which colour that becomes is one table's decis
 | `:active` | `bg-primary` | where the record is expected to be right now, and not finished | Ordered |
 | `:warning` | `bg-warning` | someone needs to act | Unsent, Pending, Not verified |
 | `:danger` | `bg-danger` | broken, or past a deadline | Overdue, Blocked, Stale, Invalid per VIES |
-| `:success` | `bg-success` | finished and healthy — the terminal state | Paid, Booked, Confirmed |
+| `:success` | `bg-success` | a good outcome — finished healthily, or a flag that is on and healthy | Paid, Booked, Confirmed, Enabled, Alive |
 
 Choosing between them:
-- **`:active` vs `:warning`** — both mean "not done". Ask whether the badge is telling the reader to do something. "Unsent" is a prod; "Ordered" is a position. If seeing it should make someone act, it's `:warning`.
+- **`:active` vs `:warning`** — both mean "not done". Ask who the badge addresses: `:warning` addresses the reader ("Unsent" exists to say *go send it*), `:active` describes the record ("Ordered" exists to say *this is where it is*). Not "actionable vs not" — an Ordered offer has plenty of work left, the badge just isn't the thing asking for it.
 - **`:active` vs `:info`** — `:active` is a rung on the record's own lifecycle; `:info` is a fact sitting outside it.
 - **`:neutral` vs `:danger`** — a dead end that needs nothing is `:neutral` (Rejected, Expired). Red is for something that ought to be fixed.
-- **`:success` is terminal.** Spending it on an intermediate rung stops the progression reading as one: an accepted offer goes Ordered → Invoiced → Paid, and only the last is green.
+- **Don't spend `:success` on an intermediate rung**, or the progression stops reading as one: an accepted offer goes Ordered → Invoiced → Paid, and only the last is green. `:success` is not "done" — it also covers a flag that is simply on and healthy — but within a progression, green marks the end of it.
 
 `badge_tag` renders whatever it is given. Whether a badge belongs on the page at all is the caller's decision, per the rules below.
 

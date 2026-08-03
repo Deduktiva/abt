@@ -161,4 +161,29 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     post user_emails_path(carol), params: { user_email: { address: "evil@example.com" } }
     assert_redirected_to root_path
   end
+
+  test "blocking the last active admin is refused" do
+    helpdesk = Group.create!(name: "Helpdesk")
+    helpdesk.permissions = %w[users.view users.block]
+    users(:bob).groups << helpdesk
+    sign_in_as(users(:bob))
+
+    post block_user_path(users(:alice)), params: { reason: "lockout attempt" }
+    assert_redirected_to user_path(users(:alice))
+    assert_not users(:alice).reload.blocked?
+  end
+
+  test "update_groups refuses to remove the last active admin" do
+    sign_in_as(users(:alice))
+    patch update_groups_user_path(users(:alice)), params: { group_ids: [ groups(:sales).id ] }
+    assert_redirected_to user_path(users(:alice))
+    assert_includes groups(:admin).reload.users, users(:alice)
+  end
+
+  test "update_groups does not count a blocked admin towards the floor" do
+    groups(:admin).users << users(:blocked_carol)
+    sign_in_as(users(:alice))
+    patch update_groups_user_path(users(:alice)), params: { group_ids: [] }
+    assert_includes groups(:admin).reload.users, users(:alice)
+  end
 end

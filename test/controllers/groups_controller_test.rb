@@ -165,7 +165,7 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
       group: { description: groups(:admin).description, user_ids: [] }
     }
     assert_response :unprocessable_content
-    assert_select ".alert-danger li", text: "Admin group must have at least one member"
+    assert_select ".alert-danger li", text: "That would leave the Admin group without an active member."
     assert_includes groups(:admin).reload.users, users(:alice)
   end
 

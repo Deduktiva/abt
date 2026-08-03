@@ -6,8 +6,10 @@ class InvoiceLine < ApplicationRecord
   belongs_to :invoice
   belongs_to :sales_tax_product_class, optional: true
 
-  before_save :clear_non_item_fields
-  before_save :calculate_amount
+  # A published invoice's lines are final. Publishing saves the lines before it
+  # flips the flag, so this only guards saves after the fact.
+  before_save :clear_non_item_fields, unless: :invoice_published?
+  before_save :calculate_amount, unless: :invoice_published?
 
   def calculate_amount
     if is_item? && !self[:rate].nil? && !self[:quantity].nil?
@@ -18,6 +20,8 @@ class InvoiceLine < ApplicationRecord
   end
 
 private
+  def invoice_published? = invoice.published?
+
   def clear_non_item_fields
     unless is_item?
       self[:rate] = nil

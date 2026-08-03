@@ -215,6 +215,24 @@ class InvoicesControllerEmailTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "bulk_send_emails ignores an ids param that is not an array" do
+    assert_enqueued_emails 0 do
+      post bulk_send_emails_invoices_path, params: { invoice_ids: "1" }
+      post bulk_send_emails_invoices_path, params: { invoice_ids: { a: "1" } }
+    end
+
+    assert_equal "No invoices selected.", flash[:alert]
+  end
+
+  test "bulk_send_emails does not report unsendable ids as already sent" do
+    unsent = invoices(:published_invoice)
+
+    post bulk_send_emails_invoices_path,
+         params: { invoice_ids: [ unsent.id, invoices(:draft_invoice).id ] }
+
+    assert_equal "1 emails queued for sending.", flash[:notice]
+  end
+
   test "bulk_send_emails handles empty selection" do
     post bulk_send_emails_invoices_path, params: { invoice_ids: [] }
 

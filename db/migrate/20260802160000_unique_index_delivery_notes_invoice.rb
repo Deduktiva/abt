@@ -1,4 +1,4 @@
-class UniqueIndexDeliveryNotesInvoice < ActiveRecord::Migration[8.0]
+class UniqueIndexDeliveryNotesInvoice < ActiveRecord::Migration[8.1]
   # This will crash if the uniqueness is not satisfied.
   def up
     remove_index :delivery_notes, :invoice_id

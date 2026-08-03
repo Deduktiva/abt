@@ -116,13 +116,22 @@ class ApplicationController < ActionController::Base
 
   private
 
-  # A query param as an integer, or nil when it is missing, non-numeric, or not
-  # a scalar at all. `?id[]=1&id[]=2` arrives as an Array and `?id[a]=1` as
-  # nested Parameters; both raise on to_i, and both reach the database as
-  # garbage when passed through. Filters treat nil as "not filtered".
+  # Widest column any filter compares against. Ruby happily parses a 40-digit
+  # param into a Bignum, which PostgreSQL then rejects with
+  # NumericValueOutOfRange (SQLite coerces it silently, so the default test
+  # lane cannot see it).
+  BIGINT_RANGE = (-2**63)...(2**63)
+
+  # A query param as an integer, or nil when it is missing, non-numeric, out of
+  # column range, or not a scalar at all. `?id[]=1&id[]=2` arrives as an Array
+  # and `?id[a]=1` as nested Parameters; both raise on to_i, and both reach the
+  # database as garbage when passed through. Filters treat nil as "not filtered".
   def integer_param(name)
     raw = params[name]
-    Integer(raw, exception: false) if raw.is_a?(String)
+    return unless raw.is_a?(String)
+
+    value = Integer(raw, exception: false)
+    value if value && BIGINT_RANGE.cover?(value)
   end
 
   def authenticate

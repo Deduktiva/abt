@@ -46,6 +46,12 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_select "td", text: @project.matchcode
   end
 
+  test "out-of-range customer_id param is ignored" do
+    get projects_url(filter: "all", customer_id: "9" * 40)
+    assert_response :success
+    assert_select "td", text: @project.matchcode
+  end
+
   test "should show project" do
     get project_url(@project)
     assert_response :success

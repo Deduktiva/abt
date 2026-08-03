@@ -6,7 +6,7 @@
 # #email_for_sending (the mail actually delivered).
 module EmailableDocument
   extend ActiveSupport::Concern
-  include EmailPreviewHelper
+  include EmailPreviewExtraction
 
   included do
     # Permit the inline <style> blocks and embedded data: images that the

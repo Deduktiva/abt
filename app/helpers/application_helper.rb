@@ -1,72 +1,8 @@
 module ApplicationHelper
-  # Inline monochrome SVG icon for navbar chrome — Configuration, the account
-  # link, Sign out. See docs/code-style.md's "Navigation icons" section.
-  # Sourced from the bootstrap-icons gem rather than copied path data, so
-  # icon geometry stays correct and updatable via bundle update.
-  def nav_icon(name, size: 15)
-    bootstrap_icon_svg(name, size)
-  end
-
-  # Same icon source as nav_icon, sized for inline use inside action-button
-  # labels (Delete, Publish, Mark Paid, ...). See docs/code-style.md's
-  # "Action button icons" section.
-  def action_icon(name, size: 14)
-    bootstrap_icon_svg(name, size)
-  end
-
   # Permission check helper for views. Uses current_user via the controller
   # (already defined as a helper_method in ApplicationController).
   def can?(key)
     !!Current.user&.permission?(key)
-  end
-
-  # Top-level navbar link that highlights the current section. Marks the link
-  # active (Bootstrap .active + aria-current) when the request belongs to one of
-  # the controllers in `active_for`, so show/edit/new pages of a section stay
-  # highlighted, not just its index. Pass a block instead of `label` to render
-  # custom content (e.g. a mobile-only icon ahead of the text).
-  def nav_link_to(label, path, active_for:, &block)
-    active_nav_link("nav-link", label, path, active_for, &block)
-  end
-
-  # Same as nav_link_to but for links inside a dropdown menu.
-  def dropdown_link_to(label, path, active_for:)
-    active_nav_link("dropdown-item", label, path, active_for)
-  end
-
-  # Whether the current request belongs to one of the given controller sections.
-  # A bare name matches that controller exactly and any controller namespaced
-  # below it ("account" matches "account/profiles"), so a whole namespace — or a
-  # dropdown's worth of sections — can be expressed compactly.
-  def nav_section_active?(*controllers)
-    current = params[:controller].to_s
-    controllers.flatten.any? { |c| current == c || current.start_with?("#{c}/") }
-  end
-
-  def current_currency
-    @current_currency ||= Business.get_the_issuer!&.currency || "EUR"
-  end
-
-  def current_money_decimal_places
-    @current_money_decimal_places ||= Business.get_the_issuer!&.money_decimal_places || 2
-  end
-
-  # Symbol for the issuer currency, falling back to the raw code. Single source
-  # of truth — the invoice line-total JS reads this via a Stimulus value rather
-  # than mapping symbols itself. Never carries a trailing space, so callers
-  # always prepend it the same way.
-  def currency_symbol
-    case current_currency
-    when "EUR" then "€"
-    when "USD" then "$"
-    when "GBP" then "£"
-    else current_currency
-    end
-  end
-
-  def format_currency(amount)
-    return "" if amount.nil?
-    "#{currency_symbol}#{sprintf("%.#{current_money_decimal_places}f", amount)}"
   end
 
   # Renders the breadcrumb strip that serves as the page header on every
@@ -148,72 +84,6 @@ module ApplicationHelper
     render("layouts/messages")
   end
 
-  # Compact in-row action link (Edit / View / Delete...). When permission: is
-  # given and the current user lacks it, returns nil so views can drop their
-  # explicit `- if can?('xxx.edit')` wraps and gate inline.
-  def list_action_link(text, path, type = :default, options = {}, permission: nil)
-    return nil if permission && !can?(permission)
-    css_classes = case type
-    when :show
-      "btn btn-sm btn-outline-primary py-0"
-    when :edit
-      "btn btn-sm btn-outline-secondary py-0"
-    when :destroy
-      "btn btn-sm btn-outline-danger py-0"
-    else
-      "btn btn-sm btn-outline-primary py-0"
-    end
-
-    link_to(text, path, options.merge(class: css_classes))
-  end
-
-  # Index-context delete link: a small outline trashcan that fits into row
-  # actions. Detail-page delete uses `delete_button(resource)` (defined in
-  # ActionButtonsHelper) — both render the trash3 icon, but the index variant
-  # is the small btn-outline-danger sized for table rows.
-  # When permission: is given and the current user lacks it, returns nil so
-  # views can gate inline without an `- if can?('xxx.edit')` wrap.
-  def destroy_link(resource, confirm_text = nil, permission: nil)
-    return nil if permission && !can?(permission)
-    confirm_text ||= "Are you sure you want to delete this #{resource.class.name.downcase}?"
-    list_action_link(action_icon(:trash3), resource, :destroy, {
-      title: "Delete",
-      "aria-label": "Delete",
-      data: {
-        'turbo-method': "delete",
-        'turbo-confirm': confirm_text
-      }
-    })
-  end
-
-  def action_buttons_wrapper(&block)
-    content = capture(&block)
-    return nil if content.blank?
-    content_tag :div, content, class: "d-flex gap-2 mb-3 mt-3"
-  end
-
-  def action_button(text, path, type = :primary, permission: nil, target: nil, data: nil, title: nil)
-    return nil if permission && !can?(permission)
-    css_class = case type
-    when :primary
-      "btn btn-primary"
-    when :secondary
-      "btn btn-secondary"
-    when :success
-      "btn btn-success"
-    when :info
-      "btn btn-info"
-    when :warning
-      "btn btn-warning"
-    when :danger
-      "btn btn-danger"
-    else
-      "btn btn-primary"
-    end
-
-    link_to(text, path, class: css_class, target: target, data: data, title: title, "aria-label": title)
-  end
-
   def app_version
     Rails.application.config.x.app_version
   end
@@ -226,53 +96,5 @@ module ApplicationHelper
   def rich_text_field(form, method)
     form.rich_text_area method,
       data: { controller: "rich-text", direct_upload_url: "", blob_url_template: "" }
-  end
-
-  def country_options
-    @country_options ||= ISO3166::Country.all
-      .map { |c| [ c.iso_short_name, c.alpha2 ] }
-      .sort_by { |name, _| name }
-  end
-
-  def country_name(code)
-    AddressFormatter.country_name(code, locale: I18n.locale)
-  end
-
-  def country_unknown?(code)
-    !AddressFormatter.valid_iso2?(code)
-  end
-
-  def status_badge_tag(resource)
-    badge = resource.status_badge
-    return unless badge
-
-    bg = { info: "bg-info", success: "bg-success", warning: "bg-warning", danger: "bg-secondary" }.fetch(badge[:level])
-    content_tag(:span, badge[:text], class: "badge #{bg}")
-  end
-
-  # Stimulus data attributes that wire an element up to the
-  # generic-email-preview controller for a given Invoice or DeliveryNote.
-  # Relies on the routes following the {action}_{resource}_path convention.
-  def email_preview_data(resource)
-    prefix = resource.class.name.underscore
-    {
-      controller: "generic-email-preview",
-      "generic-email-preview-preview-url-value" => send("preview_email_#{prefix}_path", resource),
-      "generic-email-preview-html-preview-url-value" => send("preview_email_html_#{prefix}_path", resource),
-      "generic-email-preview-send-url-value" => send("send_email_#{prefix}_path", resource)
-    }
-  end
-
-  private
-
-  def bootstrap_icon_svg(name, size)
-    BootstrapIcons::BootstrapIcon.new(name.to_s.tr("_", "-"), width: size, height: size).to_svg.html_safe
-  end
-
-  def active_nav_link(base_class, label, path, active_for, &block)
-    active = nav_section_active?(active_for)
-    options = { class: "#{base_class}#{' active' if active}" }
-    options["aria-current"] = "page" if active
-    block ? link_to(path, options, &block) : link_to(label, path, options)
   end
 end

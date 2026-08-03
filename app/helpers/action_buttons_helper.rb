@@ -1,4 +1,9 @@
 module ActionButtonsHelper
+  # Every button shape here is built from an icon, so the icon renderers come
+  # along explicitly rather than relying on Rails mixing all helpers into the
+  # view context.
+  include IconsHelper
+
   # Per-verb helpers for the show-page breadcrumb action cluster. Each helper
   # bakes in the established icon, Bootstrap color, accessible name (for
   # icon-only Tier 3), and the link_to-vs-button_to choice. See
@@ -10,8 +15,11 @@ module ActionButtonsHelper
   # breadcrumbs helper compact out the nils.
   #
   # Shared shapes live as private helpers below: `post_button` for the
-  # button_to POST cluster, `icon_link` for the icon-only link_to cluster,
-  # `icon_label` for building an icon + text button label.
+  # button_to POST cluster, `icon_link` for the icon-only link_to cluster.
+  #
+  # Alongside them: the generic building blocks (`action_button`,
+  # `list_action_link`, `destroy_link`, `action_buttons_wrapper`, `icon_label`)
+  # that views compose directly where no per-verb wrapper fits.
 
   # Shared HTML id for the single page-level form on edit/new pages. The
   # breadcrumb's `save_button` and the form element both reference this
@@ -92,6 +100,85 @@ module ActionButtonsHelper
     button_to label, session_path, method: :delete, class: "nav-link nav-icon-btn", title: "Sign out", form_class: "d-flex"
   end
 
+  # --- Generic building blocks ---
+
+  # Tier-2 shape: an icon followed by its label text, for buttons that carry
+  # both (Publish, Unblock, Audit log, ...). Text is wrapped in a <span> (not
+  # a bare text node) so the `.btn svg.bi:not(:last-child)` CSS rule can tell
+  # icon+text buttons apart from icon-only ones and only add the icon/text
+  # gap where there's text to gap against.
+  def icon_label(icon, text)
+    action_icon(icon) + content_tag(:span, text)
+  end
+
+  # Standalone call-to-action link (`+ New`, `Edit`, ...). When permission: is
+  # given and the current user lacks it, returns nil.
+  def action_button(text, path, type = :primary, permission: nil, target: nil, data: nil, title: nil)
+    return nil if permission && !can?(permission)
+    css_class = case type
+    when :primary
+      "btn btn-primary"
+    when :secondary
+      "btn btn-secondary"
+    when :success
+      "btn btn-success"
+    when :info
+      "btn btn-info"
+    when :warning
+      "btn btn-warning"
+    when :danger
+      "btn btn-danger"
+    else
+      "btn btn-primary"
+    end
+
+    link_to(text, path, class: css_class, target: target, data: data, title: title, "aria-label": title)
+  end
+
+  # Compact in-row action link (Edit / View / Delete...). When permission: is
+  # given and the current user lacks it, returns nil so views can drop their
+  # explicit `- if can?('xxx.edit')` wraps and gate inline.
+  def list_action_link(text, path, type = :default, options = {}, permission: nil)
+    return nil if permission && !can?(permission)
+    css_classes = case type
+    when :show
+      "btn btn-sm btn-outline-primary py-0"
+    when :edit
+      "btn btn-sm btn-outline-secondary py-0"
+    when :destroy
+      "btn btn-sm btn-outline-danger py-0"
+    else
+      "btn btn-sm btn-outline-primary py-0"
+    end
+
+    link_to(text, path, options.merge(class: css_classes))
+  end
+
+  # Index-context delete link: a small outline trashcan that fits into row
+  # actions. Detail-page delete uses `delete_button(resource)` — both render
+  # the trash3 icon, but the index variant is the small btn-outline-danger
+  # sized for table rows.
+  # When permission: is given and the current user lacks it, returns nil so
+  # views can gate inline without an `- if can?('xxx.edit')` wrap.
+  def destroy_link(resource, confirm_text = nil, permission: nil)
+    return nil if permission && !can?(permission)
+    confirm_text ||= "Are you sure you want to delete this #{resource.class.name.downcase}?"
+    list_action_link(action_icon(:trash3), resource, :destroy, {
+      title: "Delete",
+      "aria-label": "Delete",
+      data: {
+        'turbo-method': "delete",
+        'turbo-confirm': confirm_text
+      }
+    })
+  end
+
+  def action_buttons_wrapper(&block)
+    content = capture(&block)
+    return nil if content.blank?
+    content_tag :div, content, class: "d-flex gap-2 mb-3 mt-3"
+  end
+
   private
 
   # Tier-2 shape: POST form button with a Bootstrap class and an optional
@@ -114,14 +201,5 @@ module ActionButtonsHelper
   def icon_link(icon, path, klass:, title:, permission: nil, **link_opts)
     return nil if permission && !can?(permission)
     link_to action_icon(icon), path, link_opts.merge(class: klass, title: title, "aria-label": title)
-  end
-
-  # Tier-2 shape: an icon followed by its label text, for buttons that carry
-  # both (Publish, Unblock, Audit log, ...). Text is wrapped in a <span> (not
-  # a bare text node) so the `.btn svg.bi:not(:last-child)` CSS rule can tell
-  # icon+text buttons apart from icon-only ones and only add the icon/text
-  # gap where there's text to gap against.
-  def icon_label(icon, text)
-    action_icon(icon) + content_tag(:span, text)
   end
 end

@@ -1,6 +1,6 @@
 = breadcrumbs ['Projects', projects_path], @project.matchcode, action: action_button('Edit', edit_project_path(@project), permission: 'projects.edit') do
   - unless @project.active?
-    %span.badge.bg-secondary Inactive
+    = badge_tag(:neutral, 'Inactive')
 
 .row
   .col-md-8

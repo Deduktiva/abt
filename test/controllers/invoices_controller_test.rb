@@ -260,7 +260,7 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     get invoice_url(invoice)
     assert_response :success
     assert_select "table.document-lines-table"
-    assert_select ".badge.bg-success", text: "Booked"
+    assert_select ".badge", text: "Booked"
   end
 
   test "draft invoice without lines renders inline Edit Lines button" do
@@ -276,8 +276,8 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
 
     get invoice_url(invoice)
     assert_response :success
-    assert_select ".badge.bg-warning", text: "Draft"
-    assert_select ".badge.bg-success", text: "Ready"
+    assert_select ".badge", text: "Draft"
+    assert_select ".badge", text: "Ready"
     assert_select "form.button_to button", text: /Publish/
   end
 

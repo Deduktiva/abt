@@ -250,7 +250,7 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     offer = offers(:sent_offer)
     offer.accept!(order_number: "PO", ordered_on: Date.current)
     get offer_url(offer)
-    assert_select ".badge.bg-primary", text: "Ordered", minimum: 2
+    assert_select ".badge", text: "Ordered", minimum: 2
     assert_match offer.accepted_at.to_date.strftime("%d.%m.%Y"), response.body
     assert_select "form[action=?]", mark_failed_offer_path(offer)
   end
@@ -259,7 +259,7 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     offer = offers(:sent_offer)
     offer.reject!
     get offer_url(offer)
-    assert_select ".badge.bg-secondary", text: "Rejected", minimum: 2
+    assert_select ".badge", text: "Rejected", minimum: 2
     assert_match offer.rejected_at.to_date.strftime("%d.%m.%Y"), response.body
   end
 
@@ -268,7 +268,7 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     offer.accept!(order_number: "PO", ordered_on: Date.current)
     offer.mark_failed!
     get offer_url(offer)
-    assert_select ".badge.bg-secondary", text: "Failed", minimum: 2
+    assert_select ".badge", text: "Failed", minimum: 2
     assert_select "form[action=?]", restore_offer_path(offer)
     assert_select "form[action=?]", update_internal_notes_offer_path(offer)
     assert_select "form[action=?]", convert_milestone_offer_path(offer, milestone_id: offer.accepted_version.milestones.first.id), count: 0

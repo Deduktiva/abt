@@ -4,8 +4,7 @@
 - delete_action = delete_button(@offer) if @offer.deletable? && can?('offers.edit')
 - problems = @offer.editable? ? @offer.send_problems : []
 = breadcrumbs ['Offers', offers_path], @offer.display_label, actions: [preview_action, delete_action], action: edit_action do
-  - label, badge_class = @offer.status_badge
-  %span.badge{class: badge_class}= label
+  = status_badge_tag(@offer.status_badge)
 
 %div{data: (@offer.current_sent_version ? email_preview_data(@offer) : {})}
   .card.mb-4
@@ -74,9 +73,9 @@
             %strong Send:
           .col-sm-8.d-flex.align-items-center.gap-2
             - if problems.any?
-              %span.badge.bg-warning= pluralize(problems.size, 'problem')
+              = badge_tag(:warning, pluralize(problems.size, 'problem'))
             - else
-              %span.badge.bg-success Ready
+              = badge_tag(:success, 'Ready')
             - if can?('offers.edit')
               - if problems.any?
                 %span.ms-auto{title: problems.join("\n")}
@@ -113,15 +112,15 @@
                 %strong Decision:
               .col-sm-8.d-flex.align-items-center.gap-2
                 - if @offer.accepted?
-                  %span.badge.bg-primary Ordered
+                  = badge_tag(:active, 'Ordered')
                   - if @offer.accepted_at
                     = l(@offer.accepted_at.to_date)
                 - elsif @offer.rejected?
-                  %span.badge.bg-secondary Rejected
+                  = badge_tag(:neutral, 'Rejected')
                   - if @offer.rejected_at
                     = l(@offer.rejected_at.to_date)
                 - elsif @offer.failed?
-                  %span.badge.bg-secondary Failed
+                  = badge_tag(:neutral, 'Failed')
                   - if @offer.failed_at
                     = l(@offer.failed_at.to_date)
                 - if can?('offers.edit')

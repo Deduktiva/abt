@@ -26,7 +26,7 @@
       - if show_status_column
         %td
           - unless project.active?
-            %span.badge.bg-secondary Inactive
+            = badge_tag(:neutral, 'Inactive')
       %td= project.description
       %td= project.bill_to_customer.try(:matchcode)
       %td= project.team&.name

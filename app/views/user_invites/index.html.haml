@@ -18,10 +18,10 @@
         %td= l(invite.expires_at)
         %td
           - if invite.used_at
-            %span.badge.bg-success Used
+            = badge_tag(:success, 'Used')
             = l(invite.used_at)
           - elsif invite.expires_at <= Time.current
-            %span.badge.bg-secondary Expired
+            = badge_tag(:neutral, 'Expired')
           - else
-            %span.badge.bg-warning Pending
+            = badge_tag(:warning, 'Pending')
         %td= invite.used_by_user&.username || '—'

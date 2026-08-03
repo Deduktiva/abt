@@ -69,10 +69,10 @@ class InvoiceTest < ActiveSupport::TestCase
 
   test "payment_status_badge counts the days to or past the due date" do
     cases = {
-      Invoice.new(published: true, due_date: 6.days.from_now.to_date) => [ "Unpaid, 6d", "bg-warning" ],
-      Invoice.new(published: true, due_date: Date.current) => [ "Unpaid, 0d", "bg-warning" ],
-      Invoice.new(published: true, due_date: 3.days.ago.to_date) => [ "Overdue, 3d", "bg-danger" ],
-      Invoice.new(published: true, due_date: nil) => [ "Unpaid", "bg-warning" ],
+      Invoice.new(published: true, due_date: 6.days.from_now.to_date) => { level: :warning, text: "Unpaid, 6d" },
+      Invoice.new(published: true, due_date: Date.current) => { level: :warning, text: "Unpaid, 0d" },
+      Invoice.new(published: true, due_date: 3.days.ago.to_date) => { level: :danger, text: "Overdue, 3d" },
+      Invoice.new(published: true, due_date: nil) => { level: :warning, text: "Unpaid" },
       Invoice.new(published: true, due_date: 3.days.ago.to_date, paid_at: Time.current) => nil,
       Invoice.new(published: false, due_date: 3.days.ago.to_date) => nil
     }

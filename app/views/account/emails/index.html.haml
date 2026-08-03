@@ -15,9 +15,9 @@
         %td= email.address
         %td
           - if email.confirmed?
-            %span.badge.bg-success Confirmed
+            = badge_tag(:success, 'Confirmed')
           - else
-            %span.badge.bg-warning Pending
+            = badge_tag(:warning, 'Pending')
         %td= l(email.created_at)
         %td
           - if email.confirmed? && current_user.confirmed_emails.count <= 1

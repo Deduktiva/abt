@@ -148,14 +148,14 @@ class OfferTest < ActiveSupport::TestCase
   test "accepted offer shows Ordered until milestones are invoiced" do
     offer = offers(:sent_offer)
     offer.accept!(order_number: "PO", ordered_on: Date.current)
-    assert_equal [ "Ordered", "bg-primary" ], offer.status_badge
+    assert_equal({ level: :active, text: "Ordered" }, offer.status_badge)
   end
 
   test "accepted offer shows Invoiced once every milestone has a booked invoice" do
     offer = offers(:sent_offer)
     offer.accept!(order_number: "PO", ordered_on: Date.current)
     offer.accepted_version.milestones.each { |m| m.update!(invoice: booked_invoice(offer)) }
-    assert_equal [ "Invoiced", "bg-info text-dark" ], offer.status_badge
+    assert_equal({ level: :active, text: "Invoiced" }, offer.status_badge)
   end
 
   test "a single unbooked invoice keeps the status at Ordered" do
@@ -166,14 +166,14 @@ class OfferTest < ActiveSupport::TestCase
     milestones.last.update!(invoice: Invoice.create!(customer: offer.customer, project: offer.project,
                                                      customer_country_iso2: offer.customer.country_iso2,
                                                      date: Date.current, published: false))
-    assert_equal [ "Ordered", "bg-primary" ], offer.status_badge
+    assert_equal({ level: :active, text: "Ordered" }, offer.status_badge)
   end
 
   test "accepted offer shows Paid once every invoice is paid" do
     offer = offers(:sent_offer)
     offer.accept!(order_number: "PO", ordered_on: Date.current)
     offer.accepted_version.milestones.each { |m| m.update!(invoice: booked_invoice(offer, paid: true)) }
-    assert_equal [ "Paid", "bg-success" ], offer.status_badge
+    assert_equal({ level: :success, text: "Paid" }, offer.status_badge)
   end
 
   test "delivery date is urgent within the window" do
@@ -245,7 +245,7 @@ class OfferTest < ActiveSupport::TestCase
     offer = offers(:sent_offer)
     offer.accept!(order_number: "PO", ordered_on: Date.current)
     offer.mark_failed!
-    assert_equal [ "Failed", "bg-secondary" ], offer.status_badge
+    assert_equal({ level: :neutral, text: "Failed" }, offer.status_badge)
   end
 
   test "delivery date is not urgent once the offer has failed" do

@@ -58,7 +58,7 @@ Choosing between them:
 - **Don't spend `:success` on an intermediate rung**, or the progression stops reading as one: an accepted offer goes Ordered → Invoiced → Paid, and only the last is green. `:success` is not "done" — it also covers a flag that is simply on and healthy — but within a progression, green marks the end of it.
 - **A level is not a rung counter.** Ordered and Invoiced are both `:active`, so they share a colour and the badge text carries the difference. Don't reach for a spare level to number the steps of a progression — the colour says in-motion-or-done, the words say which step.
 
-`badge_tag` renders whatever it is given. Whether a badge belongs on the page at all is the caller's decision, per the rules below.
+`badge_tag` never decides that a badge should be absent — it renders what it is given. That call lives upstream of rendering: either in the view, or in a model's `status_badge`, which returns nil for a state warranting no badge (`status_badge_tag` passes the nil straight through). Either way it sits somewhere testable rather than inside a rendering helper. The rules below say when a badge is warranted.
 
 - Show only deviation from the healthy default. A record in its normal state renders no badge in headers, and plain text in tables.
 - Lifecycle states (Draft, Booked, Published, Sent, Paid, Overdue) all get header badges — no state is implicitly "good".

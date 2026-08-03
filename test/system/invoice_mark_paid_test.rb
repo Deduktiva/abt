@@ -27,7 +27,7 @@ class InvoiceMarkPaidTest < ApplicationSystemTestCase
     assert_text(/Paid/)
     # No "Unpaid" badge (the bare word "Unpaid" still appears inside the
     # "Unpaid" button that's now rendered).
-    assert_no_selector ".badge.bg-warning", text: "Unpaid"
+    assert_no_selector ".badge", text: "Unpaid"
     assert_equal Date.current, @invoice.reload.paid_at.to_date
   end
 

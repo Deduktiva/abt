@@ -61,9 +61,9 @@
           %td= invoice.cust_order
           %td
             - if invoice.email_sent_at
-              %span.badge.bg-success Sent #{l(invoice.email_sent_at.to_date)}
+              = badge_tag(:success, "Sent #{l(invoice.email_sent_at.to_date)}")
             - else
-              %span.badge.bg-warning Unsent
+              = badge_tag(:warning, 'Unsent')
           %td
             - if invoice.published? and not invoice.attachment.nil?
               = link_to 'PDF', attachment_path(invoice.attachment), target: '_blank', data: { turbo: false }, class: 'btn btn-sm btn-outline-success py-0'
@@ -98,7 +98,7 @@
               - if invoice.paid?
                 = l(invoice.paid_at.to_date)
               - else
-                = invoice_payment_status_badge_tag(invoice)
+                = status_badge_tag(invoice.payment_status_badge)
           %td.numeric= format_currency(invoice.sum_net)
           %td
             - if invoice.published? and not invoice.attachment.nil?

@@ -62,7 +62,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     @project.update!(active: false)
     get project_url(@project)
     assert_response :success
-    assert_select ".badge.bg-secondary", text: "Inactive"
+    assert_select ".badge", text: "Inactive"
   end
 
   test "should get new" do

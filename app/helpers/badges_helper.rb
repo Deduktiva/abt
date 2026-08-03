@@ -16,4 +16,13 @@ module BadgesHelper
   def badge_tag(level, text, css: nil)
     content_tag(:span, text, class: [ "badge", BADGE_LEVELS.fetch(level), css ].compact.join(" "))
   end
+
+  # Renders a model's { level:, text: } status badge, or nothing when the model
+  # returns nil for a state that warrants no badge. Takes the badge rather than
+  # the record because Invoice exposes two of them.
+  def status_badge_tag(badge)
+    return unless badge
+
+    badge_tag(badge[:level], badge[:text])
+  end
 end

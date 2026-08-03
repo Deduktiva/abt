@@ -22,16 +22,16 @@ Team.find_or_create_by!(builtin: true, name: Team::DEFAULT_NAME) do |t|
 end
 
 # Languages (required for customer language selection)
-english = Language.find_or_create_by(iso_code: 'en') do |lang|
+english = Language.find_or_create_by!(iso_code: 'en') do |lang|
   lang.title = 'English'
 end
 
-german = Language.find_or_create_by(iso_code: 'de') do |lang|
+german = Language.find_or_create_by!(iso_code: 'de') do |lang|
   lang.title = 'German'
 end
 
 # Document number configuration for invoices
-DocumentNumber.find_or_create_by(code: 'invoice') do |dn|
+DocumentNumber.find_or_create_by!(code: 'invoice') do |dn|
   dn.format = '%{year}%<number>04d'
   dn.sequence = 0
   dn.last_number = nil
@@ -39,7 +39,7 @@ DocumentNumber.find_or_create_by(code: 'invoice') do |dn|
 end
 
 # Document number configuration for delivery notes
-DocumentNumber.find_or_create_by(code: 'delivery_note') do |dn|
+DocumentNumber.find_or_create_by!(code: 'delivery_note') do |dn|
   dn.format = '%{year}%<number>04d'
   dn.sequence = 0
   dn.last_number = nil
@@ -47,7 +47,7 @@ DocumentNumber.find_or_create_by(code: 'delivery_note') do |dn|
 end
 
 # Document number configuration for offers
-DocumentNumber.find_or_create_by(code: 'offer') do |dn|
+DocumentNumber.find_or_create_by!(code: 'offer') do |dn|
   dn.format = '%{date}-%<number>02d'
   dn.sequence = 0
   dn.last_number = nil
@@ -55,48 +55,48 @@ DocumentNumber.find_or_create_by(code: 'offer') do |dn|
 end
 
 # Sales tax customer classes (required for the system to work)
-national_class = SalesTaxCustomerClass.find_or_create_by(name: 'National') do |stcc|
+national_class = SalesTaxCustomerClass.find_or_create_by!(name: 'National') do |stcc|
   stcc.invoice_note = ''
 end
 
-eu_class = SalesTaxCustomerClass.find_or_create_by(name: 'EU') do |stcc|
+eu_class = SalesTaxCustomerClass.find_or_create_by!(name: 'EU') do |stcc|
   stcc.invoice_note = 'Reverse Charge - VAT is payable by the customer'
 end
 
-export_class = SalesTaxCustomerClass.find_or_create_by(name: 'EXPORT') do |stcc|
+export_class = SalesTaxCustomerClass.find_or_create_by!(name: 'EXPORT') do |stcc|
   stcc.invoice_note = 'EXPORT TO NON-EU COUNTRY'
   stcc.vat_id_required = false
 end
 
 # Sales tax product classes
-standard_product = SalesTaxProductClass.find_or_create_by(name: 'Standard Goods') do |stpc|
+standard_product = SalesTaxProductClass.find_or_create_by!(name: 'Standard Goods') do |stpc|
   stpc.indicator_code = 'STD'
   stpc.is_default = true
 end
 
 # Sales tax rates (connecting customer and product classes)
-SalesTaxRate.find_or_create_by(
+SalesTaxRate.find_or_create_by!(
   sales_tax_customer_class: national_class,
   sales_tax_product_class: standard_product
 ) do |str|
   str.rate = 20.0
 end
 
-SalesTaxRate.find_or_create_by(
+SalesTaxRate.find_or_create_by!(
   sales_tax_customer_class: eu_class,
   sales_tax_product_class: standard_product
 ) do |str|
   str.rate = 0.0
 end
 
-SalesTaxRate.find_or_create_by(
+SalesTaxRate.find_or_create_by!(
   sales_tax_customer_class: export_class,
   sales_tax_product_class: standard_product
 ) do |str|
   str.rate = 0.0
 end
 
-Business.find_or_create_by(active: true) do |issuer|
+Business.find_or_create_by!(active: true) do |issuer|
   issuer.short_name = 'UNCONF'
   issuer.legal_name = 'Unconfigured Business'
   issuer.address = "Configure this under\nConfiguration → Business"

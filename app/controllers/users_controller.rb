@@ -32,7 +32,12 @@ class UsersController < ApplicationController
       redirect_to user_path(@user), alert: "Reason is required." and return
     end
 
-    @user.block!(reason: reason, actor: current_user, request: request)
+    begin
+      AdminFloor.protect! { @user.block!(reason: reason, actor: current_user, request: request) }
+    rescue AdminFloor::Violation => e
+      redirect_to user_path(@user), alert: e.message and return
+    end
+
     redirect_to user_path(@user), notice: "User #{@user.username} blocked."
   end
 
@@ -73,11 +78,6 @@ class UsersController < ApplicationController
     new_groups = Group.where(id: new_ids).to_a
 
     admin_group = Group.admin
-    if admin_group && @user.groups.include?(admin_group) && !new_groups.include?(admin_group)
-      if admin_group.users.where.not(id: @user.id).none?
-        redirect_to user_path(@user), alert: "Cannot remove the last member of the Admin group." and return
-      end
-    end
 
     # Only admins can change Admin-group membership in either direction.
     # `groups.manage` alone is insufficient: the add direction is admin
@@ -94,7 +94,11 @@ class UsersController < ApplicationController
     end
 
     previous = @user.groups.pluck(:id).to_set
-    @user.groups = new_groups
+    begin
+      AdminFloor.protect! { @user.groups = new_groups }
+    rescue AdminFloor::Violation => e
+      redirect_to user_path(@user), alert: e.message and return
+    end
     added   = new_ids.to_set - previous
     removed = previous - new_ids.to_set
     if added.any? || removed.any?

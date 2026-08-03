@@ -112,19 +112,10 @@ class GroupsController < ApplicationController
     new_ids = Array(user_ids).reject(&:blank?).map(&:to_i)
     new_users = User.where(id: new_ids).to_a
 
-    if group.admin? && new_users.empty?
-      group.errors.add(:base, "Admin group must have at least one member")
-      return
-    end
-
     # Only existing admins can change the Admin group's membership in either
     # direction. Without this, a `groups.manage` user could grant themselves
     # Admin membership (inheriting bypass_team_scoping + the admin-only
-    # credential primitives) OR demote other admins. The remove direction is
-    # the more dangerous primitive: `has_many through` collection assignment
-    # silently swallows `prevent_removing_last_admin`'s `throw :abort`, so a
-    # single PATCH with one admin id in user_ids would otherwise delete every
-    # other admin's GroupMembership without raising.
+    # credential primitives) OR demote other admins.
     if group.admin? && !current_user.groups.include?(group)
       added   = new_users.map(&:id) - group.user_ids
       removed = group.user_ids - new_users.map(&:id)
@@ -134,6 +125,8 @@ class GroupsController < ApplicationController
       end
     end
 
-    group.users = new_users
+    AdminFloor.protect! { group.users = new_users }
+  rescue AdminFloor::Violation => e
+    group.errors.add(:base, e.message)
   end
 end

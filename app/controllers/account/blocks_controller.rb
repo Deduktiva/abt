@@ -3,11 +3,15 @@ class Account::BlocksController < ApplicationController
   allow_without_permission_check
 
   def create
-    current_user.block!(
-      reason: "user self-requested",
-      actor: current_user,
-      request: request
-    )
+    AdminFloor.protect! do
+      current_user.block!(
+        reason: "user self-requested",
+        actor: current_user,
+        request: request
+      )
+    end
     sign_out_and_redirect(notice: "Your account has been blocked at your request.")
+  rescue AdminFloor::Violation => e
+    redirect_to account_profile_path, alert: e.message
   end
 end

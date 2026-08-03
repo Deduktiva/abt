@@ -217,7 +217,7 @@ class DeliveryNoteTest < ActiveSupport::TestCase
       DeliveryNote.new(published: true, invoice: emailed) => { level: :warning, text: "Unpaid" },
       DeliveryNote.new(published: true, invoice: booked) => { level: :neutral, text: "Invoice unsent" },
       DeliveryNote.new(published: true, invoice: drafted) => { level: :warning, text: "Invoice drafted" },
-      DeliveryNote.new(published: true, acceptance_attachment_id: 1) => { level: :neutral, text: "Invoice necessary" },
+      DeliveryNote.new(published: true, acceptance_attachment_id: 1) => { level: :warning, text: "Invoice necessary" },
       DeliveryNote.new(published: true, email_sent_at: nil) => { level: :warning, text: "Unsent" },
       DeliveryNote.new(published: true, email_sent_at: Time.current) => nil
     }

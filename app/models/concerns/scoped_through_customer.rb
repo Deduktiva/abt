@@ -38,10 +38,8 @@ module ScopedThroughCustomer
     # the list even when inactive, so an active-only default doesn't drop the
     # currently-selected one.
     def available_customers(user, including: nil)
-      Customer.visible_to(user)
-              .where(id: visible_to(user).select(:customer_id))
-              .where("active = ? OR id = ?", true, including)
-              .order(:name)
+      scope = Customer.visible_to(user).where(id: visible_to(user).select(:customer_id))
+      scope.where(active: true).or(scope.where(id: including)).order(:name)
     end
   end
 

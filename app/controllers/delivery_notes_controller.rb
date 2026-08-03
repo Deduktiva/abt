@@ -8,6 +8,9 @@ class DeliveryNotesController < ApplicationController
   publishable_document :delivery_note, label: "delivery note"
   document_with_lines line_class: DeliveryNoteLine
 
+  EMAIL_FILTERS = %w[all unsent].freeze
+  ACCEPTANCE_FILTERS = %w[pending].freeze
+
   before_action -> { require_permission!("delivery_notes.view") }, only: %i[index show preview preview_email preview_email_html pdf]
   before_action -> { require_permission!("delivery_notes.edit") }, only: %i[
     new create edit update destroy
@@ -25,8 +28,8 @@ class DeliveryNotesController < ApplicationController
 
   # GET /delivery_notes
   def index
-    @email_filter = params[:email_filter] || "all"
-    @acceptance_filter = params[:acceptance_filter]
+    @email_filter = params[:email_filter].presence_in(EMAIL_FILTERS) || "all"
+    @acceptance_filter = params[:acceptance_filter].presence_in(ACCEPTANCE_FILTERS)
     @selected_customer_id = integer_param(:customer_id)
 
     @delivery_notes = filtered_by_year(DeliveryNote.visible_to(current_user).ordered)

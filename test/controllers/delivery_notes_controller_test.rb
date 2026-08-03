@@ -13,6 +13,11 @@ class DeliveryNotesControllerTest < ActionDispatch::IntegrationTest
   # own concern test). DeliveryNotesController#index uses the same scopes and
   # the same shared dropdown partial.
 
+  test "non-scalar email_filter param falls back to all" do
+    get delivery_notes_url(email_filter: { a: "1" })
+    assert_response :success
+  end
+
   test "should show delivery note" do
     note = delivery_notes(:published_delivery_note)
     assert_nil note.invoice, "fixture should not yet be invoiced"

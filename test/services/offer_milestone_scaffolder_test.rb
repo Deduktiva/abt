@@ -53,7 +53,7 @@ class OfferMilestoneScaffolderTest < ActiveSupport::TestCase
   end
 
   test "refuses when the draft already has milestones" do
-    @version.milestones.load
+    @version.milestones.load # load-bearing: only with_lock's reload clears this stale cache
     OfferVersion.find(@version.id).milestones.create!(title: "Existing", amount: 1, trigger: "on_acceptance", position: 1)
 
     assert_no_difference("OfferMilestone.count") do

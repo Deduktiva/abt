@@ -202,8 +202,8 @@ class DeliveryNotesController < ApplicationController
   def convert_to_invoice
     invoice = DeliveryNoteInvoiceConverter.new(@delivery_note).convert!
     redirect_to invoice, notice: "Invoice draft created successfully from delivery note."
-  rescue DeliveryNoteInvoiceConverter::NotConvertible
-    flash[:error] = "This delivery note has already been converted to an invoice."
+  rescue DeliveryNoteInvoiceConverter::NotConvertible => e
+    flash[:error] = e.message
     redirect_to @delivery_note
   rescue StandardError => e
     flash[:error] = "Failed to convert delivery note to invoice: #{e.message}"

@@ -1,6 +1,8 @@
 class OfferMilestoneConverter
   include LockedConversion
 
+  class NotConvertible < LockedConversion::NotConvertible; end
+
   def initialize(milestone)
     @milestone = milestone
     @version = milestone.offer_version
@@ -11,7 +13,12 @@ class OfferMilestoneConverter
 
   def conversion_source = @milestone
 
+  # The lock covers the milestone row only, and #initialize captured the version
+  # and offer before it: re-read them so an offer reopened in between is seen.
   def convert_locked!
+    @version = @milestone.offer_version
+    @offer = @version.offer
+
     raise NotConvertible, "offer is not accepted" unless @offer.accepted?
     raise NotConvertible, "milestone belongs to a non-accepted version" unless @version.id == @offer.accepted_version_id
     raise NotConvertible, "milestone already converted" if @milestone.converted?

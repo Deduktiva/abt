@@ -16,10 +16,10 @@ class DeliveryNoteTest < ActiveSupport::TestCase
   test "an invoice can back only one delivery note" do
     invoice = invoices(:published_invoice)
     delivery_notes(:published_delivery_note).update!(invoice: invoice)
+    other = delivery_notes(:draft_delivery_note)
 
-    assert_raises(ActiveRecord::RecordNotUnique) do
-      delivery_notes(:draft_delivery_note).update!(invoice: invoice)
-    end
+    assert_not other.update(invoice: invoice)
+    assert_raises(ActiveRecord::RecordNotUnique) { other.update_column(:invoice_id, invoice.id) }
   end
 
   test "email_unsent scope returns delivery notes without email_sent_at that have customer email" do

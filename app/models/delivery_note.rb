@@ -12,6 +12,7 @@ class DeliveryNote < ApplicationRecord
 
   validates :customer_id, presence: true
   validates :delivery_start_date, presence: true
+  validates :invoice_id, uniqueness: true, allow_nil: true
   validate :delivery_end_date_after_start_date
   scope :with_pending_acceptance, -> { where(id: AcceptanceSubmission.pending.select(:delivery_note_id)) }
   scope :email_unsent, -> {

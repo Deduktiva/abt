@@ -71,6 +71,15 @@ class OfferMilestoneConverterTest < ActiveSupport::TestCase
     assert_nil milestone.delivery_note_id
   end
 
+  test "a milestone whose offer was reopened behind our back cannot convert" do
+    converter = OfferMilestoneConverter.new(offer_milestones(:sent_ms_two))
+    Offer.find(@offer.id).reopen!
+
+    assert_no_difference("Invoice.count") do
+      assert_raises(OfferMilestoneConverter::NotConvertible) { converter.convert! }
+    end
+  end
+
   test "milestone description lands after the reference in the line description" do
     milestone = offer_milestones(:sent_ms_two)
     milestone.update!(description: "Detailed scope")

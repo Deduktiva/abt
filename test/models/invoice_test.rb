@@ -178,6 +178,17 @@ class InvoiceTest < ActiveSupport::TestCase
     assert_equal 0, invoice.sum_net
   end
 
+  test "a rejected create leaves no tax class rows behind" do
+    assert_no_difference "InvoiceTaxClass.count" do
+      invoice = Invoice.new(customer: customers(:good_national), project: projects(:test_project),
+                            invoice_lines_attributes: [
+                              { type: "item", title: "", quantity: 1, rate: 100,
+                                sales_tax_product_class_id: sales_tax_product_classes(:standard).id }
+                            ])
+      assert_not invoice.save
+    end
+  end
+
   test "update_sums skips a published invoice" do
     invoice = invoices(:published_invoice)
     invoice.update_columns(sum_net: 999.99, sum_total: 1234.56)

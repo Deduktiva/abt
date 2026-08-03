@@ -36,13 +36,16 @@ The script sets `RAILS_ENV=production` for the entire session and performs the f
 5. **Asset Compilation**
    - Runs `bundle exec rails assets:precompile`
 
-6. **Database Migration**
+6. **Database Backup**
+   - Runs `bundle exec rails db:backup` (see [Database backups](#database-backups)). A failed backup aborts the deploy before any migration runs; set `SKIP_DB_BACKUP=1` to deploy without one.
+
+7. **Database Migration**
    - Runs `bundle exec rails db:migrate`
 
-7. **Application Restart**
+8. **Application Restart**
    - Runs `systemctl --user reload abt-puma.service`, which `ExecReload`s `SIGUSR2` for a Puma hot-restart. Sub-second window where the listener is briefly closed; Apache buffers the request and retries.
 
-8. **Jobs Worker Restart**
+9. **Jobs Worker Restart**
    - Runs `systemctl --user restart abt-jobs.service` to restart the Solid Queue worker so it picks up new code and updated recurring schedules.
 
 ### Requirements
@@ -101,6 +104,27 @@ resurrect essential rows an operator had removed on purpose.
 The seeded business is a placeholder (`UNCONF` / `Unconfigured Business`). Edit it under
 **Configuration → Business** before publishing the first document — the legal name, VAT
 id, address and bank details all appear on invoice PDFs.
+
+## Database backups
+
+`bundle exec rails db:backup` dumps the **primary** database with `pg_dump --format=custom` and writes it to `backups/<database>-<UTC timestamp>.dump` in the application root — outside `public/`, and git-ignored. The directory is created mode `0700` and each dump is written mode `0600`; a dump is assembled under a `.part` name and renamed only on success, so a failed run never leaves a truncated file that looks complete.
+
+- Requires the `postgresql-client` package (`pg_dump`) on the app host, at a version at least as new as the server.
+- PostgreSQL only. In development (SQLite) the task aborts with an explanatory message.
+- The `cache` and `queue` databases are **not** dumped — they hold transient Solid Cache / Solid Queue state and are rebuilt from `db/cache_schema.rb` and `db/queue_schema.rb`.
+- Override the destination with `ABT_BACKUP_DIR=/srv/backups/abt`.
+
+```bash
+RAILS_ENV=production bundle exec rails db:backup
+```
+
+Restore into an empty database:
+
+```bash
+pg_restore --clean --if-exists --no-owner --dbname=abt_production backups/abt_production-20260803T101500Z.dump
+```
+
+**Retention is not managed.** Every deploy adds a dump and nothing removes old ones — put the directory under whatever rotation/offsite policy the host already uses, or prune it from cron. These files contain all customer and invoice data; they are only as protected as the app host.
 
 ## Apache reverse proxy
 

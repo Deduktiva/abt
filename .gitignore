@@ -42,6 +42,9 @@
 # Ignore the default SQLite database.
 /db/*.sqlite3*
 
+# Ignore database dumps written by `rails db:backup`.
+/backups
+
 /.generators
 /.idea
 /.rakeTasks

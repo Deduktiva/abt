@@ -5,9 +5,9 @@
 - audit_action = audit_log_button(audit_user_path(@user))
 = breadcrumbs ['Configuration', configuration_path], ['Users', users_path], @user.username, actions: [unblock_action, reset_action, audit_action] do
   - if @user.blocked?
-    %span.badge.bg-danger Blocked
+    = badge_tag(:danger, 'Blocked')
   - if @user.id == current_user.id
-    %span.badge.bg-info This is you
+    = badge_tag(:info, 'This is you')
 
 .row
   .col-md-6
@@ -39,9 +39,9 @@
               %div
                 = email.address
                 - if email.confirmed?
-                  %span.badge.bg-success.ms-2 Confirmed
+                  = badge_tag(:success, 'Confirmed', css: 'ms-2')
                 - else
-                  %span.badge.bg-warning.ms-2 Pending
+                  = badge_tag(:warning, 'Pending', css: 'ms-2')
               - if can_manage_emails
                 %div.btn-group
                   %button.btn.btn-sm.btn-outline-secondary{type: 'button', data: { action: 'click->toggle-visibility#toggle' }} Replace…
@@ -103,7 +103,7 @@
     .card.mb-3
       .card-header
         Groups
-        %span.badge.bg-secondary.ms-1= @user_groups.size
+        = badge_tag(:neutral, @user_groups.size, css: 'ms-1')
       - if can?('groups.manage')
         = form_with url: update_groups_user_path(@user), method: :patch, local: true do |f|
           %ul.list-group.list-group-flush
@@ -114,7 +114,7 @@
                   = label_tag "ug_#{group.id}", class: 'form-check-label' do
                     = group.name
                     - if group.builtin?
-                      %span.badge.bg-secondary.ms-1 built-in
+                      = badge_tag(:neutral, 'built-in', css: 'ms-1')
                     - if group.description.present?
                       %span.text-muted.ms-2= group.description
           .card-body
@@ -128,12 +128,12 @@
               %li.list-group-item
                 = group.name
                 - if group.builtin?
-                  %span.badge.bg-secondary.ms-1 built-in
+                  = badge_tag(:neutral, 'built-in', css: 'ms-1')
 
     .card.mb-3
       .card-header
         Teams
-        %span.badge.bg-secondary.ms-1= @user_teams.size
+        = badge_tag(:neutral, @user_teams.size, css: 'ms-1')
       - if can?('teams.manage')
         = form_with url: update_teams_user_path(@user), method: :patch, local: true do |f|
           %ul.list-group.list-group-flush
@@ -144,7 +144,7 @@
                   = label_tag "ut_#{team.id}", class: 'form-check-label' do
                     = team.name
                     - if team.builtin?
-                      %span.badge.bg-secondary.ms-1 built-in
+                      = badge_tag(:neutral, 'built-in', css: 'ms-1')
                     - if team.description.present?
                       %span.text-muted.ms-2= team.description
           .card-body
@@ -158,4 +158,4 @@
               %li.list-group-item
                 = team.name
                 - if team.builtin?
-                  %span.badge.bg-secondary.ms-1 built-in
+                  = badge_tag(:neutral, 'built-in', css: 'ms-1')

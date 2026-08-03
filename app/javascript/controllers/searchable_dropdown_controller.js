@@ -56,33 +56,25 @@ export default class extends Controller {
     }
 
     // Remove dependent field event listeners
-    if (this.hasDependentFieldTarget) {
-      this.dependentFieldTarget.removeEventListener('blur', this.boundDependentChangedHandler)
-      this.dependentFieldTarget.removeEventListener('change', this.boundDependentChangedHandler)
-      this.dependentFieldTarget.removeEventListener('input', this.boundDependentChangedHandler)
-    } else if (this.dependentFieldSelectorValue) {
-      // Remove external field listeners
-      const externalField = document.querySelector(this.dependentFieldSelectorValue)
-      if (externalField) {
-        externalField.removeEventListener('change', this.boundDependentChangedHandler)
-        externalField.removeEventListener('input', this.boundDependentChangedHandler)
-      }
+    if (this.dependentField) {
+      this.dependentField.removeEventListener('blur', this.boundDependentChangedHandler)
+      this.dependentField.removeEventListener('change', this.boundDependentChangedHandler)
+      this.dependentField.removeEventListener('input', this.boundDependentChangedHandler)
+      this.dependentField = null
     }
   }
 
   setupEventListeners() {
-    // Listen for dependent field changes
-    if (this.hasDependentFieldTarget) {
-      this.dependentFieldTarget.addEventListener('blur', this.boundDependentChangedHandler)
-      this.dependentFieldTarget.addEventListener('change', this.boundDependentChangedHandler)
-      this.dependentFieldTarget.addEventListener('input', this.boundDependentChangedHandler)
-    } else if (this.dependentFieldSelectorValue) {
-      // Use document selector if no local target is available
-      const externalField = document.querySelector(this.dependentFieldSelectorValue)
-      if (externalField) {
-        externalField.addEventListener('change', this.boundDependentChangedHandler)
-        externalField.addEventListener('input', this.boundDependentChangedHandler)
-      }
+    // Listen for dependent field changes. Resolve the field once and keep the
+    // node: disconnect() has to hand removeEventListener the very node the
+    // listeners went on, and a Turbo render can put a different node behind
+    // the selector in between.
+    this.dependentField = this.resolveDependentField()
+
+    if (this.dependentField) {
+      this.dependentField.addEventListener('blur', this.boundDependentChangedHandler)
+      this.dependentField.addEventListener('change', this.boundDependentChangedHandler)
+      this.dependentField.addEventListener('input', this.boundDependentChangedHandler)
     }
 
     // Setup search functionality
@@ -96,6 +88,12 @@ export default class extends Controller {
 
     // Close dropdown when clicking outside
     document.addEventListener('click', this.boundDocumentClickHandler)
+  }
+
+  resolveDependentField() {
+    if (this.hasDependentFieldTarget) return this.dependentFieldTarget
+    if (this.dependentFieldSelectorValue) return document.querySelector(this.dependentFieldSelectorValue)
+    return null
   }
 
   handleDocumentClick(event) {

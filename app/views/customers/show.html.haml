@@ -5,7 +5,7 @@
 - edit_action = action_button('Edit', edit_customer_path(@customer), permission: 'customers.edit')
 = breadcrumbs ['Customers', customers_path], @customer.matchcode, actions: [offers_action, delivery_notes_action, invoices_action, delete_action], action: edit_action do
   - unless @customer.active?
-    %span.badge.bg-secondary Inactive
+    = badge_tag(:neutral, 'Inactive')
 
 .row
   .col-md-6
@@ -36,7 +36,7 @@
             %strong Country:
           .col-sm-8
             - if country_unknown?(@customer.country_iso2)
-              %span.badge.bg-warning.text-dark Not set
+              = badge_tag(:warning, 'Not set')
             - else
               = country_name(@customer.country_iso2)
 
@@ -52,11 +52,11 @@
             .col-sm-8.d-flex.align-items-center.gap-2
               = @customer.vat_id
               - if current_verification&.invalid_per_vies?
-                %span.badge.bg-danger Invalid per VIES
+                = badge_tag(:danger, 'Invalid per VIES')
               - elsif @customer.vat_id_verified_at
                 %span.text-muted.small= "verified #{l(@customer.vat_id_verified_at.to_date)}"
               - else
-                %span.badge.bg-warning Not verified
+                = badge_tag(:warning, 'Not verified')
               - unless verified_today
                 = button_to "Verify", verify_vat_id_customer_path(@customer),
                             method: :post,
@@ -126,7 +126,7 @@
             .col-sm-3
               %strong Auto Email:
             .col-sm-9
-              %span.badge.bg-success Enabled
+              = badge_tag(:success, 'Enabled')
 
           .row.mb-2
             .col-sm-3

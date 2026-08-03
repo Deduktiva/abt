@@ -48,7 +48,7 @@
             %strong Country:
           .col-sm-8
             - if country_unknown?(@business.country_iso2)
-              %span.badge.bg-warning.text-dark Not set
+              = badge_tag(:warning, 'Not set')
             - else
               = country_name(@business.country_iso2)
 
@@ -126,7 +126,7 @@
             %strong PDF Logo:
           .col-sm-8
             - if @business.pdf_logo.present?
-              %span.badge.bg-success Logo uploaded
+              = badge_tag(:success, 'Logo uploaded')
               - if @business.pdf_logo_width && @business.pdf_logo_height
                 %small.text-muted (#{@business.pdf_logo_width}×#{@business.pdf_logo_height})
             - else

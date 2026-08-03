@@ -73,9 +73,9 @@
                     \(#{time_ago_in_words(process.last_heartbeat_at)} ago)
                 %td
                   - if stale
-                    %span.badge.bg-danger Stale
+                    = badge_tag(:danger, 'Stale')
                   - else
-                    %span.badge.bg-success Alive
+                    = badge_tag(:success, 'Alive')
 
 .card.mb-4
   .card-header

@@ -7,7 +7,7 @@ class OfferFailedStateTest < ApplicationSystemTestCase
 
     visit offer_path(offer)
     accept_confirm { click_on "Mark failed" }
-    assert_selector ".badge.bg-secondary", text: "Failed"
+    assert_selector ".badge", text: "Failed"
 
     accept_confirm { click_on "Restore to Ordered" }
     assert_text "Offer restored to ordered"

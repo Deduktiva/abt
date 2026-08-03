@@ -90,12 +90,12 @@ class DeliveryNote < ApplicationRecord
       elsif invoice.email_sent_at?
         { level: :warning, text: "Unpaid" }
       elsif invoice.published?
-        { level: :danger, text: "Invoice unsent" }
+        { level: :neutral, text: "Invoice unsent" }
       else
         { level: :warning, text: "Invoice drafted" }
       end
     elsif acceptance_attachment_id.present?
-      { level: :danger, text: "Invoice necessary" }
+      { level: :warning, text: "Invoice necessary" }
     elsif email_sent_at.nil?
       { level: :warning, text: "Unsent" }
     end

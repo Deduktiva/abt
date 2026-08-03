@@ -24,9 +24,9 @@
           %li.list-group-item
             = email.address
             - if email.confirmed?
-              %span.badge.bg-success.ms-2 Confirmed
+              = badge_tag(:success, 'Confirmed', klass: 'ms-2')
             - else
-              %span.badge.bg-warning.ms-2 Pending
+              = badge_tag(:warning, 'Pending', klass: 'ms-2')
     .card.mb-3
       .card-header
         .d-flex.justify-content-between.align-items-center
@@ -44,7 +44,7 @@
     .card.mb-3
       .card-header
         Groups
-        %span.badge.bg-secondary.ms-1= @user_groups.size
+        = badge_tag(:neutral, @user_groups.size, klass: 'ms-1')
       %ul.list-group.list-group-flush
         - if @user_groups.empty?
           %li.list-group-item.text-muted No groups
@@ -53,11 +53,11 @@
             %li.list-group-item
               = group.name
               - if group.builtin?
-                %span.badge.bg-secondary.ms-1 built-in
+                = badge_tag(:neutral, 'built-in', klass: 'ms-1')
     .card.mb-3
       .card-header
         Teams
-        %span.badge.bg-secondary.ms-1= @user_teams.size
+        = badge_tag(:neutral, @user_teams.size, klass: 'ms-1')
       %ul.list-group.list-group-flush
         - if @user_teams.empty?
           %li.list-group-item.text-muted No teams
@@ -66,7 +66,7 @@
             %li.list-group-item
               = team.name
               - if team.builtin?
-                %span.badge.bg-secondary.ms-1 built-in
+                = badge_tag(:neutral, 'built-in', klass: 'ms-1')
     .card
       .card-header.bg-danger.text-white Danger zone
       .card-body
@@ -86,7 +86,7 @@
             %div
               %code.small= s.ip_address
               - if current_user_session && current_user_session.id == s.id
-                %span.badge.bg-info.ms-2 This session
+                = badge_tag(:info, 'This session', klass: 'ms-2')
             .small.text-muted= s.user_agent.to_s.truncate(80)
             .small.text-muted Last seen: #{l(s.last_seen_at)}
     .card.mb-3

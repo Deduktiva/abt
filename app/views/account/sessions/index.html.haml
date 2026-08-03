@@ -20,7 +20,7 @@
         %td
           %code.small= s.ip_address
           - if current_user_session && current_user_session.id == s.id
-            %span.badge.bg-info.ms-1 This session
+            = badge_tag(:info, 'This session', klass: 'ms-1')
         %td.small= s.user_agent.to_s.truncate(80)
         %td= l(s.last_seen_at)
         %td= l(s.created_at)

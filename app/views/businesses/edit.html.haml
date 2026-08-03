@@ -119,7 +119,7 @@
             %small.form-text.text-muted Upload a PDF logo for use in invoice documents
             - if @business.pdf_logo.present?
               %div.mt-2
-                %span.badge.bg-success Current logo uploaded
+                = badge_tag(:success, 'Current logo uploaded')
                 - if @business.pdf_logo_width && @business.pdf_logo_height
                   %small.text-muted (#{@business.pdf_logo_width}×#{@business.pdf_logo_height})
 
@@ -139,7 +139,7 @@
             %small.form-text.text-muted Upload a PNG logo for use on website and in emails
             - if @business.png_logo.present?
               %div.mt-2
-                %span.badge.bg-success Current logo uploaded
+                = badge_tag(:success, 'Current logo uploaded')
 
     .col-md-6
       .card

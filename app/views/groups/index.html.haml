@@ -19,7 +19,7 @@
       %td
         = link_to(group.name, group)
         - if group.builtin?
-          %span.badge.bg-secondary.ms-1 built-in
+          = badge_tag(:neutral, 'built-in', klass: 'ms-1')
       %td= group.description
       %td= group.member_count
       %td= group.permission_count

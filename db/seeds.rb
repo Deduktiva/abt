@@ -226,13 +226,13 @@ if Rails.env.development?
     project.team = default_team
   end
 
-  Project.find_or_create_by(matchcode: 'MAINT') do |project|
+  maint_project = Project.find_or_create_by(matchcode: 'MAINT') do |project|
     project.description = 'System Maintenance & Support'
     project.bill_to_customer = nil  # Reusable project
     project.team = default_team
   end
 
-  Project.find_or_create_by(matchcode: 'RESEARCH') do |project|
+  research_project = Project.find_or_create_by(matchcode: 'RESEARCH') do |project|
     project.description = 'R&D and Technology Research'
     project.bill_to_customer = nil  # Reusable project
     project.team = default_team
@@ -974,6 +974,157 @@ if Rails.env.development?
       accepted_at: 2.weeks.ago,
       order_number: 'PO-GOODEU-3391',
       ordered_on: 2.weeks.ago.to_date
+    )
+  end
+
+  # One offer per remaining lifecycle state, so the offers list under the "all"
+  # filter shows every status badge. Built directly rather than through
+  # OfferSender, which would render a PDF on every seed run.
+  send_offer = lambda do |customer:, project:, reference:, subject:, sent_on:, milestones:|
+    offer = Offer.create!(customer: customer, project: project, internal_reference: reference)
+
+    version = offer.draft_version
+    version.update!(
+      subject: subject,
+      prelude: "Thank you for the opportunity to quote on #{subject.downcase}. The proposal below breaks the work into billable milestones.",
+      delivery_date: sent_on + 8.weeks,
+      date: sent_on,
+      sent_at: sent_on.noon,
+      customer_name: customer.name,
+      customer_address: customer.address,
+      customer_country_iso2: customer.country_iso2,
+      payment_terms_days: customer.payment_terms_days
+    )
+    milestones.each_with_index do |(title, description, amount), index|
+      version.milestones.create!(
+        position: index + 1, title: title, description: description,
+        trigger: index.zero? ? 'on_order' : 'on_acceptance', amount: amount
+      )
+    end
+
+    offer.update!(
+      state: 'sent', date: sent_on, sent_at: sent_on.noon,
+      expires_at: sent_on + offer.validity_days,
+      document_number: DocumentNumber.get_next_for('offer', sent_on)
+    )
+    offer
+  end
+
+  accept_offer = lambda do |offer, ordered_on:, order_number:|
+    offer.update!(
+      state: 'accepted',
+      accepted_version: offer.current_sent_version,
+      accepted_at: ordered_on.noon,
+      order_number: order_number,
+      ordered_on: ordered_on
+    )
+    offer
+  end
+
+  # Converts every milestone the way the Convert action does, then books the
+  # resulting invoices. Publishing runs no InvoicePublisher: it would render a
+  # PDF per invoice, and the badge only reads published? and paid?. The
+  # converter dates its invoice today, so the date is restated here to keep
+  # due_date and paid_at in a sane order.
+  book_milestone_invoices = lambda do |offer, invoiced_on:, paid_on: nil|
+    offer.accepted_version.milestones.each do |milestone|
+      invoice = OfferMilestoneConverter.new(milestone).convert!
+      invoice.date = invoiced_on
+      invoice.published = true
+      invoice.document_number = DocumentNumber.get_next_for('invoice', invoiced_on)
+      invoice.due_date = invoiced_on + 30
+      invoice.paid_at = paid_on if paid_on
+      invoice.save!
+    end
+  end
+
+  # DocumentNumber refuses a date older than the last one it issued, so these
+  # run oldest-sent first and all sit after the accepted offer seeded above.
+
+  # Paid — the terminal state, every milestone invoiced and settled.
+  unless Offer.exists?(customer: good_company, project: training_project)
+    paid_offer = send_offer.call(
+      customer: good_company, project: training_project,
+      reference: 'RFQ-2025-095', subject: 'Developer Training Programme',
+      sent_on: 20.days.ago.to_date,
+      milestones: [
+        [ 'Curriculum Design', 'Course outline and exercise material.', 4000.00 ],
+        [ 'Delivery, two cohorts', 'Two week-long on-site training blocks.', 16000.00 ]
+      ]
+    )
+    accept_offer.call(paid_offer, ordered_on: 18.days.ago.to_date, order_number: 'PO-GOODEU-3402')
+    book_milestone_invoices.call(paid_offer, invoiced_on: 15.days.ago.to_date, paid_on: 5.days.ago)
+  end
+
+  # Failed — ordered, then the work fell through after acceptance.
+  unless Offer.exists?(customer: local_company, project: maint_project)
+    failed_offer = send_offer.call(
+      customer: local_company, project: maint_project,
+      reference: 'RFQ-2025-072', subject: 'Support Retainer 2026',
+      sent_on: 19.days.ago.to_date,
+      milestones: [
+        [ 'Onboarding', 'Handover of runbooks and monitoring access.', 3000.00 ],
+        [ 'Retainer, first quarter', 'Ongoing support and incident response.', 12000.00 ]
+      ]
+    )
+    accept_offer.call(failed_offer, ordered_on: 16.days.ago.to_date, order_number: 'PO-LOCALNAT-5510')
+    failed_offer.update!(state: 'failed', failed_at: 4.days.ago)
+  end
+
+  # Expired — validity ran out, but it is still editable and still sendable,
+  # which is why its badge is a warning rather than a dead end.
+  unless Offer.exists?(customer: good_company, project: webapp_project)
+    expired_offer = send_offer.call(
+      customer: good_company, project: webapp_project,
+      reference: 'RFQ-2025-088', subject: 'Customer Portal Rebuild',
+      sent_on: 18.days.ago.to_date,
+      milestones: [
+        [ 'Design & Prototype', 'Wireframes, visual design, and a clickable prototype.', 9000.00 ],
+        [ 'Build & Launch', 'Implementation, QA, and production launch.', 24000.00 ]
+      ]
+    )
+    expired_offer.update!(state: 'expired', expires_at: 4.days.ago.to_date)
+  end
+
+  # Invoiced — every milestone converted and booked, none paid yet.
+  unless Offer.exists?(customer: export_company, project: research_project)
+    invoiced_offer = send_offer.call(
+      customer: export_company, project: research_project,
+      reference: 'RFQ-2026-011', subject: 'ML Feasibility Study',
+      sent_on: 16.days.ago.to_date,
+      milestones: [
+        [ 'Data Assessment', 'Review of available data and labelling quality.', 6500.00 ],
+        [ 'Prototype & Findings', 'Baseline model plus a written feasibility verdict.', 13500.00 ]
+      ]
+    )
+    accept_offer.call(invoiced_offer, ordered_on: 13.days.ago.to_date, order_number: 'PO-USACORP-8842')
+    book_milestone_invoices.call(invoiced_offer, invoiced_on: 10.days.ago.to_date)
+  end
+
+  # Rejected — a dead end, nothing left to chase.
+  unless Offer.exists?(customer: export_company, project: api_project)
+    rejected_offer = send_offer.call(
+      customer: export_company, project: api_project,
+      reference: 'RFQ-2026-004', subject: 'Partner API Integration',
+      sent_on: 13.days.ago.to_date,
+      milestones: [
+        [ 'API Specification', 'Endpoint design and authentication model.', 4500.00 ],
+        [ 'Implementation', 'Build, test, and document the integration.', 15500.00 ]
+      ]
+    )
+    rejected_offer.update!(state: 'rejected', rejected_at: 6.days.ago)
+  end
+
+  # Sent — waiting on the customer, nothing for us to do yet.
+  unless Offer.exists?(customer: local_company, project: consulting_project)
+    send_offer.call(
+      customer: local_company, project: consulting_project,
+      reference: 'RFQ-2026-021', subject: 'Infrastructure Review 2026',
+      sent_on: 9.days.ago.to_date,
+      milestones: [
+        [ 'Discovery', 'Inventory of servers, networking, and backup coverage.', 2500.00 ],
+        [ 'Review & Recommendations', 'Written assessment with a prioritized action list.', 7500.00 ]
+      ]
     )
   end
 

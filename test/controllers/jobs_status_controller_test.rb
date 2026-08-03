@@ -37,8 +37,8 @@ class JobsStatusControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "td", text: "worker-fresh"
     assert_select "td", text: "worker-stale"
-    assert_select ".badge.bg-success", text: "Alive"
-    assert_select ".badge.bg-danger", text: "Stale"
+    assert_select ".badge", text: "Alive"
+    assert_select ".badge", text: "Stale"
   end
 
   test "shows recurring tasks with class and command entries" do

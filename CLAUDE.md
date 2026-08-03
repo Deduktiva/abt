@@ -160,10 +160,11 @@ UI helpers live in `app/helpers/`, one module per concern:
 
 - `application_helper.rb` — page chrome only: `breadcrumbs`, `page_header`, `page_header_flash`, plus the app-wide `can?`, `app_version`, `rich_text_field`.
 - `action_buttons_helper.rb` — per-verb wrappers (`delete_button`, `pdf_button`, `preview_button`, `publish_button`, `unpublish_button`, `unblock_button`, `reset_passkeys_button`, `audit_log_button`, `save_button`, `nav_button`) and the generic building blocks they share (`action_button`, `list_action_link`, `destroy_link`, `action_buttons_wrapper`, `icon_label`).
+- `badges_helper.rb` — `badge_tag(level, text, klass:)` and `status_badge_tag(badge)`, plus the `BADGE_LEVELS` table mapping a semantic level to its Bootstrap class. Every status badge in the app goes through these; see `docs/code-style.md` for the level vocabulary.
 - `icons_helper.rb` (`nav_icon`, `action_icon`), `navigation_helper.rb`, `currency_helper.rb`, `countries_helper.rb`, `email_preview_helper.rb`.
-- Per-resource files named after their controller: `invoices_helper.rb`, `delivery_notes_helper.rb`.
+- Per-resource files named after their controller, when a helper genuinely serves one resource only.
 
-Rails mixes every helper into every view, so helper names share one global namespace: a method that only serves one resource carries that resource as a prefix (`invoice_payment_status_badge_tag`, `delivery_note_status_badge_tag`). New domain helpers go in their own file, not into `application_helper.rb`. Read the source for signatures.
+Rails mixes every helper into every view, so helper names share one global namespace: a method that only serves one resource carries that resource as a prefix (`invoice_payment_status_badge_tag` was one, before the badge helpers were unified). New domain helpers go in their own file, not into `application_helper.rb`. Read the source for signatures.
 
 ## Claude Operational Notes
 

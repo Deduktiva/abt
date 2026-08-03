@@ -15,9 +15,9 @@
     - if resource.email_sent_at
       Sent #{l(resource.email_sent_at)}
     - elsif resource.emailable?
-      %span.badge.bg-warning Unsent
+      = badge_tag(:warning, 'Unsent')
     - else
-      %span.badge.bg-secondary No Recipient
+      = badge_tag(:neutral, 'No Recipient')
     - if can_edit && show_send_button
       - if resource.emailable?
         %button.btn.btn-sm.btn-warning.ms-auto{data: {action: 'click->generic-email-preview#open'}}

@@ -4,23 +4,23 @@
     .col-md-2= mail_to contact.email
     .col-md-1.text-center
       - if contact.receives_invoice_emails?
-        %span.badge.bg-success Invoice
+        = badge_tag(:success, 'Invoice')
       - else
         %span.text-muted —
     .col-md-1.text-center
       - if contact.receives_delivery_note_emails?
-        %span.badge.bg-success Del.Note
+        = badge_tag(:success, 'Del.Note')
       - else
         %span.text-muted —
     .col-md-1.text-center
       - if contact.receives_offer_emails?
-        %span.badge.bg-success Offer
+        = badge_tag(:success, 'Offer')
       - else
         %span.text-muted —
     .col-md-3
       - if contact.projects.any?
         - contact.projects.each do |p|
-          %span.badge.bg-secondary.me-1= p.matchcode
+          = badge_tag(:neutral, p.matchcode, klass: 'me-1')
       - else
         %span.text-muted All projects
     .col-md-2.text-end

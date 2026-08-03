@@ -19,5 +19,5 @@
         %td= user.full_name
         %td
           - if user.blocked?
-            %span.badge.bg-danger Blocked
+            = badge_tag(:danger, 'Blocked')
         %td= l(user.created_at)

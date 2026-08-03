@@ -95,17 +95,21 @@ class Invoice < ApplicationRecord
     self.published? && !self.paid? && self.due_date.present? && self.due_date < Date.current
   end
 
-  # [label, bootstrap background class] for the payment column, or nil when
-  # there is nothing to warn about (draft, or already paid — each view renders
-  # the paid state its own way). Date - Date is whole days, so the day counter
-  # is exact in both directions.
+  # { level:, text: } for the payment column, or nil when there is nothing to
+  # warn about (draft, or already paid — each view renders the paid state its
+  # own way). Date - Date is whole days, so the day counter is exact in both
+  # directions.
   def payment_status_badge
     return nil unless published?
     return nil if paid?
-    return [ "Unpaid", "bg-warning" ] if due_date.blank?
+    return { level: :warning, text: "Unpaid" } if due_date.blank?
 
     days = (due_date - Date.current).to_i
-    days.negative? ? [ "Overdue, #{-days}d", "bg-danger" ] : [ "Unpaid, #{days}d", "bg-warning" ]
+    if days.negative?
+      { level: :danger, text: "Overdue, #{-days}d" }
+    else
+      { level: :warning, text: "Unpaid, #{days}d" }
+    end
   end
 
   def publish_problems

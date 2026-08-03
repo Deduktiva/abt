@@ -151,7 +151,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     @customer.update!(active: false)
     get customer_url(@customer)
     assert_response :success
-    assert_select ".badge.bg-secondary", text: "Inactive"
+    assert_select ".badge", text: "Inactive"
   end
 
   test "should allow updating customer active status" do

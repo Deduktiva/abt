@@ -6,19 +6,19 @@
 - delete_action = delete_button(@invoice, confirm: "Are you sure you want to delete invoice \"#{@invoice.display_label}\"?") if !@invoice.published? && can_edit_invoice && !@invoice.offer_milestone
 = breadcrumbs ['Invoices', invoices_path], @invoice.display_label, actions: [pdf_or_preview, delete_action], action: edit_action do
   - if !@invoice.published?
-    %span.badge.bg-warning Draft
+    = badge_tag(:info, 'Draft')
   - else
     - sent = @invoice.email_sent_at.present?
     - paid = @invoice.paid?
     - overdue = @invoice.overdue?
     - unless sent || paid || overdue
-      %span.badge.bg-success Booked
+      = badge_tag(:success, 'Booked')
     - if paid
-      %span.badge.bg-success Paid
+      = badge_tag(:success, 'Paid')
     - elsif overdue
-      %span.badge.bg-danger Overdue
+      = badge_tag(:danger, 'Overdue')
     - if sent
-      %span.badge.bg-success Sent
+      = badge_tag(:success, 'Sent')
 
 -# Single generic-email-preview controller scope so the modal can be rendered
 -# once at the bottom and serve every trigger site on the page.
@@ -99,9 +99,9 @@
                   %strong Publish Status:
                 .col-sm-8.d-flex.align-items-center.gap-2
                   - if problems.any?
-                    %span.badge.bg-warning= pluralize(problems.size, 'problem')
+                    = badge_tag(:warning, pluralize(problems.size, 'problem'))
                   - else
-                    %span.badge.bg-success Ready
+                    = badge_tag(:success, 'Ready')
                   - if can_edit_invoice
                     - if problems.any?
                       %span.ms-auto{title: problems.join("\n")}
@@ -119,7 +119,7 @@
                   - if @invoice.paid?
                     Paid #{l(@invoice.paid_at.to_date)}
                   - else
-                    = invoice_payment_status_badge_tag(@invoice)
+                    = status_badge_tag(@invoice.payment_status_badge)
                   - if can_edit_invoice
                     - if @invoice.paid?
                       -# button_to wraps the button in a form; the form is the flex

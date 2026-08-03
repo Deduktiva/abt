@@ -143,16 +143,16 @@ class Offer < ApplicationRecord
   def status_badge
     if accepted?
       case accepted_invoicing_status
-      when :paid then [ "Paid", "bg-success" ]
-      when :invoiced then [ "Invoiced", "bg-info text-dark" ]
-      else [ "Ordered", "bg-primary" ]
+      when :paid then { level: :success, text: "Paid" }
+      when :invoiced then { level: :active, text: "Invoiced" }
+      else { level: :active, text: "Ordered" }
       end
     else
-      { "draft" => [ "Draft", "bg-secondary" ],
-        "sent" => [ "Sent", "bg-warning text-dark" ],
-        "rejected" => [ "Rejected", "bg-secondary" ],
-        "expired" => [ "Expired", "bg-warning text-dark" ],
-        "failed" => [ "Failed", "bg-secondary" ] }.fetch(state)
+      { "draft" => { level: :info, text: "Draft" },
+        "sent" => { level: :active, text: "Sent" },
+        "rejected" => { level: :neutral, text: "Rejected" },
+        "expired" => { level: :warning, text: "Expired" },
+        "failed" => { level: :neutral, text: "Failed" } }.fetch(state)
     end
   end
 

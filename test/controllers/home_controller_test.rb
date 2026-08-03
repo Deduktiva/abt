@@ -10,6 +10,13 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-body .text-primary", text: /\d+/
   end
 
+  test "should render the dashboard when the business address is blank" do
+    businesses(:one).update!(address: nil)
+
+    get root_url
+    assert_response :success
+  end
+
   test "should display setup warning when not configured" do
     # Clear existing tax configuration. Offers must go first: OfferVersion has
     # a DB-level foreign key to sales_tax_product_classes (unlike invoice

@@ -40,7 +40,7 @@
           .col-sm-4
             %strong Address:
           .col-sm-8
-            - @business.address.split("\n").each do |line|
+            - @business.address.to_s.split("\n").each do |line|
               %div= line
 
         .row.mb-2

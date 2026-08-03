@@ -158,6 +158,15 @@ class BusinessesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Offer footer", @business.offer_footer
   end
 
+  test "update on an empty table raises instead of inserting an invisible business" do
+    Business.delete_all
+
+    patch business_url, params: { business: { short_name: "Fresh", legal_name: "Fresh Install GmbH" } }
+
+    assert_response :not_found
+    assert_equal 0, Business.count
+  end
+
   test "should preserve whitespace in contact lines on show page" do
     # Update the fixture to have explicit whitespace
     @business.update!(

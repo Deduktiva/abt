@@ -1,12 +1,9 @@
-# Turning a document into follow-on billing documents must happen at most once:
-# a double-clicked "Convert" button fires two requests that both read the
-# not-yet-converted state and both create documents. #convert! reloads the
-# source record under a row lock and runs the guards plus the writes in one
-# transaction, so concurrent converts serialize and the loser sees the
-# converted state and raises NotConvertible instead of double-billing.
-#
-# Includers supply #conversion_source (the record to lock) and #convert_locked!
-# (guards plus writes).
+# Serializes conversion into billing documents: #convert! reloads the source row
+# under a lock, so a double-clicked "Convert" hits the converted state instead of
+# double-billing. Includers supply #conversion_source (the row to lock) and
+# #convert_locked! (guards plus writes), raise their own NotConvertible subclass
+# so callers can tell converters apart, and — since only the source row is
+# reloaded — re-read anything else their guards consult.
 module LockedConversion
   class NotConvertible < StandardError; end
 

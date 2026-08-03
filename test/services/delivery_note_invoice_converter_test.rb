@@ -1,6 +1,18 @@
 require "test_helper"
 
 class DeliveryNoteInvoiceConverterTest < ActiveSupport::TestCase
+  test "a delivery note unpublished behind our back cannot convert" do
+    note = delivery_notes(:published_delivery_note)
+    stale = DeliveryNote.find(note.id)
+    note.update!(published: false)
+
+    assert_no_difference("Invoice.count") do
+      assert_raises(DeliveryNoteInvoiceConverter::NotConvertible) do
+        DeliveryNoteInvoiceConverter.new(stale).convert!
+      end
+    end
+  end
+
   test "a delivery note converted behind our back cannot convert again" do
     note = delivery_notes(:published_delivery_note)
     stale = DeliveryNote.find(note.id)

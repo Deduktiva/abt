@@ -1,6 +1,8 @@
 class DeliveryNoteInvoiceConverter
   include LockedConversion
 
+  class NotConvertible < LockedConversion::NotConvertible; end
+
   def initialize(delivery_note)
     @delivery_note = delivery_note
   end
@@ -9,8 +11,12 @@ class DeliveryNoteInvoiceConverter
 
   def conversion_source = @delivery_note
 
+  # The controller's require_published ran before the lock, so re-check it here:
+  # an unpublish that commits in between must not leave a draft note owning a
+  # billing invoice. Messages are user-facing — the controller shows them.
   def convert_locked!
-    raise NotConvertible, "delivery note already converted" if @delivery_note.invoice_id.present?
+    raise NotConvertible, "Draft delivery notes can not be used for this action." unless @delivery_note.published?
+    raise NotConvertible, "This delivery note has already been converted to an invoice." if @delivery_note.invoice_id.present?
 
     invoice = Invoice.new(customer: @delivery_note.customer, project: @delivery_note.project,
                           cust_reference: @delivery_note.cust_reference,
@@ -50,7 +56,7 @@ class DeliveryNoteInvoiceConverter
     }
 
     if line.type == "item"
-      attrs[:quantity] = (line.quantity&.to_f || 1.0).to_f
+      attrs[:quantity] = (line.quantity || 1).to_f
       # Leave the rate blank: delivery notes carry no prices, and a blank rate
       # blocks publishing until the user enters a real price.
       attrs[:sales_tax_product_class_id] = default_product_class_id

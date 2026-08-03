@@ -69,12 +69,38 @@ module EmailableDocument
     end
   end
 
+  # How long a queued-but-not-yet-delivered document stays claimed. Mailer jobs
+  # carry no retry_on, so a raising delivery fails for good on the first try;
+  # once the window passes the document is offered for sending again rather
+  # than sitting there looking sent.
+  EMAIL_CLAIM_WINDOW = 10.minutes
+
+  # Claims documents for the mail queue and returns the ones actually claimed.
+  # email_sent_at is stamped by the mailer once delivery succeeds (#345), so
+  # filtering on it alone lets two submissions of the bulk form arriving before
+  # that job runs both queue the same document — the customer gets it twice.
+  # The conditional UPDATE (UserInvite#consume! pattern) hands each document to
+  # exactly one submission, and claims a document whose earlier send never
+  # landed once EMAIL_CLAIM_WINDOW has passed.
+  def claim_for_email(documents)
+    stale = EMAIL_CLAIM_WINDOW.ago
+    documents.select do |document|
+      document.class
+        .where(id: document.id, email_sent_at: nil)
+        .where("email_queued_at IS NULL OR email_queued_at < ?", stale)
+        .update_all(email_queued_at: Time.current) == 1
+    end
+  end
+
   # Shared scaffolding for the bulk "email the selected published documents"
   # action: parse the checkbox ids, guard an empty selection, load the
   # visible, published, not-yet-emailed scope, and build the queued/skipped
   # notice. The block
   # receives that scope and returns [queued, skipped]; how each document type
   # groups recipients and delivers differs, so that stays in the host.
+  # Whatever the block reports as neither queued nor skipped was already sent
+  # or is still claimed by a recent send — say so rather than reporting a bare
+  # "0 emails queued".
   def bulk_send_document_emails(model, ids_param:, redirect_path:, noun:)
     ids = (params[ids_param] || []).reject(&:blank?)
     if ids.empty?
@@ -84,9 +110,11 @@ module EmailableDocument
 
     scope = model.visible_to(current_user).where(id: ids, published: true, email_sent_at: nil)
     queued, skipped = yield(scope)
+    unavailable = ids.length - queued - skipped
 
     notice = "#{queued} emails queued for sending."
     notice += " #{skipped} skipped (no recipients)." if skipped > 0
+    notice += " #{unavailable} skipped (already sent or queued)." if unavailable > 0
     redirect_to redirect_path, notice: notice
   end
 end

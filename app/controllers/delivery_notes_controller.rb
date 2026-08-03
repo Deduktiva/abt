@@ -223,17 +223,20 @@ class DeliveryNotesController < ApplicationController
           next
         end
 
-        if dns.length == 1
-          token = acceptance_token_for(dns.first)
-          DeliveryNoteMailer.with(delivery_note: dns.first, acceptance_token: token).customer_email.deliver_later
+        claimed = claim_for_email(dns)
+        next if claimed.empty?
+
+        if claimed.length == 1
+          token = acceptance_token_for(claimed.first)
+          DeliveryNoteMailer.with(delivery_note: claimed.first, acceptance_token: token).customer_email.deliver_later
         else
-          acceptance_tokens = dns.each_with_object({}) do |dn, tokens|
+          acceptance_tokens = claimed.each_with_object({}) do |dn, tokens|
             token = acceptance_token_for(dn)
             tokens[dn.id.to_s] = token if token
           end
-          DeliveryNoteMailer.with(delivery_notes: dns, recipients: recipients, acceptance_tokens: acceptance_tokens).bulk_customer_email.deliver_later
+          DeliveryNoteMailer.with(delivery_notes: claimed, recipients: recipients, acceptance_tokens: acceptance_tokens).bulk_customer_email.deliver_later
         end
-        queued += dns.length
+        queued += claimed.length
       end
 
       [ queued, skipped ]

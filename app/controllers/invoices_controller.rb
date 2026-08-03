@@ -147,16 +147,10 @@ class InvoicesController < ApplicationController
 
   def bulk_send_emails
     bulk_send_document_emails(Invoice, ids_param: :invoice_ids, redirect_path: invoices_path, noun: "invoices") do |invoices|
-      queued = skipped = 0
-      invoices.each do |invoice|
-        if invoice.emailable?
-          InvoiceMailer.with(invoice: invoice).customer_email.deliver_later
-          queued += 1
-        else
-          skipped += 1
-        end
-      end
-      [ queued, skipped ]
+      sendable, skipped = invoices.partition(&:emailable?)
+      claimed = claim_for_email(sendable)
+      claimed.each { |invoice| InvoiceMailer.with(invoice: invoice).customer_email.deliver_later }
+      [ claimed.length, skipped.length ]
     end
   end
 

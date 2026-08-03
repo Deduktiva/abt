@@ -104,9 +104,11 @@ class InvoicesController < ApplicationController
     pdf = nil
 
     ActiveRecord::Base.transaction(requires_new: true) do
-      @invoice.document_number = "DRAFT"
       publisher.prepare!
       problems = @invoice.publish_problems
+      # After prepare!'s save: document_number is UNIQUE, and persisting the
+      # sentinel would block every other preview until this render finishes.
+      @invoice.document_number = "DRAFT"
       pdf = InvoiceRenderer.new(@invoice, issuer).render if problems.empty?
       raise ActiveRecord::Rollback, "preview only"
     end

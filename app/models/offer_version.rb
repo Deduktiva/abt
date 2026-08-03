@@ -25,7 +25,7 @@ class OfferVersion < ApplicationRecord
   # when a milestone is touched afterwards (conversion, reopen).
   def recalculate_sum_net!
     return if frozen?
-    update_column(:sum_net, milestones.reload.sum(:amount))
+    update_columns(sum_net: milestones.sum(:amount), updated_at: Time.current)
   end
 
   # Copies customer-facing content into a new draft version. Frozen

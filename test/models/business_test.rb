@@ -44,11 +44,22 @@ class BusinessTest < ActiveSupport::TestCase
     end
   end
 
-  test "reporting_email is required" do
-    company = businesses(:one)
-    company.reporting_email = ""
-    assert_not company.valid?
-    assert_includes company.errors[:reporting_email], "can't be blank"
+  test "reporting_email and document_email_from are required" do
+    [ :reporting_email, :document_email_from ].each do |field|
+      company = businesses(:one)
+      company.assign_attributes(field => "")
+      assert_not company.valid?, "expected blank #{field} to be invalid"
+      assert_includes company.errors[field], "can't be blank"
+    end
+  end
+
+  test "the database rejects blank sender and reporting addresses when validations are bypassed" do
+    [ :reporting_email, :document_email_from ].each do |field|
+      error = assert_raises(ActiveRecord::StatementInvalid) do
+        Business.transaction(requires_new: true) { businesses(:one).update_column(field, "  ") }
+      end
+      assert_match "businesses_#{field}_not_blank", error.message
+    end
   end
 
   test "valid email values are accepted on all three email fields" do
@@ -76,10 +87,6 @@ class BusinessTest < ActiveSupport::TestCase
   test "get_the_issuer! returns nil when no active issuer exists" do
     businesses(:one).update!(active: false)
     assert_nil Business.get_the_issuer!
-  end
-
-  test "reporting_email backfills from document_email_auto_bcc on existing fixture rows" do
-    assert_equal businesses(:one).document_email_auto_bcc, businesses(:one).reporting_email
   end
 
   test "website_url must be http(s) when present" do

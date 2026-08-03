@@ -21,7 +21,10 @@ class OfferVersion < ApplicationRecord
     sent_at.present?
   end
 
+  # A sent version is the quote the customer holds, so its sum stays put even
+  # when a milestone is touched afterwards (conversion, reopen).
   def recalculate_sum_net!
+    return if frozen?
     update_column(:sum_net, milestones.reload.sum(:amount))
   end
 

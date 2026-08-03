@@ -5,20 +5,8 @@
 - pdf_or_preview = @invoice.attachment ? pdf_button(@invoice.attachment) : preview_button(preview_invoice_path(@invoice))
 - delete_action = delete_button(@invoice, confirm: "Are you sure you want to delete invoice \"#{@invoice.display_label}\"?") if !@invoice.published? && can_edit_invoice && !@invoice.offer_milestone
 = breadcrumbs ['Invoices', invoices_path], @invoice.display_label, actions: [pdf_or_preview, delete_action], action: edit_action do
-  - if !@invoice.published?
-    = badge_tag(:info, 'Draft')
-  - else
-    - sent = @invoice.email_sent_at.present?
-    - paid = @invoice.paid?
-    - overdue = @invoice.overdue?
-    - unless sent || paid || overdue
-      = badge_tag(:success, 'Booked')
-    - if paid
-      = badge_tag(:success, 'Paid')
-    - elsif overdue
-      = badge_tag(:danger, 'Overdue')
-    - if sent
-      = badge_tag(:success, 'Sent')
+  - @invoice.status_badges.each do |badge|
+    = status_badge_tag(badge)
 
 -# Single generic-email-preview controller scope so the modal can be rendered
 -# once at the bottom and serve every trigger site on the page.

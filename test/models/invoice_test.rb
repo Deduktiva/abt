@@ -67,6 +67,26 @@ class InvoiceTest < ActiveSupport::TestCase
     assert_not invoice.overdue?
   end
 
+  test "status_badges drops Booked once a later state supersedes it and stacks Sent" do
+    booked = { level: :success, text: "Booked" }
+    paid = { level: :success, text: "Paid" }
+    overdue = { level: :danger, text: "Overdue" }
+    sent = { level: :success, text: "Sent" }
+    past = 3.days.ago.to_date
+
+    cases = {
+      Invoice.new(published: false) => [ { level: :info, text: "Draft" } ],
+      Invoice.new(published: true) => [ booked ],
+      Invoice.new(published: true, paid_at: Time.current) => [ paid ],
+      Invoice.new(published: true, due_date: past) => [ overdue ],
+      Invoice.new(published: true, email_sent_at: Time.current) => [ sent ],
+      Invoice.new(published: true, paid_at: Time.current, email_sent_at: Time.current) => [ paid, sent ],
+      Invoice.new(published: true, due_date: past, email_sent_at: Time.current) => [ overdue, sent ]
+    }
+
+    cases.each { |invoice, expected| assert_equal expected, invoice.status_badges }
+  end
+
   test "payment_status_badge counts the days to or past the due date" do
     cases = {
       Invoice.new(published: true, due_date: 6.days.from_now.to_date) => { level: :warning, text: "Unpaid, 6d" },

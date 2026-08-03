@@ -76,7 +76,9 @@ class Invoice < ApplicationRecord
   has_many :invoice_lines, -> { order(:position, :id) }, dependent: :delete_all, after_add: :line_addedremoved, after_remove: :line_addedremoved
   accepts_nested_attributes_for :invoice_lines, allow_destroy: true, reject_if: :all_blank
 
-  has_many :invoice_tax_classes, dependent: :delete_all
+  # autosave so update_sums can leave the recalculated tax classes dirty and let
+  # the parent's save persist them — inside its transaction, after validation.
+  has_many :invoice_tax_classes, autosave: true, dependent: :delete_all
 
   before_save :update_customer
   before_save :update_sums
@@ -224,7 +226,6 @@ private
 
           current_net = itc.net || 0
           itc.net = current_net + line.amount
-          itc.save! # Save immediately to ensure persistence
         end
       end
     end
@@ -292,9 +293,6 @@ private
         itc.rate = cst.rate
         itc.net = 0
         itc.total = 0
-        # Only persist when the parent is already saved; otherwise the parent's
-        # autosave will write this record (with the correct FK) when it saves.
-        itc.save if itc.persisted?
       else
         # build (not <<) attaches the record to the invoice before net= runs.
         itc = self.invoice_tax_classes.build(

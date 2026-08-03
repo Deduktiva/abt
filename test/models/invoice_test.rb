@@ -160,6 +160,14 @@ class InvoiceTest < ActiveSupport::TestCase
     assert_in_delta 3600.0, invoice.sum_total, 0.0001
   end
 
+  test "building a line does not write tax classes before the invoice is saved" do
+    invoice = license_invoice_with_tax_config
+    itc = invoice.invoice_tax_classes.first
+    invoice.invoice_lines.build(type: "item", title: "New", quantity: 1, rate: 500,
+                                sales_tax_product_class: sales_tax_product_classes(:standard))
+    assert_equal 18000, itc.reload.net
+  end
+
   test "update_sums skips a published invoice" do
     invoice = invoices(:published_invoice)
     invoice.update_columns(sum_net: 999.99, sum_total: 1234.56)

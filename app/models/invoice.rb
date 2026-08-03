@@ -95,6 +95,24 @@ class Invoice < ApplicationRecord
     self.published? && !self.paid? && self.due_date.present? && self.due_date < Date.current
   end
 
+  # Every { level:, text: } the show-page header carries, in render order.
+  # "Booked" means published and nothing more, so it drops as soon as a later
+  # state supersedes it; "Sent" stacks, since email and payment are independent.
+  def status_badges
+    return [ { level: :info, text: "Draft" } ] unless published?
+
+    sent = email_sent_at.present?
+    badges = []
+    badges << { level: :success, text: "Booked" } unless sent || paid? || overdue?
+    if paid?
+      badges << { level: :success, text: "Paid" }
+    elsif overdue?
+      badges << { level: :danger, text: "Overdue" }
+    end
+    badges << { level: :success, text: "Sent" } if sent
+    badges
+  end
+
   # { level:, text: } for the payment column, or nil when there is nothing to
   # warn about (draft, or already paid — each view renders the paid state its
   # own way). Date - Date is whole days, so the day counter is exact in both

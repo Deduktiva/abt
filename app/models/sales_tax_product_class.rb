@@ -27,9 +27,8 @@ class SalesTaxProductClass < ApplicationRecord
     "Cannot delete product tax class that is used in #{blocker}"
   end
 
-  # Every association is checked because only offer_versions has a database
-  # foreign key; nothing else would stop a delete from leaving dangling
-  # references on published invoices.
+  # Every association now has a database foreign key behind it. This check
+  # stays so the user gets a named reason instead of an InvalidForeignKey.
   def deletion_blocker
     return "tax rates" if sales_tax_rates.exists?
     return "products" if products.exists?

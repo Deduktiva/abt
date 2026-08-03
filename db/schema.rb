@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_03_213704) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_03_215407) do
   create_table "acceptance_submissions", force: :cascade do |t|
     t.integer "attachment_id"
     t.datetime "created_at", null: false
@@ -291,7 +291,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_213704) do
     t.string "name"
     t.decimal "net"
     t.decimal "rate"
-    t.integer "sales_tax_product_class_id"
+    t.integer "sales_tax_product_class_id", null: false
     t.decimal "total"
     t.datetime "updated_at", null: false
     t.decimal "value"
@@ -327,9 +327,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_213704) do
     t.string "token"
     t.datetime "updated_at", null: false
     t.index ["attachment_id"], name: "index_invoices_on_attachment_id"
+    t.index ["customer_id"], name: "index_invoices_on_customer_id"
     t.index ["date"], name: "index_invoices_on_date"
     t.index ["document_number"], name: "index_invoices_on_document_number", unique: true
     t.index ["paid_at"], name: "index_invoices_on_paid_at"
+    t.index ["project_id"], name: "index_invoices_on_project_id"
     t.index ["published", "date"], name: "index_invoices_on_published_and_date"
     t.index ["published"], name: "index_invoices_on_published"
   end
@@ -406,6 +408,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_213704) do
     t.datetime "sent_at"
     t.string "state", default: "draft", null: false
     t.datetime "updated_at", null: false
+    t.index ["accepted_version_id"], name: "index_offers_on_accepted_version_id"
     t.index ["customer_contact_id"], name: "index_offers_on_customer_contact_id"
     t.index ["customer_id"], name: "index_offers_on_customer_id"
     t.index ["date"], name: "index_offers_on_date"

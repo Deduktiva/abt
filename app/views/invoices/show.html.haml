@@ -118,10 +118,8 @@
                 .col-sm-8.d-flex.align-items-center.gap-2{data: {controller: 'modal'}}
                   - if @invoice.paid?
                     Paid #{l(@invoice.paid_at.to_date)}
-                  - elsif @invoice.overdue?
-                    %span.badge.bg-danger Overdue
                   - else
-                    %span.badge.bg-warning Unpaid
+                    = invoice_payment_status_badge_tag(@invoice)
                   - if can_edit_invoice
                     - if @invoice.paid?
                       -# button_to wraps the button in a form; the form is the flex

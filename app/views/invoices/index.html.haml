@@ -97,10 +97,8 @@
             - if invoice.published?
               - if invoice.paid?
                 = l(invoice.paid_at.to_date)
-              - elsif invoice.overdue?
-                %span.badge.bg-danger Overdue
               - else
-                %span.badge.bg-warning Unpaid
+                = invoice_payment_status_badge_tag(invoice)
           %td.numeric= format_currency(invoice.sum_net)
           %td
             - if invoice.published? and not invoice.attachment.nil?

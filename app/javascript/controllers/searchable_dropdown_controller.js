@@ -264,13 +264,31 @@ export default class extends Controller {
   }
 
   updateSelectDisplay(item) {
+    this.renderSelection(item.name, item.subtext)
+  }
+
+  // Build the display as DOM nodes. Name and subtext are read back out of the
+  // option markup through textContent, which undoes the server's escaping, so
+  // interpolating them into innerHTML re-parses a customer named
+  // "<img onerror=...>" as markup. Pass a Node as subtext to keep the option's
+  // own subtext markup (matchcode plus any icons).
+  renderSelection(name, subtext) {
     const display = this.selectTarget.querySelector('.select-display')
-    if (display) {
-      display.innerHTML = `
-        <div class="fw-normal">${item.name}</div>
-        <div class="small text-muted">${item.subtext}</div>
-      `
+    if (!display) return
+
+    const nameElement = document.createElement('div')
+    nameElement.className = 'fw-normal'
+    nameElement.textContent = name
+
+    const subtextElement = document.createElement('div')
+    subtextElement.className = 'small text-muted'
+    if (subtext instanceof Node) {
+      subtextElement.append(...subtext.cloneNode(true).childNodes)
+    } else {
+      subtextElement.textContent = subtext || ''
     }
+
+    display.replaceChildren(nameElement, subtextElement)
   }
 
   validateCurrentItem() {
@@ -455,19 +473,10 @@ export default class extends Controller {
         const selectedOption = this.dropdownTarget.querySelector(`[data-item-id="${this.currentItemIdValue}"]`)
 
         if (selectedOption) {
-          const name = selectedOption.querySelector('.fw-normal').textContent
-          const subtextElement = selectedOption.querySelector('.small')
-
-          let subtextHTML = ''
-          if (subtextElement) {
-            // Preserve the entire structure of the subtext, including any icons or additional elements
-            subtextHTML = subtextElement.innerHTML
-          }
-
-          display.innerHTML = `
-            <div class="fw-normal">${name}</div>
-            <div class="small text-muted">${subtextHTML}</div>
-          `
+          this.renderSelection(
+            selectedOption.querySelector('.fw-normal').textContent,
+            selectedOption.querySelector('.small')
+          )
           this.markAsValid()
         } else {
           // Item not found in new options - try to restore from stored display

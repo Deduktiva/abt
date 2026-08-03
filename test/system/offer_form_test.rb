@@ -32,6 +32,22 @@ class OfferFormTest < ApplicationSystemTestCase
     assert_equal [ 1, 2 ], milestones.map(&:position)
   end
 
+  test "clicking a milestone label reaches its own row after reordering" do
+    version = offers(:draft_offer).draft_version
+    version.milestones.create!(position: 2, title: "Middle", amount: 100, trigger: "on_acceptance")
+    visit edit_offer_path(offers(:draft_offer))
+    within all("[data-line-index]").last do
+      click_on "▲"
+    end
+    within first("[data-line-index]") do
+      find("label", text: "Skip delivery note").click
+    end
+    click_on "Save"
+    assert_text "Offer updated"
+    milestones = offers(:draft_offer).reload.draft_version.milestones
+    assert_equal [ [ "Middle", true ], [ "Concept", false ] ], milestones.map { |m| [ m.title, m.skip_delivery_note ] }
+  end
+
   test "milestone description and skip flag are not dropped on submit" do
     visit edit_offer_path(offers(:draft_offer))
     within first("[data-line-index]") do

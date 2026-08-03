@@ -52,5 +52,4 @@ export default class extends BaseLinesController {
   }
 
   getLineType() { return 'offer_milestones' }
-  getIdPrefix() { return 'offer_draft_version_attributes_milestones_attributes_' }
 }

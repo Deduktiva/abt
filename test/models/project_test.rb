@@ -15,6 +15,12 @@ class ProjectTest < ActiveSupport::TestCase
     assert @project.valid?
   end
 
+  test "rejects a bill_to_customer_id that does not exist" do
+    @project.bill_to_customer_id = 999_999
+    assert_not @project.valid?
+    assert_includes @project.errors[:bill_to_customer], "must exist"
+  end
+
   test "should require matchcode" do
     @project.matchcode = nil
     assert_not @project.valid?

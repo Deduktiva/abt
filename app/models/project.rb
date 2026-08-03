@@ -3,6 +3,10 @@ class Project < ApplicationRecord
   include HasMatchcode
 
   belongs_to :bill_to_customer, class_name: "Customer", optional: true
+
+  # Relation is optional, validate explicitly
+  validates :bill_to_customer, presence: { message: "must exist" }, if: -> { bill_to_customer_id.present? }
+
   has_many :invoices
   has_many :delivery_notes
   has_many :offers

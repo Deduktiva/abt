@@ -13,6 +13,13 @@ class InvoiceLineTest < ActiveSupport::TestCase
     assert_includes line.errors[:type], "can't be blank"
   end
 
+  test "rejects a sales_tax_product_class_id that does not exist" do
+    line = InvoiceLine.new(type: "item", title: "x", rate: 10, quantity: 1,
+                           invoice: invoices(:draft_invoice), sales_tax_product_class_id: 999_999)
+    assert_not line.valid?
+    assert_includes line.errors[:sales_tax_product_class], "must exist"
+  end
+
   test "type must be one of the allowed values" do
     line = InvoiceLine.new(title: "x", type: "bogus", invoice: invoices(:draft_invoice))
     assert_not line.valid?

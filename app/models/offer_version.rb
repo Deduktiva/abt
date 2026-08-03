@@ -3,6 +3,9 @@ class OfferVersion < ApplicationRecord
   belongs_to :sales_tax_product_class, optional: true
   belongs_to :attachment, optional: true
 
+  # Relation is optional, validate explicitly
+  validates :sales_tax_product_class, presence: { message: "must exist" }, if: -> { sales_tax_product_class_id.present? }
+
   has_many :milestones, -> { order(:position, :id) }, class_name: "OfferMilestone", dependent: :destroy
   accepts_nested_attributes_for :milestones, allow_destroy: true, reject_if: :all_blank
 

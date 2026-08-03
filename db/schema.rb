@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_03_110000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_03_120000) do
   create_table "acceptance_submissions", force: :cascade do |t|
     t.integer "attachment_id"
     t.datetime "created_at", null: false
@@ -259,7 +259,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_110000) do
     t.string "description"
     t.string "name", null: false
     t.datetime "updated_at", null: false
-    t.index ["name"], name: "index_groups_on_name", unique: true
+    t.index "LOWER(name)", name: "index_groups_on_lower_name", unique: true
   end
 
   create_table "invoice_lines", force: :cascade do |t|
@@ -478,8 +478,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_110000) do
     t.string "description"
     t.string "name", null: false
     t.datetime "updated_at", null: false
+    t.index "LOWER(name)", name: "index_teams_on_lower_name", unique: true
     t.index ["default"], name: "index_teams_unique_default", unique: true, where: "\"default\""
-    t.index ["name"], name: "index_teams_on_name", unique: true
   end
 
   create_table "user_audit_events", force: :cascade do |t|

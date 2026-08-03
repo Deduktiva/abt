@@ -67,6 +67,10 @@ class Customer < ApplicationRecord
     offers.exists?
   end
 
+  def used_in_projects?
+    Project.where(bill_to_customer_id: id).exists?
+  end
+
   def can_be_deleted?
     deletion_blocker.nil?
   end
@@ -127,7 +131,8 @@ class Customer < ApplicationRecord
   def deletion_blocker
     return "invoices" if used_in_invoices?
     return "delivery notes" if used_in_delivery_notes?
-    "offers" if used_in_offers?
+    return "offers" if used_in_offers?
+    "projects" if used_in_projects?
   end
 
   def check_if_used

@@ -15,6 +15,7 @@ export default class extends Controller {
   }
 
   connect() {
+    this.loadSequence = 0
     this.boundDocumentClickHandler = this.handleDocumentClick.bind(this)
     this.boundDependentChangedHandler = this.dependentChanged.bind(this)
     this.boundFilterOptions = this.filterOptions.bind(this)
@@ -36,6 +37,10 @@ export default class extends Controller {
   }
 
   disconnect() {
+    // Abandon whatever load is in flight
+    this.loadSequence++
+    this.stopObservingDropdown()
+
     // Remove document event listener
     document.removeEventListener('click', this.boundDocumentClickHandler)
 
@@ -117,6 +122,8 @@ export default class extends Controller {
   }
 
   async loadItems() {
+    const sequence = ++this.loadSequence
+
     try {
       // Store current display before potentially showing loading
       this.storeCurrentDisplay()
@@ -142,12 +149,15 @@ export default class extends Controller {
         }
       })
 
+      if (this.superseded(sequence)) return
+
       if (!response.ok || response.redirected) {
         this.reportLoadFailure(`Failed to load ${this.itemNameValue}s: ${await this.responseErrorMessage(response)}`)
         return
       }
 
       const turboStreamHtml = await response.text()
+      if (this.superseded(sequence)) return
 
       // Use MutationObserver to watch for DOM changes
       this.observeDropdownChanges(() => {
@@ -159,8 +169,18 @@ export default class extends Controller {
 
       Turbo.renderStreamMessage(turboStreamHtml)
     } catch (error) {
+      if (this.superseded(sequence)) return
+
       this.reportLoadFailure(`Error loading ${this.itemNameValue}s: ${error.message}`)
     }
+  }
+
+  // A dependent field can change again while a load is in flight. Only the
+  // newest load may render: an older one would push options for the wrong
+  // dependent into the list, and its observer would fire on the newer load's
+  // render and tear that one down before it attached its listeners.
+  superseded(sequence) {
+    return sequence !== this.loadSequence
   }
 
   reportLoadFailure(message) {
@@ -234,6 +254,8 @@ export default class extends Controller {
   }
 
   observeDropdownChanges(callback) {
+    this.stopObservingDropdown()
+
     const observer = new MutationObserver((mutations) => {
       // The Turbo Stream re-render always adds .dropdown-content, even when
       // there are no options (empty-state message only)
@@ -246,16 +268,25 @@ export default class extends Controller {
       )
 
       if (contentReplaced) {
-        observer.disconnect()
+        this.stopObservingDropdown()
         callback()
       }
     })
+
+    this.dropdownObserver = observer
 
     // Observe changes to the dropdown target
     observer.observe(this.dropdownTarget, {
       childList: true,
       subtree: true
     })
+  }
+
+  stopObservingDropdown() {
+    if (this.dropdownObserver) {
+      this.dropdownObserver.disconnect()
+      this.dropdownObserver = null
+    }
   }
 
   selectItem(item) {

@@ -56,6 +56,7 @@ Choosing between them:
 - **`:info` vs `:neutral`** — both mean "nothing to do". Grey recedes (labels, counts, states that are out of play); blue is worth a glance.
 - **`:neutral` vs `:danger`** — a dead end that needs nothing is `:neutral` (Rejected, Expired). Red is for something that ought to be fixed.
 - **Don't spend `:success` on an intermediate rung**, or the progression stops reading as one: an accepted offer goes Ordered → Invoiced → Paid, and only the last is green. `:success` is not "done" — it also covers a flag that is simply on and healthy — but within a progression, green marks the end of it.
+- **A level is not a rung counter.** Ordered and Invoiced are both `:active`, so they share a colour and the badge text carries the difference. Don't reach for a spare level to number the steps of a progression — the colour says in-motion-or-done, the words say which step.
 
 `badge_tag` renders whatever it is given. Whether a badge belongs on the page at all is the caller's decision, per the rules below.
 

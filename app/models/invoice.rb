@@ -196,11 +196,14 @@ private
     return if self.published?
 
     self.setup_tax_classes
-    self.invoice_tax_classes.records  # ensure invoice_tax_classes is loaded
+    # setup_tax_classes only marks obsolete classes for destruction, so they sit
+    # in the loaded association until autosave removes them. Summing them would
+    # count a net the customer no longer has a tax rate for.
+    tax_classes = self.invoice_tax_classes.reject(&:marked_for_destruction?)
     valid = true
 
     # Reset all tax class sums before recalculating
-    self.invoice_tax_classes.each do |itc|
+    tax_classes.each do |itc|
       itc.net = 0
     end
 
@@ -211,7 +214,7 @@ private
       line.calculate_amount
 
       if line.is_item?
-        itc = self.invoice_tax_classes.find { |itc| itc.sales_tax_product_class_id == line.sales_tax_product_class_id }
+        itc = tax_classes.find { |itc| itc.sales_tax_product_class_id == line.sales_tax_product_class_id }
 
         if itc.nil?
           Rails.logger.warn "!! No InvoiceTaxClass for sales_tax_product_class_id = #{line.sales_tax_product_class_id}, line #{line.inspect}"
@@ -230,7 +233,7 @@ private
       end
     end
 
-    self.invoice_tax_classes.each do |itc|
+    tax_classes.each do |itc|
       self[:sum_net] += itc.net
       self[:sum_total] += itc.total
     end
@@ -279,7 +282,7 @@ private
     # earlier in this same save cycle (e.g. via accepts_nested_attributes_for).
     # Going through .includes here would issue a fresh SQL load and miss
     # those, causing duplicate InvoiceTaxClass rows.
-    existing_tax_classes = self.invoice_tax_classes.to_a.index_by(&:sales_tax_product_class_id)
+    existing_tax_classes = self.invoice_tax_classes.reject(&:marked_for_destruction?).index_by(&:sales_tax_product_class_id)
 
     # Update/create required tax classes
     customer_sales_tax_rates.each do |cst|
@@ -306,8 +309,12 @@ private
       end
     end
 
-    # Delete tax classes that are no longer needed
-    self.invoice_tax_classes.where.not(sales_tax_product_class_id: required_product_class_ids).destroy_all
+    # Drop tax classes that are no longer needed. Marking (rather than
+    # destroying the spawned relation) keeps the loaded association target
+    # honest and defers the DELETE to the parent's save.
+    self.invoice_tax_classes.each do |itc|
+      itc.mark_for_destruction unless required_product_class_ids.include?(itc.sales_tax_product_class_id)
+    end
   end
 
   def check_offer_milestone_link

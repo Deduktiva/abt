@@ -168,6 +168,16 @@ class InvoiceTest < ActiveSupport::TestCase
     assert_equal 18000, itc.reload.net
   end
 
+  test "update_sums stops counting a tax class dropped from the customer's rate set" do
+    invoice = license_invoice_with_tax_config
+    invoice.customer.sales_tax_customer_class.sales_tax_rates.destroy_all
+    invoice.reload.save!
+    invoice.reload
+
+    assert_empty invoice.invoice_tax_classes
+    assert_equal 0, invoice.sum_net
+  end
+
   test "update_sums skips a published invoice" do
     invoice = invoices(:published_invoice)
     invoice.update_columns(sum_net: 999.99, sum_total: 1234.56)

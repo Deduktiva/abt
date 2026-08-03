@@ -124,31 +124,16 @@ export default class extends Controller {
     }
   }
 
+  // Only `position` carries the order. The index inside field names and ids is an
+  // arbitrary nested-attributes key — renumbering it would desync every `<label for>`
+  // in the row, so leave both alone.
   reindexFormFields() {
-    // Update positions based on current DOM order
     this.containerTarget.querySelectorAll('[data-line-index]').forEach((line, index) => {
-      // Update the position field to reflect the new order
       const positionField = line.querySelector('input[name*="[position]"]')
       if (positionField) {
         positionField.value = index + 1 // 1-based positions
       }
 
-      // Update all form fields within this line to use the correct index
-      line.querySelectorAll('input, select, textarea').forEach(field => {
-        const lineType = this.getLineType()
-        if (field.name && field.name.includes(`${lineType}[`)) {
-          // Replace the index in the field name
-          field.name = field.name.replace(new RegExp(`${lineType}\\[\\d+\\]`), `${lineType}[${index}]`)
-        }
-
-        // Also update the id attribute
-        const idPrefix = this.getIdPrefix()
-        if (field.id && field.id.includes(idPrefix)) {
-          field.id = field.id.replace(new RegExp(`${idPrefix}\\d+`), `${idPrefix}${index}`)
-        }
-      })
-
-      // Update the data-line-index attribute
       line.setAttribute('data-line-index', index)
     })
   }
@@ -208,9 +193,5 @@ export default class extends Controller {
   // Abstract methods to be implemented by subclasses
   getLineType() {
     throw new Error('getLineType() must be implemented by subclass')
-  }
-
-  getIdPrefix() {
-    throw new Error('getIdPrefix() must be implemented by subclass')
   }
 }

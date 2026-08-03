@@ -190,9 +190,4 @@ export default class extends BaseLinesController {
   getLineType() {
     return 'invoice_lines'
   }
-
-  getIdPrefix() {
-    return 'invoice_invoice_lines_attributes_'
-  }
-
 }

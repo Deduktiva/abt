@@ -12,8 +12,7 @@ module BadgesHelper
   }.freeze
 
   # Renders one status badge. Whether a badge belongs on the page at all is the
-  # caller's decision - this only renders what it is given, and fetch raises on
-  # an unknown level rather than emitting an unstyled pill.
+  # caller's decision - this only renders what it is given.
   def badge_tag(level, text, css: nil)
     content_tag(:span, text, class: [ "badge", BADGE_LEVELS.fetch(level), css ].compact.join(" "))
   end

@@ -36,7 +36,29 @@ The canonical style reference for this repo. Project structure, architecture, mo
 - Card header text is Title Case, and a primary "show the whole record" card is named `"{Entity} Information"` (`Customer Information`, `Company Information`, `Team Information`) — not a bare `Information` or `Basic Information` that drops the entity name. A card for one specific sub-topic just names that topic (`Notes`, `Members`, `Offer Settings`) rather than forcing the `{Entity} Information` pattern onto it.
 
 ## Status badges
-- Show only deviation from the healthy default. Active/normal renders no badge in headers and as plain text in tables.
+
+Every badge goes through `badge_tag(level, text, css: nil)` (`app/helpers/badges_helper.rb`). Views don't write `%span.badge.bg-*` by hand and never interpolate a level into a class string: brakeman flags the interpolation, and a private mapping lets a caller's vocabulary drift from what the page actually renders (45819f8d mapped a `:danger` badge to grey inside one helper, so the model's own word for the state stopped describing the page).
+
+Levels name what a state *means*. Which colour that becomes is one table's decision, in one place:
+
+| Level | Class | Means | Examples |
+|---|---|---|---|
+| `:neutral` | `bg-secondary` | inert fact — no action, no progression | Inactive, built-in, Expired, Rejected, counts |
+| `:info` | `bg-info` | orients the reader; not about this record's progress | This is you, This session |
+| `:active` | `bg-primary` | where the record is expected to be right now, and not finished | Ordered |
+| `:warning` | `bg-warning` | someone needs to act | Unsent, Pending, Not verified |
+| `:danger` | `bg-danger` | broken, or past a deadline | Overdue, Blocked, Stale, Invalid per VIES |
+| `:success` | `bg-success` | finished and healthy — the terminal state | Paid, Booked, Confirmed |
+
+Choosing between them:
+- **`:active` vs `:warning`** — both mean "not done". Ask whether the badge is telling the reader to do something. "Unsent" is a prod; "Ordered" is a position. If seeing it should make someone act, it's `:warning`.
+- **`:active` vs `:info`** — `:active` is a rung on the record's own lifecycle; `:info` is a fact sitting outside it.
+- **`:neutral` vs `:danger`** — a dead end that needs nothing is `:neutral` (Rejected, Expired). Red is for something that ought to be fixed.
+- **`:success` is terminal.** Spending it on an intermediate rung stops the progression reading as one: an accepted offer goes Ordered → Invoiced → Paid, and only the last is green.
+
+`badge_tag` renders whatever it is given. Whether a badge belongs on the page at all is the caller's decision, per the rules below.
+
+- Show only deviation from the healthy default. A record in its normal state renders no badge in headers, and plain text in tables.
 - Lifecycle states (Draft, Booked, Published, Sent, Paid, Overdue) all get header badges — no state is implicitly "good".
 - Hide superseded badges: Invoice header drops "Booked" once Sent/Paid/Overdue applies. Sent stacks with Paid/Overdue (email and payment are independent).
 - Hide a list's Status column when filtered to a single state (column would be redundant).

@@ -11,7 +11,7 @@ class Business < ApplicationRecord
   # CLF). Bounding it also keeps stored values exact on SQLite's float-backed
   # decimal columns.
   validates :money_decimal_places, numericality: { only_integer: true, in: 0..4 }
-  validates :reporting_email, presence: true
+  validates :reporting_email, :document_email_from, presence: true
   validates :reporting_email, :document_email_from, :document_email_auto_bcc, :document_email_reply_to,
             format: { with: URI::MailTo::EMAIL_REGEXP, allow_blank: true }
   validates :website_url, allow_blank: true,

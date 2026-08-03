@@ -99,7 +99,7 @@
 
           .mb-3
             = form.label :document_email_from, 'Email From', class: 'form-label'
-            = form.email_field :document_email_from, class: 'form-control'
+            = form.email_field :document_email_from, class: 'form-control', required: true
 
           .mb-3
             = form.label :document_email_reply_to, 'Email Reply-To', class: 'form-label'

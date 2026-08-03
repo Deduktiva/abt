@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_03_160219) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_03_194907) do
   create_table "acceptance_submissions", force: :cascade do |t|
     t.integer "attachment_id"
     t.datetime "created_at", null: false
@@ -105,6 +105,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_160219) do
     t.integer "vat_id_recheck_days", default: 90, null: false
     t.string "website_url"
     t.index ["active"], name: "index_businesses_on_active", unique: true
+    t.check_constraint "trim(document_email_from) <> ''", name: "businesses_document_email_from_not_blank"
+    t.check_constraint "trim(reporting_email) <> ''", name: "businesses_reporting_email_not_blank"
   end
 
   create_table "customer_contact_projects", force: :cascade do |t|

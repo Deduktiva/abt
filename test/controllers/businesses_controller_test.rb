@@ -138,6 +138,14 @@ class BusinessesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "reports@example.com", @business.reload.reporting_email
   end
 
+  test "update stores a cleared document_email_auto_bcc as NULL" do
+    patch business_url, params: {
+      business: { document_email_auto_bcc: "" }
+    }
+    assert_redirected_to business_url
+    assert_nil @business.reload.document_email_auto_bcc
+  end
+
   test "update rejects vat_id_recheck_days of zero" do
     original = @business.vat_id_recheck_days
     patch business_url, params: {

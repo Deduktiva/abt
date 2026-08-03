@@ -17,6 +17,7 @@ class Business < ApplicationRecord
   validates :website_url, allow_blank: true,
             format: { with: %r{\Ahttps?://\S+\z}i, message: "must be a valid http:// or https:// URL" }
   normalizes :website_url, with: ->(url) { url.strip }
+  normalizes :document_email_auto_bcc, :document_email_reply_to, with: ->(email) { email.strip.presence }
 
   # This app requires that there is exactly *one* business in the database.
   def self.get_the_issuer!

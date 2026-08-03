@@ -4,10 +4,12 @@
 module UploadChecks
   # Returns :missing, :too_large, :wrong_type, or nil when the file is an
   # acceptable upload of expected_type. Callers map the symbol to their own wording.
+  # expected_type: nil skips the sniff — Marcel reports plain-text formats such
+  # as CSV as application/octet-stream, so an equality check rejects valid input.
   def upload_error(file, expected_type:, max_bytes: Attachment::MAX_SIZE_BYTES)
     return :missing if file.blank? || !file.is_a?(ActionDispatch::Http::UploadedFile)
     return :too_large if file.size > max_bytes
-    return :wrong_type if Attachment.detect_content_type(file.tempfile) != expected_type
+    return :wrong_type if expected_type && Attachment.detect_content_type(file.tempfile) != expected_type
     nil
   end
 

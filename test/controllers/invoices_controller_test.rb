@@ -535,6 +535,28 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert JSON.parse(response.body)["error"].present?
   end
 
+  test "import_lines rejects a file param that is not an upload" do
+    invoice = create_draft_invoice(cust_reference: "IMPORT")
+
+    post import_lines_invoice_url(invoice),
+      params: { file: "project;task;start;duration;rate;note\nClient;Task;2025-04-01T09:00:00+02:00;60;100;Work\n" }
+
+    assert_response :unprocessable_content
+    assert JSON.parse(response.body)["error"].present?
+  end
+
+  test "import_lines rejects a CSV larger than the import limit" do
+    invoice = create_draft_invoice(cust_reference: "IMPORT")
+    row = "Client;Task;2025-04-01T09:00:00+02:00;60;100;Work\n"
+    oversized = "project;task;start;duration;rate;note\n" +
+      row * (TymeCsvImporter::MAX_SIZE_BYTES / row.bytesize + 1)
+
+    post import_lines_invoice_url(invoice), params: { file: csv_upload(oversized) }
+
+    assert_response :unprocessable_content
+    assert_match(/too large/, JSON.parse(response.body)["error"])
+  end
+
   def csv_upload(body, filename: "import.csv")
     Rack::Test::UploadedFile.new(StringIO.new(body), "text/csv", original_filename: filename)
   end

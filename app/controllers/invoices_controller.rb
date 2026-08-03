@@ -3,6 +3,7 @@ class InvoicesController < ApplicationController
   include PublishableDocument
   include DocumentWithLines
   include YearFilteredIndex
+  include UploadChecks
 
   publishable_document :invoice, label: "invoice"
   document_with_lines line_class: InvoiceLine
@@ -139,7 +140,9 @@ class InvoicesController < ApplicationController
   # the editor to inject. Read-only — nothing is persisted here.
   def import_lines
     file = params[:file]
-    raise ArgumentError, "No file uploaded" if file.blank?
+    if (message = csv_upload_error(file))
+      return render json: { error: message }, status: :unprocessable_content
+    end
 
     lines = TymeCsvImporter.new(file, customer: @invoice.customer).lines
     render json: { lines: lines }
@@ -159,6 +162,15 @@ class InvoicesController < ApplicationController
 protected
   def set_invoice
     @invoice = Invoice.visible_to(current_user).find(params[:id])
+  end
+
+  # No content-type sniff: CSV has no magic bytes, and a body that isn't a
+  # Tyme CSV is already rejected by the importer's header check.
+  def csv_upload_error(file)
+    case upload_error(file, expected_type: nil, max_bytes: TymeCsvImporter::MAX_SIZE_BYTES)
+    when :missing then "Please choose a CSV file to import."
+    when :too_large then "CSV file is too large (maximum is #{TymeCsvImporter::MAX_SIZE_MB} MB)."
+    end
   end
 
   # EmailableDocument hooks.

@@ -5,6 +5,10 @@ require "time"
 # per (task, calendar month). Rate comes from the CSV, quantity is the summed
 # duration in decimal hours, and all text is rendered in the customer's locale.
 class TymeCsvImporter
+  # A month of tracked time is a few hundred rows; the cap only has to keep an
+  # unbounded body out of the whole-file read and CSV.parse below.
+  MAX_SIZE_MB = 2
+  MAX_SIZE_BYTES = MAX_SIZE_MB.megabytes
   REQUIRED_COLUMNS = %w[project task start duration rate note].freeze
   LEGAL_SUFFIXES = /\b(gmbh|ag|ltd|inc|llc|kg|co|corp|b\.?v|e\.?u)\.?\b/
 

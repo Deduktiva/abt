@@ -19,6 +19,7 @@ class Customer < ApplicationRecord
   has_many :invoices
   has_many :delivery_notes
   has_many :offers
+  has_many :billed_projects, class_name: "Project", foreign_key: :bill_to_customer_id, inverse_of: :bill_to_customer
   has_many :customer_contacts, dependent: :destroy
   has_many :vat_verifications, class_name: "CustomerVatVerification", dependent: :destroy
 
@@ -68,7 +69,7 @@ class Customer < ApplicationRecord
   end
 
   def used_in_projects?
-    Project.where(bill_to_customer_id: id).exists?
+    billed_projects.exists?
   end
 
   def can_be_deleted?
@@ -142,7 +143,7 @@ class Customer < ApplicationRecord
   end
 
   def sync_project_teams
-    Project.where(bill_to_customer_id: id).update_all(team_id: team_id, updated_at: Time.current)
+    billed_projects.update_all(team_id: team_id, updated_at: Time.current)
   end
 
   def normalise_vat_id

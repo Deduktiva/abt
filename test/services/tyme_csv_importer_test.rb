@@ -87,4 +87,16 @@ class TymeCsvImporterTest < ActiveSupport::TestCase
     headerless = "type;project;task\ntimed;X;Y\n"
     assert_raises(ArgumentError) { TymeCsvImporter.new(headerless, customer: customers(:good_eu)).lines }
   end
+
+  test "raises a directed error when a start cell is blank" do
+    csv = "project;task;start;duration;rate;note\nClient;Task;;60;100;Work\n"
+    error = assert_raises(ArgumentError) { TymeCsvImporter.new(csv, customer: customers(:good_eu)).lines }
+    assert_match(/row 1/, error.message)
+  end
+
+  test "raises a directed error when a start cell is not a timestamp" do
+    csv = "project;task;start;duration;rate;note\nClient;Task;whenever;60;100;Work\n"
+    error = assert_raises(ArgumentError) { TymeCsvImporter.new(csv, customer: customers(:good_eu)).lines }
+    assert_match(/row 1/, error.message)
+  end
 end

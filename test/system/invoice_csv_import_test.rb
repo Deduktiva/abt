@@ -12,6 +12,7 @@ class InvoiceCsvImportTest < ApplicationSystemTestCase
     attach_file("file", Rails.root.join("test/fixtures/files/tyme_sample.csv"), make_visible: true)
 
     assert_selector "[data-line-index]", count: initial + 3
+    assert_no_selector "input[name='file'][disabled]", visible: :all
     new_lines = all("[data-line-index]").last(3)
 
     titles = new_lines.map { |line| line.find('input[name*="[title]"]').value }

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_03_194907) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_03_202822) do
   create_table "acceptance_submissions", force: :cascade do |t|
     t.integer "attachment_id"
     t.datetime "created_at", null: false
@@ -169,7 +169,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_194907) do
     t.text "offer_milestone_templates_below"
     t.integer "offer_validity_days"
     t.integer "payment_terms_days", default: 30, null: false
-    t.integer "sales_tax_customer_class_id"
+    t.integer "sales_tax_customer_class_id", null: false
     t.text "supplier_number"
     t.integer "team_id", null: false
     t.datetime "updated_at", null: false
@@ -178,6 +178,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_194907) do
     t.index "LOWER(matchcode)", name: "index_customers_on_lower_matchcode", unique: true
     t.index ["language_id"], name: "index_customers_on_language_id"
     t.index ["name"], name: "index_customers_on_name"
+    t.index ["sales_tax_customer_class_id"], name: "index_customers_on_sales_tax_customer_class_id"
     t.index ["team_id"], name: "index_customers_on_team_id"
   end
 
@@ -268,7 +269,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_194907) do
     t.decimal "amount"
     t.datetime "created_at", null: false
     t.text "description"
-    t.integer "invoice_id"
+    t.integer "invoice_id", null: false
     t.integer "position"
     t.decimal "quantity"
     t.decimal "rate"
@@ -280,6 +281,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_194907) do
     t.text "type"
     t.datetime "updated_at", null: false
     t.index ["invoice_id", "position"], name: "index_invoice_lines_on_invoice_id_and_position"
+    t.index ["sales_tax_product_class_id"], name: "index_invoice_lines_on_sales_tax_product_class_id"
   end
 
   create_table "invoice_tax_classes", force: :cascade do |t|
@@ -294,6 +296,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_194907) do
     t.datetime "updated_at", null: false
     t.decimal "value"
     t.index ["invoice_id", "sales_tax_product_class_id"], name: "index_invoice_tax_classes_on_invoice_and_product_class", unique: true
+    t.index ["sales_tax_product_class_id"], name: "index_invoice_tax_classes_on_sales_tax_product_class_id"
   end
 
   create_table "invoices", force: :cascade do |t|
@@ -323,6 +326,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_194907) do
     t.text "tax_note"
     t.string "token"
     t.datetime "updated_at", null: false
+    t.index ["attachment_id"], name: "index_invoices_on_attachment_id"
     t.index ["date"], name: "index_invoices_on_date"
     t.index ["document_number"], name: "index_invoices_on_document_number", unique: true
     t.index ["paid_at"], name: "index_invoices_on_paid_at"
@@ -415,9 +419,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_194907) do
     t.datetime "created_at", null: false
     t.text "description"
     t.decimal "rate"
-    t.integer "sales_tax_product_class_id"
+    t.integer "sales_tax_product_class_id", null: false
     t.string "title"
     t.datetime "updated_at", null: false
+    t.index ["sales_tax_product_class_id"], name: "index_products_on_sales_tax_product_class_id"
     t.index ["title"], name: "index_products_on_title"
   end
 
@@ -431,6 +436,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_194907) do
     t.integer "team_id", null: false
     t.datetime "updated_at", null: false
     t.index "LOWER(matchcode)", name: "index_projects_on_lower_matchcode", unique: true
+    t.index ["bill_to_customer_id"], name: "index_projects_on_bill_to_customer_id"
     t.index ["team_id"], name: "index_projects_on_team_id"
   end
 
@@ -457,10 +463,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_194907) do
   create_table "sales_tax_rates", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.decimal "rate"
-    t.integer "sales_tax_customer_class_id"
-    t.integer "sales_tax_product_class_id"
+    t.integer "sales_tax_customer_class_id", null: false
+    t.integer "sales_tax_product_class_id", null: false
     t.datetime "updated_at", null: false
     t.index ["sales_tax_customer_class_id", "sales_tax_product_class_id"], name: "index_sales_tax_rates_on_customer_and_product_class", unique: true
+    t.index ["sales_tax_product_class_id"], name: "index_sales_tax_rates_on_sales_tax_product_class_id"
   end
 
   create_table "team_memberships", force: :cascade do |t|
@@ -584,6 +591,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_194907) do
   add_foreign_key "customer_vat_verifications", "customers"
   add_foreign_key "customer_vat_verifications", "users", column: "performed_by_user_id"
   add_foreign_key "customers", "languages"
+  add_foreign_key "customers", "sales_tax_customer_classes"
   add_foreign_key "customers", "teams"
   add_foreign_key "delivery_note_lines", "delivery_notes"
   add_foreign_key "delivery_notes", "attachments", column: "acceptance_attachment_id"
@@ -594,7 +602,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_194907) do
   add_foreign_key "group_memberships", "users"
   add_foreign_key "group_permissions", "groups"
   add_foreign_key "invoice_lines", "invoices"
+  add_foreign_key "invoice_lines", "sales_tax_product_classes"
   add_foreign_key "invoice_tax_classes", "invoices"
+  add_foreign_key "invoice_tax_classes", "sales_tax_product_classes"
+  add_foreign_key "invoices", "attachments"
   add_foreign_key "invoices", "customers"
   add_foreign_key "invoices", "projects"
   add_foreign_key "offer_milestones", "delivery_notes"
@@ -608,7 +619,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_194907) do
   add_foreign_key "offers", "customers"
   add_foreign_key "offers", "offer_versions", column: "accepted_version_id"
   add_foreign_key "offers", "projects"
+  add_foreign_key "products", "sales_tax_product_classes"
+  add_foreign_key "projects", "customers", column: "bill_to_customer_id"
   add_foreign_key "projects", "teams"
+  add_foreign_key "sales_tax_rates", "sales_tax_customer_classes"
+  add_foreign_key "sales_tax_rates", "sales_tax_product_classes"
   add_foreign_key "team_memberships", "teams"
   add_foreign_key "team_memberships", "users"
   add_foreign_key "user_audit_events", "users", column: "actor_user_id", on_delete: :nullify

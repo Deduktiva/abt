@@ -17,15 +17,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should display setup warning when not configured" do
-    # Clear existing tax configuration. Offers must go first: OfferVersion has
-    # a DB-level foreign key to sales_tax_product_classes (unlike invoice
-    # lines/tax classes, which have none), so any fixture referencing a
-    # product class blocks its deletion until the referencing offer is gone.
-    Offer.destroy_all
+  test "should display setup warning when no tax rates are configured" do
     SalesTaxRate.delete_all
-    SalesTaxCustomerClass.delete_all
-    SalesTaxProductClass.delete_all
 
     get root_url
     assert_response :success

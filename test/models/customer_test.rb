@@ -120,6 +120,13 @@ class CustomerTest < ActiveSupport::TestCase
     assert create_customer.destroy
   end
 
+  test "before_destroy rejects destroy when a project bills to the customer" do
+    customer = create_customer
+    Project.create!(matchcode: "BILLTO", bill_to_customer: customer, team: customer.team)
+    assert_not customer.destroy
+    assert_includes customer.errors[:base], "Cannot delete customer that has been used in projects"
+  end
+
   test "before_destroy rejects destroy when delivery notes reference the customer" do
     customer = create_customer
     DeliveryNote.create!(customer: customer, project: projects(:reusable_project), delivery_start_date: Date.current)

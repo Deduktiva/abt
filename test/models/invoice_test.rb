@@ -230,7 +230,8 @@ class InvoiceTest < ActiveSupport::TestCase
   test "publish_problems reports a missing tax config using the line title" do
     invoice = license_invoice_with_tax_config
     line = invoice.invoice_lines.find_by(type: "item")
-    line.update_columns(sales_tax_product_class_id: 999_999)
+    unconfigured = SalesTaxProductClass.create!(name: "Reduced", indicator_code: "RED")
+    line.update_columns(sales_tax_product_class_id: unconfigured.id)
 
     problems = invoice.reload.publish_problems
     assert(problems.any? { |p| p.include?(line.title) && p.include?("tax configuration") })

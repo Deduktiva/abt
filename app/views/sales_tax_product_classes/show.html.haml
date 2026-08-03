@@ -1,4 +1,4 @@
-- delete_action = delete_button(@sales_tax_product_class, confirm: "Are you sure you want to delete product class \"#{@sales_tax_product_class.name}\"?", permission: 'sales_tax.edit')
+- delete_action = delete_button(@sales_tax_product_class, confirm: "Are you sure you want to delete product class \"#{@sales_tax_product_class.name}\"?", permission: 'sales_tax.edit') if @sales_tax_product_class.can_be_deleted?
 - edit_action = action_button('Edit', edit_sales_tax_product_class_path(@sales_tax_product_class), permission: 'sales_tax.edit')
 = breadcrumbs ['Configuration', configuration_path], ['Sales Tax', sales_tax_rates_path], ['Product Tax Classes', sales_tax_product_classes_path], @sales_tax_product_class.name, actions: [delete_action], action: edit_action do
   - if @sales_tax_product_class.is_default?

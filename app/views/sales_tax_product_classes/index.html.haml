@@ -19,4 +19,5 @@
       %td
         = list_action_link('Edit', edit_sales_tax_product_class_path(sales_tax_product_class), :edit, permission: 'sales_tax.edit')
       %td
-        = destroy_link(sales_tax_product_class, "Are you sure you want to delete product class \"#{sales_tax_product_class.name}\"?", permission: 'sales_tax.edit')
+        - if sales_tax_product_class.can_be_deleted?
+          = destroy_link(sales_tax_product_class, "Are you sure you want to delete product class \"#{sales_tax_product_class.name}\"?", permission: 'sales_tax.edit')

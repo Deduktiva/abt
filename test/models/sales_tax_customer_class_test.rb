@@ -21,7 +21,7 @@ class SalesTaxCustomerClassTest < ActiveSupport::TestCase
       rate: 5
     )
     assert_not klass.destroy
-    assert_includes klass.errors[:base], "Cannot delete record because dependent sales tax rates exist"
+    assert_includes klass.errors[:base], "Cannot delete customer tax class that is used in tax rates"
   end
 
   test "destroy is blocked when customers reference the class" do
@@ -36,7 +36,7 @@ class SalesTaxCustomerClassTest < ActiveSupport::TestCase
       country_iso2: "NL"
     )
     assert_not klass.destroy
-    assert_includes klass.errors[:base], "Cannot delete record because dependent customers exist"
+    assert_includes klass.errors[:base], "Cannot delete customer tax class that is used in customers"
   end
 
   test "destroy succeeds when no rates or customers reference the class" do

@@ -2,7 +2,11 @@ class NoDocumentNumberRangeError < StandardError; end
 class DateNotMonotonicError < StandardError; end
 
 class DocumentNumber < ApplicationRecord
+  # get_next dereferences format and sequence without a guard, so a row
+  # missing either raises NoMethodError mid-publish rather than failing here.
   validates :code, presence: true, uniqueness: true
+  validates :format, presence: true
+  validates :sequence, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
   def get_next(date)
     if !self.last_date.nil? && date < self.last_date

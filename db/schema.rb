@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_03_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_03_145012) do
   create_table "acceptance_submissions", force: :cascade do |t|
     t.integer "attachment_id"
     t.datetime "created_at", null: false
@@ -591,6 +591,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_120000) do
   add_foreign_key "group_memberships", "groups"
   add_foreign_key "group_memberships", "users"
   add_foreign_key "group_permissions", "groups"
+  add_foreign_key "invoice_lines", "invoices"
+  add_foreign_key "invoice_tax_classes", "invoices"
   add_foreign_key "invoices", "customers"
   add_foreign_key "invoices", "projects"
   add_foreign_key "offer_milestones", "delivery_notes"

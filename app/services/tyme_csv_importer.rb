@@ -36,11 +36,11 @@ class TymeCsvImporter
     missing = REQUIRED_COLUMNS - table.headers
     raise ArgumentError, "CSV is missing columns: #{missing.join(', ')}" if missing.any?
 
-    table.map do |row|
+    table.each_with_index.map do |row, index|
       {
         client: row["project"],
         task: row["task"],
-        date: Time.parse(row["start"]).to_date,
+        date: parse_date(row["start"], index + 1),
         minutes: row["duration"].to_i,
         rate: row["rate"],
         note: row["note"]
@@ -48,6 +48,14 @@ class TymeCsvImporter
     end
   rescue CSV::MalformedCSVError => e
     raise ArgumentError, "CSV could not be parsed: #{e.message}"
+  end
+
+  # A blank cell reaches Time.parse as nil (TypeError), garbage as a String
+  # (ArgumentError). Both are user input and must surface as one 422.
+  def parse_date(value, row_number)
+    Time.parse(value.to_s).to_date
+  rescue ArgumentError, TypeError
+    raise ArgumentError, "CSV row #{row_number} has an unreadable start value: #{value.inspect}"
   end
 
   def build_line(task, entries)

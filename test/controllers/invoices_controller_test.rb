@@ -524,4 +524,18 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_content
     assert JSON.parse(response.body)["error"].present?
   end
+
+  test "import_lines returns a 422 error when a row has a blank start cell" do
+    invoice = create_draft_invoice(cust_reference: "IMPORT")
+
+    post import_lines_invoice_url(invoice),
+      params: { file: csv_upload("project;task;start;duration;rate;note\nClient;Task;;60;100;Work\n") }
+
+    assert_response :unprocessable_content
+    assert JSON.parse(response.body)["error"].present?
+  end
+
+  def csv_upload(body, filename: "import.csv")
+    Rack::Test::UploadedFile.new(StringIO.new(body), "text/csv", original_filename: filename)
+  end
 end

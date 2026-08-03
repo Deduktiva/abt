@@ -27,9 +27,14 @@
     text-overflow: ellipsis;
   }
 
-  // Make the select button look consistent with form controls
+  // Make the select button look consistent with form controls. The toggle is also
+  // a `.btn`, whose `background-color: var(--bs-btn-bg)` is declared after
+  // `.form-control`'s and wins on equal specificity — leaving it transparent over
+  // the tinted page background. Point --bs-btn-bg at the variable `.form-control`
+  // itself reads, so the toggle tracks light/dark with its neighbours.
   .btn.form-control {
     min-height: calc(1.5em + 0.75rem + 2px);
+    --bs-btn-bg: var(--bs-body-bg);
   }
 }
 

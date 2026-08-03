@@ -5,16 +5,15 @@ class OfferMilestoneConverter
 
   def initialize(milestone)
     @milestone = milestone
-    @version = milestone.offer_version
-    @offer = @version.offer
   end
 
   private
 
   def conversion_source = @milestone
 
-  # The lock covers the milestone row only, and #initialize captured the version
-  # and offer before it: re-read them so an offer reopened in between is seen.
+  # The lock covers the milestone row only, so the version and offer are read
+  # here rather than in #initialize: an offer reopened between construction and
+  # the lock has to be seen.
   def convert_locked!
     @version = @milestone.offer_version
     @offer = @version.offer

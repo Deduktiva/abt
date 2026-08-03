@@ -107,15 +107,24 @@ module EmailableDocument
   # or is still claimed by a recent send — say so rather than reporting a bare
   # "0 emails queued".
   def bulk_send_document_emails(model, ids_param:, redirect_path:, noun:)
-    ids = (params[ids_param] || []).reject(&:blank?)
+    # permit(key => []) is the shape check: a scalar `?ids=1` or a nested
+    # `?ids[a]=1` is not an array of scalars, so strong params drops it and this
+    # lands on the empty-selection branch instead of raising. Ids that are
+    # garbage or out of column range need no filtering — `where` matches
+    # nothing for them.
+    ids = params.permit(ids_param => []).fetch(ids_param, []).compact_blank
     if ids.empty?
       redirect_to redirect_path, alert: "No #{noun} selected."
       return
     end
 
+    # Counted off the documents that were candidates at all: an id for a draft,
+    # for another team's document, or for nothing must not be reported back as
+    # already sent.
+    candidates = model.visible_to(current_user).where(id: ids, published: true).count
     scope = model.visible_to(current_user).where(id: ids, published: true, email_sent_at: nil)
     queued, skipped = yield(scope)
-    unavailable = ids.length - queued - skipped
+    unavailable = candidates - queued - skipped
 
     notice = "#{queued} emails queued for sending."
     notice += " #{skipped} skipped (no recipients)." if skipped > 0

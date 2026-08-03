@@ -67,6 +67,25 @@ class InvoiceTest < ActiveSupport::TestCase
     assert_not invoice.overdue?
   end
 
+  test "payment_status_badge counts the days to or past the due date" do
+    cases = {
+      Invoice.new(published: true, due_date: 6.days.from_now.to_date) => [ "Unpaid, 6d", "bg-warning" ],
+      Invoice.new(published: true, due_date: Date.current) => [ "Unpaid, 0d", "bg-warning" ],
+      Invoice.new(published: true, due_date: 3.days.ago.to_date) => [ "Overdue, 3d", "bg-danger" ],
+      Invoice.new(published: true, due_date: nil) => [ "Unpaid", "bg-warning" ],
+      Invoice.new(published: true, due_date: 3.days.ago.to_date, paid_at: Time.current) => nil,
+      Invoice.new(published: false, due_date: 3.days.ago.to_date) => nil
+    }
+
+    cases.each do |invoice, expected|
+      if expected.nil?
+        assert_nil invoice.payment_status_badge
+      else
+        assert_equal expected, invoice.payment_status_badge
+      end
+    end
+  end
+
   test "update_customer copies customer fields to the draft invoice on save" do
     invoice = invoices(:draft_invoice)
     invoice.customer.update!(supplier_number: "SUP-001", country_iso2: "AT")

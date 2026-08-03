@@ -115,6 +115,25 @@ precompile_assets() {
     fi
 }
 
+# Dump the database before migrating. A failed backup aborts the deploy;
+# set SKIP_DB_BACKUP=1 to deploy anyway (e.g. when backups are handled by infra).
+backup_database() {
+    if [[ -n "${SKIP_DB_BACKUP:-}" ]]; then
+        print_warning "SKIP_DB_BACKUP is set; skipping the pre-migration database backup."
+        return 0
+    fi
+
+    print_status "Backing up the database..."
+
+    if bundle exec rails db:backup; then
+        print_success "Database backup completed successfully."
+    else
+        print_error "Database backup failed. Refusing to migrate without a backup."
+        print_error "Fix the backup, or re-run with SKIP_DB_BACKUP=1 to proceed regardless."
+        exit 1
+    fi
+}
+
 # Function to run database migrations
 migrate_database() {
     print_status "Running database migrations..."
@@ -271,6 +290,7 @@ main() {
     update_gems
     install_systemd_units
     precompile_assets
+    backup_database
     migrate_database
     restart_puma
     restart_jobs_worker

@@ -8,6 +8,8 @@ class InvoicesController < ApplicationController
   publishable_document :invoice, label: "invoice"
   document_with_lines line_class: InvoiceLine
 
+  FILTERS = %w[all unsent unpaid].freeze
+
   before_action -> { require_permission!("invoices.view") }, only: %i[index show preview preview_email preview_email_html]
   before_action -> { require_permission!("invoices.edit") }, only: %i[
     new create edit update destroy
@@ -25,7 +27,7 @@ class InvoicesController < ApplicationController
 
   # GET /invoices
   def index
-    @filter = params[:filter] || "all"
+    @filter = params[:filter].presence_in(FILTERS) || "all"
     @selected_customer_id = integer_param(:customer_id)
 
     @invoices = filtered_by_year(Invoice.visible_to(current_user).ordered)

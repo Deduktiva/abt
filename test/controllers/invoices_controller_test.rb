@@ -6,6 +6,11 @@ class InvoicesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "non-scalar filter param falls back to all" do
+    get invoices_url(filter: { a: "1" })
+    assert_response :success
+  end
+
   test "should get index with year filter" do
     create_draft_invoice(customer: customers(:good_eu), internal_reference: "2023-TEST", date: Date.new(2023, 6, 15))
     create_draft_invoice(internal_reference: "2024-TEST", date: Date.new(2024, 6, 15))

@@ -63,6 +63,11 @@ module EmailableDocument
       return
     end
     email_for_sending.deliver_later
+    # Stamped, but never gated on: sending one document is a deliberate act and
+    # must stay available as a resend. Marking it queued is what keeps a bulk
+    # send started before this job runs from queuing the same document again.
+    # Offers reach this action too, and have no bulk send to guard against.
+    document.update_column(:email_queued_at, Time.current) if document.has_attribute?(:email_queued_at)
     respond_to do |format|
       format.html { redirect_to document, notice: "E-Mail queued for sending." }
       format.json { head :ok }

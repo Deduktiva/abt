@@ -444,6 +444,14 @@ class InvoiceTest < ActiveSupport::TestCase
     assert_not(warnings.any? { |w| w.include?("rejected by VIES") })
   end
 
+  test "destroying an invoice deletes its lines and tax classes" do
+    invoice = create_invoice_with_item_line
+
+    assert_difference([ "InvoiceLine.count", "InvoiceTaxClass.count" ], -1) do
+      invoice.destroy
+    end
+  end
+
   test "prelude stores and reads rich text" do
     invoice = invoices(:draft_invoice)
     invoice.update!(prelude: "<div>Hello <strong>world</strong></div>")

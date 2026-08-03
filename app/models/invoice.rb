@@ -73,10 +73,10 @@ class Invoice < ApplicationRecord
   has_one :delivery_note, dependent: :nullify
   has_one :offer_milestone
 
-  has_many :invoice_lines, -> { order(:position, :id) }, after_add: :line_addedremoved, after_remove: :line_addedremoved
+  has_many :invoice_lines, -> { order(:position, :id) }, dependent: :delete_all, after_add: :line_addedremoved, after_remove: :line_addedremoved
   accepts_nested_attributes_for :invoice_lines, allow_destroy: true, reject_if: :all_blank
 
-  has_many :invoice_tax_classes
+  has_many :invoice_tax_classes, dependent: :delete_all
 
   before_save :update_customer
   before_save :update_sums

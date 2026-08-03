@@ -142,23 +142,24 @@ export default class extends Controller {
         }
       })
 
-      if (response.ok) {
-        const turboStreamHtml = await response.text()
-
-        // Use MutationObserver to watch for DOM changes
-        this.observeDropdownChanges(() => {
-          this.attachOptionEventListeners()
-          this.reattachSearchListener()
-          this.validateCurrentItem()
-          this.hideLoading()
-        })
-
-        Turbo.renderStreamMessage(turboStreamHtml)
-      } else {
-        this.handleError(`Failed to load ${this.itemNameValue}s: ${response.statusText}`)
+      if (!response.ok) {
+        this.handleError(`Failed to load ${this.itemNameValue}s: ${await this.responseErrorMessage(response)}`)
         this.restoreDisplayOrShowError()
         this.isLoading = false
+        return
       }
+
+      const turboStreamHtml = await response.text()
+
+      // Use MutationObserver to watch for DOM changes
+      this.observeDropdownChanges(() => {
+        this.attachOptionEventListeners()
+        this.reattachSearchListener()
+        this.validateCurrentItem()
+        this.hideLoading()
+      })
+
+      Turbo.renderStreamMessage(turboStreamHtml)
     } catch (error) {
       this.handleError(`Error loading ${this.itemNameValue}s: ${error.message}`)
       this.restoreDisplayOrShowError()
@@ -169,14 +170,24 @@ export default class extends Controller {
   handleError(message) {
     // Dispatch a custom event to trigger the error notification system
     const errorEvent = new CustomEvent('turbo:fetch-request-error', {
-      detail: {
-        response: {
-          statusCode: 500,
-          statusText: message
-        }
-      }
+      detail: { message }
     })
     document.dispatchEvent(errorEvent)
+  }
+
+  // Prefer the server's JSON error field. Error responses that render HTML
+  // report their status instead: their body is a whole page.
+  async responseErrorMessage(response) {
+    const body = await response.text().catch(() => '')
+
+    try {
+      const error = JSON.parse(body).error
+      if (error) return error
+    } catch {
+      // not a JSON body
+    }
+
+    return response.statusText || `HTTP ${response.status}`
   }
 
   attachOptionEventListeners() {

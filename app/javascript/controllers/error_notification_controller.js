@@ -42,7 +42,9 @@ export default class extends Controller {
   handleFetchError(event) {
     const error = {
       id: Date.now(),
-      message: "Connection failed - server unreachable",
+      // Turbo's own event carries only the failed request; controllers that
+      // dispatch this event for a server error pass the message along.
+      message: event.detail?.message || "Connection failed - server unreachable",
       timestamp: new Date(),
       type: "network"
     }

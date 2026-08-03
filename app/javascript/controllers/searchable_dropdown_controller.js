@@ -15,6 +15,7 @@ export default class extends Controller {
   }
 
   connect() {
+    this.loadSequence = 0
     this.boundDocumentClickHandler = this.handleDocumentClick.bind(this)
     this.boundDependentChangedHandler = this.dependentChanged.bind(this)
     this.boundFilterOptions = this.filterOptions.bind(this)
@@ -36,6 +37,10 @@ export default class extends Controller {
   }
 
   disconnect() {
+    // Abandon whatever load is in flight
+    this.loadSequence++
+    this.stopObservingDropdown()
+
     // Remove document event listener
     document.removeEventListener('click', this.boundDocumentClickHandler)
 
@@ -51,33 +56,25 @@ export default class extends Controller {
     }
 
     // Remove dependent field event listeners
-    if (this.hasDependentFieldTarget) {
-      this.dependentFieldTarget.removeEventListener('blur', this.boundDependentChangedHandler)
-      this.dependentFieldTarget.removeEventListener('change', this.boundDependentChangedHandler)
-      this.dependentFieldTarget.removeEventListener('input', this.boundDependentChangedHandler)
-    } else if (this.dependentFieldSelectorValue) {
-      // Remove external field listeners
-      const externalField = document.querySelector(this.dependentFieldSelectorValue)
-      if (externalField) {
-        externalField.removeEventListener('change', this.boundDependentChangedHandler)
-        externalField.removeEventListener('input', this.boundDependentChangedHandler)
-      }
+    if (this.dependentField) {
+      this.dependentField.removeEventListener('blur', this.boundDependentChangedHandler)
+      this.dependentField.removeEventListener('change', this.boundDependentChangedHandler)
+      this.dependentField.removeEventListener('input', this.boundDependentChangedHandler)
+      this.dependentField = null
     }
   }
 
   setupEventListeners() {
-    // Listen for dependent field changes
-    if (this.hasDependentFieldTarget) {
-      this.dependentFieldTarget.addEventListener('blur', this.boundDependentChangedHandler)
-      this.dependentFieldTarget.addEventListener('change', this.boundDependentChangedHandler)
-      this.dependentFieldTarget.addEventListener('input', this.boundDependentChangedHandler)
-    } else if (this.dependentFieldSelectorValue) {
-      // Use document selector if no local target is available
-      const externalField = document.querySelector(this.dependentFieldSelectorValue)
-      if (externalField) {
-        externalField.addEventListener('change', this.boundDependentChangedHandler)
-        externalField.addEventListener('input', this.boundDependentChangedHandler)
-      }
+    // Listen for dependent field changes. Resolve the field once and keep the
+    // node: disconnect() has to hand removeEventListener the very node the
+    // listeners went on, and a Turbo render can put a different node behind
+    // the selector in between.
+    this.dependentField = this.resolveDependentField()
+
+    if (this.dependentField) {
+      this.dependentField.addEventListener('blur', this.boundDependentChangedHandler)
+      this.dependentField.addEventListener('change', this.boundDependentChangedHandler)
+      this.dependentField.addEventListener('input', this.boundDependentChangedHandler)
     }
 
     // Setup search functionality
@@ -91,6 +88,12 @@ export default class extends Controller {
 
     // Close dropdown when clicking outside
     document.addEventListener('click', this.boundDocumentClickHandler)
+  }
+
+  resolveDependentField() {
+    if (this.hasDependentFieldTarget) return this.dependentFieldTarget
+    if (this.dependentFieldSelectorValue) return document.querySelector(this.dependentFieldSelectorValue)
+    return null
   }
 
   handleDocumentClick(event) {
@@ -117,6 +120,8 @@ export default class extends Controller {
   }
 
   async loadItems() {
+    const sequence = ++this.loadSequence
+
     try {
       // Store current display before potentially showing loading
       this.storeCurrentDisplay()
@@ -142,41 +147,72 @@ export default class extends Controller {
         }
       })
 
-      if (response.ok) {
-        const turboStreamHtml = await response.text()
+      if (this.superseded(sequence)) return
 
-        // Use MutationObserver to watch for DOM changes
-        this.observeDropdownChanges(() => {
-          this.attachOptionEventListeners()
-          this.reattachSearchListener()
-          this.validateCurrentItem()
-          this.hideLoading()
-        })
-
-        Turbo.renderStreamMessage(turboStreamHtml)
-      } else {
-        this.handleError(`Failed to load ${this.itemNameValue}s: ${response.statusText}`)
-        this.restoreDisplayOrShowError()
-        this.isLoading = false
+      if (!response.ok || response.redirected) {
+        this.reportLoadFailure(`Failed to load ${this.itemNameValue}s: ${await this.responseErrorMessage(response)}`)
+        return
       }
+
+      const turboStreamHtml = await response.text()
+      if (this.superseded(sequence)) return
+
+      // Use MutationObserver to watch for DOM changes
+      this.observeDropdownChanges(() => {
+        this.attachOptionEventListeners()
+        this.reattachSearchListener()
+        this.validateCurrentItem()
+        this.hideLoading()
+      })
+
+      Turbo.renderStreamMessage(turboStreamHtml)
     } catch (error) {
-      this.handleError(`Error loading ${this.itemNameValue}s: ${error.message}`)
-      this.restoreDisplayOrShowError()
-      this.isLoading = false
+      if (this.superseded(sequence)) return
+
+      this.reportLoadFailure(`Error loading ${this.itemNameValue}s: ${error.message}`)
     }
+  }
+
+  // A dependent field can change again while a load is in flight. Only the
+  // newest load may render: an older one would push options for the wrong
+  // dependent into the list, and its observer would fire on the newer load's
+  // render and tear that one down before it attached its listeners.
+  superseded(sequence) {
+    return sequence !== this.loadSequence
+  }
+
+  reportLoadFailure(message) {
+    this.handleError(message)
+    this.showDropdownMessage(`Could not load ${this.itemNameValue}s`)
+    this.restoreDisplayOrShowError()
+    this.isLoading = false
   }
 
   handleError(message) {
     // Dispatch a custom event to trigger the error notification system
     const errorEvent = new CustomEvent('turbo:fetch-request-error', {
-      detail: {
-        response: {
-          statusCode: 500,
-          statusText: message
-        }
-      }
+      detail: { message }
     })
     document.dispatchEvent(errorEvent)
+  }
+
+  // Prefer the server's JSON error field. Error responses that render HTML
+  // report their status instead: their body is a whole page. A permission
+  // denial or an expired session answers a turbo_stream request with a
+  // redirect, which fetch follows into a 200 that renders as nothing.
+  async responseErrorMessage(response) {
+    if (response.redirected) return "not signed in or not permitted"
+
+    const body = await response.text().catch(() => '')
+
+    try {
+      const error = JSON.parse(body).error
+      if (error) return error
+    } catch {
+      // not a JSON body
+    }
+
+    return response.statusText || `HTTP ${response.status}`
   }
 
   attachOptionEventListeners() {
@@ -216,6 +252,8 @@ export default class extends Controller {
   }
 
   observeDropdownChanges(callback) {
+    this.stopObservingDropdown()
+
     const observer = new MutationObserver((mutations) => {
       // The Turbo Stream re-render always adds .dropdown-content, even when
       // there are no options (empty-state message only)
@@ -228,16 +266,25 @@ export default class extends Controller {
       )
 
       if (contentReplaced) {
-        observer.disconnect()
+        this.stopObservingDropdown()
         callback()
       }
     })
+
+    this.dropdownObserver = observer
 
     // Observe changes to the dropdown target
     observer.observe(this.dropdownTarget, {
       childList: true,
       subtree: true
     })
+  }
+
+  stopObservingDropdown() {
+    if (this.dropdownObserver) {
+      this.dropdownObserver.disconnect()
+      this.dropdownObserver = null
+    }
   }
 
   selectItem(item) {
@@ -264,13 +311,31 @@ export default class extends Controller {
   }
 
   updateSelectDisplay(item) {
+    this.renderSelection(item.name, item.subtext)
+  }
+
+  // Build the display as DOM nodes. Name and subtext are read back out of the
+  // option markup through textContent, which undoes the server's escaping, so
+  // interpolating them into innerHTML re-parses a customer named
+  // "<img onerror=...>" as markup. Pass a Node as subtext to keep the option's
+  // own subtext markup (matchcode plus any icons).
+  renderSelection(name, subtext) {
     const display = this.selectTarget.querySelector('.select-display')
-    if (display) {
-      display.innerHTML = `
-        <div class="fw-normal">${item.name}</div>
-        <div class="small text-muted">${item.subtext}</div>
-      `
+    if (!display) return
+
+    const nameElement = document.createElement('div')
+    nameElement.className = 'fw-normal'
+    nameElement.textContent = name
+
+    const subtextElement = document.createElement('div')
+    subtextElement.className = 'small text-muted'
+    if (subtext instanceof Node) {
+      subtextElement.append(...subtext.cloneNode(true).childNodes)
+    } else {
+      subtextElement.textContent = subtext || ''
     }
+
+    display.replaceChildren(nameElement, subtextElement)
   }
 
   validateCurrentItem() {
@@ -440,10 +505,17 @@ export default class extends Controller {
       display.innerHTML = `<span class="text-muted">${this.dependentSelectPromptValue}</span>`
     }
 
+    this.showDropdownMessage(this.dependentSelectPromptValue)
+  }
+
+  showDropdownMessage(message) {
     const dropdownContent = this.dropdownTarget.querySelector('.dropdown-content')
-    if (dropdownContent) {
-      dropdownContent.innerHTML = `<div class="dropdown-item text-muted">${this.dependentSelectPromptValue}</div>`
-    }
+    if (!dropdownContent) return
+
+    const item = document.createElement('div')
+    item.className = 'dropdown-item text-muted'
+    item.textContent = message
+    dropdownContent.replaceChildren(item)
   }
 
   hideLoading() {
@@ -455,19 +527,10 @@ export default class extends Controller {
         const selectedOption = this.dropdownTarget.querySelector(`[data-item-id="${this.currentItemIdValue}"]`)
 
         if (selectedOption) {
-          const name = selectedOption.querySelector('.fw-normal').textContent
-          const subtextElement = selectedOption.querySelector('.small')
-
-          let subtextHTML = ''
-          if (subtextElement) {
-            // Preserve the entire structure of the subtext, including any icons or additional elements
-            subtextHTML = subtextElement.innerHTML
-          }
-
-          display.innerHTML = `
-            <div class="fw-normal">${name}</div>
-            <div class="small text-muted">${subtextHTML}</div>
-          `
+          this.renderSelection(
+            selectedOption.querySelector('.fw-normal').textContent,
+            selectedOption.querySelector('.small')
+          )
           this.markAsValid()
         } else {
           // Item not found in new options - try to restore from stored display

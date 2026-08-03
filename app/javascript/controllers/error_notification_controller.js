@@ -6,6 +6,7 @@ export default class extends Controller {
 
   connect() {
     this.errors = []
+    this.nextErrorId = 1
     this.maxErrorsValue = this.maxErrorsValue || 5
     this.updateDisplay()
 
@@ -41,8 +42,10 @@ export default class extends Controller {
 
   handleFetchError(event) {
     const error = {
-      id: Date.now(),
-      message: "Connection failed - server unreachable",
+      id: this.nextErrorId++,
+      // Turbo's own event carries only the failed request; controllers that
+      // dispatch this event for a server error pass the message along.
+      message: event.detail?.message || "Connection failed - server unreachable",
       timestamp: new Date(),
       type: "network"
     }
@@ -51,7 +54,7 @@ export default class extends Controller {
 
   handleFrameMissing(event) {
     const error = {
-      id: Date.now(),
+      id: this.nextErrorId++,
       message: "Page content missing or server error",
       timestamp: new Date(),
       type: "server"
@@ -63,7 +66,7 @@ export default class extends Controller {
     const response = event.detail.fetchResponse
     if (response && !response.succeeded) {
       const error = {
-        id: Date.now(),
+        id: this.nextErrorId++,
         message: `Form submission failed (${response.statusCode || 'Unknown error'})`,
         timestamp: new Date(),
         type: "form"
@@ -74,7 +77,7 @@ export default class extends Controller {
 
   handleOffline(event) {
     const error = {
-      id: Date.now(),
+      id: this.nextErrorId++,
       message: "You are now offline",
       timestamp: new Date(),
       type: "network"
@@ -185,7 +188,7 @@ export default class extends Controller {
   testError(event) {
     const message = event?.params?.message || "Test error"
     const error = {
-      id: Date.now(),
+      id: this.nextErrorId++,
       message: message,
       timestamp: new Date(),
       type: "test"

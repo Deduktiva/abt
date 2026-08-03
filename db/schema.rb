@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_03_202822) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_03_213704) do
   create_table "acceptance_submissions", force: :cascade do |t|
     t.integer "attachment_id"
     t.datetime "created_at", null: false
@@ -86,7 +86,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_202822) do
     t.string "document_accent_color"
     t.string "document_contact_line1"
     t.string "document_contact_line2"
-    t.string "document_email_auto_bcc", default: "bcc@example.com", null: false
+    t.string "document_email_auto_bcc"
     t.string "document_email_from", default: "from@example.com", null: false
     t.string "document_email_reply_to"
     t.string "invoice_footer"

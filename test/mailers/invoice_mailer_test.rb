@@ -36,6 +36,13 @@ class InvoiceMailerTest < ActionMailer::TestCase
     assert_nil mail.reply_to
   end
 
+  test "customer_email omits Bcc when the issuer has no auto-BCC configured" do
+    businesses(:one).update!(document_email_auto_bcc: nil)
+    mail = InvoiceMailer.with(invoice: invoices(:published_invoice)).customer_email
+
+    assert_nil mail.bcc
+  end
+
   test "customer_email skips contacts whose project does not match the invoice's project" do
     # good_eu_project_one_lead is scoped to project `one`. An invoice on
     # project `two` should NOT include that contact.

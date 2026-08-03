@@ -43,16 +43,17 @@ Levels name what a state *means*. Which colour that becomes is one table's decis
 
 | Level | Class | Means | Examples |
 |---|---|---|---|
-| `:neutral` | `bg-secondary` | inert fact — no action, no progression | Inactive, built-in, Expired, Rejected, counts |
-| `:info` | `bg-info` | orients the reader; not about this record's progress | This is you, This session |
-| `:active` | `bg-primary` | where the record is expected to be right now, and not finished | Ordered |
+| `:neutral` | `bg-secondary` | recedes — a label, a count, or a state that is out of play | Inactive, built-in, Expired, Rejected, counts |
+| `:info` | `bg-info` | live but not in motion — nothing has happened yet, and nothing is wrong | Draft, This is you, This session |
+| `:active` | `bg-primary` | in motion — under way and not finished | Ordered |
 | `:warning` | `bg-warning` | someone needs to act | Unsent, Pending, Not verified |
 | `:danger` | `bg-danger` | broken, or past a deadline | Overdue, Blocked, Stale, Invalid per VIES |
 | `:success` | `bg-success` | a good outcome — finished healthily, or a flag that is on and healthy | Paid, Booked, Confirmed, Enabled, Alive |
 
 Choosing between them:
 - **`:active` vs `:warning`** — both mean "not done". Ask who the badge addresses: `:warning` addresses the reader ("Unsent" exists to say *go send it*), `:active` describes the record ("Ordered" exists to say *this is where it is*). Not "actionable vs not" — an Ordered offer has plenty of work left, the badge just isn't the thing asking for it.
-- **`:active` vs `:info`** — `:active` is a rung on the record's own lifecycle; `:info` is a fact sitting outside it.
+- **`:active` vs `:info`** — has anything happened yet? A draft is an editable working copy sitting before the first rung, so it is `:info`; an accepted offer is under way, so it is `:active`. **Draft is `:info` on every document type** — invoice, delivery note and offer alike.
+- **`:info` vs `:neutral`** — both mean "nothing to do". Grey recedes (labels, counts, states that are out of play); blue is worth a glance.
 - **`:neutral` vs `:danger`** — a dead end that needs nothing is `:neutral` (Rejected, Expired). Red is for something that ought to be fixed.
 - **Don't spend `:success` on an intermediate rung**, or the progression stops reading as one: an accepted offer goes Ordered → Invoiced → Paid, and only the last is green. `:success` is not "done" — it also covers a flag that is simply on and healthy — but within a progression, green marks the end of it.
 

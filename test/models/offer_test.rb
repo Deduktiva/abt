@@ -109,6 +109,14 @@ class OfferTest < ActiveSupport::TestCase
     assert_includes offer.errors[:customer_contact], "must belong to the offer's customer"
   end
 
+  test "customer_contact is rechecked when only the customer changes" do
+    offer = offers(:draft_offer)
+    offer.update!(customer_contact: CustomerContact.create!(customer: offer.customer, name: "C", email: "c@example.com"))
+    offer.customer = customers(:good_eu)
+    assert_not offer.valid?
+    assert_includes offer.errors[:customer_contact], "must belong to the offer's customer"
+  end
+
   test "customer_contact can be assigned if it belongs to the offer's customer" do
     offer = offers(:draft_offer)
     contact = CustomerContact.create!(

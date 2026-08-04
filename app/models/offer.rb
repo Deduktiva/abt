@@ -25,7 +25,10 @@ class Offer < ApplicationRecord
   strips_rich_text_edges :internal_notes
 
   validates :state, inclusion: { in: STATES }
-  validate :customer_contact_must_belong_to_customer, if: :will_save_change_to_customer_contact_id?
+  # Also on a customer change: moving the offer to another customer while the
+  # contact stays put is what leaves the two pointing at different customers.
+  validate :customer_contact_must_belong_to_customer,
+           if: -> { will_save_change_to_customer_contact_id? || will_save_change_to_customer_id? }
 
   after_create :create_initial_version
 

@@ -27,6 +27,7 @@
   %thead
     %tr
       %th= t('mailers.upcoming_offer_deliveries.columns.offer_number')
+      %th= t('mailers.upcoming_offer_deliveries.columns.internal_reference')
       %th= t('mailers.upcoming_offer_deliveries.columns.customer')
       %th= t('mailers.upcoming_offer_deliveries.columns.delivery_date')
       %th= t('mailers.upcoming_offer_deliveries.columns.missing')
@@ -34,6 +35,7 @@
     - @entries.each do |entry|
       %tr
         %td= link_to entry[:offer].document_number, AbsoluteUrl.offer(entry[:offer])
+        %td= entry[:offer].internal_reference
         %td= entry[:offer].customer.name
         %td= l(entry[:offer].accepted_version.delivery_date)
         %td= entry[:missing].join('; ')

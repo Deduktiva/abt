@@ -90,12 +90,14 @@ en:
       main_message: "There are %{count} unpaid invoice(s) past their due date."
       columns:
         invoice_number: "Invoice no."
+        internal_reference: "Internal ref."
         customer: "Customer"
         invoice_date: "Invoice date"
         due_date: "Due date"
         gross_amount: "Gross amount"
         days_overdue: "Days overdue"
       short:
+        internal_reference: "Ref:"
         invoice_date: "Date:"
         due_date: "Due:"
         days_overdue: "%{days} days overdue"
@@ -111,10 +113,12 @@ en:
         other: "There are %{count} offers whose validity has expired."
       columns:
         offer_number: "Offer no."
+        internal_reference: "Internal ref."
         customer: "Customer"
         expired_on: "Expired on"
         total: "Total"
       short:
+        internal_reference: "Ref:"
         expired_on: "Expired:"
 
     upcoming_offer_deliveries:
@@ -128,10 +132,12 @@ en:
         other: "%{count} accepted offers need invoicing attention: delivery is within 5 days or an on-order milestone is not yet booked."
       columns:
         offer_number: "Offer no."
+        internal_reference: "Internal ref."
         customer: "Customer"
         delivery_date: "Delivery date"
         missing: "Missing"
       short:
+        internal_reference: "Ref:"
         delivery: "Delivery:"
       status:
         unconverted:

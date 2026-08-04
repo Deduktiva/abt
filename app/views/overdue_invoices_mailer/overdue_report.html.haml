@@ -31,6 +31,7 @@
   %thead
     %tr
       %th= t('mailers.overdue_invoices.columns.invoice_number')
+      %th= t('mailers.overdue_invoices.columns.internal_reference')
       %th= t('mailers.overdue_invoices.columns.customer')
       %th= t('mailers.overdue_invoices.columns.invoice_date')
       %th= t('mailers.overdue_invoices.columns.due_date')
@@ -40,6 +41,7 @@
     - @invoices.each do |invoice|
       %tr
         %td= invoice.document_number
+        %td= invoice.internal_reference
         %td= invoice.customer.matchcode
         %td= l(invoice.date) if invoice.date
         %td= l(invoice.due_date) if invoice.due_date

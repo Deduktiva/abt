@@ -3,6 +3,7 @@
 <%= t('mailers.expiring_offers.main_message', count: @offers.size) %>
 
 <% @offers.each do |offer| %>
-<%= "#{offer.document_number}  #{offer.customer.name}  #{t('mailers.expiring_offers.short.expired_on')} #{l(offer.expires_at) if offer.expires_at}  #{sprintf('%.2f', offer.current_sent_version.sum_net)}" %>
+<% reference = "#{t('mailers.expiring_offers.short.internal_reference')} #{offer.internal_reference}  " if offer.internal_reference.present? %>
+<%= "#{offer.document_number}  #{reference}#{offer.customer.name}  #{t('mailers.expiring_offers.short.expired_on')} #{l(offer.expires_at) if offer.expires_at}  #{sprintf('%.2f', offer.current_sent_version.sum_net)}" %>
 <%= AbsoluteUrl.offer(offer) %>
 <% end %>

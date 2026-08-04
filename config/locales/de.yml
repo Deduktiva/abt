@@ -14,12 +14,14 @@ de:
       main_message: "Es gibt %{count} unbezahlte Rechnung(en), deren Fälligkeitsdatum überschritten ist."
       columns:
         invoice_number: "Rechnungsnr."
+        internal_reference: "Interne Ref."
         customer: "Kunde"
         invoice_date: "Rechnungsdatum"
         due_date: "Fälligkeitsdatum"
         gross_amount: "Bruttobetrag"
         days_overdue: "Tage überfällig"
       short:
+        internal_reference: "Ref:"
         invoice_date: "Datum:"
         due_date: "Fällig:"
         days_overdue: "%{days} Tage überfällig"
@@ -35,10 +37,12 @@ de:
         other: "Es gibt %{count} Angebote, deren Gültigkeit abgelaufen ist."
       columns:
         offer_number: "Angebotsnr."
+        internal_reference: "Interne Ref."
         customer: "Kunde"
         expired_on: "Abgelaufen am"
         total: "Summe"
       short:
+        internal_reference: "Ref:"
         expired_on: "Abgelaufen:"
 
     upcoming_offer_deliveries:
@@ -52,10 +56,12 @@ de:
         other: "%{count} angenommene Angebote brauchen Verrechnungsaufmerksamkeit: Liefertermin innerhalb von 5 Tagen oder ein Meilenstein bei Auftrag ist noch nicht gebucht."
       columns:
         offer_number: "Angebotsnr."
+        internal_reference: "Interne Ref."
         customer: "Kunde"
         delivery_date: "Liefertermin"
         missing: "Offen"
       short:
+        internal_reference: "Ref:"
         delivery: "Lieferung:"
       status:
         unconverted:

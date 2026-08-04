@@ -5,10 +5,10 @@ class OverdueInvoicesMailerTest < ActionMailer::TestCase
     ActionMailer::Base.deliveries.clear
 
     @overdue_a = invoices(:published_invoice)
-    @overdue_a.update_columns(due_date: 10.days.ago.to_date, paid_at: nil)
+    @overdue_a.update_columns(due_date: 10.days.ago.to_date, paid_at: nil, internal_reference: "PROJ-42")
 
     @overdue_b = invoices(:auto_email_invoice)
-    @overdue_b.update_columns(due_date: 3.days.ago.to_date, paid_at: nil)
+    @overdue_b.update_columns(due_date: 3.days.ago.to_date, paid_at: nil, internal_reference: "PROJ-43")
   end
 
   test "overdue_report builds an email to the issuer's reporting_email" do
@@ -31,6 +31,7 @@ class OverdueInvoicesMailerTest < ActionMailer::TestCase
 
     invoices.each do |inv|
       assert_match inv.document_number, html
+      assert_match inv.internal_reference, html
       assert_match inv.customer.matchcode, html
       assert_match inv.date.strftime("%d.%m.%Y"), html
       assert_match inv.due_date.strftime("%d.%m.%Y"), html
@@ -48,10 +49,19 @@ class OverdueInvoicesMailerTest < ActionMailer::TestCase
     text = mail.text_part.body.to_s
 
     assert_match @overdue_a.document_number, text
+    assert_match "Ref: PROJ-42", text
     assert_match @overdue_a.customer.matchcode, text
     assert_match @overdue_a.date.strftime("%d.%m.%Y"), text
     assert_match @overdue_a.due_date.strftime("%d.%m.%Y"), text
     assert_match sprintf("%.2f", @overdue_a.sum_total), text
     assert_match "10 days overdue", text
+  end
+
+  test "overdue_report text omits the reference label for an invoice without one" do
+    @overdue_a.update_columns(internal_reference: nil)
+
+    mail = OverdueInvoicesMailer.with(invoices: [ @overdue_a ]).overdue_report
+
+    assert_no_match(/Ref:/, mail.text_part.body.to_s)
   end
 end

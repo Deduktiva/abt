@@ -31,6 +31,7 @@
   %thead
     %tr
       %th= t('mailers.expiring_offers.columns.offer_number')
+      %th= t('mailers.expiring_offers.columns.internal_reference')
       %th= t('mailers.expiring_offers.columns.customer')
       %th= t('mailers.expiring_offers.columns.expired_on')
       %th.numeric= t('mailers.expiring_offers.columns.total')
@@ -38,6 +39,7 @@
     - @offers.each do |offer|
       %tr
         %td= link_to offer.document_number, AbsoluteUrl.offer(offer)
+        %td= offer.internal_reference
         %td= offer.customer.name
         %td= l(offer.expires_at) if offer.expires_at
         %td.numeric= sprintf('%.2f', offer.current_sent_version.sum_net)

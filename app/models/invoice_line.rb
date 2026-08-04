@@ -6,6 +6,9 @@ class InvoiceLine < ApplicationRecord
   belongs_to :invoice
   belongs_to :sales_tax_product_class, optional: true
 
+  # Relation is optional, validate explicitly
+  validates :sales_tax_product_class, presence: { message: "must exist" }, if: -> { sales_tax_product_class_id.present? }
+
   # A published invoice's lines are final. Publishing saves the lines before it
   # flips the flag, so this only guards saves after the fact.
   before_save :clear_non_item_fields, unless: :invoice_published?

@@ -35,7 +35,7 @@
         %tr
           %th
             %input#select-all{type: 'checkbox', 'data-action': 'change->bulk-select#toggleAll', 'data-bulk-select-target': 'selectAll'}
-          %th Document#
+          %th Delivery#
           - if @selected_customer_id.nil?
             %th Customer
           %th Project
@@ -67,7 +67,7 @@
     %table.table.table-striped.table-hover.table-sm
       %thead
         %tr
-          %th Document#
+          %th Delivery#
           - if @selected_customer_id.nil?
             %th Customer
           %th Project

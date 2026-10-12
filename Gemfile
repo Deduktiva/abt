@@ -57,7 +57,7 @@ group :test do
 end
 
 group :test, :production do
-  gem "pg", "~> 1.6"
+  gem "pg", "~> 1.7"
 end
 
 gem "config"

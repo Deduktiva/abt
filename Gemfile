@@ -69,7 +69,7 @@ gem "bootstrap-icons", "~> 1.0", require: "bootstrap_icons"
 gem "haml-rails"
 gem "simple_form"
 
-gem "mailgun-ruby", "~> 1.4.4"
+gem "mailgun-ruby", "~> 1.4.5"
 
 gem "webauthn", "~> 3.4"
 

@@ -1,0 +1,20 @@
+# Regenerates /etc/apache2/abt-geoip/allow.conf and reloads Apache.
+# System unit (runs as root), not a user unit — keep it out of
+# deploy/systemd/, which bin/production-update links as abt-user units.
+#
+# Install:
+#   sudo cp deploy/apache/abt-geoip-update.{service,timer} /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now abt-geoip-update.timer
+
+[Unit]
+Description=Regenerate ABT Apache GeoIP allowlist
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=/etc/apache2/abt-geoip
+
+[Service]
+Type=oneshot
+ExecStart=/srv/abt/bin/abt-geoip-update
+PrivateTmp=yes
+NoNewPrivileges=yes

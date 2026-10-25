@@ -1,0 +1,8 @@
+# IP addresses or CIDR networks always allowed, regardless of country.
+# Copy to /etc/apache2/abt-geoip/exempt and run bin/abt-geoip-update.
+# Host bits must be zero for networks (192.0.2.0/24, not 192.0.2.1/24).
+#
+# Add HAProxy's address here if it health-checks over HTTP: its checks
+# carry its own IP, not a client's.
+192.0.2.10
+2001:db8::/32

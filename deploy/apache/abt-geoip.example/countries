@@ -1,0 +1,6 @@
+# Countries allowed to reach ABT, as ISO 3166 alpha-2 codes.
+# Copy to /etc/apache2/abt-geoip/countries and run bin/abt-geoip-update.
+# Remove the file (or empty it) and rerun to lift the restriction.
+AT
+DE
+CH

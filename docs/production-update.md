@@ -148,6 +148,34 @@ The `RequestHeader set X-Forwarded-Proto "https"` line in `abt-app.conf` is load
 
 The `:443` vhost expects connections to arrive via an HAProxy SNI router using `send-proxy-v2` — `RemoteIPProxyProtocol On` relies on it for the real client IP. Any TCP client that can reach this listener directly can forge the client IP, so make sure `:443` on the Apache host is only reachable from HAProxy (bind Apache to an internal interface and/or restrict at the network layer). HAProxy's `:80` frontend 301-redirects all HTTP traffic to HTTPS and never forwards upstream; Apache has no `:80` vhost.
 
+### GeoIP country allowlist
+
+Optional. When `/etc/apache2/abt-geoip/allow.conf` exists, `abt-app.conf` limits both hosts (app and customer portal) to clients from the allowed countries plus explicit IP exemptions; everyone else gets a 403. `/robots.txt` and `/.well-known/acme-challenge/` stay reachable from anywhere. Without `allow.conf` there is no restriction.
+
+The lists live outside the checkout, so deploys never touch them:
+
+- `/etc/apache2/abt-geoip/countries` — ISO 3166 alpha-2 codes, one per line.
+- `/etc/apache2/abt-geoip/exempt` — IP addresses or CIDR networks that are always allowed.
+- `/etc/apache2/abt-geoip/allow.conf` — generated from the two above by [`bin/abt-geoip-update`](../bin/abt-geoip-update). Don't edit by hand.
+
+`bin/abt-geoip-update` downloads the five RIRs' delegated-extended statistics, keeps the allocated/assigned IPv4/IPv6 blocks of the listed countries, and writes them as `Require ip` lines alongside the exemptions. It runs `apache2ctl configtest` and rolls back on failure, then reloads Apache; a download failure, an unknown country code, or a malformed exemption leaves the previous `allow.conf` in place. Emptying or deleting `countries` and rerunning removes `allow.conf`. RIR data maps a block to the country it is registered in, which is coarser than commercial geolocation. Needs `python3`.
+
+One-time setup:
+
+```bash
+sudo mkdir -p /etc/apache2/abt-geoip
+sudo cp deploy/apache/abt-geoip.example/{countries,exempt} /etc/apache2/abt-geoip/
+# edit both files
+sudo /srv/abt/bin/abt-geoip-update
+sudo cp deploy/apache/abt-geoip-update.{service,timer} /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now abt-geoip-update.timer
+```
+
+After editing `countries` or `exempt`, run `sudo /srv/abt/bin/abt-geoip-update` (or `sudo systemctl start abt-geoip-update.service`) to apply. The timer refreshes the data daily.
+
+Matching uses the client IP mod_remoteip recovers from the PROXY-protocol header. HAProxy HTTP health checks carry HAProxy's own address; add it to `exempt` if checks go over HTTP.
+
 ### TLS certificates (mod_md)
 
 Apache's `mod_md` handles issuance and renewal in-process. Validation uses TLS-ALPN-01 over `:443`, which traverses HAProxy's SNI passthrough cleanly because HAProxy forwards the ClientHello (including the ALPN extension) verbatim upstream.

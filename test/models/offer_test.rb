@@ -32,7 +32,16 @@ class OfferTest < ActiveSupport::TestCase
     assert_nil OfferVersion.find_by(id: draft_id)
   end
 
-  test "accept refused unless sent" do
+  test "accept from expired stores order data" do
+    offer = offers(:sent_offer)
+    offer.update!(state: "expired", reported_expired_at: Time.current)
+    offer.accept!(order_number: "PO-LATE", ordered_on: Date.current)
+    assert offer.reload.accepted?
+    assert_equal "PO-LATE", offer.order_number
+    assert_not_nil offer.accepted_version_id
+  end
+
+  test "accept refused unless sent or expired" do
     assert_raises(Offer::InvalidTransition) { offers(:draft_offer).accept!(order_number: "x", ordered_on: Date.current) }
   end
 

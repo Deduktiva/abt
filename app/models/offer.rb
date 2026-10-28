@@ -64,7 +64,9 @@ class Offer < ApplicationRecord
 
   def accept!(order_number:, ordered_on:, order_pdf: nil)
     with_lock do
-      raise InvalidTransition, "accept requires state sent, was #{state}" unless sent?
+      # Customers do order after the validity window lapses; whether to honour
+      # a late order is a business call, so expired offers stay acceptable.
+      raise InvalidTransition, "accept requires sent or expired, was #{state}" unless sent? || expired?
       self.ordered_on = ordered_on
       raise InvalidTransition, "order date is missing or invalid" if self.ordered_on.nil?
       self.accepted_version = versions.where.not(sent_at: nil).order(:version_number).last

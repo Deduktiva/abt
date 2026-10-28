@@ -124,7 +124,7 @@
                   - if @offer.failed_at
                     = l(@offer.failed_at.to_date)
                 - if can?('offers.edit')
-                  - if @offer.sent?
+                  - if @offer.sent? || @offer.expired?
                     %button.btn.btn-sm.btn-success.ms-auto{data: {action: 'click->modal#open'}} Accept…
                     = button_to 'Reject', reject_offer_path(@offer), method: :post, class: 'btn btn-sm btn-outline-danger', data: { 'turbo-confirm': 'Reject this offer?' }
                     = render 'accept_modal'

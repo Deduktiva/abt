@@ -255,6 +255,25 @@ class OffersControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action=?]", mark_failed_offer_path(offer)
   end
 
+  test "expired offer show offers accept and reject" do
+    offer = offers(:sent_offer)
+    offer.update!(state: "expired", reported_expired_at: Time.current)
+    get offer_url(offer)
+    assert_select "form[action=?] input[type=file][name=order_pdf]", accept_offer_path(offer)
+    assert_select "form[action=?]", reject_offer_path(offer)
+  end
+
+  test "accept on an expired offer records the order" do
+    offer = offers(:sent_offer)
+    offer.update!(state: "expired", reported_expired_at: Time.current)
+    pdf = fixture_file_upload("acceptance.pdf", "application/pdf")
+    post accept_offer_url(offer), params: { order_number: "PO-LATE", ordered_on: "2026-07-01", order_pdf: pdf }
+    assert_redirected_to offer_url(offer)
+    offer.reload
+    assert offer.accepted?
+    assert offer.order_attachment.present?
+  end
+
   test "show states the decision on rejected offers" do
     offer = offers(:sent_offer)
     offer.reject!

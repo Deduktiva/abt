@@ -102,7 +102,7 @@ Production does not use the distribution Ruby. `bin/production-update` compiles 
 - **OpenSSL.** The build is configured with `--with-openssl-dir=/usr`, so ruby-build never compiles its own OpenSSL into the prefix; Ruby links Debian's `libssl.so.3` and OpenSSL fixes come from apt (restart the units afterwards, e.g. via `needrestart`). After building, the script checks with `ldd` that the `openssl` extension resolves `libssl` under `/lib` or `/usr/lib` and refuses the build otherwise.
 - **Network.** A build downloads the tarball from `cache.ruby-lang.org`; the submodule checkout fetches from `github.com`.
 - **Duration.** A build takes several minutes and runs before anything else changes, while the old processes keep serving. A failed build aborts the deploy with nothing switched.
-- **Upgrading Ruby.** Bump `.tool-versions` (CI picks it up via `ruby/setup-ruby`) and deploy. If ruby-build doesn't know the version yet, merge the pending Dependabot `deploy/ruby-build` PR first, or bump the submodule by hand:
+- **Upgrading Ruby.** Bump `.tool-versions` (CI picks it up via `ruby/setup-ruby`) and deploy. CI's `ruby-build knows .tool-versions Ruby` job fails if the pinned ruby-build has no definition for it; in that case merge the pending Dependabot `deploy/ruby-build` PR first, or bump the submodule by hand:
 
   ```bash
   git -C deploy/ruby-build fetch --tags && git -C deploy/ruby-build checkout v20261023

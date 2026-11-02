@@ -129,6 +129,28 @@ jobs:
     - name: Run Brakeman
       run: bundle exec brakeman --no-pager --exit-on-warn --exit-on-error
 
+  ruby-build-definition:
+    name: ruby-build knows .tool-versions Ruby
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+        submodules: true
+
+    # bin/production-update builds the .tool-versions Ruby with the pinned
+    # deploy/ruby-build submodule. Fail here, not at deploy time, when a Ruby
+    # bump outruns the submodule or a submodule bump drops the definition.
+    - name: Check ruby-build has a definition for the pinned Ruby
+      run: |
+        version="$(awk '$1 == "ruby" { print $2 }' .tool-versions)"
+        echo "Pinned Ruby: ${version}; ruby-build: $(deploy/ruby-build/bin/ruby-build --version)"
+        if ! deploy/ruby-build/bin/ruby-build --definitions | grep -qxF "$version"; then
+          echo "::error file=.tool-versions::deploy/ruby-build has no definition for ruby ${version}; bump the submodule."
+          exit 1
+        fi
+
   stimulus-memory-leak-check:
     name: Stimulus Memory Leak Check
     runs-on: ubuntu-latest

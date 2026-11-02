@@ -6,8 +6,10 @@ After=network.target
 Type=simple
 WorkingDirectory=%h
 Environment=RAILS_ENV=production
+# Pinned Ruby installed by bin/production-update (see docs/production-update.md).
+Environment=PATH=%h/.local/share/abt-ruby/current/bin:/usr/local/bin:/usr/bin:/bin
 Environment=FOP_EXTRA_JAR_PATH=/srv/fop-extra-jars
-ExecStart=/usr/bin/bundle exec %h/bin/jobs
+ExecStart=%h/.local/share/abt-ruby/current/bin/bundle exec %h/bin/jobs
 SyslogIdentifier=abt-jobs
 TimeoutStopSec=30
 Restart=always

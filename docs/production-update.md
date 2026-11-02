@@ -27,25 +27,34 @@ The script sets `RAILS_ENV=production` for the entire session and performs the f
 2. **Code Update**
    - Runs `git pull --rebase` to get latest code
 
-3. **Dependencies**
-   - Runs `bundle install` to install/update Ruby gems
+3. **Pinned Ruby** (see [Ruby](#ruby))
+   - Checks out the `deploy/ruby-build` submodule at its recorded commit
+   - Builds the Ruby version from `.tool-versions` into `~/.local/share/abt-ruby/<version>` if it isn't there yet, and uses it for every later step
 
-4. **Systemd Unit Install**
+4. **Dependencies**
+   - Runs `bundle install` to install/update Ruby gems
+   - If the Ruby version changed, runs `bundle pristine` to recompile native extensions
+
+5. **Systemd Unit Install**
    - Symlinks every `*.service` file in `deploy/systemd/` into `~/.config/systemd/user/` and runs `systemctl --user daemon-reload`. Idempotent — re-runs on every deploy so unit drift can't accumulate. Skips (and warns about) targets that already exist as non-symlinks so operator customizations aren't clobbered. Tolerant of an unreachable user systemd bus.
 
-5. **Asset Compilation**
+6. **Asset Compilation**
    - Runs `bundle exec rails assets:precompile`
 
-6. **Database Backup**
+7. **Database Backup**
    - Runs `bundle exec rails db:backup` (see [Database backups](#database-backups)). A failed backup aborts the deploy before any migration runs; set `SKIP_DB_BACKUP=1` to deploy without one.
 
-7. **Database Migration**
+8. **Database Migration**
    - Runs `bundle exec rails db:migrate`
 
-8. **Application Restart**
-   - Runs `systemctl --user reload abt-puma.service`, which `ExecReload`s `SIGUSR2` for a Puma hot-restart. Sub-second window where the listener is briefly closed; Apache buffers the request and retries.
+9. **Ruby Switch**
+   - If the Ruby version changed, atomically repoints `~/.local/share/abt-ruby/current` and deletes every installed Ruby except the new and the previous one
 
-9. **Jobs Worker Restart**
+10. **Application Restart**
+   - Runs `systemctl --user reload abt-puma.service`, which `ExecReload`s `SIGUSR2` for a Puma hot-restart. Sub-second window where the listener is briefly closed; Apache buffers the request and retries.
+   - If the Ruby version changed, runs `systemctl --user restart abt-puma.service` instead: a hot restart re-execs the interpreter the master is already running.
+
+11. **Jobs Worker Restart**
    - Runs `systemctl --user restart abt-jobs.service` to restart the Solid Queue worker so it picks up new code and updated recurring schedules.
 
 ### Requirements
@@ -83,6 +92,32 @@ If you changed `config/puma.rb` itself, or upgraded the Puma gem, a hot reload w
 ```bash
 systemctl --user restart abt-puma.service
 ```
+
+## Ruby
+
+Production does not use the distribution Ruby. `bin/production-update` compiles the version pinned in `.tool-versions` with [ruby-build](https://github.com/rbenv/ruby-build), which is vendored as the git submodule `deploy/ruby-build`. ruby-build verifies the SHA-256 of the Ruby tarball against its own definition files, and the submodule pins ruby-build itself by commit, so the whole chain is pinned in this repository.
+
+- **Layout.** Each version is installed to `~/.local/share/abt-ruby/<version>`. `~/.local/share/abt-ruby/current` is a symlink to the active one; the systemd units exec `current/bin/bundle` and put `current/bin` first on `PATH`. A prefix only counts as installed once it contains `.abt-build-complete`; an interrupted build is removed and redone on the next deploy.
+- **Build dependencies.** `build-essential libssl-dev libyaml-dev zlib1g-dev libffi-dev`, plus `curl` or `wget`. The script checks for them before building and prints the `apt install` line if any are missing; it never runs `sudo`. `libgmp-dev` is optional (faster bignums). YJIT is only compiled in if `rustc` is installed.
+- **Network.** A build downloads the tarball from `cache.ruby-lang.org`; the submodule checkout fetches from `github.com`.
+- **Duration.** A build takes several minutes and runs before anything else changes, while the old processes keep serving. A failed build aborts the deploy with nothing switched.
+- **Upgrading Ruby.** Bump `.tool-versions` (CI picks it up via `ruby/setup-ruby`) and deploy. If ruby-build doesn't know the version yet, merge the pending Dependabot `deploy/ruby-build` PR first, or bump the submodule by hand:
+
+  ```bash
+  git -C deploy/ruby-build fetch --tags && git -C deploy/ruby-build checkout v20261023
+  git add deploy/ruby-build
+  ```
+
+- **Rollback.** The previous Ruby is kept. Revert `.tool-versions` and deploy again: no rebuild, `bundle pristine` recompiles the native gems, `current` flips back, Puma does a full restart.
+- **Shells.** For an interactive console as the app user, add `export PATH="$HOME/.local/share/abt-ruby/current/bin:$PATH"` to `~/.profile`.
+
+### ruby-build updates (Dependabot)
+
+Dependabot's `gitsubmodule` ecosystem keeps `deploy/ruby-build` current. It moves the submodule to the HEAD of the branch named in `.gitmodules` (`master`) rather than to ruby-build's `vYYYYMMDD` release tags, so a PR may land between releases. ruby-build releases are cut straight from master, so in practice the difference is a few unreleased commits. The 7-day cooldown keeps it from picking up a commit that was just pushed.
+
+### First switch from the system Ruby
+
+The first deploy with this script builds Ruby, runs `bundle pristine` (gems in `vendor/bundle` were compiled against Debian's `libruby` and won't load in the new interpreter), switches the units over and fully restarts Puma. Install the build dependencies listed above beforehand. Afterwards, Debian's `ruby` and `ruby-bundler` packages are no longer used by ABT.
 
 ## First-time database bootstrap
 

@@ -90,6 +90,152 @@ update_git() {
     fi
 }
 
+# --- Pinned Ruby -----------------------------------------------------------
+#
+# Production runs the Ruby pinned in .tool-versions, built by the ruby-build
+# release pinned as the deploy/ruby-build submodule (Dependabot bumps it).
+# Each version lives in its own prefix under RUBIES_DIR; the `current` symlink
+# is what the systemd units exec. The symlink only moves after the new Ruby
+# is built and the bundle is installed against it.
+
+RUBY_BUILD_DIR="deploy/ruby-build"
+# Must match the paths in deploy/systemd/*.service.
+RUBIES_DIR="${HOME}/.local/share/abt-ruby"
+# Marker written into a prefix once ruby-build finished successfully. A prefix
+# without it is a leftover from an interrupted build and gets rebuilt.
+RUBY_COMPLETE_MARKER=".abt-build-complete"
+
+# Debian packages ruby-build needs to compile Ruby. libgmp-dev is optional
+# (faster bignums); readline is not needed since Ruby 3.3 ships reline.
+RUBY_BUILD_DEPS=(build-essential libssl-dev libyaml-dev zlib1g-dev libffi-dev)
+
+RUBY_VERSION_PINNED=""
+RUBY_PREVIOUS=""
+RUBY_CHANGED=0
+
+read_pinned_ruby_version() {
+    RUBY_VERSION_PINNED="$(awk '$1 == "ruby" { print $2 }' .tool-versions 2>/dev/null)"
+    if [[ ! "$RUBY_VERSION_PINNED" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        print_error "Could not read a ruby X.Y.Z version from .tool-versions (got '${RUBY_VERSION_PINNED}')."
+        exit 1
+    fi
+
+    RUBY_PREVIOUS="$(readlink "${RUBIES_DIR}/current" 2>/dev/null || true)"
+    if [[ "$RUBY_PREVIOUS" != "$RUBY_VERSION_PINNED" ]]; then
+        RUBY_CHANGED=1
+    fi
+}
+
+check_ruby_build_deps() {
+    print_status "Checking Ruby build dependencies..."
+
+    if ! command -v dpkg-query >/dev/null 2>&1; then
+        print_warning "dpkg-query not available; cannot verify build dependencies (${RUBY_BUILD_DEPS[*]})."
+        return 0
+    fi
+
+    local pkg missing=()
+    for pkg in "${RUBY_BUILD_DEPS[@]}"; do
+        if [[ "$(dpkg-query -W -f='${db:Status-Status}' "$pkg" 2>/dev/null)" != "installed" ]]; then
+            missing+=("$pkg")
+        fi
+    done
+
+    if ! command -v curl >/dev/null 2>&1 && ! command -v wget >/dev/null 2>&1; then
+        missing+=(curl)
+    fi
+
+    if ((${#missing[@]} > 0)); then
+        print_error "Missing packages needed to build Ruby ${RUBY_VERSION_PINNED}: ${missing[*]}"
+        print_error "Ask an administrator to run: sudo apt install ${missing[*]}"
+        exit 1
+    fi
+
+    print_success "Ruby build dependencies present."
+}
+
+update_ruby_build() {
+    print_status "Checking out pinned ruby-build..."
+
+    # Picks up URL changes from .gitmodules, then checks out the recorded SHA.
+    if git submodule sync --quiet -- "$RUBY_BUILD_DIR" &&
+        git submodule update --init --checkout -- "$RUBY_BUILD_DIR"; then
+        print_success "ruby-build $(git -C "$RUBY_BUILD_DIR" describe --tags --always 2>/dev/null) checked out."
+    else
+        print_error "Could not check out the ruby-build submodule."
+        exit 1
+    fi
+}
+
+install_ruby() {
+    local prefix="${RUBIES_DIR}/${RUBY_VERSION_PINNED}"
+
+    if [[ -f "${prefix}/${RUBY_COMPLETE_MARKER}" && -x "${prefix}/bin/ruby" ]]; then
+        print_success "Ruby ${RUBY_VERSION_PINNED} already installed in ${prefix}."
+        return 0
+    fi
+
+    check_ruby_build_deps
+
+    if [[ -e "$prefix" ]]; then
+        print_warning "Removing incomplete Ruby build in ${prefix}."
+        rm -rf -- "$prefix"
+    fi
+
+    mkdir -p "$RUBIES_DIR"
+    print_status "Building Ruby ${RUBY_VERSION_PINNED} into ${prefix} (takes several minutes)..."
+
+    # ruby-build bakes the prefix into rbconfig and binstub shebangs, so the
+    # build goes straight to its final path; the marker guards completeness.
+    if RUBY_CONFIGURE_OPTS="--disable-install-doc ${RUBY_CONFIGURE_OPTS:-}" \
+        "${RUBY_BUILD_DIR}/bin/ruby-build" "$RUBY_VERSION_PINNED" "$prefix"; then
+        touch "${prefix}/${RUBY_COMPLETE_MARKER}"
+        print_success "Ruby ${RUBY_VERSION_PINNED} built."
+    else
+        print_error "ruby-build failed for ${RUBY_VERSION_PINNED}; the running application is untouched."
+        exit 1
+    fi
+}
+
+# Put the pinned Ruby first on PATH for every later step of this deploy.
+use_pinned_ruby() {
+    export PATH="${RUBIES_DIR}/${RUBY_VERSION_PINNED}/bin:${PATH}"
+    hash -r
+    print_status "Using $(ruby -v)"
+}
+
+setup_ruby() {
+    read_pinned_ruby_version
+    update_ruby_build
+    install_ruby
+    use_pinned_ruby
+}
+
+# Point the `current` symlink (used by the systemd units) at the pinned Ruby,
+# atomically, then drop every installed version except current and previous.
+activate_ruby() {
+    if ((RUBY_CHANGED == 0)); then
+        return 0
+    fi
+
+    print_status "Switching ${RUBIES_DIR}/current to Ruby ${RUBY_VERSION_PINNED}..."
+    ln -sfn "$RUBY_VERSION_PINNED" "${RUBIES_DIR}/current.new"
+    mv -T "${RUBIES_DIR}/current.new" "${RUBIES_DIR}/current"
+    print_success "Ruby ${RUBY_VERSION_PINNED} is now current (previous: ${RUBY_PREVIOUS:-none})."
+
+    local dir name
+    shopt -s nullglob
+    for dir in "${RUBIES_DIR}"/*/; do
+        name="$(basename "$dir")"
+        [[ -L "${dir%/}" ]] && continue # the current symlink
+        if [[ "$name" != "$RUBY_VERSION_PINNED" && "$name" != "$RUBY_PREVIOUS" ]]; then
+            print_status "Removing old Ruby ${name}."
+            rm -rf -- "${RUBIES_DIR:?}/${name}"
+        fi
+    done
+    shopt -u nullglob
+}
+
 # Function to install/update Ruby gems
 update_gems() {
     print_status "Installing/updating Ruby gems..."
@@ -100,6 +246,19 @@ update_gems() {
     else
         print_error "Bundle install failed."
         exit 1
+    fi
+
+    # Gems compiled against a different Ruby build (in particular Debian's
+    # shared libruby) share the same vendor/bundle ABI directory but won't load
+    # under the new interpreter. Recompile every native extension.
+    if ((RUBY_CHANGED == 1)); then
+        print_status "Ruby changed (${RUBY_PREVIOUS:-system} -> ${RUBY_VERSION_PINNED}); rebuilding gems with bundle pristine..."
+        if bundle pristine; then
+            print_success "Gems rebuilt for Ruby ${RUBY_VERSION_PINNED}."
+        else
+            print_error "bundle pristine failed; current Ruby symlink left at ${RUBY_PREVIOUS:-none}."
+            exit 1
+        fi
     fi
 }
 
@@ -267,9 +426,15 @@ systemctl_user_action() {
     fi
 }
 
-# Hot-restart Puma via systemctl reload (ExecReload sends SIGUSR2).
+# Hot-restart Puma via systemctl reload (ExecReload sends SIGUSR2). A hot
+# restart re-execs the Ruby binary the master is already running, so a Ruby
+# change needs a full restart to pick up the new interpreter.
 restart_puma() {
-    systemctl_user_action abt-puma.service reload "Puma application server"
+    if ((RUBY_CHANGED == 1)); then
+        systemctl_user_action abt-puma.service restart "Puma application server (Ruby changed)"
+    else
+        systemctl_user_action abt-puma.service reload "Puma application server"
+    fi
 }
 
 restart_jobs_worker() {
@@ -287,11 +452,13 @@ main() {
     check_directory
     check_user
     update_git
+    setup_ruby
     update_gems
     install_systemd_units
     precompile_assets
     backup_database
     migrate_database
+    activate_ruby
     restart_puma
     restart_jobs_worker
 

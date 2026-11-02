@@ -194,7 +194,7 @@ GEM
       actionview (>= 7.0.0)
       activesupport (>= 7.0.0)
     json (2.21.2)
-    jwt (3.2.0)
+    jwt (3.3.0)
       base64
     language_server-protocol (3.17.0.6)
     lint_roller (1.1.0)
@@ -414,7 +414,7 @@ GEM
     thor (1.5.0)
     tilt (2.8.0)
     timeout (0.6.1)
-    tpm-key_attestation (0.14.1)
+    tpm-key_attestation (0.14.2)
       bindata (~> 2.4)
       openssl (> 2.0)
       openssl-signature_algorithm (~> 1.0)
@@ -436,7 +436,7 @@ GEM
       actionview (>= 8.0.0)
       bindex (>= 0.4.0)
       railties (>= 8.0.0)
-    webauthn (3.4.3)
+    webauthn (3.5.0)
       android_key_attestation (~> 0.3.0)
       bindata (~> 2.4)
       cbor (~> 0.5.9)
@@ -497,7 +497,7 @@ DEPENDENCIES
   turbo-rails
   valvat (~> 2.0)
   web-console
-  webauthn (~> 3.4)
+  webauthn (~> 3.5)
 
 BUNDLED WITH
    2.7.1

@@ -71,7 +71,7 @@ gem "simple_form"
 
 gem "mailgun-ruby", "~> 1.4.5"
 
-gem "webauthn", "~> 3.4"
+gem "webauthn", "~> 3.5"
 
 # Rate-limit unauthenticated endpoints to mitigate brute-force and DoS attacks.
 gem "rack-attack", "~> 6.7"

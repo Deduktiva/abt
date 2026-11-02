@@ -187,14 +187,43 @@ install_ruby() {
 
     # ruby-build bakes the prefix into rbconfig and binstub shebangs, so the
     # build goes straight to its final path; the marker guards completeness.
-    if RUBY_CONFIGURE_OPTS="--disable-install-doc ${RUBY_CONFIGURE_OPTS:-}" \
+    # --with-openssl-dir=/usr stops ruby-build from ever compiling its own
+    # OpenSSL into the prefix (which apt would never patch): it then links the
+    # Debian libssl, and OpenSSL security updates arrive via apt + a restart.
+    if RUBY_CONFIGURE_OPTS="--disable-install-doc --with-openssl-dir=/usr ${RUBY_CONFIGURE_OPTS:-}" \
         "${RUBY_BUILD_DIR}/bin/ruby-build" "$RUBY_VERSION_PINNED" "$prefix"; then
-        touch "${prefix}/${RUBY_COMPLETE_MARKER}"
-        print_success "Ruby ${RUBY_VERSION_PINNED} built."
+        :
     else
         print_error "ruby-build failed for ${RUBY_VERSION_PINNED}; the running application is untouched."
         exit 1
     fi
+
+    if ! check_system_openssl "$prefix"; then
+        print_error "Ruby ${RUBY_VERSION_PINNED} in ${prefix} does not link the system OpenSSL; refusing to use it."
+        exit 1
+    fi
+
+    touch "${prefix}/${RUBY_COMPLETE_MARKER}"
+    print_success "Ruby ${RUBY_VERSION_PINNED} built."
+}
+
+# Succeeds when the openssl extension of the Ruby in $1 resolves libssl to a
+# system library directory, not to anything inside the Ruby prefix.
+check_system_openssl() {
+    local prefix="$1" ext libssl
+    ext="$("${prefix}/bin/ruby" -ropenssl -e 'puts $LOADED_FEATURES.grep(%r{/openssl\.so\z}).first' 2>/dev/null)"
+    if [[ -z "$ext" ]]; then
+        print_error "Ruby in ${prefix} cannot load the openssl extension."
+        return 1
+    fi
+
+    libssl="$(ldd "$ext" | awk '$1 ~ /^libssl\.so/ { print $3 }')"
+    if [[ "$libssl" != /lib/* && "$libssl" != /usr/lib/* ]]; then
+        print_error "openssl extension links libssl at '${libssl:-<none>}'."
+        return 1
+    fi
+
+    print_status "openssl extension links ${libssl} ($("${prefix}/bin/ruby" -ropenssl -e 'print OpenSSL::OPENSSL_LIBRARY_VERSION'))."
 }
 
 # Put the pinned Ruby first on PATH for every later step of this deploy.

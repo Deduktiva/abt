@@ -112,7 +112,7 @@ GEM
       openssl-signature_algorithm (~> 1.0)
     countries (8.1.0)
       unaccent (~> 0.3)
-    crass (1.0.7)
+    crass (1.0.8)
     csv (3.3.6)
     cuprite (0.19)
       capybara (~> 3.0)

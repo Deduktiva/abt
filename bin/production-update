@@ -107,7 +107,10 @@ RUBY_COMPLETE_MARKER=".abt-build-complete"
 
 # Debian packages ruby-build needs to compile Ruby. libgmp-dev is optional
 # (faster bignums); readline is not needed since Ruby 3.3 ships reline.
-RUBY_BUILD_DEPS=(build-essential libssl-dev libyaml-dev zlib1g-dev libffi-dev)
+# rustc: Ruby's configure silently drops YJIT when no rustc is found, and
+# Rails' production defaults (config.yjit) only enable YJIT when it is
+# compiled in.
+RUBY_BUILD_DEPS=(build-essential libssl-dev libyaml-dev zlib1g-dev libffi-dev rustc)
 
 RUBY_VERSION_PINNED=""
 RUBY_PREVIOUS=""
@@ -172,6 +175,11 @@ install_ruby() {
 
     if [[ -f "${prefix}/${RUBY_COMPLETE_MARKER}" && -x "${prefix}/bin/ruby" ]]; then
         print_success "Ruby ${RUBY_VERSION_PINNED} already installed in ${prefix}."
+        # Built before rustc was a required dependency. Not rebuilt here: the
+        # prefix may be what the running units exec.
+        if ! has_yjit "$prefix"; then
+            print_warning "Ruby ${RUBY_VERSION_PINNED} in ${prefix} lacks YJIT. See docs/production-update.md#ruby to rebuild it."
+        fi
         return 0
     fi
 
@@ -203,8 +211,18 @@ install_ruby() {
         exit 1
     fi
 
+    if ! has_yjit "$prefix"; then
+        print_error "Ruby ${RUBY_VERSION_PINNED} in ${prefix} was built without YJIT (is rustc too old?); refusing to use it."
+        exit 1
+    fi
+
     touch "${prefix}/${RUBY_COMPLETE_MARKER}"
     print_success "Ruby ${RUBY_VERSION_PINNED} built."
+}
+
+# Succeeds when the Ruby in $1 has YJIT compiled in.
+has_yjit() {
+    "${1}/bin/ruby" -e 'exit(defined?(RubyVM::YJIT.enable) ? 0 : 1)' 2>/dev/null
 }
 
 # Succeeds when the openssl extension of the Ruby in $1 resolves libssl to a

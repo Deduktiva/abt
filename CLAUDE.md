@@ -15,7 +15,7 @@ This is "ABT", a Rails 8 application for invoice and delivery-note management. B
 ## Common Commands
 
 ### Setup and Dependencies
-- `bundle install` - Install Ruby gem dependencies (requires Ruby >= 3.3)
+- `bundle install` - Install Ruby gem dependencies (requires the Ruby pinned in `.tool-versions`, currently 4.0)
 - `bundle exec rails db:migrate` - Run database migrations
 - `bundle exec rails db:seed` - Load seed data
 
@@ -131,7 +131,7 @@ For testing against PostgreSQL (matches production environment):
 ## External Dependencies
 
 ### Required Software
-- Ruby >= 3.3
+- Ruby 4.0 (exact version pinned in `.tool-versions`)
 - Apache FOP 2.10 for PDF generation (Debian trixie package: `fop`)
 - Saxon-B as the XSLT 2.0 processor (Debian package: `libsaxonb-java`) — without this, FOP rendering fails because the templates use XSLT 2.0
 - OpenJDK 21 (or any JDK ≥ 21 that honours the `jdk.xml.*` JAXP system properties)

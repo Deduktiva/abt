@@ -500,4 +500,4 @@ DEPENDENCIES
   webauthn (~> 3.5)
 
 BUNDLED WITH
-   2.7.1
+  4.0.20

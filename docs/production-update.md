@@ -26,6 +26,7 @@ The script sets `RAILS_ENV=production` for the entire session and performs the f
 
 2. **Code Update**
    - Runs `git pull --rebase` to get latest code
+   - Re-execs the pulled `bin/production-update` with the same arguments, so the rest of the deploy always runs the current steps. The re-exec'd run skips `git pull` (it never re-execs a second time) and starts again at the validation checks.
 
 3. **Pinned Ruby** (see [Ruby](#ruby))
    - Checks out the `deploy/ruby-build` submodule at its recorded commit

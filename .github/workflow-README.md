@@ -8,7 +8,7 @@ This directory contains GitHub Actions workflows for the ABT invoice system.
 - **Triggers**: Push to master, pull requests to master
 - **Jobs**:
   - **Lint and Security**: Runs bundler-audit and Brakeman security scanning
-  - **Test Suite**: Runs full test suite for Ruby 3.3 with PostgreSQL
+  - **Test Suite**: Runs full test suite with PostgreSQL on the Ruby pinned in `.tool-versions`
   - **FOP Container**: Tests the Apache FOP Docker container functionality
 
 
@@ -40,7 +40,7 @@ This ensures that PDF generation tests work correctly in the CI environment.
 
 - PostgreSQL 15 service for database tests
 - Docker for FOP container
-- Ruby 3.2 or 3.3 with bundler
+- Ruby as pinned in `.tool-versions`, with bundler
 - Node.js 18 for asset compilation (if needed)
 
 ## Test Configuration

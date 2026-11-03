@@ -57,6 +57,9 @@ The script sets `RAILS_ENV=production` for the entire session and performs the f
 11. **Jobs Worker Restart**
    - Runs `systemctl --user restart abt-jobs.service` to restart the Solid Queue worker so it picks up new code and updated recurring schedules.
 
+12. **Gem Cleanup**
+   - Runs `bundle clean` to delete gem versions in `vendor/bundle` that `Gemfile.lock` no longer references. Runs after the restarts so the old processes keep their files until they exit. Tolerant: a failure only warns.
+
 ### Requirements
 
 - Must be run as the application user (user with write access to the app directory)

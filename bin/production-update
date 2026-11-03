@@ -466,6 +466,20 @@ restart_puma() {
     fi
 }
 
+# Drop gem versions Gemfile.lock no longer references from vendor/bundle.
+# Runs after the restarts so the old processes never lose files they might
+# still lazily require. Stale versions are not just disk usage: after a Ruby
+# switch their native extensions are missing for the new interpreter, and
+# RubyGems warns about each of them on every bundle invocation.
+clean_gems() {
+    print_status "Removing unused gems..."
+    if bundle clean; then
+        print_success "Unused gems removed."
+    else
+        print_warning "bundle clean failed; vendor/bundle may hold stale gems."
+    fi
+}
+
 restart_jobs_worker() {
     systemctl_user_action abt-jobs.service restart "Solid Queue jobs worker"
 }
@@ -490,6 +504,7 @@ main() {
     activate_ruby
     restart_puma
     restart_jobs_worker
+    clean_gems
 
     echo
     print_success "Production deployment completed successfully!"

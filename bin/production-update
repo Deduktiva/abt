@@ -8,6 +8,15 @@ set -e # Exit on any error
 # Set production environment for all Rails commands
 export RAILS_ENV=production
 
+# update_git re-execs this script when `git pull` changed it, so the rest of
+# the deploy runs the new version instead of the copy bash already loaded.
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+SCRIPT_ARGS=("$@")
+# Set (to the pre-pull commit) only in the re-exec'd process. Read once and
+# unset, so nothing the deploy runs inherits it.
+REEXEC_FROM="${ABT_PRODUCTION_UPDATE_REEXEC_FROM:-}"
+unset ABT_PRODUCTION_UPDATE_REEXEC_FROM
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -67,6 +76,14 @@ check_user() {
 
 # Function to update code from git
 update_git() {
+    # The previous script version already pulled and handed over to us.
+    # Pulling again could fetch yet another script change and re-exec in a
+    # loop, so the re-exec'd run never pulls.
+    if [[ -n "$REEXEC_FROM" ]]; then
+        print_status "Restarted with the updated deploy script (pulled ${REEXEC_FROM:0:12}..$(git rev-parse --short=12 HEAD)); skipping git pull."
+        return 0
+    fi
+
     print_status "Updating code from Git repository..."
 
     # Check for uncommitted changes
@@ -81,12 +98,22 @@ update_git() {
         fi
     fi
 
+    local head_before script_before
+    head_before="$(git rev-parse HEAD)"
+    script_before="$(sha256sum <"$SCRIPT_PATH")"
+
     # Perform git pull with rebase
     if git pull --rebase; then
         print_success "Git update completed successfully."
     else
         print_error "Git pull failed. Please resolve conflicts manually."
         exit 1
+    fi
+
+    if [[ "$(sha256sum <"$SCRIPT_PATH")" != "$script_before" ]]; then
+        print_status "bin/production-update changed in this pull; re-executing the new version..."
+        export ABT_PRODUCTION_UPDATE_REEXEC_FROM="$head_before"
+        exec "$BASH" "$SCRIPT_PATH" "${SCRIPT_ARGS[@]}"
     fi
 }
 

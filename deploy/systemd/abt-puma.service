@@ -6,8 +6,10 @@ After=network.target
 Type=simple
 WorkingDirectory=%h
 Environment=RAILS_ENV=production
+# Pinned Ruby installed by bin/production-update (see docs/production-update.md).
+Environment=PATH=%h/.local/share/abt-ruby/current/bin:/usr/local/bin:/usr/bin:/bin
 Environment=FOP_EXTRA_JAR_PATH=/srv/fop-extra-jars
-ExecStart=/usr/bin/bundle exec puma -C %h/config/puma.rb
+ExecStart=%h/.local/share/abt-ruby/current/bin/bundle exec puma -C %h/config/puma.rb
 SyslogIdentifier=abt-puma
 ExecReload=/bin/kill -SIGUSR2 $MAINPID
 # SIGUSR2 hot-restart spawns a new process tree that systemd is unaware of;

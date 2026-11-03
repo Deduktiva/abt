@@ -48,3 +48,21 @@ updates:
     # docker is not semver-aware, so only default-days is supported here.
     cooldown:
       default-days: 7
+
+  # ruby-build (deploy/ruby-build submodule), used by bin/production-update to
+  # compile the Ruby pinned in .tool-versions. Dependabot moves submodules to
+  # the HEAD of the tracked branch (master, see .gitmodules), not to release
+  # tags, so PRs land on whatever master was 7 days ago. Each PR is what makes
+  # new Ruby definitions (security releases) available to production.
+  - package-ecosystem: "gitsubmodule"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+    open-pull-requests-limit: 1
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    cooldown:
+      default-days: 7

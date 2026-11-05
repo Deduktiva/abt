@@ -34,7 +34,7 @@ group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   # `require: false` so the app still boots in environments where the
   # development/test bundle isn't installed (e.g. production running bin/jobs).
-  gem "debug", platforms: %i[ mri windows ], require: false
+  gem "debug", platforms: %i[ mri ], require: false
 
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
@@ -49,7 +49,7 @@ end
 
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
-  gem "capybara"
+  gem "capybara", require: false
   gem "cuprite"
   # Opt-in test coverage: COVERAGE=1 bin/rails test (see test_helper.rb).
   gem "simplecov", require: false
